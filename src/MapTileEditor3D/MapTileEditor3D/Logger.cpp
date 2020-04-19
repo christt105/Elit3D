@@ -19,7 +19,7 @@ void Logger::Log(const char file[], const char func[], int line, const char* for
 	va_start(ap, format);
 	vsprintf_s(tmp_string, 4096, format, ap);
 	va_end(ap);
-	sprintf_s(tmp_string2, 4096, "[INFO]\t\tfile: (%s) func: (%s) line: (%d) : %s\n", file, func, line, tmp_string);
+	sprintf_s(tmp_string2, 4096, "[INFO]\tfile: %s func: %s() line: %d : %s\n", file, func, line, tmp_string);
 
 	OutputDebugString(tmp_string2); //Log in IDE Output window
 }
@@ -33,7 +33,7 @@ void Logger::WLog(const char file[], const char func[], int line, const char* fo
 	va_start(ap, format);
 	vsprintf_s(tmp_string, 4096, format, ap);
 	va_end(ap);
-	sprintf_s(tmp_string2, 4096, "[WARNING]\tfile: (%s) func: (%s) line: (%d) : %s\n", file, func, line, tmp_string);
+	sprintf_s(tmp_string2, 4096, "[WARN]\tfile: %s func: %s() line: %d : %s\n", file, func, line, tmp_string);
 
 	OutputDebugString(tmp_string2); //Log in IDE Output window
 }
@@ -47,7 +47,7 @@ void Logger::ELog(const char file[], const char func[], int line, const char* fo
 	va_start(ap, format);
 	vsprintf_s(tmp_string, 4096, format, ap);
 	va_end(ap);
-	sprintf_s(tmp_string2, 4096, "[ERROR]\t\tfile: (%s) func: (%s) line: (%d) : %s\n", file, func, line, tmp_string);
+	sprintf_s(tmp_string2, 4096, "[ERROR]\tfile: %s func: %s() line: %d : %s\n", file, func, line, tmp_string);
 
 	OutputDebugString(tmp_string2); //Log in IDE Output window
 }

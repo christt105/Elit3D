@@ -42,6 +42,15 @@
     <ClCompile Include="Module.cpp">
       <Filter>Modules\Base</Filter>
     </ClCompile>
+    <ClCompile Include="m1Window.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="m1Render3D.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="m1Input.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -322,6 +331,15 @@
     </ClInclude>
     <ClInclude Include="Module.h">
       <Filter>Modules\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="m1Window.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="m1Render3D.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="m1Input.h">
+      <Filter>Modules</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

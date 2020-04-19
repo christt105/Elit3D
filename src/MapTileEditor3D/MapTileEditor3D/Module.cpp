@@ -38,3 +38,19 @@ bool Module::CleanUp()
 {
     return true;
 }
+
+std::string Module::UpdateStatusToString(UpdateStatus us)
+{
+    switch (us)
+    {
+    case UpdateStatus::UPDATE_CONTINUE:
+        return std::string("Update Continue");
+        break;
+    case UpdateStatus::UPDATE_STOP:
+        return std::string("Update Stop");
+        break;
+    case UpdateStatus::UPDATE_ERROR:
+        return std::string("Update Error");
+        break;
+    }
+}

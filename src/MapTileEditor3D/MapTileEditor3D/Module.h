@@ -2,7 +2,7 @@
 
 #include <string>
 
-enum UpdateStatus {
+enum class UpdateStatus {
 	UPDATE_CONTINUE,
 	UPDATE_STOP,
 	UPDATE_ERROR
@@ -19,6 +19,8 @@ public:
 	virtual UpdateStatus Update();
 	virtual UpdateStatus PostUpdate();
 	virtual bool CleanUp();
+
+	static std::string UpdateStatusToString(UpdateStatus us);
 
 public:
 	std::string name;

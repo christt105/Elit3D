@@ -2,7 +2,12 @@
 
 #include <vector>
 
+enum class UpdateStatus;
+
 class Module;
+class m1Window;
+class m1Render3D;
+class m1Input;
 
 class Application
 {
@@ -12,11 +17,13 @@ public:
 
 	bool Init();
 	bool Start();
-	int	 Update();
+	UpdateStatus Update();
 	bool CleanUp();
 
 public:
-	void AddModule(Module * const m);
+	m1Window*	window = nullptr;
+	m1Render3D* render = nullptr;
+	m1Input*	input  = nullptr;
 
 private:
 	std::vector<Module*> modules;
