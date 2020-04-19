@@ -1,7 +1,13 @@
+#include <iostream>
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 #include "ExternalTools/SDL2/include/SDL.h"
 #include "ExternalTools/GLEW/include/GL/glew.h"
 #include "ExternalTools/SDL2/include/SDL_opengl.h"
-#include <gl\glu.h>
+#include "Logger.h"
+#include <gl/GLU.h>
 #include <stdio.h>
 #include <string>
 
@@ -14,61 +20,54 @@
 #pragma comment(lib, "glu32.lib")
 #pragma comment(lib, "opengl32.lib")
 
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-
 #ifdef _DEBUG
 #define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
-// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
-// allocations to be of _CLIENT_BLOCK type
 #else
 #define DBG_NEW new
 #endif
 
-#include <iostream>
 
 int main(int argc, char* argv[]) {
     SDL_Window* window = nullptr;
     SDL_GLContext context;
-    char* c = DBG_NEW char('h');
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cout << "SDL could not initialize. SDL Error: " << SDL_GetError() << std::endl;
+        LOG("SDL could not initialize. SDL Error: %s", SDL_GetError());
         return -1;
     }
 
     window = SDL_CreateWindow("Tile Map Editor 3D", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
     if (window == nullptr) {
-        std::cout << "Window could not be created. SDL Error: " << SDL_GetError() << std::endl;
+        LOG("Window could not be created. SDL Error: %s", SDL_GetError());
         return -1;
+    }
+    else {
+        LOG("Window initialized");
     }
 
     context = SDL_GL_CreateContext(window);
 
     if (context == NULL) {
-        std::cout << "OpenGL context could not be created! SDL Error: " << SDL_GetError() << std::endl;
+        LOG("OpenGL context could not be created! SDL Error: %s", SDL_GetError());
         return -1;
     }
 
     GLenum error = glewInit();
     if (error != GLEW_OK) {
-        std::cout << "Unable to initialize OpenGL with glewInit()! Error: " << glewGetErrorString(error) << std::endl;
+        LOG("Unable to initialize OpenGL with glewInit()! Error: %s", glewGetErrorString(error));
         return -1;
     }
     
     if (SDL_GL_SetSwapInterval(1) < 0) {
-        std::cout << "Warning: Unable to set VSync! SDL Error: " << SDL_GetError() << std::endl;
+        LOG("Warning: Unable to set VSync! SDL Error: %s", SDL_GetError());
     }
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    glClearColor(.23f, .57f, 1.f, 1.f);    
-
-    std::cout << "Hello World!";
+    glClearColor(.23f, .57f, 1.f, 1.f);
 
     bool running = true;
 
@@ -81,7 +80,7 @@ int main(int argc, char* argv[]) {
                 running = false;
         }
         glClear(GL_COLOR_BUFFER_BIT);
-
+        glColor3f(1.f, 0.5f, 0.f);
         glBegin(GL_TRIANGLES);
         glVertex3f(-1.0f, -1.0f, 0.0f);
         glVertex3f( 1.0f, -1.0f, 0.0f);
@@ -96,9 +95,23 @@ int main(int argc, char* argv[]) {
     SDL_DestroyWindow(window);
     SDL_Quit();
 
-    _CrtDumpMemoryLeaks();
-    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE); _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT); _CrtDumpMemoryLeaks();
-    FILE* pFile; freopen_s(&pFile, "memoryLeaks.txt", "w", stdout); _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE); _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT); _CrtDumpMemoryLeaks(); fclose(pFile);
+    FILE* pFile; 
+    auto err = freopen_s(&pFile, "memoryLeaks.txt", "w", stdout);
+    if (err != 0) {
+        LOG("Failed to open memoryLeaks.txt file | error: %s", err);
+    }
+    else {
+        if (_CrtDumpMemoryLeaks()) {
+            //Memory leaks found
+            _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE); _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT); _CrtDumpMemoryLeaks();
+        }
+        else {
+            fprintf_s(pFile, "No memory leaks found! :D");
+        }
+        fclose(pFile);
+    }
+
+    
 
     return 0;
 }
