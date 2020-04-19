@@ -16,6 +16,15 @@
     <Filter Include="Core">
       <UniqueIdentifier>{ba856a16-db0a-49aa-843a-2e19b4002571}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{2cbbed58-6643-4f37-9006-0152bdab51a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\mmgr">
+      <UniqueIdentifier>{a081971f-893f-432e-8415-745111e7098e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Base">
+      <UniqueIdentifier>{47a7984a-abae-4732-a8ee-64a47d36dc7d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Logger.cpp">
@@ -23,6 +32,15 @@
     </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\mmgr\mmgr.cpp">
+      <Filter>External Libraries\mmgr</Filter>
+    </ClCompile>
+    <ClCompile Include="Module.cpp">
+      <Filter>Modules\Base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -292,6 +310,18 @@
     </ClInclude>
     <ClInclude Include="Logger.h">
       <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\mmgr\mmgr.h">
+      <Filter>External Libraries\mmgr</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\mmgr\nommgr.h">
+      <Filter>External Libraries\mmgr</Filter>
+    </ClInclude>
+    <ClInclude Include="Module.h">
+      <Filter>Modules\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,15 +1,17 @@
 #include <iostream>
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
 
-#include "ExternalTools/SDL2/include/SDL.h"
 #include "ExternalTools/GLEW/include/GL/glew.h"
-#include "ExternalTools/SDL2/include/SDL_opengl.h"
-#include "Logger.h"
 #include <gl/GLU.h>
 #include <stdio.h>
 #include <string>
+#include <list>
+
+#include "ExternalTools/mmgr/mmgr.h"
+
+#include "ExternalTools/SDL2/include/SDL.h"
+#include "ExternalTools/SDL2/include/SDL_opengl.h"
+#include "Logger.h"
+#include "Application.h"
 
 #pragma comment(lib, "ExternalTools/SDL2/libx86/SDL2.lib")
 #pragma comment(lib, "ExternalTools/SDL2/libx86/SDL2main.lib")
@@ -20,17 +22,71 @@
 #pragma comment(lib, "glu32.lib")
 #pragma comment(lib, "opengl32.lib")
 
-#ifdef _DEBUG
-#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
-#else
-#define DBG_NEW new
-#endif
+enum class MainState {
+    EXIT_ERROR = -1,
+    EXIT = 0,
 
+    CREATION,
+    START,
+    UPDATE,
+    FINISH
+};
+
+Application* App = nullptr;
 
 int main(int argc, char* argv[]) {
+
+    LOG("Starting Program...");
+
+    MainState mainState = MainState::CREATION;
+    bool running = true;
+    while (running) {
+        switch (mainState)
+        {
+        case MainState::CREATION:
+            LOG("Application Creation");
+            App = new Application();
+            mainState = MainState::START;
+            break;
+        case MainState::START:
+            LOG("Application Start");
+            if (App->Start()) {
+                mainState = MainState::UPDATE;
+            }
+            else {
+                LOG("Application Start Fails, exiting with error");
+                mainState = MainState::EXIT_ERROR;
+            }
+            break;
+        case MainState::UPDATE:
+            if (App->Update() == 1) {
+                mainState = MainState::FINISH;
+            }
+            break;
+        case MainState::FINISH:
+            if (App->CleanUp()) {
+                mainState = MainState::EXIT;
+            }
+            else {
+                mainState = MainState::EXIT;
+            }
+            break;
+        case MainState::EXIT:
+            //LOG file;
+            LOG("Colsing program...\nBye :)");
+            running = false;
+            break;
+        case MainState::EXIT_ERROR:
+            LOG("Exitting with errors :(");
+            running = false;
+            break;
+        default:
+            break;
+        }
+    }
     SDL_Window* window = nullptr;
     SDL_GLContext context;
-
+    
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         LOG("SDL could not initialize. SDL Error: %s", SDL_GetError());
         return -1;
@@ -79,6 +135,7 @@ int main(int argc, char* argv[]) {
             if (event.type == SDL_QUIT)
                 running = false;
         }
+
         glClear(GL_COLOR_BUFFER_BIT);
         glColor3f(1.f, 0.5f, 0.f);
         glBegin(GL_TRIANGLES);
@@ -87,31 +144,12 @@ int main(int argc, char* argv[]) {
         glVertex3f( 0.0f,  1.0f, 0.0f);
         glEnd();
 
-
         SDL_GL_SwapWindow(window);
     }
-
+    
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();
-
-    FILE* pFile; 
-    auto err = freopen_s(&pFile, "memoryLeaks.txt", "w", stdout);
-    if (err != 0) {
-        LOG("Failed to open memoryLeaks.txt file | error: %s", err);
-    }
-    else {
-        if (_CrtDumpMemoryLeaks()) {
-            //Memory leaks found
-            _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE); _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT); _CrtDumpMemoryLeaks();
-        }
-        else {
-            fprintf_s(pFile, "No memory leaks found! :D");
-        }
-        fclose(pFile);
-    }
-
     
-
-    return 0;
+    return mainState;
 }

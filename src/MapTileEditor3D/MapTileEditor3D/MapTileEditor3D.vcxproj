@@ -141,14 +141,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="ExternalTools\mmgr\mmgr.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Module.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application.h" />
     <ClInclude Include="ExternalTools\GLEW\include\GL\eglew.h" />
     <ClInclude Include="ExternalTools\GLEW\include\GL\glew.h" />
     <ClInclude Include="ExternalTools\GLEW\include\GL\glxew.h" />
     <ClInclude Include="ExternalTools\GLEW\include\GL\wglew.h" />
+    <ClInclude Include="ExternalTools\mmgr\mmgr.h" />
+    <ClInclude Include="ExternalTools\mmgr\nommgr.h" />
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h" />
     <ClInclude Include="ExternalTools\SDL2\include\close_code.h" />
     <ClInclude Include="ExternalTools\SDL2\include\SDL.h" />
@@ -234,6 +240,7 @@
     <ClInclude Include="ExternalTools\SDL2\include\SDL_video.h" />
     <ClInclude Include="ExternalTools\SDL2\include\SDL_vulkan.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="Module.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
