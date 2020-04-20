@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "ExternalTools/JSON/json.hpp"
 
 enum class UpdateStatus {
 	UPDATE_CONTINUE,
@@ -13,7 +13,7 @@ public:
 	Module(const char* n, bool start_enabled = true);
 	virtual ~Module();
 
-	virtual bool Init();
+	virtual bool Init(const nlohmann::json& node);
 	virtual bool Start();
 	virtual UpdateStatus PreUpdate();
 	virtual UpdateStatus Update();

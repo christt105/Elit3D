@@ -7,7 +7,7 @@ public:
 	m1GUI(bool start_enabled = true);
 	~m1GUI();
 
-	bool Init() override;
+	bool Init(const nlohmann::json& node) override;
 	bool Start() override;
 	UpdateStatus PreUpdate() override;
 	UpdateStatus Update() override;

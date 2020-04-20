@@ -17,7 +17,7 @@ m1Render3D::~m1Render3D()
 {
 }
 
-bool m1Render3D::Init()
+bool m1Render3D::Init(const nlohmann::json& node)
 {
 	bool ret = true;
 

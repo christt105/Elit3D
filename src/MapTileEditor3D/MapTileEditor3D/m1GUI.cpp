@@ -18,7 +18,7 @@ m1GUI::~m1GUI()
 {
 }
 
-bool m1GUI::Init()
+bool m1GUI::Init(const nlohmann::json& node)
 {
 	return true;
 }
@@ -31,7 +31,7 @@ bool m1GUI::Start()
 	LOG("ImGui initialized with version %s", ImGui::GetVersion());
 
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->render->context);
-	ImGui_ImplOpenGL3_Init("#version 130");
+	ImGui_ImplOpenGL3_Init("#version 330");
 
 	return true;
 }

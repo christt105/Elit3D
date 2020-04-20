@@ -8,6 +8,8 @@
 #include "m1Scene.h"
 #include "m1GUI.h"
 
+#include "FileSystem.h"
+
 Application::Application() {
 
 }
@@ -32,9 +34,13 @@ bool Application::Init()
 	modules.push_back(gui);
 	modules.push_back(render);
 
+	file_system = new FileSystem();
+
+	nlohmann::json conf = file_system->OpenJSONFile("Configuration/Configuration.json")["App"];
+
 	for (auto i = modules.begin(); i != modules.end(); ++i) {
 		LOG("Initializing module %s", (*i)->name.c_str());
-		(*i)->Init();
+		(*i)->Init(conf[(*i)->name]);
 	}
 
 	return true;

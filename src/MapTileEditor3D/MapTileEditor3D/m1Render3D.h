@@ -13,7 +13,7 @@ public:
 	~m1Render3D();
 
 public:
-	bool Init() override;
+	bool Init(const nlohmann::json& node) override;
 
 	UpdateStatus PreUpdate() override;
 	UpdateStatus PostUpdate() override;

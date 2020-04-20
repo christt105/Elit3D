@@ -78,6 +78,9 @@
     <ClCompile Include="ExternalTools\ImGui\imgui_draw.cpp">
       <Filter>External Libraries\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="FileSystem.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -397,6 +400,9 @@
     </ClInclude>
     <ClInclude Include="ExternalTools\ImGui\imgui.h">
       <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem.h">
+      <Filter>Tools</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

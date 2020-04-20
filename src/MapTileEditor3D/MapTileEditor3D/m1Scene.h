@@ -7,7 +7,7 @@ public:
 	m1Scene(bool start_enabled = true);
 	~m1Scene();
 
-	bool Init() override;
+	bool Init(const nlohmann::json& node) override;
 	bool Start() override;
 	UpdateStatus Update() override;
 	bool CleanUp() override;

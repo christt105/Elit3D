@@ -155,6 +155,7 @@
     <ClCompile Include="ExternalTools\ImGui\imgui_impl_sdl.cpp" />
     <ClCompile Include="ExternalTools\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="ExternalTools\mmgr\mmgr.cpp" />
+    <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="m1GUI.cpp" />
     <ClCompile Include="m1Input.cpp" />
@@ -264,6 +265,7 @@
     <ClInclude Include="ExternalTools\SDL2\include\SDL_version.h" />
     <ClInclude Include="ExternalTools\SDL2\include\SDL_video.h" />
     <ClInclude Include="ExternalTools\SDL2\include\SDL_vulkan.h" />
+    <ClInclude Include="FileSystem.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="m1GUI.h" />
     <ClInclude Include="m1Input.h" />

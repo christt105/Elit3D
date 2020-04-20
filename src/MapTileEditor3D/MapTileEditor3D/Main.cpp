@@ -3,14 +3,13 @@
 #include <stdio.h>
 #include <string>
 #include <list>
-
-#include "ExternalTools/mmgr/mmgr.h"
-
 #include <SDL.h>
 
 #include "Logger.h"
 #include "Application.h"
 #include "Module.h"
+
+#include "ExternalTools/mmgr/mmgr.h"
 
 enum class MainState {
     EXIT_ERROR = -1,

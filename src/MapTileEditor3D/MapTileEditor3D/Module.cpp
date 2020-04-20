@@ -9,7 +9,7 @@ Module::~Module()
 {
 }
 
-bool Module::Init()
+bool Module::Init(const nlohmann::json& node)
 {
     return true;
 }

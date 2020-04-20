@@ -11,6 +11,8 @@ class m1Input;
 class m1Scene;
 class m1GUI;
 
+class FileSystem;
+
 class Application
 {
 public:
@@ -28,6 +30,8 @@ public:
 	m1Input*	input  = nullptr;
 	m1Scene*	scene = nullptr;
 	m1GUI*		gui = nullptr;
+
+	FileSystem* file_system = nullptr;
 
 private:
 	std::vector<Module*> modules;

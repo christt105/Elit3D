@@ -10,7 +10,7 @@ m1Scene::~m1Scene()
 {
 }
 
-bool m1Scene::Init()
+bool m1Scene::Init(const nlohmann::json& node)
 {
 	return true;
 }

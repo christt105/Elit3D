@@ -12,7 +12,7 @@ m1Window::~m1Window()
 {
 }
 
-bool m1Window::Init()
+bool m1Window::Init(const nlohmann::json& node)
 {
 	bool ret = true;
 
@@ -21,14 +21,11 @@ bool m1Window::Init()
         ret = false;
     }
     else {
-        window = SDL_CreateWindow("Tile Map Editor 3D", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+        window = SDL_CreateWindow("Tile Map Editor 3D", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, node.value("width", 640), node.value("height", 480), SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
         if (window == nullptr) {
             LOG("Window could not be created. SDL Error: %s", SDL_GetError());
             ret = false;
-        }
-        else {
-            LOG("Window initialized");
         }
     }
 

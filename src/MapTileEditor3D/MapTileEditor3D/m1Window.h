@@ -14,7 +14,7 @@ public:
 	~m1Window();
 
 public:
-	bool Init() override;
+	bool Init(const nlohmann::json& node) override;
 	bool CleanUp() override;
 
 private:
