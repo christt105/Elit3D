@@ -8,6 +8,7 @@ class Module;
 class m1Window;
 class m1Render3D;
 class m1Input;
+class m1Scene;
 
 class Application
 {
@@ -24,6 +25,7 @@ public:
 	m1Window*	window = nullptr;
 	m1Render3D* render = nullptr;
 	m1Input*	input  = nullptr;
+	m1Scene*	scene = nullptr;
 
 private:
 	std::vector<Module*> modules;

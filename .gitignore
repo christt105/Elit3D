@@ -348,4 +348,4 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-src/MapTileEditor3D/Build/memoryLeaks.txt
+src/MapTileEditor3D/Build/Log.txt

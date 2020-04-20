@@ -5,6 +5,7 @@
 #include "m1Input.h"
 #include "m1Window.h"
 #include "m1Render3D.h"
+#include "m1Scene.h"
 
 Application::Application() {
 
@@ -16,9 +17,17 @@ Application::~Application()	{
 
 bool Application::Init()
 {
-	modules.push_back(input  = new m1Input());
-	modules.push_back(window = new m1Window());
-	modules.push_back(render = new m1Render3D());
+	input = new m1Input();
+	window = new m1Window();
+	render = new m1Render3D();
+	scene = new m1Scene();
+
+	modules.push_back(input);
+	modules.push_back(window);
+
+	modules.push_back(scene);
+
+	modules.push_back(render);
 
 	for (auto i = modules.begin(); i != modules.end(); ++i) {
 		LOG("Initializing module %s", (*i)->name.c_str());

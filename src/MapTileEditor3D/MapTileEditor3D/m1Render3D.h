@@ -21,5 +21,12 @@ public:
 
 private:
 	SDL_GLContext context;
+
+	const char* vertexShaderSource = nullptr;
+	unsigned int fragmentShader = 0u;
+	const char* fragmentShaderSource = nullptr;
+	unsigned int vertexShader = 0u;
+
+	int shaderProgram = 0;
 };
 

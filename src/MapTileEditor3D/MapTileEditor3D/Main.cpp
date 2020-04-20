@@ -90,11 +90,12 @@ int main(int argc, char* argv[]) {
 
             break;
         case MainState::EXIT:
-            //LOG file;
-            LOG("Closing program...\nBye :)");
+            Logger::ExportLog();
+            LOG("Closing program... Bye :)");
             running = false;
             break;
         case MainState::EXIT_ERROR:
+            Logger::ExportLog();
             LOG("Exiting with errors :(");
             running = false;
             break;

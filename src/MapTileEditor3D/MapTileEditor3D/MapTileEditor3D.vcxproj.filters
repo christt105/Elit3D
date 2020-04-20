@@ -51,6 +51,9 @@
     <ClCompile Include="m1Input.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="m1Scene.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -339,6 +342,9 @@
       <Filter>Modules</Filter>
     </ClInclude>
     <ClInclude Include="m1Input.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="m1Scene.h">
       <Filter>Modules</Filter>
     </ClInclude>
   </ItemGroup>
