@@ -1,6 +1,6 @@
 #include "m1Window.h"
 
-#include "ExternalTools/SDL2/include/SDL_opengl.h"
+#include <SDL_opengl.h>
 
 #include "Logger.h"
 

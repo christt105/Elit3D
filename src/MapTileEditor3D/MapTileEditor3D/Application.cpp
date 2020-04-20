@@ -6,6 +6,7 @@
 #include "m1Window.h"
 #include "m1Render3D.h"
 #include "m1Scene.h"
+#include "m1GUI.h"
 
 Application::Application() {
 
@@ -21,12 +22,14 @@ bool Application::Init()
 	window = new m1Window();
 	render = new m1Render3D();
 	scene = new m1Scene();
+	gui = new m1GUI();
 
 	modules.push_back(input);
 	modules.push_back(window);
 
 	modules.push_back(scene);
 
+	modules.push_back(gui);
 	modules.push_back(render);
 
 	for (auto i = modules.begin(); i != modules.end(); ++i) {

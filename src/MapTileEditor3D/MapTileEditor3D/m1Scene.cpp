@@ -1,6 +1,6 @@
 #include "m1Scene.h"
 
-#include "ExternalTools/GLEW/include/GL/glew.h"
+#include <GL/glew.h>
 
 m1Scene::m1Scene(bool start_enabled) : Module("Scene", start_enabled)
 {

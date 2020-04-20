@@ -25,6 +25,9 @@
     <Filter Include="Modules\Base">
       <UniqueIdentifier>{47a7984a-abae-4732-a8ee-64a47d36dc7d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External Libraries\ImGui">
+      <UniqueIdentifier>{2a4e7e08-f725-4e7b-98e6-8db7ad4b0654}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Logger.cpp">
@@ -53,6 +56,27 @@
     </ClCompile>
     <ClCompile Include="m1Scene.cpp">
       <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="m1GUI.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui_impl_opengl3.cpp">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui_impl_sdl.cpp">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui_widgets.cpp">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui.cpp">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui_demo.cpp">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui_draw.cpp">
+      <Filter>External Libraries\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -346,6 +370,33 @@
     </ClInclude>
     <ClInclude Include="m1Scene.h">
       <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="m1GUI.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imgui_impl_opengl3.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imgui_impl_sdl.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imgui_internal.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imstb_rectpack.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imstb_textedit.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imstb_truetype.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imconfig.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imgui.h">
+      <Filter>External Libraries\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

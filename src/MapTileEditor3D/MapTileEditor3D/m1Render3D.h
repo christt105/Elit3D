@@ -2,11 +2,12 @@
 
 #include "Module.h"
 
-#include "ExternalTools/SDL2/include/SDL_video.h"
+#include <SDL_video.h>
 
 class m1Render3D :
 	public Module
 {
+	friend class m1GUI;
 public:
 	m1Render3D(bool start_enabled = true);
 	~m1Render3D();

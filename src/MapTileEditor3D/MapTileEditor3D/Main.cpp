@@ -6,14 +6,11 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-#include "ExternalTools/SDL2/include/SDL.h"
+#include <SDL.h>
 
 #include "Logger.h"
 #include "Application.h"
 #include "Module.h"
-
-#pragma comment(lib, "ExternalTools/SDL2/libx86/SDL2.lib")
-#pragma comment(lib, "ExternalTools/SDL2/libx86/SDL2main.lib")
 
 enum class MainState {
     EXIT_ERROR = -1,

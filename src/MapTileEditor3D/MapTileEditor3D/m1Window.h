@@ -7,6 +7,7 @@
 class m1Window :
 	public Module
 {
+	friend class m1GUI;
 	friend class m1Render3D;
 public:
 	m1Window(bool start_enabled = true);

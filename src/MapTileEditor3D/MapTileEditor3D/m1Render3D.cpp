@@ -1,6 +1,6 @@
 #include "m1Render3D.h"
 
-#include "ExternalTools/GLEW/include/GL/glew.h"
+#include <GL/glew.h>
 #include <gl/GLU.h>
 
 #include "Application.h"
@@ -8,12 +8,6 @@
 #include "m1Window.h"
 
 #include "Logger.h"
-
-#pragma comment(lib, "ExternalTools/GLEW/libx86/glew32.lib")
-#pragma comment(lib, "ExternalTools/GLEW/libx86/glew32s.lib")
-
-#pragma comment(lib, "glu32.lib")
-#pragma comment(lib, "opengl32.lib")
 
 m1Render3D::m1Render3D(bool start_enabled) : Module("Render3D", start_enabled)
 {

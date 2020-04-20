@@ -89,10 +89,13 @@
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -116,12 +119,15 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib; user32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -142,8 +148,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="ExternalTools\ImGui\imgui.cpp" />
+    <ClCompile Include="ExternalTools\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="ExternalTools\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="ExternalTools\ImGui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="ExternalTools\ImGui\imgui_impl_sdl.cpp" />
+    <ClCompile Include="ExternalTools\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="ExternalTools\mmgr\mmgr.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="m1GUI.cpp" />
     <ClCompile Include="m1Input.cpp" />
     <ClCompile Include="m1Render3D.cpp" />
     <ClCompile Include="m1Scene.cpp" />
@@ -157,6 +170,14 @@
     <ClInclude Include="ExternalTools\GLEW\include\GL\glew.h" />
     <ClInclude Include="ExternalTools\GLEW\include\GL\glxew.h" />
     <ClInclude Include="ExternalTools\GLEW\include\GL\wglew.h" />
+    <ClInclude Include="ExternalTools\ImGui\imconfig.h" />
+    <ClInclude Include="ExternalTools\ImGui\imgui.h" />
+    <ClInclude Include="ExternalTools\ImGui\imgui_impl_opengl3.h" />
+    <ClInclude Include="ExternalTools\ImGui\imgui_impl_sdl.h" />
+    <ClInclude Include="ExternalTools\ImGui\imgui_internal.h" />
+    <ClInclude Include="ExternalTools\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="ExternalTools\ImGui\imstb_textedit.h" />
+    <ClInclude Include="ExternalTools\ImGui\imstb_truetype.h" />
     <ClInclude Include="ExternalTools\mmgr\mmgr.h" />
     <ClInclude Include="ExternalTools\mmgr\nommgr.h" />
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h" />
@@ -244,6 +265,7 @@
     <ClInclude Include="ExternalTools\SDL2\include\SDL_video.h" />
     <ClInclude Include="ExternalTools\SDL2\include\SDL_vulkan.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="m1GUI.h" />
     <ClInclude Include="m1Input.h" />
     <ClInclude Include="m1Render3D.h" />
     <ClInclude Include="m1Scene.h" />
