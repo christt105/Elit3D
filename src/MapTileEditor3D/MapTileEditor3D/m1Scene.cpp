@@ -2,6 +2,11 @@
 
 #include <GL/glew.h>
 
+#include "Application.h"
+#include "m1Input.h"
+
+#include "Logger.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 m1Scene::m1Scene(bool start_enabled) : Module("Scene", start_enabled)
@@ -54,6 +59,10 @@ bool m1Scene::Start()
 
 UpdateStatus m1Scene::Update()
 {
+
+	if (App->input->IsKeyDown(SDL_SCANCODE_A))
+		LOG("A PRESSED");
+
 	glBindVertexArray(VAO);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
