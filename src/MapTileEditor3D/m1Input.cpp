@@ -20,35 +20,9 @@ m1Input::~m1Input()
 
 UpdateStatus m1Input::PreUpdate()
 {
-    const Uint8* keys = SDL_GetKeyboardState(NULL);
+    SDL_PumpEvents();
 
-    for (int i = 0; i < SDL_MAX_KEYS; ++i) {
-        switch (keyboard[i])
-        {
-        case m1Input::KeyState::IDLE:
-            if (keys[i] == 1)
-                keyboard[i] = KeyState::DOWN;
-            break;
-        case m1Input::KeyState::DOWN:
-            if (keys[i] == 1)
-                keyboard[i] = KeyState::REPEAT;
-            else
-                keyboard[i] = KeyState::UP;
-            break;
-        case m1Input::KeyState::REPEAT:
-            if (keys[i] == 0)
-                keyboard[i] = KeyState::UP;
-            break;
-        case m1Input::KeyState::UP:
-            if (keys[i] == 1)
-                keyboard[i] = KeyState::DOWN;
-            else
-                keyboard[i] = KeyState::IDLE;
-            break;
-        default:
-            break;
-        }
-    }
+    HandleKeyboard();
 
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -91,13 +65,31 @@ UpdateStatus m1Input::PreUpdate()
         default:
             break;
         }
-        if (event.type == SDL_KEYDOWN) {
-            if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                return UpdateStatus::UPDATE_STOP;
-        }
     }
 
 	return UpdateStatus::UPDATE_CONTINUE;
+}
+
+void m1Input::HandleKeyboard()
+{
+    const Uint8* keys = SDL_GetKeyboardState(NULL);
+
+    for (int i = 0; i < SDL_MAX_KEYS; ++i) {
+        if (keys[i] == 1) {
+            if (keyboard[i] == KeyState::IDLE)
+                keyboard[i] = KeyState::DOWN;
+            else if (keyboard[i] == KeyState::DOWN)
+                keyboard[i] = KeyState::REPEAT;
+            else if (keyboard[i] == KeyState::UP)
+                keyboard[i] = KeyState::DOWN;
+        }
+        else {
+            if (keyboard[i] == KeyState::REPEAT)
+                keyboard[i] = KeyState::UP;
+            else if (keyboard[i] == KeyState::UP)
+                keyboard[i] = KeyState::IDLE;
+        }
+    }
 }
 
 bool m1Input::IsKeyDown(SDL_Scancode scancode)

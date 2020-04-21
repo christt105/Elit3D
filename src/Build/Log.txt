@@ -1,0 +1,41 @@
+17:24:43 [INFO]	Main.cpp | SDL_main(33) : Starting Program...
+17:24:43 [INFO]	Main.cpp | SDL_main(42) : Application Creation
+17:24:43 [INFO]	Main.cpp | SDL_main(47) : Application Init
+17:24:43 [INFO]	Application.cpp | Application::Init(49) : Initializing module Input
+17:24:43 [INFO]	Application.cpp | Application::Init(49) : Initializing module Window
+17:24:44 [INFO]	Application.cpp | Application::Init(49) : Initializing module Scene
+17:24:44 [INFO]	Application.cpp | Application::Init(49) : Initializing module GUI
+17:24:44 [INFO]	Application.cpp | Application::Init(49) : Initializing module Render3D
+17:24:44 [INFO]	Main.cpp | SDL_main(57) : Application Start
+17:24:44 [INFO]	Application.cpp | Application::Start(60) : Starting module Input
+17:24:44 [INFO]	Application.cpp | Application::Start(60) : Starting module Window
+17:24:44 [INFO]	Application.cpp | Application::Start(60) : Starting module Scene
+17:24:44 [INFO]	Application.cpp | Application::Start(60) : Starting module GUI
+17:24:44 [INFO]	m1GUI.cpp | m1GUI::Start(33) : ImGui initialized with version 1.76
+17:24:44 [INFO]	Application.cpp | Application::Start(60) : Starting module Render3D
+17:24:50 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:50 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:51 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:52 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:52 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:52 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:53 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:53 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:54 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:54 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:55 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:55 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:55 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:56 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:56 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:56 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:57 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:57 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:24:58 [INFO]	m1Scene.cpp | m1Scene::Update(64) : A PRESSED
+17:55:00 [INFO]	Application.cpp | Application::Update(73) : Module Input returned Update Stop on PreUpdate()
+17:55:00 [INFO]	Main.cpp | SDL_main(80) : Application CleanUp
+17:55:00 [INFO]	Application.cpp | Application::CleanUp(104) : Cleaning Up module Render3D
+17:55:00 [INFO]	Application.cpp | Application::CleanUp(104) : Cleaning Up module GUI
+17:55:00 [INFO]	Application.cpp | Application::CleanUp(104) : Cleaning Up module Scene
+17:55:00 [INFO]	Application.cpp | Application::CleanUp(104) : Cleaning Up module Window
+17:55:00 [INFO]	Application.cpp | Application::CleanUp(104) : Cleaning Up module Input

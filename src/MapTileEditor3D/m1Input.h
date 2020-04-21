@@ -17,6 +17,8 @@ public:
 public:
 	UpdateStatus PreUpdate() override;
 
+	void HandleKeyboard();
+
 	bool IsKeyDown(SDL_Scancode scancode);
 	bool IsKeyRepeating(SDL_Scancode scancode);
 	bool IsKeyUp(SDL_Scancode scancode);

@@ -63,6 +63,9 @@ UpdateStatus m1Scene::Update()
 	if (App->input->IsKeyDown(SDL_SCANCODE_A))
 		LOG("A PRESSED");
 
+	if (App->input->IsKeyDown(SDL_SCANCODE_ESCAPE))
+		return UpdateStatus::UPDATE_STOP;
+
 	glBindVertexArray(VAO);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
