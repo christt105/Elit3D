@@ -15,6 +15,8 @@ public:
 public:
 	bool Init(const nlohmann::json& node) override;
 
+	void InitDefaultShader();
+
 	UpdateStatus PreUpdate() override;
 	UpdateStatus PostUpdate() override;
 

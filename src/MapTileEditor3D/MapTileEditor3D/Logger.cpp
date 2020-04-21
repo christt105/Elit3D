@@ -45,7 +45,7 @@ void Logger::Log(int i, const char file[], const char func[], int line, const ch
 	std::time_t t = std::time(nullptr);
 	tm* time = std::localtime(&t);
 
-	sprintf_s(tmp_string2, 4096, "%i:%i:%i %s\t%s | %s(%d) : %s\n", time->tm_hour, time->tm_min, time->tm_sec,type.c_str(), file, func, line, tmp_string);
+	sprintf_s(tmp_string2, 4096, "%i:%i:%s %s\t%s | %s(%d) : %s\n", time->tm_hour, time->tm_min, (time->tm_sec < 10) ? std::string(std::to_string(0) + std::to_string(time->tm_sec)).c_str() : std::to_string(time->tm_sec).c_str(),type.c_str(), file, func, line, tmp_string);
 
 	txt.append(tmp_string2);
 

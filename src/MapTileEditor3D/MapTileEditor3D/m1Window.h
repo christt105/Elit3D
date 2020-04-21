@@ -15,9 +15,15 @@ public:
 
 public:
 	bool Init(const nlohmann::json& node) override;
+	bool Start() override;
 	bool CleanUp() override;
 
 private:
 	SDL_Window* window = nullptr;
+
+	int x = 0;
+	int y = 0;
+	int width = 0;
+	int height = 0;
 };
 

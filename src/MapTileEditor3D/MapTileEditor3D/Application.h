@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 enum class UpdateStatus;
 
@@ -33,8 +34,14 @@ public:
 
 	FileSystem* file_system = nullptr;
 
+public:
+	const char* GetName();
+	const char* GetName() const;
+
 private:
 	std::vector<Module*> modules;
+
+	std::string name;
 };
 
 extern Application* App;

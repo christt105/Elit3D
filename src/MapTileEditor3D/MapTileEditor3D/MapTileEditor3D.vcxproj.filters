@@ -28,6 +28,9 @@
     <Filter Include="External Libraries\ImGui">
       <UniqueIdentifier>{2a4e7e08-f725-4e7b-98e6-8db7ad4b0654}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External Libraries\JSON">
+      <UniqueIdentifier>{497a668f-0dfc-4512-83c3-87fba11784cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Logger.cpp">
@@ -403,6 +406,9 @@
     </ClInclude>
     <ClInclude Include="FileSystem.h">
       <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\JSON\json.hpp">
+      <Filter>External Libraries\JSON</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

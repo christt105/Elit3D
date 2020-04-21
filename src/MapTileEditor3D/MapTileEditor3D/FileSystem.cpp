@@ -2,6 +2,8 @@
 
 #include <fstream>
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 FileSystem::FileSystem() 
 {
 }
@@ -16,6 +18,7 @@ nlohmann::json FileSystem::OpenJSONFile(const char* path)
 	if (f.good()) {
 		nlohmann::json j;
 		f >> j;
+		f.close();
 		return j;
 	}
 

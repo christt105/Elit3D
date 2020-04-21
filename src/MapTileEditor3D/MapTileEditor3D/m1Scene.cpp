@@ -2,6 +2,8 @@
 
 #include <GL/glew.h>
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 m1Scene::m1Scene(bool start_enabled) : Module("Scene", start_enabled)
 {
 }

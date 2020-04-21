@@ -10,6 +10,8 @@
 
 #include "Logger.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 m1GUI::m1GUI(bool start_enabled) : Module("GUI", start_enabled)
 {
 }

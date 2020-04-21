@@ -10,6 +10,8 @@
 
 #include "FileSystem.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 Application::Application() {
 
 }
@@ -38,10 +40,16 @@ bool Application::Init()
 
 	nlohmann::json conf = file_system->OpenJSONFile("Configuration/Configuration.json")["App"];
 
+	if (conf.is_null())
+		LOGE("Configuration.json not found");
+
+	name.assign(conf.value("name", "PROGRAM"));
+
 	for (auto i = modules.begin(); i != modules.end(); ++i) {
 		LOG("Initializing module %s", (*i)->name.c_str());
 		(*i)->Init(conf[(*i)->name]);
 	}
+	
 
 	return true;
 }
@@ -89,6 +97,9 @@ UpdateStatus Application::Update()
 bool Application::CleanUp()
 {
 	bool ret = true;
+
+	delete file_system;
+
 	for (auto i = modules.rbegin(); i != modules.rend(); ++i) {
 		LOG("Cleaning Up module %s", (*i)->name.c_str());
 		ret = (*i)->CleanUp();
@@ -96,4 +107,14 @@ bool Application::CleanUp()
 	}
 
 	return ret;
+}
+
+const char* Application::GetName()
+{
+	return name.c_str();
+}
+
+inline const char* Application::GetName() const
+{
+	return name.c_str();
 }

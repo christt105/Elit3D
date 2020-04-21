@@ -9,6 +9,8 @@
 
 #include "Logger.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 m1Render3D::m1Render3D(bool start_enabled) : Module("Render3D", start_enabled)
 {
 }
@@ -38,12 +40,21 @@ bool m1Render3D::Init(const nlohmann::json& node)
         LOG("Warning: Unable to set VSync! SDL Error: %s", SDL_GetError());
     }
     
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, node.value("major_version", 3));
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, node.value("minor_version", 3));
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    glClearColor(.23f, .57f, 1.f, 1.f);
+    glClearColor(node["color"][0], node["color"][1], node["color"][2], node["color"][3]);
 
+    InitDefaultShader();
+
+    glEnable(GL_MULTISAMPLE);
+
+	return ret;
+}
+
+void m1Render3D::InitDefaultShader()
+{
     vertexShaderSource = "#version 330 core\n"
         "layout (location = 0) in vec3 aPos;\n"
         "void main()\n"
@@ -97,8 +108,6 @@ bool m1Render3D::Init(const nlohmann::json& node)
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-
-	return ret;
 }
 
 UpdateStatus m1Render3D::PreUpdate()
