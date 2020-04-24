@@ -59,9 +59,10 @@ bool m1Scene::Start()
 
 UpdateStatus m1Scene::Update()
 {
-
-	if (App->input->IsKeyDown(SDL_SCANCODE_A))
-		LOG("A PRESSED");
+	for (int i = 0; i < 3; ++i) {
+		if (App->input->IsMouseButtonDown(i))
+			LOG("Mouse %i is down", i);
+	}
 
 	if (App->input->IsKeyDown(SDL_SCANCODE_ESCAPE))
 		return UpdateStatus::UPDATE_STOP;

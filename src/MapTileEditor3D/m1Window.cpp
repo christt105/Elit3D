@@ -81,3 +81,10 @@ bool m1Window::CleanUp()
 
     return true;
 }
+
+void m1Window::SetWindowSize(const int& w, const int& h)
+{
+    width = w;
+    height = h;
+    glViewport(x, y, w, h);
+}

@@ -18,6 +18,8 @@ public:
 	bool Start() override;
 	bool CleanUp() override;
 
+	void SetWindowSize(const int& w, const int& h);
+
 private:
 	SDL_Window* window = nullptr;
 

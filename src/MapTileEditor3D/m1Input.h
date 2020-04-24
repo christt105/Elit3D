@@ -10,6 +10,7 @@ class m1Input :
 	enum class KeyState {
 		IDLE = 0, DOWN, REPEAT, UP
 	};
+
 public:
 	m1Input(bool start_enabled = true);
 	~m1Input();
@@ -25,7 +26,21 @@ public:
 
 	bool IsKeyPressed(SDL_Scancode scancode);
 
+	bool IsMouseButtonDown(const int& button);
+	bool IsMouseButtonRepeating(const int& button);
+	bool IsMouseButtonUp(const int& button);
+
+	bool IsMouseButtonPressed(const int& button);
+
+	int GetMouseX();
+	int GetMouseY();
+
+	void GetMousePosition(int* x, int* y);
+
 private:
 	KeyState* keyboard = nullptr;
+	KeyState  mouse[3] = {KeyState::IDLE};
+	int mouseX = 0;
+	int mouseY = 0;
+	int mouseZ = 0;
 };
-

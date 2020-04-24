@@ -3,6 +3,9 @@
 
 #include "ExternalTools/ImGui/imgui_impl_sdl.h"
 
+#include "Application.h"
+#include "m1Window.h"
+
 #include "Logger.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
@@ -24,6 +27,18 @@ UpdateStatus m1Input::PreUpdate()
 
     HandleKeyboard();
 
+    for (int i = 0; i < 3; ++i) {
+        if (mouse[i] == KeyState::DOWN) {
+            mouse[i] = KeyState::REPEAT;
+        }
+        else if (mouse[i] == KeyState::UP) {
+            mouse[i] = KeyState::IDLE;
+        }
+    }
+
+    SDL_GetMouseState(&mouseX, &mouseY);
+    mouseZ = 0;
+
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
@@ -37,6 +52,7 @@ UpdateStatus m1Input::PreUpdate()
             switch (event.window.type)
             {
             case SDL_WINDOWEVENT_RESIZED:
+                //App->window->SetWindowSize(event.window.data1, event.window.data2);
                 break;
             case SDL_WINDOWEVENT:
                 break;
@@ -44,17 +60,19 @@ UpdateStatus m1Input::PreUpdate()
                 break;
             }
             break;
-        case SDL_KEYDOWN:
-            break;
-        case SDL_KEYUP:
-            break;
         case SDL_MOUSEMOTION:
+            
             break;
         case SDL_MOUSEBUTTONDOWN:
+            if (mouse[event.button.button-1] == KeyState::IDLE || mouse[event.button.button-1] == KeyState::UP) {
+                mouse[event.button.button-1] = KeyState::DOWN;
+            }
             break;
         case SDL_MOUSEBUTTONUP:
+            mouse[event.button.button-1] = KeyState::UP;
             break;
         case SDL_MOUSEWHEEL:
+            mouseZ = event.wheel.y;
             break;
         case SDL_DROPFILE: {
             char* file = event.drop.file;
@@ -110,4 +128,40 @@ bool m1Input::IsKeyUp(SDL_Scancode scancode)
 bool m1Input::IsKeyPressed(SDL_Scancode scancode)
 {
     return keyboard[scancode] != KeyState::IDLE;
+}
+
+bool m1Input::IsMouseButtonDown(const int& button)
+{
+    return mouse[button] == KeyState::DOWN;
+}
+
+bool m1Input::IsMouseButtonRepeating(const int& button)
+{
+    return mouse[button] == KeyState::REPEAT;
+}
+
+bool m1Input::IsMouseButtonUp(const int& button)
+{
+    return mouse[button] == KeyState::UP;
+}
+
+bool m1Input::IsMouseButtonPressed(const int& button)
+{
+    return mouse[button] != KeyState::IDLE;
+}
+
+int m1Input::GetMouseX()
+{
+    return mouseY;
+}
+
+int m1Input::GetMouseY()
+{
+    return mouseY;
+}
+
+void m1Input::GetMousePosition(int* x, int* y)
+{
+    *x = mouseX;
+    *y = mouseY;
 }
