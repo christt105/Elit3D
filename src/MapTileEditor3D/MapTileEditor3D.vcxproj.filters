@@ -84,6 +84,11 @@
     <ClCompile Include="FileSystem.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
+    <ClCompile Include="ModuleObjects.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -410,5 +415,13 @@
     <ClInclude Include="ExternalTools\JSON\json.hpp">
       <Filter>External Libraries\JSON</Filter>
     </ClInclude>
+    <ClInclude Include="ModuleObjects.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h" />
+    <ClInclude Include="ExternalTools\par_shapes\par_shapes.h">
+      <Filter>External Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h" />
   </ItemGroup>
 </Project>

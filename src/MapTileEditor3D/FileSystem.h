@@ -9,4 +9,5 @@ public:
 	~FileSystem();
 
 	nlohmann::json OpenJSONFile(const char* path);
+	std::string OpenTextFile(const char* path);
 };

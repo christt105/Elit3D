@@ -5,9 +5,13 @@
 
 #include "Application.h"
 
+#include "Shader.h"
+
 #include "m1Window.h"
 
 #include "Logger.h"
+
+#include "FileSystem.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
@@ -17,6 +21,7 @@ m1Render3D::m1Render3D(bool start_enabled) : Module("Render3D", start_enabled)
 
 m1Render3D::~m1Render3D()
 {
+    delete bShader;
 }
 
 bool m1Render3D::Init(const nlohmann::json& node)
@@ -46,75 +51,18 @@ bool m1Render3D::Init(const nlohmann::json& node)
 
     glClearColor(node["color"][0], node["color"][1], node["color"][2], node["color"][3]);
 
-    InitDefaultShader();
+    bShader = new Shader("Shaders/def_vx_shader.glsl", "Shaders/def_fg_shader.glsl");
 
     glEnable(GL_MULTISAMPLE);
 
 	return ret;
 }
 
-void m1Render3D::InitDefaultShader()
-{
-    vertexShaderSource = "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}\0";
-
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    int  success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        LOG("ERROR::SHADER::VERTEX::COMPILATION_FAILED : %s", infoLog);
-    }
-
-    fragmentShaderSource = "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "void main()\n"
-        "{\n"
-        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-        "}\n\0";
-
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        LOG("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED : %s", infoLog);
-    }
-
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    // check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        LOG("ERROR::SHADER::PROGRAM::LINKING_FAILED : %s", infoLog);
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-}
-
 UpdateStatus m1Render3D::PreUpdate()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-
-    glUseProgram(shaderProgram);
+    
+    bShader->Use();
 
     return UpdateStatus::UPDATE_CONTINUE;
 }

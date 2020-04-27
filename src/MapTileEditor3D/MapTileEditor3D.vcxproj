@@ -119,14 +119,14 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)ExternalTools\GLEW\include;$(SolutionDir)ExternalTools\SDL2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)ExternalTools\SDL2\libx86;$(SolutionDir)ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
       <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -164,6 +164,9 @@
     <ClCompile Include="m1Window.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Module.cpp" />
+    <ClCompile Include="ModuleObjects.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -182,6 +185,7 @@
     <ClInclude Include="ExternalTools\JSON\json.hpp" />
     <ClInclude Include="ExternalTools\mmgr\mmgr.h" />
     <ClInclude Include="ExternalTools\mmgr\nommgr.h" />
+    <ClInclude Include="ExternalTools\par_shapes\par_shapes.h" />
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h" />
     <ClInclude Include="ExternalTools\SDL2\include\close_code.h" />
     <ClInclude Include="ExternalTools\SDL2\include\SDL.h" />
@@ -274,6 +278,9 @@
     <ClInclude Include="m1Scene.h" />
     <ClInclude Include="m1Window.h" />
     <ClInclude Include="Module.h" />
+    <ClInclude Include="ModuleObjects.h" />
+    <ClInclude Include="Object.h" />
+    <ClInclude Include="Shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

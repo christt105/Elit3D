@@ -1,6 +1,7 @@
 #include "m1Scene.h"
 
 #include <GL/glew.h>
+#include <SDL.h>
 
 #include "Application.h"
 #include "m1Input.h"
@@ -53,17 +54,12 @@ bool m1Scene::Start()
 	glBindBuffer(GL_ARRAY_BUFFER, NULL);
 
 	glBindVertexArray(NULL);
-
+	
 	return true;
 }
 
 UpdateStatus m1Scene::Update()
 {
-	for (int i = 0; i < 3; ++i) {
-		if (App->input->IsMouseButtonDown(i))
-			LOG("Mouse %i is down", i);
-	}
-
 	if (App->input->IsKeyDown(SDL_SCANCODE_ESCAPE))
 		return UpdateStatus::UPDATE_STOP;
 

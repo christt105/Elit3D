@@ -4,6 +4,8 @@
 
 #include <SDL_video.h>
 
+class Shader;
+
 class m1Render3D :
 	public Module
 {
@@ -15,8 +17,6 @@ public:
 public:
 	bool Init(const nlohmann::json& node) override;
 
-	void InitDefaultShader();
-
 	UpdateStatus PreUpdate() override;
 	UpdateStatus PostUpdate() override;
 
@@ -25,11 +25,6 @@ public:
 private:
 	SDL_GLContext context;
 
-	const char* vertexShaderSource = nullptr;
-	unsigned int fragmentShader = 0u;
-	const char* fragmentShaderSource = nullptr;
-	unsigned int vertexShader = 0u;
-
-	int shaderProgram = 0;
+	Shader* bShader = nullptr;
 };
 
