@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ExternalTools/glm/glm/glm.hpp"
+#include "ExternalTools/MathGeoLib/include/Math/float4x4.h"
 
 class Shader
 {
@@ -13,11 +13,12 @@ public:
 	~Shader();
 
 	void Use();
+	unsigned int GetID() const;
 
 	void SetBool(const char* name, bool value) const;
 	void SetInt(const char* name, int value) const;
 	void SetFloat(const char* name, float value) const;
-	void SetMat4(const char* name, const glm::mat4& value) const;
+	void SetMat4(const char* name, const float4x4& value) const;
 
 protected:
 	unsigned int id;

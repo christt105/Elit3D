@@ -3,8 +3,6 @@
 #include "Application.h"
 #include "FileSystem.h"
 #include <string>
-#include "ExternalTools/glm/glm/gtc/matrix_transform.hpp"
-#include "ExternalTools/glm/glm/gtc/type_ptr.hpp"
 #include "Logger.h"
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
@@ -51,6 +49,11 @@ void Shader::Use()
     glUseProgram(id);
 }
 
+unsigned int Shader::GetID() const
+{
+    return id;
+}
+
 void Shader::SetBool(const char* name, bool value) const
 {
     glUniform1i(glGetUniformLocation(id, name), value);
@@ -66,11 +69,11 @@ void Shader::SetFloat(const char* name, float value) const
     glUniform1f(glGetUniformLocation(id, name), value);
 }
 
-void Shader::SetMat4(const char* name, const glm::mat4& value) const
+void Shader::SetMat4(const char* name, const float4x4& value) const
 {
     int loc = glGetUniformLocation(id, name);
     if (loc != -1)
-        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
+        glUniformMatrix4fv(loc, 1, GL_TRUE, value.ptr());
     else
         LOGW("Variable %s not found in %i shader", name, id);
 }

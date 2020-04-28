@@ -9,7 +9,14 @@
 #include "Application.h"
 #include "Module.h"
 
-#include "ExternalTools/mmgr/mmgr.h"
+//MathGeoLib--------------------------------------------------------
+#include "ExternalTools/MathGeoLib/include/MathGeoLib.h"
+#ifdef _DEBUG
+#pragma comment (lib, "ExternalTools/MathGeoLib/lib_x86/Debug/MathGeoLib.lib")
+#else
+#pragma comment (lib, "ExternalTools/MathGeoLib/lib_x86/Release/MathGeoLib.lib")
+#endif
+//--------------------------------------------------------------------
 
 enum class MainState {
     EXIT_ERROR = -1,

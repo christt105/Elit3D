@@ -7,6 +7,7 @@
 #include "m1Render3D.h"
 #include "m1Scene.h"
 #include "m1GUI.h"
+#include "ModuleObjects.h"
 
 #include "FileSystem.h"
 
@@ -27,11 +28,13 @@ bool Application::Init()
 	render = new m1Render3D();
 	scene = new m1Scene();
 	gui = new m1GUI();
+	objects = new ModuleObjects();
 
 	modules.push_back(input);
 	modules.push_back(window);
 
 	modules.push_back(scene);
+	modules.push_back(objects);
 
 	modules.push_back(gui);
 	modules.push_back(render);

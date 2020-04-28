@@ -11,6 +11,7 @@ class m1Render3D;
 class m1Input;
 class m1Scene;
 class m1GUI;
+class ModuleObjects;
 
 class FileSystem;
 
@@ -31,6 +32,7 @@ public:
 	m1Input*	input  = nullptr;
 	m1Scene*	scene = nullptr;
 	m1GUI*		gui = nullptr;
+	ModuleObjects* objects = nullptr;
 
 	FileSystem* file_system = nullptr;
 
