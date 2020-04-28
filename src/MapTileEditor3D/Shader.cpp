@@ -3,6 +3,8 @@
 #include "Application.h"
 #include "FileSystem.h"
 #include <string>
+#include "ExternalTools/glm/glm/gtc/matrix_transform.hpp"
+#include "ExternalTools/glm/glm/gtc/type_ptr.hpp"
 #include "Logger.h"
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
@@ -19,14 +21,13 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 
     const char* vertexCode = vertexShaderSource.c_str();
     const char* fragmentCode = fragmentShaderSource.c_str();
-    unsigned int vertex, fragment;
 
-    vertex = glCreateShader(GL_VERTEX_SHADER);
+    unsigned int vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vertexCode, NULL);
     glCompileShader(vertex);
     CheckCompileErrors(vertex, VERTEX);
 
-    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    unsigned int fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fragmentCode, NULL);
     glCompileShader(fragment);
     CheckCompileErrors(fragment, FRAGMENT);
@@ -48,6 +49,30 @@ Shader::~Shader()
 void Shader::Use()
 {
     glUseProgram(id);
+}
+
+void Shader::SetBool(const char* name, bool value) const
+{
+    glUniform1i(glGetUniformLocation(id, name), value);
+}
+
+void Shader::SetInt(const char* name, int value) const
+{
+    glUniform1i(glGetUniformLocation(id, name), value);
+}
+
+void Shader::SetFloat(const char* name, float value) const
+{
+    glUniform1f(glGetUniformLocation(id, name), value);
+}
+
+void Shader::SetMat4(const char* name, const glm::mat4& value) const
+{
+    int loc = glGetUniformLocation(id, name);
+    if (loc != -1)
+        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
+    else
+        LOGW("Variable %s not found in %i shader", name, id);
 }
 
 void Shader::CheckCompileErrors(unsigned int shader, Type type)

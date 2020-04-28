@@ -15,6 +15,15 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
+#include "ExternalTools/glm/glm/gtc/matrix_transform.hpp"
+
+
+
+
+
+
+//#include "ExternalTools/MathGeoLib/include/Math/float4x4.h"
+
 m1Render3D::m1Render3D(bool start_enabled) : Module("Render3D", start_enabled)
 {
 }
@@ -53,6 +62,7 @@ bool m1Render3D::Init(const nlohmann::json& node)
 
     bShader = new Shader("Shaders/def_vx_shader.glsl", "Shaders/def_fg_shader.glsl");
 
+
     glEnable(GL_MULTISAMPLE);
 
 	return ret;
@@ -63,6 +73,10 @@ UpdateStatus m1Render3D::PreUpdate()
     glClear(GL_COLOR_BUFFER_BIT);
     
     bShader->Use();
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, glm::vec3(-.5f, 0.f, 0.f));
+    
+    bShader->SetMat4("transform", trans);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }

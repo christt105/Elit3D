@@ -31,6 +31,9 @@
     <Filter Include="External Libraries\JSON">
       <UniqueIdentifier>{497a668f-0dfc-4512-83c3-87fba11784cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Objects">
+      <UniqueIdentifier>{2cc1c0c0-4769-450f-85b7-1615ab842389}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Logger.cpp">
@@ -87,8 +90,11 @@
     <ClCompile Include="ModuleObjects.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Object.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Object.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -418,10 +424,13 @@
     <ClInclude Include="ModuleObjects.h">
       <Filter>Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h" />
     <ClInclude Include="ExternalTools\par_shapes\par_shapes.h">
       <Filter>External Libraries</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Object.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h" />
   </ItemGroup>
 </Project>
