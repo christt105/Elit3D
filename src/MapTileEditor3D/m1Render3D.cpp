@@ -58,6 +58,8 @@ bool m1Render3D::Init(const nlohmann::json& node)
 
     glEnable(GL_MULTISAMPLE);
 
+    bShader->Use();
+
 	return ret;
 }
 
@@ -66,9 +68,6 @@ UpdateStatus m1Render3D::PreUpdate()
     glClear(GL_COLOR_BUFFER_BIT);
     
     bShader->Use();
-    float4x4 trans = float4x4::identity;
-    trans = float4x4::FromTRS(float3(1.f, 1.f, 0.f), Quat::identity, float3::one);
-    bShader->SetMat4("transform", trans);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }

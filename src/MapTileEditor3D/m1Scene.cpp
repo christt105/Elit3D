@@ -25,7 +25,7 @@ bool m1Scene::Init(const nlohmann::json& node)
 
 bool m1Scene::Start()
 {
-	vertices = new float[3 * 3];
+	/*vertices = new float[3 * 3];
 	vertices[0] = -0.5;	vertices[1] = -0.5;	vertices[2] = 0.0;
 	vertices[3] =  0.5;	vertices[4] = -0.5;	vertices[5] = 0.0;
 	vertices[6] =  0.0;	vertices[7] =  0.5;	vertices[8] = 0.0;
@@ -53,7 +53,7 @@ bool m1Scene::Start()
 
 	glBindBuffer(GL_ARRAY_BUFFER, NULL);
 
-	glBindVertexArray(NULL);
+	glBindVertexArray(NULL);*/
 	
 	return true;
 }
@@ -63,21 +63,21 @@ UpdateStatus m1Scene::Update()
 	if (App->input->IsKeyDown(SDL_SCANCODE_ESCAPE))
 		return UpdateStatus::UPDATE_STOP;
 
-	glBindVertexArray(VAO);
+	/*glBindVertexArray(VAO);
 
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);*/
 
 	return UpdateStatus::UPDATE_CONTINUE;
 }
 
 bool m1Scene::CleanUp()
 {
-	delete[] vertices;
+	/*delete[] vertices;
 	delete[] indices;
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
+	glDeleteBuffers(1, &EBO);*/
 
 	return true;
 }

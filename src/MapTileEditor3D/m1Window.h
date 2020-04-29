@@ -18,6 +18,8 @@ public:
 	bool Start() override;
 	bool CleanUp() override;
 
+	float GetAspectRatio() const;
+
 	void SetWindowSize(const int& w, const int& h);
 
 private:

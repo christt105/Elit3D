@@ -60,7 +60,6 @@ bool m1Window::Init(const nlohmann::json& node)
             LOG("Window could not be created. SDL Error: %s", SDL_GetError());
             ret = false;
         }
-        
     }
 
 	return ret;
@@ -70,6 +69,7 @@ bool m1Window::Start()
 {
     SDL_GetWindowSize(window, &width, &height);
     SDL_GetWindowPosition(window, &x, &y);
+    glViewport(0, 0, width, height);
 
     return true;
 }
@@ -80,6 +80,11 @@ bool m1Window::CleanUp()
     SDL_Quit();
 
     return true;
+}
+
+float m1Window::GetAspectRatio() const
+{
+    return width / height;
 }
 
 void m1Window::SetWindowSize(const int& w, const int& h)

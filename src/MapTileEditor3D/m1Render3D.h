@@ -22,9 +22,9 @@ public:
 
 	bool CleanUp() override;
 
+	Shader* bShader = nullptr;
 private:
 	SDL_GLContext context;
 
-	Shader* bShader = nullptr;
 };
 

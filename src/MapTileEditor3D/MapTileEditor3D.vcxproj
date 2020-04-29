@@ -190,6 +190,7 @@
     <ClCompile Include="ExternalTools\mmgr\mmgr.cpp" />
     <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="m1Camera3D.cpp" />
     <ClCompile Include="m1GUI.cpp" />
     <ClCompile Include="m1Input.cpp" />
     <ClCompile Include="m1Render3D.cpp" />
@@ -200,6 +201,7 @@
     <ClCompile Include="ModuleObjects.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -365,6 +367,7 @@
     <ClInclude Include="ExternalTools\SDL2\include\SDL_vulkan.h" />
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="m1Camera3D.h" />
     <ClInclude Include="m1GUI.h" />
     <ClInclude Include="m1Input.h" />
     <ClInclude Include="m1Render3D.h" />
@@ -374,6 +377,7 @@
     <ClInclude Include="ModuleObjects.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\MathGeoLib\include\Geometry\KDTree.inl" />

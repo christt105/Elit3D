@@ -52,7 +52,7 @@ UpdateStatus m1Input::PreUpdate()
             switch (event.window.type)
             {
             case SDL_WINDOWEVENT_RESIZED:
-                //App->window->SetWindowSize(event.window.data1, event.window.data2);
+                App->window->SetWindowSize(event.window.data1, event.window.data2);
                 break;
             case SDL_WINDOWEVENT:
                 break;
@@ -102,9 +102,9 @@ void m1Input::HandleKeyboard()
                 keyboard[i] = KeyState::DOWN;
         }
         else {
-            if (keyboard[i] == KeyState::REPEAT)
+            if (keyboard[i] == KeyState::REPEAT || keyboard[i] == KeyState::DOWN)
                 keyboard[i] = KeyState::UP;
-            else if (keyboard[i] == KeyState::UP)
+            else
                 keyboard[i] = KeyState::IDLE;
         }
     }
