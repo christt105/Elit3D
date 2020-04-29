@@ -69,10 +69,21 @@ bool Application::Start()
 	return true;
 }
 
+void Application::PrepareUpdate()
+{
+	last_time = time;
+	time = SDL_GetPerformanceCounter();
+	++frame_count;
+
+	dt = (float)((time - last_time) / (double)SDL_GetPerformanceFrequency());
+}
+
 UpdateStatus Application::Update()
 {
 	UpdateStatus ret = UpdateStatus::UPDATE_CONTINUE;
 
+	PrepareUpdate();
+	
 	for (auto i = modules.begin(); i != modules.end(); ++i) {
 		ret = (*i)->PreUpdate();
 		if (ret != UpdateStatus::UPDATE_CONTINUE) {
@@ -97,7 +108,13 @@ UpdateStatus Application::Update()
 		}
 	}
 
+	FinishUpdate();
+
 	return ret;
+}
+
+void Application::FinishUpdate()
+{
 }
 
 bool Application::CleanUp()
@@ -123,4 +140,9 @@ const char* Application::GetName()
 inline const char* Application::GetName() const
 {
 	return name.c_str();
+}
+
+float Application::GetDt() const
+{
+	return dt;
 }

@@ -49,6 +49,12 @@
     <Filter Include="External Libraries\MathGeoLib\Time">
       <UniqueIdentifier>{a5d07728-5e38-4863-a847-87da69371b01}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Objects\Components">
+      <UniqueIdentifier>{8d663690-a0ad-482a-8b15-630aed2cb3f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{bdde4592-aa98-4517-8e8a-402797800f85}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Logger.cpp">
@@ -105,7 +111,6 @@
     <ClCompile Include="ModuleObjects.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Object.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
@@ -205,9 +210,14 @@
     <ClCompile Include="ExternalTools\MathGeoLib\include\Time\Clock.cpp">
       <Filter>External Libraries\MathGeoLib\Time</Filter>
     </ClCompile>
-    <ClCompile Include="Transform.cpp" />
     <ClCompile Include="m1Camera3D.cpp">
       <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -541,7 +551,6 @@
     <ClInclude Include="ExternalTools\par_shapes\par_shapes.h">
       <Filter>External Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h" />
     <ClInclude Include="Object.h">
       <Filter>Objects</Filter>
     </ClInclude>
@@ -725,9 +734,14 @@
     <ClInclude Include="ExternalTools\MathGeoLib\include\Time\Clock.h">
       <Filter>External Libraries\MathGeoLib\Time</Filter>
     </ClInclude>
-    <ClInclude Include="Transform.h" />
     <ClInclude Include="m1Camera3D.h">
       <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

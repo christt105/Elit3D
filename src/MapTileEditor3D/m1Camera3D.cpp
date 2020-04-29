@@ -25,12 +25,12 @@ bool m1Camera3D::Start()
 	frustum.pos = float3(0.f, 0.f, -5.f);
 	frustum.front = float3::unitZ;
 	frustum.up = float3::unitY;
-
+	
 	frustum.nearPlaneDistance = 1.f;
 	frustum.farPlaneDistance = 100.f;
 
-	frustum.verticalFov = 2.f * atanf(App->window->GetAspectRatio()) * 180.f / 3.14f;
-	frustum.horizontalFov = App->window->GetAspectRatio() * frustum.verticalFov*2;
+	frustum.verticalFov = 2.f * atanf(App->window->GetAspectRatio());
+	frustum.horizontalFov = App->window->GetAspectRatio() * frustum.verticalFov;
 
 	return ret;
 }
@@ -46,20 +46,21 @@ UpdateStatus m1Camera3D::PreUpdate()
 
 UpdateStatus m1Camera3D::Update()
 {
+	float speed = 15.f;
 	if (App->input->IsKeyPressed(SDL_SCANCODE_W))
-		frustum.pos += frustum.front.Normalized();
+		frustum.pos += frustum.front.Normalized() * speed * App->GetDt();
 	if (App->input->IsKeyPressed(SDL_SCANCODE_S))
-		frustum.pos += -frustum.front.Normalized();
+		frustum.pos += -frustum.front.Normalized() * speed * App->GetDt();
 
 	if (App->input->IsKeyPressed(SDL_SCANCODE_A))
-		frustum.front = Quat::RotateY(0.1f) * frustum.front;
+		frustum.front = Quat::RotateY(0.1f * speed * App->GetDt()) * frustum.front;
 	if (App->input->IsKeyPressed(SDL_SCANCODE_D))
-		frustum.front = Quat::RotateY(-0.1f) * frustum.front;
+		frustum.front = Quat::RotateY(-0.1f * speed * App->GetDt()) * frustum.front;
 
 	if (App->input->IsKeyPressed(SDL_SCANCODE_R))
-		frustum.pos += float3(0.f, 1.f, 0.f);
+		frustum.pos += float3(0.f, 1.f, 0.f) * speed * App->GetDt();
 	if (App->input->IsKeyPressed(SDL_SCANCODE_F))
-		frustum.pos += float3(0.f, -1.f, 0.f);
+		frustum.pos += float3(0.f, -1.f, 0.f) * speed * App->GetDt();
 
 	return UpdateStatus::UPDATE_CONTINUE;
 }

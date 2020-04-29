@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
+#include <SDL_stdinc.h>
+
 enum class UpdateStatus;
 
 class Module;
@@ -24,7 +26,9 @@ public:
 
 	bool Init();
 	bool Start();
+	void PrepareUpdate();
 	UpdateStatus Update();
+	void FinishUpdate();
 	bool CleanUp();
 
 public:
@@ -42,10 +46,17 @@ public:
 	const char* GetName();
 	const char* GetName() const;
 
+	float GetDt() const;
+
 private:
 	std::vector<Module*> modules;
 
 	std::string name;
+
+	float dt = 0.f;
+	Uint64 time = 0ULL;
+	Uint64 last_time = 0ULL;
+	Uint64 frame_count = 0ULL;
 };
 
 extern Application* App;

@@ -48,7 +48,10 @@ UpdateStatus m1GUI::PreUpdate()
 
 UpdateStatus m1GUI::Update()
 {
-	ImGui::ShowDemoWindow();
+	if (ImGui::Begin("Application")) {
+		ImGui::Text("DeltaTime: %f", App->GetDt());
+		ImGui::End();
+	}
 	return UpdateStatus::UPDATE_CONTINUE;
 }
 

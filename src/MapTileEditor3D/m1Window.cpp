@@ -84,12 +84,12 @@ bool m1Window::CleanUp()
 
 float m1Window::GetAspectRatio() const
 {
-    return width / height;
+    return (float)(width / height);
 }
 
 void m1Window::SetWindowSize(const int& w, const int& h)
 {
     width = w;
     height = h;
-    glViewport(x, y, w, h);
+    glViewport(0, 0, w, h);
 }
