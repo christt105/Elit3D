@@ -8,6 +8,8 @@
 #include "m1Window.h"
 #include "m1Render3D.h"
 
+#include "p1Configuration.h"
+
 #include "Logger.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
@@ -22,6 +24,10 @@ m1GUI::~m1GUI()
 
 bool m1GUI::Init(const nlohmann::json& node)
 {
+	configuration = new p1Configuration();
+
+	panels.push_back(configuration);
+
 	return true;
 }
 
@@ -48,10 +54,17 @@ UpdateStatus m1GUI::PreUpdate()
 
 UpdateStatus m1GUI::Update()
 {
-	if (ImGui::Begin("Application")) {
-		ImGui::Text("DeltaTime: %f", App->GetDt());
-		ImGui::End();
+	for (auto i = panels.begin(); i != panels.end(); ++i) {
+		ImGui::PushID(*i);
+		if ((*i)->active) {
+			if (ImGui::Begin((*i)->name.c_str(), &(*i)->active)) {
+				(*i)->Update();
+			}
+			ImGui::End();
+		}
+		ImGui::PopID();
 	}
+
 	return UpdateStatus::UPDATE_CONTINUE;
 }
 
@@ -64,6 +77,10 @@ UpdateStatus m1GUI::PostUpdate()
 
 bool m1GUI::CleanUp()
 {
+	for (auto i = panels.begin(); i != panels.end(); ++i) {
+		delete* i;
+	}
+
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();

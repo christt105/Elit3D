@@ -7,7 +7,7 @@
 #include "m1Render3D.h"
 #include "m1Scene.h"
 #include "m1GUI.h"
-#include "ModuleObjects.h"
+#include "m1Objects.h"
 #include "m1Camera3D.h"
 
 #include "FileSystem.h"
@@ -145,4 +145,9 @@ inline const char* Application::GetName() const
 float Application::GetDt() const
 {
 	return dt;
+}
+
+unsigned int Application::GetFrames() const
+{
+	return frame_count;
 }

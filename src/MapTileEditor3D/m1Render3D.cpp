@@ -57,6 +57,7 @@ bool m1Render3D::Init(const nlohmann::json& node)
     bShader = new Shader("Shaders/def_vx_shader.glsl", "Shaders/def_fg_shader.glsl");
 
     glEnable(GL_MULTISAMPLE);
+    glEnable(GL_DEPTH_TEST);
 
     bShader->Use();
 
@@ -65,7 +66,7 @@ bool m1Render3D::Init(const nlohmann::json& node)
 
 UpdateStatus m1Render3D::PreUpdate()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     bShader->Use();
 

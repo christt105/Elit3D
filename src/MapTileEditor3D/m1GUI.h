@@ -1,5 +1,9 @@
 #pragma once
 #include "Module.h"
+
+class Panel;
+class p1Configuration;
+
 class m1GUI :
 	public Module
 {
@@ -13,5 +17,10 @@ public:
 	UpdateStatus Update() override;
 	UpdateStatus PostUpdate() override;
 	bool CleanUp() override;
+
+private:
+	std::vector<Panel*> panels;
+
+	p1Configuration* configuration = nullptr;
 };
 

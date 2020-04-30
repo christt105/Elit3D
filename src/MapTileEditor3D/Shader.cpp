@@ -69,6 +69,15 @@ void Shader::SetFloat(const char* name, float value) const
     glUniform1f(glGetUniformLocation(id, name), value);
 }
 
+void Shader::SetVec3(const char* name, const float3& value) const
+{
+    int loc = glGetUniformLocation(id, name);
+    if (loc != -1)
+        glUniform3fv(loc, 1, value.ptr());
+    else
+        LOGW("Variable %s not found in %i shader", name, id);
+}
+
 void Shader::SetMat4(const char* name, const float4x4& value) const
 {
     int loc = glGetUniformLocation(id, name);

@@ -131,22 +131,22 @@ bool m1Input::IsKeyPressed(SDL_Scancode scancode)
 
 bool m1Input::IsMouseButtonDown(const int& button)
 {
-    return mouse[button] == KeyState::DOWN;
+    return mouse[button-1] == KeyState::DOWN;
 }
 
 bool m1Input::IsMouseButtonRepeating(const int& button)
 {
-    return mouse[button] == KeyState::REPEAT;
+    return mouse[button-1] == KeyState::REPEAT;
 }
 
 bool m1Input::IsMouseButtonUp(const int& button)
 {
-    return mouse[button] == KeyState::UP;
+    return mouse[button-1] == KeyState::UP;
 }
 
 bool m1Input::IsMouseButtonPressed(const int& button)
 {
-    return mouse[button] != KeyState::IDLE;
+    return mouse[button-1] != KeyState::IDLE;
 }
 
 int m1Input::GetMouseX()

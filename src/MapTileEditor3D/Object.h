@@ -1,5 +1,6 @@
 #pragma once
-//#include "Transform.h"
+#include "Transform.h"
+#include "Material.h"
 
 template<typename T>
 struct Buffer {
@@ -23,6 +24,7 @@ private:
 	Buffer<unsigned int> indices;
 	unsigned int VAO = 0u;
 
-	//Transform transform;
+	Transform transform;
+	Material material;
 };
 

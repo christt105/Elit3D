@@ -47,6 +47,7 @@ public:
 	const char* GetName() const;
 
 	float GetDt() const;
+	unsigned int GetFrames() const;
 
 private:
 	std::vector<Module*> modules;

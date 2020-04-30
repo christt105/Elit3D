@@ -55,6 +55,12 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{bdde4592-aa98-4517-8e8a-402797800f85}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Panels">
+      <UniqueIdentifier>{eed09a86-f6d7-412b-9568-ca65244e1349}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Panels\Base">
+      <UniqueIdentifier>{fd60fadd-e751-462d-9d64-d2b607847417}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Logger.cpp">
@@ -107,9 +113,6 @@
     </ClCompile>
     <ClCompile Include="FileSystem.cpp">
       <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="ModuleObjects.cpp">
-      <Filter>Modules</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
       <Filter>Objects</Filter>
@@ -218,6 +221,18 @@
     </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="m1Objects.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Panel.cpp">
+      <Filter>Panels\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="p1Configuration.cpp">
+      <Filter>Panels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -545,9 +560,6 @@
     <ClInclude Include="ExternalTools\JSON\json.hpp">
       <Filter>External Libraries\JSON</Filter>
     </ClInclude>
-    <ClInclude Include="ModuleObjects.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
     <ClInclude Include="ExternalTools\par_shapes\par_shapes.h">
       <Filter>External Libraries</Filter>
     </ClInclude>
@@ -742,6 +754,18 @@
     </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="m1Objects.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Panel.h">
+      <Filter>Panels\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Configuration.h">
+      <Filter>Panels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

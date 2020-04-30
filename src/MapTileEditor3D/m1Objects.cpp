@@ -1,5 +1,7 @@
-#include "ModuleObjects.h"
+#include "m1Objects.h"
 #include "Object.h"
+#include "Application.h"
+#include "m1Render3D.h"
 #include "ExternalTools/par_shapes/par_shapes.h"
 
 m1Objects::m1Objects(bool start_enabled) : Module("Objects", start_enabled)
@@ -30,6 +32,8 @@ void m1Objects::CreateCube()
 	par_shapes_free_mesh(m);
 
 	obj->GenerateBuffers();
+
+	obj->material.shader = App->render->bShader;
 
 	objects.push_back(obj);
 }
