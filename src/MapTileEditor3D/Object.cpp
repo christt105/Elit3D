@@ -24,14 +24,9 @@ void Object::GenerateBuffers()
 	glGenBuffers(1, &indices.id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.id);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size, indices.data, GL_STATIC_DRAW);
-	
-	// vertex positions
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 	glBindVertexArray(0);
-
-	//glEnable(GL_CULL_FACE);
 }
 
 void Object::Draw()

@@ -47,7 +47,6 @@ UpdateStatus m1Input::PreUpdate()
         {
         case SDL_QUIT:
             return UpdateStatus::UPDATE_STOP;
-            break;
         case SDL_WINDOWEVENT:
             switch (event.window.type)
             {
@@ -152,7 +151,7 @@ bool m1Input::IsMouseButtonPressed(const int& button)
 
 int m1Input::GetMouseX()
 {
-    return mouseY;
+    return mouseX;
 }
 
 int m1Input::GetMouseY()

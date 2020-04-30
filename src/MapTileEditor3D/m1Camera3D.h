@@ -15,7 +15,14 @@ public:
 	UpdateStatus PreUpdate() override;
 	UpdateStatus Update() override;
 
+	void CameraMovement();
+
 private:
 	Frustum frustum;
+
+	int currentX = 0;
+	int currentY = 0;
+	int lastX = 0;
+	int lastY = 0;
 };
 

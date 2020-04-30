@@ -132,7 +132,7 @@
 // cluttered and hard to read.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-//#define	TEST_MEMORY_MANAGER
+#define	TEST_MEMORY_MANAGER
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // -DOC- Enable this sucker if you really want to stress-test your app's memory usage, or to help find hard-to-find bugs

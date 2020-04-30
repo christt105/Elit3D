@@ -19,6 +19,8 @@ public:
 	bool CleanUp() override;
 
 	float GetAspectRatio() const;
+	unsigned int GetWidth() const;
+	unsigned int GetHeight() const;
 
 	void SetWindowSize(const int& w, const int& h);
 

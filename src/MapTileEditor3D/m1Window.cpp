@@ -87,6 +87,16 @@ float m1Window::GetAspectRatio() const
     return (float)(width / height);
 }
 
+unsigned int m1Window::GetWidth() const
+{
+    return width;
+}
+
+unsigned int m1Window::GetHeight() const
+{
+    return height;
+}
+
 void m1Window::SetWindowSize(const int& w, const int& h)
 {
     width = w;
