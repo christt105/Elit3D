@@ -159,6 +159,11 @@ int m1Input::GetMouseY()
     return mouseY;
 }
 
+int m1Input::GetMouseZ()
+{
+	return mouseZ;
+}
+
 void m1Input::GetMousePosition(int* x, int* y)
 {
     *x = mouseX;

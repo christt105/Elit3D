@@ -34,6 +34,7 @@ public:
 
 	int GetMouseX();
 	int GetMouseY();
+	int GetMouseZ();
 
 	void GetMousePosition(int* x, int* y);
 

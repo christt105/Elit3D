@@ -71,26 +71,30 @@ void m1Camera3D::CameraMovement()
 
 	if (App->input->IsMouseButtonPressed(SDL_BUTTON_RIGHT)) {
 		if (App->input->IsMouseButtonDown(SDL_BUTTON_RIGHT)) {
-			lastX = App->input->GetMouseX();
-			lastY = App->input->GetMouseY();
+			lastRight = float2(App->input->GetMouseX(), App->input->GetMouseY());
 		}
+		float2 current = float2(App->input->GetMouseX(), App->input->GetMouseY());
+		float2 offset = (current - lastRight) * orbit_speed;
 
-		currentX = App->input->GetMouseX();
-		currentY = App->input->GetMouseY();
+		lastRight = current;
 
-		int xoffset = currentX - lastX;
-		int yoffset = currentY - lastY;
+		Quat rot = Quat(float3::unitY, -offset.x * App->GetDt()) * Quat(frustum.up.Cross(frustum.front), offset.y * App->GetDt());
 
-		lastX = currentX;
-		lastY = currentY;
+		frustum.front = rot * frustum.front;
+		frustum.up = rot * frustum.up;
+	}
+	if (App->input->IsMouseButtonPressed(SDL_BUTTON_MIDDLE)) {
+		if (App->input->IsMouseButtonDown(SDL_BUTTON_MIDDLE)) {
+			lastMiddle = float2(App->input->GetMouseX(), App->input->GetMouseY());
+		}
+		float2 current = float2(App->input->GetMouseX(), App->input->GetMouseY());
+		float2 offset = (current - lastMiddle) * pan_speed;
 
-		float smooth = 0.1f;
+		lastMiddle = current;
 
-		Quat rot = Quat(float3::unitY, -xoffset * smooth * App->GetDt());
-		Quat rot2 = Quat(frustum.up.Cross(frustum.front), yoffset * smooth * App->GetDt());
-
-		frustum.front = rot * rot2 * frustum.front;
-		float3 right = frustum.front.Cross(float3::unitY);
-		frustum.up = rot * rot2 * frustum.up;
+		frustum.pos += frustum.up.Cross(frustum.front) * offset.x * App->GetDt() + frustum.up * offset.y * App->GetDt();
+	}
+	if (App->input->GetMouseZ() != 0) {
+		frustum.pos += frustum.front * App->input->GetMouseZ() * zoom_speed * App->GetDt();
 	}
 }
