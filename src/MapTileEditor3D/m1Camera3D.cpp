@@ -28,13 +28,24 @@ bool m1Camera3D::Start()
 	frustum.front = float3::unitZ;
 	frustum.up = float3::unitY;
 	
-	frustum.nearPlaneDistance = 1.f;
+	frustum.nearPlaneDistance = 0.1f;
 	frustum.farPlaneDistance = 100.f;
 
-	frustum.verticalFov = DegToRad(60.f);
-	frustum.horizontalFov = 2.f * atanf(tanf(frustum.verticalFov * 0.5f) * App->window->GetWidth() / App->window->GetHeight());
+	SetFov(60.f);
 
 	return ret;
+}
+
+void m1Camera3D::SetFov(float vertical_angle)
+{
+	FOV = vertical_angle;
+	SetFov();
+}
+
+void m1Camera3D::SetFov()
+{
+	frustum.verticalFov = DegToRad(FOV);
+	frustum.horizontalFov = 2.f * atanf(tanf(frustum.verticalFov * 0.5f) * App->window->GetWidth() / App->window->GetHeight());
 }
 
 UpdateStatus m1Camera3D::PreUpdate()
@@ -80,8 +91,11 @@ void m1Camera3D::CameraMovement()
 
 		Quat rot = Quat(float3::unitY, -offset.x * App->GetDt()) * Quat(frustum.up.Cross(frustum.front), offset.y * App->GetDt());
 
-		frustum.front = rot * frustum.front;
-		frustum.up = rot * frustum.up;
+		float3 up = rot * frustum.up;
+		if (up.y >= 0) { // Block rotation camera will be upside down
+			frustum.front = rot * frustum.front;
+			frustum.up = up;
+		}
 	}
 	if (App->input->IsMouseButtonPressed(SDL_BUTTON_MIDDLE)) {
 		if (App->input->IsMouseButtonDown(SDL_BUTTON_MIDDLE)) {

@@ -93,24 +93,6 @@
     <ClCompile Include="m1GUI.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
-    <ClCompile Include="ExternalTools\ImGui\imgui_impl_opengl3.cpp">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ExternalTools\ImGui\imgui_impl_sdl.cpp">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ExternalTools\ImGui\imgui_widgets.cpp">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ExternalTools\ImGui\imgui.cpp">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ExternalTools\ImGui\imgui_demo.cpp">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ExternalTools\ImGui\imgui_draw.cpp">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClCompile>
     <ClCompile Include="FileSystem.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
@@ -233,6 +215,27 @@
     </ClCompile>
     <ClCompile Include="p1Configuration.cpp">
       <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="p1About.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui_widgets.cpp">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui.cpp">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui_demo.cpp">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui_draw.cpp">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui_impl_opengl3.cpp">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\ImGui\imgui_impl_sdl.cpp">
+      <Filter>External Libraries\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -530,30 +533,6 @@
     <ClInclude Include="m1GUI.h">
       <Filter>Modules</Filter>
     </ClInclude>
-    <ClInclude Include="ExternalTools\ImGui\imgui_impl_opengl3.h">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ExternalTools\ImGui\imgui_impl_sdl.h">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ExternalTools\ImGui\imgui_internal.h">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ExternalTools\ImGui\imstb_rectpack.h">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ExternalTools\ImGui\imstb_textedit.h">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ExternalTools\ImGui\imstb_truetype.h">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ExternalTools\ImGui\imconfig.h">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ExternalTools\ImGui\imgui.h">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClInclude>
     <ClInclude Include="FileSystem.h">
       <Filter>Tools</Filter>
     </ClInclude>
@@ -766,6 +745,33 @@
     </ClInclude>
     <ClInclude Include="p1Configuration.h">
       <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="p1About.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imgui_internal.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imstb_rectpack.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imstb_textedit.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imstb_truetype.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imconfig.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imgui.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imgui_impl_opengl3.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\imgui_impl_sdl.h">
+      <Filter>External Libraries\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

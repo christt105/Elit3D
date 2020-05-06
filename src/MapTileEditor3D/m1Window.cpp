@@ -3,6 +3,8 @@
 #include <string>
 #include <SDL_opengl.h>
 
+#include "m1Camera3D.h"
+
 #include "Logger.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
@@ -102,4 +104,5 @@ void m1Window::SetWindowSize(const int& w, const int& h)
     width = w;
     height = h;
     glViewport(0, 0, w, h);
+    App->camera->SetFov();
 }

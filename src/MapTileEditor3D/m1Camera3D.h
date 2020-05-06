@@ -13,6 +13,9 @@ public:
 
 	bool Start() override;
 
+	void SetFov(float vertical_angle);
+	void SetFov();
+
 	UpdateStatus PreUpdate() override;
 	UpdateStatus Update() override;
 
@@ -23,6 +26,8 @@ private:
 
 	float2 lastRight;
 	float2 lastMiddle;
+
+	float FOV = 60.f;
 
 	float pan_speed = 0.5f;
 	float orbit_speed = 0.1f;

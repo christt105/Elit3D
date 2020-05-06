@@ -48,12 +48,13 @@ UpdateStatus m1Input::PreUpdate()
         case SDL_QUIT:
             return UpdateStatus::UPDATE_STOP;
         case SDL_WINDOWEVENT:
-            switch (event.window.type)
+            switch (event.window.event)
             {
             case SDL_WINDOWEVENT_RESIZED:
                 App->window->SetWindowSize(event.window.data1, event.window.data2);
                 break;
-            case SDL_WINDOWEVENT:
+            case SDL_WINDOWEVENT_SIZE_CHANGED:
+                App->window->SetWindowSize(event.window.data1, event.window.data2);
                 break;
             default:
                 break;

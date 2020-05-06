@@ -201,6 +201,7 @@
     <ClCompile Include="Module.cpp" />
     <ClCompile Include="m1Objects.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="p1About.cpp" />
     <ClCompile Include="p1Configuration.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -380,6 +381,7 @@
     <ClInclude Include="Module.h" />
     <ClInclude Include="m1Objects.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="p1About.h" />
     <ClInclude Include="p1Configuration.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="Shader.h" />

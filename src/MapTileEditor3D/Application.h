@@ -46,13 +46,19 @@ public:
 	const char* GetName();
 	const char* GetName() const;
 
+	const char* GetVersion();
+	const char* GetVersion() const;
+
 	float GetDt() const;
 	unsigned int GetFrames() const;
+
+	void ExecuteURL(const char* url);
 
 private:
 	std::vector<Module*> modules;
 
 	std::string name;
+	std::string version;
 
 	float dt = 0.f;
 	Uint64 time = 0ULL;

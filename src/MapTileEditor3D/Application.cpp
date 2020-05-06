@@ -1,5 +1,8 @@
 #include "Application.h"
 
+#include <Windows.h>
+#include <shellapi.h>
+
 #include "Logger.h"
 
 #include "m1Input.h"
@@ -50,6 +53,7 @@ bool Application::Init()
 		LOGE("Configuration.json not found");
 
 	name.assign(conf.value("name", "PROGRAM"));
+	version.assign(conf.value("version", "0.1"));
 
 	for (auto i = modules.begin(); i != modules.end(); ++i) {
 		LOG("Initializing module %s", (*i)->name.c_str());
@@ -142,6 +146,16 @@ inline const char* Application::GetName() const
 	return name.c_str();
 }
 
+const char* Application::GetVersion()
+{
+	return version.c_str();
+}
+
+const char* Application::GetVersion() const
+{
+	return version.c_str();
+}
+
 float Application::GetDt() const
 {
 	return dt;
@@ -150,4 +164,10 @@ float Application::GetDt() const
 unsigned int Application::GetFrames() const
 {
 	return frame_count;
+}
+
+void Application::ExecuteURL(const char* url)
+{
+	// TODO: set it for linux and mac
+	ShellExecute(0, 0, url, 0, 0, SW_SHOW);
 }

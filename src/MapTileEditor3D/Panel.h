@@ -4,8 +4,8 @@
 
 class Panel
 {
-	friend class m1GUI;
 public:
+	friend class m1GUI;
 	Panel(const char* name, bool start_active = true);
 	virtual ~Panel();
 
