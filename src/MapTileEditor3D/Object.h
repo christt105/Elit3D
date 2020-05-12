@@ -1,30 +1,24 @@
 #pragma once
-#include "Transform.h"
-#include "Material.h"
 
-template<typename T>
-struct Buffer {
-	unsigned int size = 0u;
-	unsigned int id = 0u;
-	T* data = nullptr;
-};
+#include <vector>
+#include <string>
+#include "Component.h"
 
 class Object
 {
-	friend class m1Objects;
 public:
 	Object();
 	~Object();
 
-	void GenerateBuffers();
-	void Draw();
+public:
+	void Update();
+
+	const char* GetName() const;
+	Component* CreateComponent(Component::Type type);
 
 private:
-	Buffer<float> vertices;
-	Buffer<unsigned int> indices;
-	unsigned int VAO = 0u;
+	std::vector<Component*> components;
 
-	Transform transform;
-	Material material;
+	std::string name = "Object";
 };
 

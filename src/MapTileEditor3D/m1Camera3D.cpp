@@ -7,9 +7,11 @@
 #include "m1Input.h"
 #include "m1Window.h"
 #include "m1Render3D.h"
-#include "Shader.h"
+#include "r1Shader.h"
 
 #include "Logger.h"
+
+#include "ExternalTools/mmgr/mmgr.h"
 
 m1Camera3D::m1Camera3D(bool start_enabled) : Module("Camera3D", start_enabled)
 {
@@ -24,7 +26,7 @@ bool m1Camera3D::Start()
 	bool ret = true;
 
 	frustum.type = FrustumType::PerspectiveFrustum;
-	frustum.pos = float3(0.f, 0.f, -5.f);
+	frustum.pos = float3(0.f, 1.f, -5.f);
 	frustum.front = float3::unitZ;
 	frustum.up = float3::unitY;
 	

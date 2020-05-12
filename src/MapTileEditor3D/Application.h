@@ -15,8 +15,11 @@ class m1Scene;
 class m1GUI;
 class m1Objects;
 class m1Camera3D;
+class m1Resources;
+class m1Importer;
 
 class FileSystem;
+class Random;
 
 class Application
 {
@@ -32,15 +35,18 @@ public:
 	bool CleanUp();
 
 public:
-	m1Window*	window = nullptr;
-	m1Render3D* render = nullptr;
-	m1Input*	input  = nullptr;
-	m1Scene*	scene = nullptr;
-	m1GUI*		gui = nullptr;
-	m1Objects* objects = nullptr;
-	m1Camera3D* camera = nullptr;
+	m1Window*		window = nullptr;
+	m1Render3D*		render = nullptr;
+	m1Input*		input  = nullptr;
+	m1Scene*		scene = nullptr;
+	m1GUI*			gui = nullptr;
+	m1Objects*		objects = nullptr;
+	m1Camera3D*		camera = nullptr;
+	m1Resources*	resources = nullptr;
+	m1Importer* importer = nullptr;
 
 	FileSystem* file_system = nullptr;
+	Random*		random = nullptr;
 
 public:
 	const char* GetName();

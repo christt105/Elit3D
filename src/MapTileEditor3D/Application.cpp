@@ -12,8 +12,11 @@
 #include "m1GUI.h"
 #include "m1Objects.h"
 #include "m1Camera3D.h"
+#include "m1Resources.h"
+#include "m1Importer.h"
 
 #include "FileSystem.h"
+#include "Random.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
@@ -27,6 +30,7 @@ Application::~Application()	{
 
 bool Application::Init()
 {
+	//Create instances of modules
 	input = new m1Input();
 	window = new m1Window();
 	render = new m1Render3D();
@@ -34,9 +38,15 @@ bool Application::Init()
 	gui = new m1GUI();
 	objects = new m1Objects();
 	camera = new m1Camera3D();
+	resources = new m1Resources();
+	importer = new m1Importer();
 
+	//Assign order of execution to modules NOTE: Inverse order to CleanUp()
 	modules.push_back(input);
 	modules.push_back(window);
+
+	modules.push_back(resources);
+	modules.push_back(importer);
 
 	modules.push_back(camera);
 	modules.push_back(scene);
@@ -45,7 +55,9 @@ bool Application::Init()
 	modules.push_back(gui);
 	modules.push_back(render);
 
+	//Create helpers
 	file_system = new FileSystem();
+	random = new Random();
 
 	nlohmann::json conf = file_system->OpenJSONFile("Configuration/Configuration.json")["App"];
 
@@ -126,6 +138,7 @@ bool Application::CleanUp()
 	bool ret = true;
 
 	delete file_system;
+	delete random;
 
 	for (auto i = modules.rbegin(); i != modules.rend(); ++i) {
 		LOG("Cleaning Up module %s", (*i)->name.c_str());

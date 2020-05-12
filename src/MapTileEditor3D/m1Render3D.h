@@ -4,7 +4,7 @@
 
 #include <SDL_video.h>
 
-class Shader;
+class r1Shader;
 
 class m1Render3D :
 	public Module
@@ -22,9 +22,9 @@ public:
 
 	bool CleanUp() override;
 
-	Shader* bShader = nullptr;
+	r1Shader* bShader = nullptr;
 private:
-	SDL_GLContext context;
+	SDL_GLContext context = nullptr;
 
 };
 

@@ -10,7 +10,7 @@ enum class UpdateStatus {
 
 class Module {
 public:
-	Module(const char* n, bool start_enabled = true);
+	Module(const char* n, bool start_enabled);
 	virtual ~Module();
 
 	virtual bool Init(const nlohmann::json& node);

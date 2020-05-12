@@ -132,7 +132,7 @@
 // cluttered and hard to read.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-#define	TEST_MEMORY_MANAGER
+//#define	TEST_MEMORY_MANAGER
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // -DOC- Enable this sucker if you really want to stress-test your app's memory usage, or to help find hard-to-find bugs
@@ -247,13 +247,8 @@ static		unsigned int	sourceLine             = 0;
 static		bool		staticDeinitTime       = false;
 static		sAllocUnit	**reservoirBuffer      = NULL;
 static		unsigned int	reservoirBufferSize    = 0;
-#ifndef GAME_BUILD
 static const	char		*memoryLogFile         = "memory.log";
 static const	char		*memoryLeakLogFile     = "memleaks.log";
-#else
-static const	char		*memoryLogFile = "";
-static const	char		*memoryLeakLogFile = "";
-#endif
 static		void		doCleanupLogOnFirstRun();
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -276,7 +271,7 @@ static	void	log(const char *format, ...)
 
 	// Open the log file
 
-	FILE	*fp = fopen(memoryLogFile, "ab");
+	/*FILE	*fp = fopen(memoryLogFile, "ab");
 	
 	// If you hit this assert, then the memory logger is unable to log information to a file (can't open the file for some
 	// reason.) You can interrogate the variable 'buffer' to see what was supposed to be logged (but won't be.)
@@ -287,7 +282,7 @@ static	void	log(const char *format, ...)
 	// Spit out the data to the log
 
 	fprintf(fp, "%s\r\n", buffer);
-	fclose(fp);
+	fclose(fp);*/
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------

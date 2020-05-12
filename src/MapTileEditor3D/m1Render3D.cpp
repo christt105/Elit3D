@@ -5,7 +5,7 @@
 
 #include "Application.h"
 
-#include "Shader.h"
+#include "r1Shader.h"
 
 #include "m1Window.h"
 
@@ -54,12 +54,13 @@ bool m1Render3D::Init(const nlohmann::json& node)
 
     glClearColor(node["color"][0], node["color"][1], node["color"][2], node["color"][3]);
 
-    bShader = new Shader("Shaders/def_vx_shader.glsl", "Shaders/def_fg_shader.glsl");
+    bShader = new r1Shader("Configuration/Shader/def_vx_shader.glsl", "Configuration/Shader/def_fg_shader.glsl");
 
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
 
     bShader->Use();
+    bShader->SetVec3("color", float3::zero);
 
 	return ret;
 }

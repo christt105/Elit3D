@@ -13,11 +13,8 @@ public:
 	bool CleanUp() override;
 
 private:
-	unsigned int VAO = 0u;
-
-	float* vertices = nullptr;
-	unsigned int VBO = 0u;
-	unsigned int* indices = nullptr;
-	unsigned int EBO = 0u;
+	unsigned int VAO = 0;
+	unsigned int grid = 0u;
+	int grid_vertex_size = 0;
 };
 
