@@ -9,7 +9,9 @@ public:
 
 	bool Init(const nlohmann::json& node) override;
 	bool Start() override;
+	void GenerateGrid();
 	UpdateStatus Update() override;
+	void DrawGrid();
 	bool CleanUp() override;
 
 private:

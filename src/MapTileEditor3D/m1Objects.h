@@ -11,6 +11,7 @@ public:
 	~m1Objects();
 
 	void CreateCube();
+	Object* CreateEmptyObject();
 
 	bool Start() override;
 	UpdateStatus Update() override;

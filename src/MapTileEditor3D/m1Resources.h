@@ -1,5 +1,7 @@
 #pragma once
 #include "Module.h"
+#include "Application.h"
+#include "Random.h"
 #include "Resource.h"
 #include <SDL_stdinc.h>
 
@@ -28,9 +30,14 @@ public:
 	Uint64 Find(const char* file);
 	Resource* Get(const Uint64& uid) const;
 
+	template<class T>
+	T* CreateResource(const char* assets_path, const uint64_t& force_uid = 0ULL);
 	Resource* CreateResource(Resource::Type type, const char* assets_path, const uint64_t& force_uid = 0ULL);
 
+	void SetResourceStrings(Resource* ret, const char* assets_path);
+
 	uint64_t GenerateMeta(const char* file);
+
 private:
 	void GenerateLibrary();
 	void ImportFiles(const Folder& parent, Resource::Type type = Resource::Type::NONE);
@@ -40,7 +47,21 @@ private:
 
 	void DeleteFromLibrary(Resource::Type type, const uint64_t& meta);
 
+	void DeleteMeshes(const uint64_t& meta);
+
 private:
 	std::map<uint64_t, Resource*> resources;
 };
 
+template<class T>
+inline T* m1Resources::CreateResource(const char* assets_path, const uint64_t& force_uid)
+{
+	T* ret = new T((force_uid == 0) ? App->random->RandomGUID() : force_uid);
+
+	SetResourceStrings(ret, assets_path);
+
+	resources[ret->GetUID()] = ret;
+
+
+	return ret;
+}

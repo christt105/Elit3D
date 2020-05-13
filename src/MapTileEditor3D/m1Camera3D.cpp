@@ -67,20 +67,19 @@ UpdateStatus m1Camera3D::Update()
 
 void m1Camera3D::CameraMovement()
 {
-	float speed = 15.f;
 	if (App->input->IsKeyPressed(SDL_SCANCODE_W))
-		frustum.pos += frustum.front.Normalized() * speed * App->GetDt();
+		frustum.pos += frustum.front.Normalized() * mov_speed * App->GetDt();
 	if (App->input->IsKeyPressed(SDL_SCANCODE_S))
-		frustum.pos -= frustum.front.Normalized() * speed * App->GetDt();
+		frustum.pos -= frustum.front.Normalized() * mov_speed * App->GetDt();
 	if (App->input->IsKeyPressed(SDL_SCANCODE_A))
-		frustum.pos -= frustum.front.Cross(frustum.up) * speed * App->GetDt();
+		frustum.pos -= frustum.front.Cross(frustum.up) * mov_speed * App->GetDt();
 	if (App->input->IsKeyPressed(SDL_SCANCODE_D))
-		frustum.pos += frustum.front.Cross(frustum.up) * speed * App->GetDt();
+		frustum.pos += frustum.front.Cross(frustum.up) * mov_speed * App->GetDt();
 
 	if (App->input->IsKeyPressed(SDL_SCANCODE_R))
-		frustum.pos += float3::unitY * speed * App->GetDt();
+		frustum.pos += float3::unitY * mov_speed * App->GetDt();
 	if (App->input->IsKeyPressed(SDL_SCANCODE_F))
-		frustum.pos -= float3::unitY * speed * App->GetDt();
+		frustum.pos -= float3::unitY * mov_speed * App->GetDt();
 
 	if (App->input->IsMouseButtonPressed(SDL_BUTTON_RIGHT)) {
 		if (App->input->IsMouseButtonDown(SDL_BUTTON_RIGHT)) {

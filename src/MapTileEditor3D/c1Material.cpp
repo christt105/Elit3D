@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 
 #include "Application.h"
+#include "m1Render3D.h"
 #include "m1Resources.h"
 #include "r1Texture.h"
 
@@ -10,6 +11,8 @@
 
 c1Material::c1Material(Object* obj) : Component(obj, Type::Material)
 {
+	shader = App->render->bShader;
+
 	tex = App->resources->Find("four_tiles");
 	auto r = App->resources->Get(tex);
 	r->Attach();

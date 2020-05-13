@@ -13,6 +13,8 @@ public:
 
 	void Update() override;
 
+	void SetMesh(const uint64_t& id);
+
 	void Draw();
 
 private:

@@ -16,7 +16,7 @@ public:
 
 public:
 	Resource(Type type, const uint64_t& uid);
-	~Resource();
+	virtual ~Resource();
 
 	Uint64 GetUID() const;
 
@@ -24,6 +24,10 @@ public:
 
 	void Attach();
 	void Unattach();
+
+	virtual void LoadLibrary() {}
+
+	Resource::Type GetType();
 	
 public:
 	std::string name;

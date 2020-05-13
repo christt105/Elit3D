@@ -32,3 +32,8 @@ void Resource::Unattach()
 	if (--references == 0u)
 		Unload();
 }
+
+Resource::Type Resource::GetType()
+{
+	return type;
+}

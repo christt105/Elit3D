@@ -50,6 +50,14 @@ void m1Objects::CreateCube()
 	objects.push_back(obj);*/
 }
 
+Object* m1Objects::CreateEmptyObject()
+{
+	Object* obj = new Object();
+	objects.push_back(obj);
+
+	return obj;
+}
+
 bool m1Objects::Start()
 {
 	CreateCube();

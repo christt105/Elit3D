@@ -1,12 +1,10 @@
 #include "m1Resources.h"
-#include "Application.h"
 
 #include "r1Texture.h"
 #include "r1Model.h"
 #include "r1Mesh.h"
 
 #include "FileSystem.h"
-#include "Random.h"
 
 #include "Logger.h"
 
@@ -73,25 +71,28 @@ Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_pa
 
 	switch (type)
 	{
-	case Resource::Type::Mesh: ret = new r1Mesh((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
-	case Resource::Type::Model:	ret = new r1Model((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
-	case Resource::Type::Texture: ret = new r1Texture((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
-	case Resource::Type::MAX:
-		break;
+	case Resource::Type::Mesh:		ret = new r1Mesh((force_uid == 0) ? App->random->RandomGUID() : force_uid);		break;
+	case Resource::Type::Model:		ret = new r1Model((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
+	case Resource::Type::Texture:	ret = new r1Texture((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
 	default:
+		LOGW("Resource %i could not be created, resource not setted in switch", (int)type);
 		break;
 	}
 
 	if (ret != nullptr) {
-		ret->assets_path.assign(assets_path);
-		ret->name = App->file_system->GetNameFile(assets_path);
-		ret->extension.assign(App->file_system->GetFileExtension(assets_path));
-		ret->library_path.assign(GetLibraryFromType(type) + std::to_string(ret->GetUID()) + GetExtensionFromType(type));
-
+		SetResourceStrings(ret, assets_path);
 		resources[ret->GetUID()] = ret;
 	}
 
 	return ret;
+}
+
+void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
+{
+	ret->assets_path.assign(assets_path);
+	ret->name = App->file_system->GetNameFile(assets_path);
+	ret->extension.assign(App->file_system->GetFileExtension(assets_path));
+	ret->library_path.assign(GetLibraryFromType(ret->GetType()) + std::to_string(ret->GetUID()) + GetExtensionFromType(ret->GetType()));
 }
 
 void m1Resources::GenerateLibrary()
@@ -105,21 +106,23 @@ void m1Resources::ImportFiles(const Folder& parent, Resource::Type type)
 	for (auto dir = parent.folders.begin(); dir != parent.folders.end(); ++dir) {
 		ImportFiles(*dir);
 	}
+	
 	for (auto file = parent.files.begin(); file != parent.files.end(); ++file) {
-		if (App->file_system->GetFileExtension((*file).c_str()).compare("meta") != 0) { // if is not a meta file
-			if (App->file_system->Exists((parent.name + *file + ".meta").c_str())) {		// exist meta?
-				auto meta = App->file_system->OpenJSONFile((parent.name + *file + ".meta").c_str());
-				if (meta.value("timestamp", 0ULL) == App->file_system->LastTimeWrite((parent.name + *file).c_str())) {	// is the same file timestamp?
-					if (App->file_system->Exists((GetLibraryFromType(type) + std::to_string(meta.value("UID", 0ULL)) + GetExtensionFromType(type)).c_str())) {	// exists in Library?
-						CreateResource(type, (parent.name + *file).c_str(), meta.value("UID", 0ULL));													//Yes, create resource
+		if (App->file_system->GetFileExtension((*file).c_str()).compare("meta") != 0) {
+			if (App->file_system->Exists((parent.name + *file + ".meta").c_str())) {
+				nlohmann::json meta = App->file_system->OpenJSONFile((parent.name + *file + ".meta").c_str());
+				if (meta.value("timestamp", 0ULL) == App->file_system->LastTimeWrite((parent.name + *file).c_str())) {
+					if (App->file_system->Exists((GetLibraryFromType(type) + std::to_string(meta.value("UID", 0ULL)) + GetExtensionFromType(type)).c_str())) {
+						Resource* res = CreateResource(type, (parent.name + *file).c_str(), meta.value("UID", 0ULL));
+						res->LoadLibrary();
 					}
 					else {
-						Resource* res = CreateResource(type, (parent.name + *file).c_str(), meta.value("UID", 0ULL));									//No, import and create resource
+						Resource* res = CreateResource(type, (parent.name + *file).c_str(), meta.value("UID", 0ULL));
 
 						res->GenerateFiles();
 					}
 				}
-				else {																									// Delete from library, update timestamp and import
+				else {
 					DeleteFromLibrary(type, meta.value("UID", 0ULL));
 
 					meta["timestamp"] = App->file_system->LastTimeWrite((parent.name + *file).c_str());
@@ -132,7 +135,7 @@ void m1Resources::ImportFiles(const Folder& parent, Resource::Type type)
 			}
 			else {
 				uint64_t meta = GenerateMeta((parent.name + *file).c_str());
-				
+
 				Resource* res = CreateResource(type, (parent.name + *file).c_str(), meta);
 
 				res->GenerateFiles();
@@ -197,14 +200,22 @@ void m1Resources::DeleteFromLibrary(Resource::Type type, const uint64_t& meta)
 {
 	switch (type)
 	{
-	case Resource::Type::Mesh:
-		break;
 	case Resource::Type::Model:
+		DeleteMeshes(meta);
+		App->file_system->DeleteFile((LIBRARY_MODELS_PATH + std::to_string(meta) + ".model").c_str());
 		break;
 	case Resource::Type::Texture:
 		App->file_system->DeleteFile((LIBRARY_TEXTURES_PATH + std::to_string(meta) + ".texture").c_str());
 		break;
 	default:
+		LOGW("Resource type %i could not be deleted, type not setted in switch", (int)type);
 		break;
 	}
+}
+
+void m1Resources::DeleteMeshes(const uint64_t& meta)
+{
+	auto model = App->file_system->OpenJSONFile((LIBRARY_MODELS_PATH + std::to_string(meta) + ".model").c_str());
+	for (auto i = model["Meshes"].begin(); i != model["Meshes"].end(); ++i)
+		App->file_system->DeleteFile((LIBRARY_MESHES_PATH + std::to_string((uint64_t)*i) + ".mesh").c_str());
 }

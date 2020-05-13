@@ -17,11 +17,24 @@ r1Mesh::r1Mesh(const uint64_t& id) : Resource(Resource::Type::Mesh, id)
 
 r1Mesh::~r1Mesh()
 {
+	Unload();
 }
 
 void r1Mesh::Load()
 {
-	// fill buffers
+	auto file = App->file_system->OpenJSONFile(library_path.c_str());
+
+	vertices.size = file["nVertex"];
+	vertices.data = new float[vertices.size * 3];
+	for (int i = 0; i < vertices.size * 3; ++i) {
+		vertices.data[i] = file["Vertex"][i];
+	}
+
+	indices.size = file["nFaces"] * 3;
+	indices.data = new unsigned int[indices.size];
+	for (int i = 0; i < indices.size; ++i) {
+		indices.data[i] = file["Faces"][i];
+	}
 
 	GenerateBuffers();
 }
@@ -59,6 +72,14 @@ void r1Mesh::GenerateFiles(const aiMesh* mesh)
 		}
 	}
 
+	if (mesh->HasTextureCoords(0)) {
+		for (unsigned int i = 0u; i < mesh->mNumVertices; ++i) {
+			file["Tex"].push_back((float)mesh->mTextureCoords[i]->x);
+			file["Tex"].push_back((float)mesh->mTextureCoords[i]->y);
+			file["Tex"].push_back((float)mesh->mTextureCoords[i]->z);
+		}
+	}
+
 	App->file_system->SaveJSONFile(library_path.c_str(), file);
 }
 
@@ -76,11 +97,11 @@ void r1Mesh::GenerateBuffers()
 	glEnableVertexAttribArray(0);
 
 	// TEXTURE COORDS BUFFER
-	glGenBuffers(1, &texture.id);
+	/*glGenBuffers(1, &texture.id);
 	glBindBuffer(GL_ARRAY_BUFFER, texture.id);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * texture.size, texture.data, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(1);*/
 
 	// INDICES BUFFER
 	glGenBuffers(1, &indices.id);

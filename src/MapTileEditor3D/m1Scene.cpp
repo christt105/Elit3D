@@ -6,6 +6,9 @@
 #include "Application.h"
 #include "m1Input.h"
 
+#include "m1Resources.h"
+#include "r1Model.h"
+
 #include "Logger.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
@@ -24,6 +27,15 @@ bool m1Scene::Init(const nlohmann::json& node)
 }
 
 bool m1Scene::Start()
+{
+	GenerateGrid();
+
+	((r1Model*)App->resources->Get(App->resources->Find("cuube")))->CreateObject();
+
+	return true;
+}
+
+void m1Scene::GenerateGrid()
 {
 	int width = 10;
 	grid_vertex_size = (width + 1) * 4 * 3; // width + 1(for the middle line) * 4(4 points by line) * 3(3 numbers per point)
@@ -60,10 +72,8 @@ bool m1Scene::Start()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-	
-	delete[] g;
 
-	return true;
+	delete[] g;
 }
 
 UpdateStatus m1Scene::Update()
@@ -71,11 +81,16 @@ UpdateStatus m1Scene::Update()
 	if (App->input->IsKeyDown(SDL_SCANCODE_ESCAPE))
 		return UpdateStatus::UPDATE_STOP;
 
+	DrawGrid();
+
+	return UpdateStatus::UPDATE_CONTINUE;
+}
+
+void m1Scene::DrawGrid()
+{
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, grid);
 	glDrawArrays(GL_LINES, 0, grid_vertex_size);
-
-	return UpdateStatus::UPDATE_CONTINUE;
 }
 
 bool m1Scene::CleanUp()
