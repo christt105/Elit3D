@@ -13,7 +13,9 @@ class r1Model :
 		std::string name;
 		std::vector<Node> children;
 
-		float transform[4 * 4];
+		float pos[3];
+		float scale[3];
+		float rot[4];
 		uint64_t mesh = 0ull;
 
 		nlohmann::json Parse();

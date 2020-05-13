@@ -36,6 +36,12 @@ void r1Mesh::Load()
 		indices.data[i] = file["Faces"][i];
 	}
 
+	texture.size = vertices.size;
+	texture.data = new float[texture.size * 2];
+	for (int i = 0; i < texture.size * 2; ++i) {
+		texture.data[i] = file["Tex"][i];
+	}
+
 	GenerateBuffers();
 }
 
@@ -64,7 +70,7 @@ void r1Mesh::GenerateFiles(const aiMesh* mesh)
 		file["Vertex"].push_back(mesh->mVertices[i].y);
 		file["Vertex"].push_back(mesh->mVertices[i].z);
 	}
-
+	
 	file["nFaces"] = mesh->mNumFaces;
 	for (unsigned int i = 0u; i < mesh->mNumFaces; ++i) {
 		for (unsigned int f = 0u; f < mesh->mFaces[i].mNumIndices; ++f) {
@@ -74,9 +80,8 @@ void r1Mesh::GenerateFiles(const aiMesh* mesh)
 
 	if (mesh->HasTextureCoords(0)) {
 		for (unsigned int i = 0u; i < mesh->mNumVertices; ++i) {
-			file["Tex"].push_back((float)mesh->mTextureCoords[i]->x);
-			file["Tex"].push_back((float)mesh->mTextureCoords[i]->y);
-			file["Tex"].push_back((float)mesh->mTextureCoords[i]->z);
+			file["Tex"].push_back((float)mesh->mTextureCoords[0][i].x);
+			file["Tex"].push_back((float)mesh->mTextureCoords[0][i].y);
 		}
 	}
 
@@ -97,11 +102,13 @@ void r1Mesh::GenerateBuffers()
 	glEnableVertexAttribArray(0);
 
 	// TEXTURE COORDS BUFFER
-	/*glGenBuffers(1, &texture.id);
-	glBindBuffer(GL_ARRAY_BUFFER, texture.id);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * texture.size, texture.data, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(1);*/
+	if (texture.data != nullptr) {
+		glGenBuffers(1, &texture.id);
+		glBindBuffer(GL_ARRAY_BUFFER, texture.id);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * texture.size, texture.data, GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		glEnableVertexAttribArray(1);
+	}
 
 	// INDICES BUFFER
 	glGenBuffers(1, &indices.id);

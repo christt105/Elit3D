@@ -89,9 +89,11 @@ Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_pa
 
 void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 {
-	ret->assets_path.assign(assets_path);
-	ret->name = App->file_system->GetNameFile(assets_path);
-	ret->extension.assign(App->file_system->GetFileExtension(assets_path));
+	if (strcmp(assets_path, "") != 0) {
+		ret->assets_path.assign(assets_path);
+		ret->name = App->file_system->GetNameFile(assets_path);
+		ret->extension.assign(App->file_system->GetFileExtension(assets_path));
+	}
 	ret->library_path.assign(GetLibraryFromType(ret->GetType()) + std::to_string(ret->GetUID()) + GetExtensionFromType(ret->GetType()));
 }
 

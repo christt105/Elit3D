@@ -5,7 +5,10 @@
 #include "m1Resources.h"
 
 #include "Object.h"
+
 #include "c1Material.h"
+#include "c1Transform.h"
+
 #include "r1Mesh.h"
 #include "r1Shader.h"
 
@@ -39,10 +42,12 @@ void c1Mesh::Draw()
 	if (rmesh != nullptr) {
 		glBindVertexArray(rmesh->VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, rmesh->vertices.id);
-		glVertexPointer(3, GL_FLOAT, 0, (void*)0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rmesh->indices.id);
+		//glVertexPointer(3, GL_FLOAT, 0, (void*)0);
+		//material->shader->SetVec3("color", float3::zero);
+		material->shader->SetMat4("model", object->transform->mat);
 
-		material->shader->SetVec3("color", float3::zero);
+		material->BindTex();
 		glDrawElements(GL_TRIANGLES, rmesh->indices.size, GL_UNSIGNED_INT, (void*)0);
 	}
 	else

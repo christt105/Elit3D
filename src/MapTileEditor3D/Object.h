@@ -24,6 +24,7 @@ public:
 	template<class C>
 	C* CreateComponent();
 
+	c1Transform* transform = nullptr;
 private:
 	std::vector<Component*> components;
 	std::vector<Object*> children;
@@ -31,7 +32,6 @@ private:
 	std::string name = "Object";
 
 	Object* parent = nullptr;
-	c1Transform* transform = nullptr;
 };
 
 template<class C>

@@ -10,7 +10,6 @@ public:
 	m1Objects(bool start_enabled = true);
 	~m1Objects();
 
-	void CreateCube();
 	Object* CreateEmptyObject();
 
 	bool Start() override;

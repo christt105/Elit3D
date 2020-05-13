@@ -17,6 +17,8 @@
 #include "ExternalTools/Assimp/include/postprocess.h"
 #include "ExternalTools/Assimp/include/cimport.h"
 
+#include "ExternalTools/MathGeoLib/include/Math/Quat.h"
+
 #include "Logger.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
@@ -46,7 +48,7 @@ void r1Model::GenerateFiles()
 			meshes.push_back(m->GetUID());
 		}
 
-		for (unsigned int i = 0; i < scene->mNumTextures; ++i) {
+		for (unsigned int i = 0; i < scene->mNumTextures; ++i) { //TODO
 			r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
 			m->GenerateFiles(scene->mTextures[i]);
 			textures.push_back(m->GetUID());
@@ -96,6 +98,11 @@ void r1Model::CreateChildren(nlohmann::json& jobj, Object* parent)
 		Object* child = parent->CreateChild();
 		child->SetName((*i).value("name", "Object").c_str());
 
+		float3 pos((*i)["position"][0], (*i)["position"][1], (*i)["position"][2]);
+		float3 scale((*i)["scale"][0], (*i)["scale"][1], (*i)["scale"][2]);
+		Quat rot((*i)["rotation"][3], (*i)["rotation"][0], (*i)["rotation"][1], (*i)["rotation"][2]);
+		child->transform->mat = float4x4::FromTRS(pos, rot, scale);
+
 		if ((*i)["meshID"] != 0) {
 			c1Mesh* mesh = child->CreateComponent<c1Mesh>();
 			mesh->SetMesh((*i)["meshID"]);
@@ -122,22 +129,25 @@ r1Model::Node r1Model::FillNodeHierarchy(const aiNode* parent, const std::vector
 	Node ret;
 	ret.name.assign(parent->mName.C_Str());
 
-	ret.transform[0] = parent->mTransformation.a1;
-	ret.transform[1] = parent->mTransformation.a2;
-	ret.transform[2] = parent->mTransformation.a3;
-	ret.transform[3] = parent->mTransformation.a4;
-	ret.transform[4] = parent->mTransformation.b2;
-	ret.transform[5] = parent->mTransformation.b1;
-	ret.transform[6] = parent->mTransformation.b3;
-	ret.transform[7] = parent->mTransformation.b4;
-	ret.transform[8] = parent->mTransformation.c1;
-	ret.transform[9] = parent->mTransformation.c2;
-	ret.transform[10] = parent->mTransformation.c3;
-	ret.transform[11] = parent->mTransformation.c4;
-	ret.transform[12] = parent->mTransformation.d1;
-	ret.transform[13] = parent->mTransformation.d2;
-	ret.transform[14] = parent->mTransformation.d3;
-	ret.transform[15] = parent->mTransformation.d4;
+	aiVector3D pos, scale;
+	aiQuaternion rot;
+	parent->mTransformation.Decompose(scale, rot, pos);
+	ret.pos[0] = pos.x;
+	ret.pos[1] = pos.y;
+	ret.pos[2] = pos.z;
+
+	ret.rot[0] = rot.w;
+	ret.rot[1] = rot.x;
+	ret.rot[2] = rot.y;
+	ret.rot[3] = rot.z;
+	
+	float unit_scale = 1.f;
+	if (scale.Length() >= 99.9f)
+		unit_scale = 100.f;
+
+	ret.scale[0] = scale.x / unit_scale;
+	ret.scale[1] = scale.y / unit_scale;
+	ret.scale[2] = scale.z / unit_scale;
 
 	if (parent->mNumMeshes == 1)
 		ret.mesh = ids[parent->mMeshes[0]];
@@ -162,8 +172,12 @@ nlohmann::json r1Model::Node::Parse()
 	node["meshID"] = mesh;
 	node["name"] = name;
 
-	for (int i = 0; i < 16; ++i)
-		node["transformation"].push_back(transform[i]);
+	for (int i = 0; i < 3; ++i) {
+		node["position"].push_back(pos[i]);
+		node["rotation"].push_back(rot[i]);
+		node["scale"].push_back(scale[i]);
+	}
+	node["rotation"].push_back(rot[3]);
 
 	for (auto i = children.begin(); i != children.end(); ++i)
 		node["Children"].push_back((*i).Parse());
