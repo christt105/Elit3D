@@ -4,6 +4,7 @@
 #include "Random.h"
 #include "Resource.h"
 #include <SDL_stdinc.h>
+//#include <winnt.h>
 
 struct Folder;
 
@@ -37,6 +38,8 @@ public:
 	void SetResourceStrings(Resource* ret, const char* assets_path);
 
 	uint64_t GenerateMeta(const char* file);
+
+	std::vector<Resource*> GetVectorOf(Resource::Type type);
 
 private:
 	void GenerateLibrary();

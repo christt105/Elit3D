@@ -14,6 +14,8 @@
 
 #include "Logger.h"
 
+#include "ExternalTools/ImGui/imgui.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 c1Mesh::c1Mesh(Object* obj) : Component(obj, Type::Mesh), material(obj->CreateComponent<c1Material>())
@@ -26,7 +28,21 @@ c1Mesh::~c1Mesh()
 
 void c1Mesh::Update()
 {
-	Draw();
+	const r1Mesh* rmesh = (r1Mesh*)App->resources->Get(mesh);
+	if (rmesh != nullptr) {
+		glBindVertexArray(rmesh->VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, rmesh->vertices.id);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rmesh->indices.id);
+
+		material->shader->SetVec3("color", float3::one);
+		material->shader->SetMat4("model", object->transform->mat);
+
+		material->BindTex();
+		glDrawElements(GL_TRIANGLES, rmesh->indices.size, GL_UNSIGNED_INT, (void*)0);
+		material->UnBindTex();
+	}
+	else
+		LOGE("Object %s not find mesh %" SDL_PRIu64, object->GetName(), mesh)
 }
 
 void c1Mesh::SetMesh(const uint64_t& id)
@@ -36,20 +52,19 @@ void c1Mesh::SetMesh(const uint64_t& id)
 	res->Attach();
 }
 
-void c1Mesh::Draw()
+void c1Mesh::OnInspector()
 {
-	const r1Mesh* rmesh = (r1Mesh*)App->resources->Get(mesh);
-	if (rmesh != nullptr) {
-		glBindVertexArray(rmesh->VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, rmesh->vertices.id);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rmesh->indices.id);
-		//glVertexPointer(3, GL_FLOAT, 0, (void*)0);
-		//material->shader->SetVec3("color", float3::zero);
-		material->shader->SetMat4("model", object->transform->mat);
+	if (ImGui::CollapsingHeader("Mesh")) {
+		if (mesh != 0U) {
+			const r1Mesh* rmesh = (r1Mesh*)App->resources->Get(mesh);
+			ImGui::Text("Mesh: "); ImGui::SameLine();
+			ImGui::TextColored(ImVec4(1.f, 0.6f, 0.f, 1.f), "%s", rmesh->name.c_str());
 
-		material->BindTex();
-		glDrawElements(GL_TRIANGLES, rmesh->indices.size, GL_UNSIGNED_INT, (void*)0);
+			ImGui::Text("UID: "); ImGui::SameLine();
+			ImGui::TextColored(ImVec4(1.f, 0.6f, 0.f, 1.f), "%s", std::to_string(rmesh->GetUID()).c_str());
+
+			ImGui::Text("Referneces: "); ImGui::SameLine();
+			ImGui::TextColored(ImVec4(1.f, 0.6f, 0.f, 1.f), "%u", rmesh->references);
+		}
 	}
-	else
-		LOGE("Object %s not find mesh %" SDL_PRIu64, object->GetName(), mesh)
 }

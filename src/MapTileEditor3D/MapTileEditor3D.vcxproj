@@ -212,6 +212,9 @@
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="p1About.cpp" />
     <ClCompile Include="p1Configuration.cpp" />
+    <ClCompile Include="p1Console.cpp" />
+    <ClCompile Include="p1Inspector.cpp" />
+    <ClCompile Include="p1Objects.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="r1Mesh.cpp" />
     <ClCompile Include="r1Model.cpp" />
@@ -469,6 +472,7 @@
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="i1Model.h" />
     <ClInclude Include="i1Tileset.h" />
+    <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="Importer.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="m1Camera3D.h" />
@@ -484,6 +488,9 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="p1About.h" />
     <ClInclude Include="p1Configuration.h" />
+    <ClInclude Include="p1Console.h" />
+    <ClInclude Include="p1Inspector.h" />
+    <ClInclude Include="p1Objects.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="r1Mesh.h" />
     <ClInclude Include="r1Model.h" />

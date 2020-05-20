@@ -27,7 +27,7 @@ void Resource::Attach()
 		Load();
 }
 
-void Resource::Unattach()
+void Resource::Detach()
 {
 	if (--references == 0u)
 		Unload();

@@ -30,14 +30,14 @@ bool m1Scene::Start()
 {
 	GenerateGrid();
 
-	((r1Model*)App->resources->Get(App->resources->Find("cuube")))->CreateObject();
+	((r1Model*)App->resources->Get(App->resources->Find("cubecat")))->CreateObject();
 
 	return true;
 }
 
 void m1Scene::GenerateGrid()
 {
-	int width = 10;
+	int width = 100;
 	grid_vertex_size = (width + 1) * 4 * 3; // width + 1(for the middle line) * 4(4 points by line) * 3(3 numbers per point)
 	float* g = new float[grid_vertex_size];
 
@@ -88,9 +88,11 @@ UpdateStatus m1Scene::Update()
 
 void m1Scene::DrawGrid()
 {
+	glLineWidth(1.5f);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, grid);
 	glDrawArrays(GL_LINES, 0, grid_vertex_size);
+	glLineWidth(1.f);
 }
 
 bool m1Scene::CleanUp()

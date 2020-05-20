@@ -6,6 +6,8 @@ class Object;
 class m1Objects :
 	public Module
 {
+	friend class p1Objects;
+	friend class p1Inspector;
 public:
 	m1Objects(bool start_enabled = true);
 	~m1Objects();
@@ -17,5 +19,6 @@ public:
 
 private:
 	std::vector<Object*> objects;
+	Object* selected = nullptr;
 };
 

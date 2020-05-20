@@ -5,6 +5,7 @@
 
 class Resource
 {
+	friend class m1Resources;
 public:
 	enum class Type {
 		NONE = -1,
@@ -23,7 +24,7 @@ public:
 	virtual void GenerateFiles();
 
 	void Attach();
-	void Unattach();
+	void Detach();
 
 	virtual void LoadLibrary() {}
 

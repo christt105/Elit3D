@@ -294,6 +294,15 @@
     <ClCompile Include="r1Texture.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
+    <ClCompile Include="p1Objects.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="p1Inspector.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="p1Console.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1108,6 +1117,18 @@
     </ClInclude>
     <ClInclude Include="r1Texture.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Objects.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Inspector.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Console.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="IconsFontAwesome5.h">
+      <Filter>External Libraries\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

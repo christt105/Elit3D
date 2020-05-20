@@ -75,7 +75,7 @@ Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_pa
 	case Resource::Type::Model:		ret = new r1Model((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
 	case Resource::Type::Texture:	ret = new r1Texture((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
 	default:
-		LOGW("Resource %i could not be created, resource not setted in switch", (int)type);
+		LOGW("Resource %i from %s could not be created, resource not setted in switch", (int)type, assets_path);
 		break;
 	}
 
@@ -106,7 +106,7 @@ void m1Resources::GenerateLibrary()
 void m1Resources::ImportFiles(const Folder& parent, Resource::Type type)
 {
 	for (auto dir = parent.folders.begin(); dir != parent.folders.end(); ++dir) {
-		ImportFiles(*dir);
+		ImportFiles(*dir, type);
 	}
 	
 	for (auto file = parent.files.begin(); file != parent.files.end(); ++file) {
@@ -139,8 +139,8 @@ void m1Resources::ImportFiles(const Folder& parent, Resource::Type type)
 				uint64_t meta = GenerateMeta((parent.name + *file).c_str());
 
 				Resource* res = CreateResource(type, (parent.name + *file).c_str(), meta);
-
-				res->GenerateFiles();
+				if (res != nullptr)
+					res->GenerateFiles();
 			}
 		}
 	}
@@ -158,6 +158,17 @@ uint64_t m1Resources::GenerateMeta(const char* file)
 	App->file_system->SaveJSONFile((file + std::string(".meta")).c_str(), meta);
 
 	return uid;
+}
+
+std::vector<Resource*> m1Resources::GetVectorOf(Resource::Type type)
+{
+	std::vector<Resource*> ret;
+
+	for (auto i = resources.begin(); i != resources.end(); ++i)
+		if ((*i).second->type == type)
+			ret.push_back((*i).second);
+
+	return ret;
 }
 
 const char* m1Resources::GetLibraryFromType(Resource::Type type)

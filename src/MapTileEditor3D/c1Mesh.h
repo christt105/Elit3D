@@ -15,7 +15,7 @@ public:
 
 	void SetMesh(const uint64_t& id);
 
-	void Draw();
+	void OnInspector() override;
 
 private:
 	Uint64 mesh = 0ULL;

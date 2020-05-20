@@ -16,6 +16,7 @@
 #include "ExternalTools/Assimp/include/scene.h"
 #include "ExternalTools/Assimp/include/postprocess.h"
 #include "ExternalTools/Assimp/include/cimport.h"
+#include "ExternalTools/Assimp/include/metadata.h"
 
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
@@ -36,11 +37,16 @@ r1Model::~r1Model()
 void r1Model::GenerateFiles()
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(assets_path.c_str(), aiProcessPreset_TargetRealtime_MaxQuality);
+	const aiScene* scene = importer.ReadFile(assets_path.c_str(), aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_FlipUVs);
 	
 	if (scene != nullptr && scene->mRootNode != nullptr) {
 		std::vector<uint64_t> meshes;
 		std::vector<uint64_t> textures;
+
+		double factor = 0.0;
+		if (scene->mMetaData->Get("UnitScaleFactor", factor)) {
+			LOG("SCALE FACTOR: %f", factor);
+		}
 
 		for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
 			r1Mesh* m = App->resources->CreateResource<r1Mesh>(assets_path.c_str());
@@ -48,13 +54,33 @@ void r1Model::GenerateFiles()
 			meshes.push_back(m->GetUID());
 		}
 
-		for (unsigned int i = 0; i < scene->mNumTextures; ++i) { //TODO
-			r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
+		for (unsigned int i = 0; i < scene->mNumMaterials; ++i) { //TODO
+			const aiMaterial* mat = scene->mMaterials[i];
+			unsigned int n_tex = mat->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE);
+			for (int i = 0; i < n_tex; ++i) {
+				aiString path;
+				if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS) {
+					if (App->file_system->IsFileInFolderRecursive(App->file_system->GetNameFile(path.C_Str(), true).c_str(), "Assets/")) {
+						auto res = App->resources->Get(App->resources->Find(App->file_system->GetNameFile(path.C_Str(), false).c_str()));
+						if (res != nullptr)
+							textures.push_back(res->GetUID());
+					}
+				}
+			}
+
+			/*r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
 			m->GenerateFiles(scene->mTextures[i]);
-			textures.push_back(m->GetUID());
+			textures.push_back(m->GetUID());*/
 		}
 
-		Node object = FillNodeHierarchy(scene->mRootNode, meshes);
+		for (unsigned int i = 0; i < scene->mNumTextures; ++i) { //TODO
+			LOGW("Textures import from FBX not done already...");
+			/*r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
+			m->GenerateFiles(scene->mTextures[i]);
+			textures.push_back(m->GetUID());*/
+		}
+
+		Node object = FillNodeHierarchy(scene->mRootNode, meshes, textures);
 		nlohmann::json model;
 
 		for (auto i = meshes.begin(); i != meshes.end(); ++i) {
@@ -100,12 +126,16 @@ void r1Model::CreateChildren(nlohmann::json& jobj, Object* parent)
 
 		float3 pos((*i)["position"][0], (*i)["position"][1], (*i)["position"][2]);
 		float3 scale((*i)["scale"][0], (*i)["scale"][1], (*i)["scale"][2]);
-		Quat rot((*i)["rotation"][3], (*i)["rotation"][0], (*i)["rotation"][1], (*i)["rotation"][2]);
+		Quat rot((*i)["rotation"]["x"], (*i)["rotation"]["y"], (*i)["rotation"]["z"], (*i)["rotation"]["w"]);
 		child->transform->mat = float4x4::FromTRS(pos, rot, scale);
 
 		if ((*i)["meshID"] != 0) {
 			c1Mesh* mesh = child->CreateComponent<c1Mesh>();
 			mesh->SetMesh((*i)["meshID"]);
+			if ((*i)["meshID"] != 0) {
+				//c1Mesh* mesh = child-><c1Mesh>();
+				//mesh->SetMesh((*i)["meshID"]);
+			}
 		}
 
 		if ((*i).find("Children") != (*i).end())
@@ -124,7 +154,7 @@ void r1Model::Unload()
 {
 }
 
-r1Model::Node r1Model::FillNodeHierarchy(const aiNode* parent, const std::vector<uint64_t>& ids)
+r1Model::Node r1Model::FillNodeHierarchy(const aiNode* parent, const std::vector<uint64_t>& mesh_ids, const std::vector<uint64_t>& tex_ids)
 {
 	Node ret;
 	ret.name.assign(parent->mName.C_Str());
@@ -149,17 +179,21 @@ r1Model::Node r1Model::FillNodeHierarchy(const aiNode* parent, const std::vector
 	ret.scale[1] = scale.y / unit_scale;
 	ret.scale[2] = scale.z / unit_scale;
 
-	if (parent->mNumMeshes == 1)
-		ret.mesh = ids[parent->mMeshes[0]];
-	else
+	if (parent->mNumMeshes == 1) {
+		ret.mesh = mesh_ids[parent->mMeshes[0]];
+		ret.texture = tex_ids[parent->mMeshes[0]];
+	}
+	else {
 		for (unsigned int i = 0u; i < parent->mNumMeshes; ++i) {
 			Node mesh;
-			mesh.mesh = ids[parent->mMeshes[i]];
+			mesh.mesh = mesh_ids[parent->mMeshes[i]];
+			ret.texture = tex_ids[parent->mMeshes[i]];
 			ret.children.push_back(mesh);
 		}
+	}
 
 	for (unsigned int i = 0u; i < parent->mNumChildren; ++i) {
-		ret.children.push_back(FillNodeHierarchy(parent->mChildren[i], ids));
+		ret.children.push_back(FillNodeHierarchy(parent->mChildren[i], mesh_ids, tex_ids));
 	}
 
 	return ret;
@@ -169,15 +203,21 @@ nlohmann::json r1Model::Node::Parse()
 {
 	nlohmann::json node;
 
-	node["meshID"] = mesh;
+	if (mesh != 0ull)
+		node["meshID"] = mesh;
+	if (texture != 0ull)
+		node["texID"] = texture;
+
 	node["name"] = name;
 
 	for (int i = 0; i < 3; ++i) {
 		node["position"].push_back(pos[i]);
-		node["rotation"].push_back(rot[i]);
 		node["scale"].push_back(scale[i]);
 	}
-	node["rotation"].push_back(rot[3]);
+	node["rotation"]["w"] = rot[0];
+	node["rotation"]["x"] = rot[1];
+	node["rotation"]["y"] = rot[2];
+	node["rotation"]["z"] = rot[3];
 
 	for (auto i = children.begin(); i != children.end(); ++i)
 		node["Children"].push_back((*i).Parse());

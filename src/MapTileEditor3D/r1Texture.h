@@ -6,6 +6,7 @@ struct aiTexture;
 class r1Texture :
 	public Resource
 {
+	friend class c1Material;
 public:
 	r1Texture(const uint64_t& uid);
 	~r1Texture();

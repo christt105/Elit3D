@@ -8,6 +8,7 @@ class c1Transform;
 
 class Object
 {
+	friend class p1Inspector;
 public:
 	Object(Object* parent = nullptr);
 	~Object();
@@ -23,11 +24,14 @@ public:
 
 	template<class C>
 	C* CreateComponent();
+	template<class C>
+	C* GetComponent();
 
 	c1Transform* transform = nullptr;
+
+	std::vector<Object*> children;
 private:
 	std::vector<Component*> components;
-	std::vector<Object*> children;
 
 	std::string name = "Object";
 
@@ -39,4 +43,13 @@ inline C* Object::CreateComponent()
 {
 	components.push_back(new C(this));
 	return (C*)components.back();
+}
+
+template<class C>
+inline C* Object::GetComponent()
+{
+	for (auto i = components.begin(); i != components.end(); ++i) {
+
+	}
+	return NULL;
 }

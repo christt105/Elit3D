@@ -21,6 +21,8 @@ public:
 public:
 	virtual void Update() {}
 
+	virtual void OnInspector() {}
+
 public:
 	Type type = Type::NONE;
 	Object* object = nullptr;

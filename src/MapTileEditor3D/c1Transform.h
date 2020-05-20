@@ -9,6 +9,8 @@ public:
 	c1Transform(Object* obj);
 	~c1Transform();
 
+	void OnInspector() override;
+
 public:
 	float4x4 mat = float4x4::identity;
 };

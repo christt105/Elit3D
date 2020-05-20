@@ -27,13 +27,16 @@ r1Texture::~r1Texture()
 void r1Texture::Load()
 {
 	glEnable(GL_TEXTURE_2D);
-	glGenBuffers(1, &id);
+	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	unsigned char* data = stbi_load("Assets/Tilesets/four_tiles.png", &width, &height, &channels, STBI_rgb_alpha);
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(library_path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
 	if (data) {
 
@@ -42,7 +45,7 @@ void r1Texture::Load()
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		else if (channels == 4)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
@@ -51,14 +54,17 @@ void r1Texture::Load()
 	}
 
 	stbi_image_free(data);
+
+	glBindTexture(GL_TEXTURE_2D, NULL);
 }
 
 void r1Texture::Unload()
 {
-	glDeleteBuffers(1, &id);
+	glDeleteTextures(1, &id);
 	width = 0;
 	height = 0;
 	channels = 0;
+	id = 0;
 }
 
 unsigned int r1Texture::GetBufferID()

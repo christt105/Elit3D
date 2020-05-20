@@ -13,6 +13,14 @@ public:
 
 	void BindTex();
 
+	void UnBindTex();
+
+	void OnInspector() override;
+
+private:
+	void ChooseTextureWindow(bool& choose_texture);
+
+public:
 	r1Shader* shader = nullptr;
 private:
 	float3 color = float3::one;

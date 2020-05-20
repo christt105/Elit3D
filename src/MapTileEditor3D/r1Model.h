@@ -17,6 +17,7 @@ class r1Model :
 		float scale[3];
 		float rot[4];
 		uint64_t mesh = 0ull;
+		uint64_t texture = 0ull;
 
 		nlohmann::json Parse();
 	};
@@ -37,6 +38,6 @@ private:
 	void CreateChildren(nlohmann::json& jobj, Object* obj);
 
 private:
-	Node FillNodeHierarchy(const aiNode* parent, const std::vector<uint64_t>& ids);
+	Node FillNodeHierarchy(const aiNode* parent, const std::vector<uint64_t>& mesh_ids, const std::vector<uint64_t>& tex_ids);
 };
 
