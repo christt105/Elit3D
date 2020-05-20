@@ -82,6 +82,9 @@ bool Application::Start()
 		LOG("Starting module %s", (*i)->name.c_str());
 		(*i)->Start();
 	}
+
+	Logger::console_log = true;
+
 	return true;
 }
 
@@ -136,6 +139,8 @@ void Application::FinishUpdate()
 bool Application::CleanUp()
 {
 	bool ret = true;
+
+	Logger::console_log = false;
 
 	delete file_system;
 	delete random;

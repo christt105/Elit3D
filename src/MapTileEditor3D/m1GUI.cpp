@@ -10,6 +10,11 @@
 
 #include "p1Configuration.h"
 #include "p1About.h"
+#include "p1Objects.h"
+#include "p1Inspector.h"
+#include "p1Console.h"
+
+#include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 
 #include "Logger.h"
 
@@ -27,9 +32,15 @@ bool m1GUI::Init(const nlohmann::json& node)
 {
 	configuration = new p1Configuration();
 	about = new p1About(false);
+	objects = new p1Objects();
+	inspector = new p1Inspector();
+	console = new p1Console();
 
 	panels.push_back(configuration);
+	panels.push_back(objects);
+	panels.push_back(inspector);
 	panels.push_back(about);
+	panels.push_back(console);
 
 	return true;
 }
@@ -42,10 +53,18 @@ bool m1GUI::Start()
 	LOG("ImGui initialized with version %s", ImGui::GetVersion());
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.Fonts->AddFontDefault();
+
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiDockNodeFlags_PassthruCentralNode;
 	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	io.ConfigDockingWithShift = true;
+
+	// merge in icons from Font Awesome
+	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
+	io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 16.0f, &icons_config, icons_ranges);
+	// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 	
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->render->context);
 	ImGui_ImplOpenGL3_Init("#version 330");
@@ -103,7 +122,7 @@ UpdateStatus m1GUI::PreUpdate()
 
 void m1GUI::DockSpace()
 {
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	const ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->Pos);
 	ImGui::SetNextWindowSize(viewport->Size);
 	ImGui::SetNextWindowViewport(viewport->ID);
@@ -133,7 +152,7 @@ UpdateStatus m1GUI::Update()
 	for (auto i = panels.begin(); i != panels.end(); ++i) {
 		ImGui::PushID(*i);
 		if ((*i)->active) {
-			if (ImGui::Begin((*i)->name.c_str(), &(*i)->active)) {
+			if (ImGui::Begin((*i)->name.c_str(), &(*i)->active, (*i)->flags)) {
 				(*i)->Update();
 			}
 			ImGui::End();
@@ -157,6 +176,7 @@ bool m1GUI::CleanUp()
 	for (auto i = panels.begin(); i != panels.end(); ++i) {
 		delete* i;
 	}
+	console = nullptr;
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();

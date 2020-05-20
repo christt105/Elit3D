@@ -101,7 +101,7 @@ bool FileSystem::IsFileInFolderRecursive(const char* file, const char* folder)
 {
     Folder parent = GetFilesRecursive(folder);
 
-    return IsFileInFolder(file, folder);
+    return IsFileInFolder(file, parent);
 }
 
 bool FileSystem::IsFileInFolder(const char* file, const Folder& folder)
