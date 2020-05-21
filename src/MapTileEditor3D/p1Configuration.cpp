@@ -3,7 +3,7 @@
 #include "Application.h"
 #include "m1Camera3D.h"
 
-p1Configuration::p1Configuration(bool start_enabled) : Panel("Configuration", start_enabled)
+p1Configuration::p1Configuration(bool start_enabled) : Panel("Configuration", start_enabled, ICON_FA_WRENCH)
 {
 }
 

@@ -4,7 +4,7 @@
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 
-p1Console::p1Console(bool start_enabled) : Panel("Console", start_enabled)
+p1Console::p1Console(bool start_enabled) : Panel("Console", start_enabled, ICON_FA_ALIGN_LEFT)
 {
 	flags = ImGuiWindowFlags_MenuBar;
 }
@@ -18,13 +18,6 @@ p1Console::~p1Console()
 
 void p1Console::Update()
 {
-	static int count = 0;
-	if (count == 0)
-		LOG("LOOOOOOOOL XD");
-	LOG("%i %.4f", count++, App->GetDt());
-	LOGW("%i %.4f", count++, App->GetDt());
-	LOGE("%i %.4f", count++, App->GetDt());
-
 	if (ImGui::BeginMenuBar()) {
 		if (ImGui::Selectable("Collapse", collapse, ImGuiSelectableFlags_None, ImVec2(65, 50)))
 			collapse = !collapse;

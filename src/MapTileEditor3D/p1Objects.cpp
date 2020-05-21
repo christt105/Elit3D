@@ -5,7 +5,7 @@
 
 #include "Logger.h"
 
-p1Objects::p1Objects(bool start_active) : Panel("Objects", start_active)
+p1Objects::p1Objects(bool start_active) : Panel("Objects", start_active, ICON_FA_SITEMAP)
 {
 }
 

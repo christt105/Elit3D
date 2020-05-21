@@ -215,6 +215,7 @@
     <ClCompile Include="p1Console.cpp" />
     <ClCompile Include="p1Inspector.cpp" />
     <ClCompile Include="p1Objects.cpp" />
+    <ClCompile Include="p1Scene.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="r1Mesh.cpp" />
     <ClCompile Include="r1Model.cpp" />
@@ -491,6 +492,7 @@
     <ClInclude Include="p1Console.h" />
     <ClInclude Include="p1Inspector.h" />
     <ClInclude Include="p1Objects.h" />
+    <ClInclude Include="p1Scene.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="r1Mesh.h" />
     <ClInclude Include="r1Model.h" />

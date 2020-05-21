@@ -303,6 +303,9 @@
     <ClCompile Include="p1Console.cpp">
       <Filter>Panels</Filter>
     </ClCompile>
+    <ClCompile Include="p1Scene.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1129,6 +1132,9 @@
     </ClInclude>
     <ClInclude Include="IconsFontAwesome5.h">
       <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Scene.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

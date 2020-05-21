@@ -13,6 +13,7 @@
 #include "p1Objects.h"
 #include "p1Inspector.h"
 #include "p1Console.h"
+#include "p1Scene.h"
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 
@@ -35,12 +36,14 @@ bool m1GUI::Init(const nlohmann::json& node)
 	objects = new p1Objects();
 	inspector = new p1Inspector();
 	console = new p1Console();
+	scene = new p1Scene();
 
 	panels.push_back(configuration);
 	panels.push_back(objects);
 	panels.push_back(inspector);
 	panels.push_back(about);
 	panels.push_back(console);
+	panels.push_back(scene);
 
 	return true;
 }
@@ -63,13 +66,13 @@ bool m1GUI::Start()
 	// merge in icons from Font Awesome
 	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-	io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 16.0f, &icons_config, icons_ranges);
+	io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 12.0f, &icons_config, icons_ranges);
 	// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 	
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->render->context);
 	ImGui_ImplOpenGL3_Init("#version 330");
 	
-	
+	scene->InitFrameBuffer();
 
 	return true;
 }
@@ -116,32 +119,10 @@ UpdateStatus m1GUI::PreUpdate()
 	}
 
 	DockSpace();
+	
+	scene->SelectFrameBuffer();
 
 	return UpdateStatus::UPDATE_CONTINUE;
-}
-
-void m1GUI::DockSpace()
-{
-	const ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(viewport->Pos);
-	ImGui::SetNextWindowSize(viewport->Size);
-	ImGui::SetNextWindowViewport(viewport->ID);
-	ImGui::SetNextWindowBgAlpha(0.0f);
-
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin("DockSpace Demo", NULL, window_flags);
-	ImGui::PopStyleVar(3);
-
-	ImGuiID dockspace_id = ImGui::GetID("MyDockspace");
-	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
-	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-	ImGui::End();
 }
 
 UpdateStatus m1GUI::Update()
@@ -149,10 +130,12 @@ UpdateStatus m1GUI::Update()
 	if (demo)
 		ImGui::ShowDemoWindow(&demo);
 
+	scene->DeselectFrameBuffer();
+
 	for (auto i = panels.begin(); i != panels.end(); ++i) {
 		ImGui::PushID(*i);
 		if ((*i)->active) {
-			if (ImGui::Begin((*i)->name.c_str(), &(*i)->active, (*i)->flags)) {
+			if (ImGui::Begin(((*i)->icon + " " + (*i)->name).c_str(), &(*i)->active, (*i)->flags)) {
 				(*i)->Update();
 			}
 			ImGui::End();
@@ -182,4 +165,28 @@ bool m1GUI::CleanUp()
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();
 	return true;
+}
+
+void m1GUI::DockSpace()
+{
+	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+	ImGui::SetNextWindowBgAlpha(0.0f);
+
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("DockSpace Demo", NULL, window_flags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiID dockspace_id = ImGui::GetID("MyDockspace");
+	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+	ImGui::End();
 }

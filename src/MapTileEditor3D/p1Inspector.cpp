@@ -3,7 +3,7 @@
 #include "m1Objects.h"
 #include "Object.h"
 
-p1Inspector::p1Inspector(bool start_enabled) : Panel("Inspector", start_enabled)
+p1Inspector::p1Inspector(bool start_enabled) : Panel("Inspector", start_enabled, ICON_FA_INFO_CIRCLE)
 {
 }
 

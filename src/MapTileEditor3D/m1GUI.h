@@ -7,6 +7,9 @@ class p1About;
 class p1Objects;
 class p1Inspector;
 class p1Console;
+class p1Scene;
+
+struct ImFont;
 
 class m1GUI :
 	public Module
@@ -32,6 +35,7 @@ private:
 	p1Objects* objects = nullptr;
 	p1Inspector* inspector = nullptr;
 	p1Console* console = nullptr;
+	p1Scene* scene = nullptr;
 
 	bool demo = false;
 };
