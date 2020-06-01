@@ -26,19 +26,19 @@ void r1Mesh::Load()
 
 	vertices.size = file["nVertex"];
 	vertices.data = new float[vertices.size * 3];
-	for (int i = 0; i < vertices.size * 3; ++i) {
+	for (unsigned int i = 0; i < vertices.size * 3; ++i) {
 		vertices.data[i] = file["Vertex"][i];
 	}
 
 	indices.size = file["nFaces"] * 3;
 	indices.data = new unsigned int[indices.size];
-	for (int i = 0; i < indices.size; ++i) {
+	for (unsigned int i = 0; i < indices.size; ++i) {
 		indices.data[i] = file["Faces"][i];
 	}
 
 	texture.size = vertices.size;
 	texture.data = new float[texture.size * 2];
-	for (int i = 0; i < texture.size * 2; ++i) {
+	for (unsigned int i = 0; i < texture.size * 2; ++i) {
 		texture.data[i] = file["Tex"][i];
 	}
 

@@ -14,6 +14,7 @@
 #include "p1Inspector.h"
 #include "p1Console.h"
 #include "p1Scene.h"
+#include "p1Resources.h"
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 
@@ -37,12 +38,14 @@ bool m1GUI::Init(const nlohmann::json& node)
 	inspector = new p1Inspector();
 	console = new p1Console();
 	scene = new p1Scene();
+	resources = new p1Resources();
 
 	panels.push_back(configuration);
 	panels.push_back(objects);
 	panels.push_back(inspector);
 	panels.push_back(about);
 	panels.push_back(console);
+	panels.push_back(resources);
 	panels.push_back(scene);
 
 	return true;

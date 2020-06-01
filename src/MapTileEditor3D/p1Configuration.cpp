@@ -2,6 +2,8 @@
 
 #include "Application.h"
 #include "m1Camera3D.h"
+#include "m1Render3D.h"
+#include "m1Window.h"
 
 p1Configuration::p1Configuration(bool start_enabled) : Panel("Configuration", start_enabled, ICON_FA_WRENCH)
 {
@@ -13,6 +15,17 @@ p1Configuration::~p1Configuration()
 
 void p1Configuration::Update()
 {
+	if (ImGui::CollapsingHeader("Window")) {
+		if (ImGui::DragInt("Width", &App->window->width))
+			App->window->UpdateWindowSize();
+		if(ImGui::DragInt("Height", &App->window->height))
+			App->window->UpdateWindowSize();
+	}
+
+	if (ImGui::CollapsingHeader("Render")) {
+		ImGui::ColorEdit3("Background Color", App->render->background_color);
+	}
+
 	if (ImGui::CollapsingHeader("Camera Control")) {
 		ImGui::Text("Camera Position: "); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6470f, 0.f, 1.f), "%s", App->camera->frustum.pos.ToString().c_str());
 		ImGui::SliderFloat("Pan Speed", &App->camera->pan_speed, 0.1f, 2.f);

@@ -21,10 +21,10 @@ float Random::Randomf(float min, float max)
 int Random::Randomi(int min, int max)
 {
 	std::uniform_real_distribution<double> rand(min, max);
-	return rand(rng);
+	return (int)rand(rng);
 }
 
 uint64_t Random::RandomGUID()
 {
-	return guid(rng);
+	return (uint64_t)guid(rng);
 }

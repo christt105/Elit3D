@@ -304,8 +304,9 @@
       <Filter>Panels</Filter>
     </ClCompile>
     <ClCompile Include="p1Scene.cpp">
-      <Filter>Resources</Filter>
+      <Filter>Panels</Filter>
     </ClCompile>
+    <ClCompile Include="p1Resources.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1134,8 +1135,9 @@
       <Filter>External Libraries\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="p1Scene.h">
-      <Filter>Resources</Filter>
+      <Filter>Panels</Filter>
     </ClInclude>
+    <ClInclude Include="p1Resources.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\MathGeoLib\include\Geometry\KDTree.inl">

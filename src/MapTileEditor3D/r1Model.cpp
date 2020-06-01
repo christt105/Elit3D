@@ -57,7 +57,7 @@ void r1Model::GenerateFiles()
 		for (unsigned int i = 0; i < scene->mNumMaterials; ++i) { //TODO
 			const aiMaterial* mat = scene->mMaterials[i];
 			unsigned int n_tex = mat->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE);
-			for (int i = 0; i < n_tex; ++i) {
+			for (unsigned int i = 0; i < n_tex; ++i) {
 				aiString path;
 				if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS) {
 					if (App->file_system->IsFileInFolderRecursive(App->file_system->GetNameFile(path.C_Str(), true).c_str(), "Assets/")) {

@@ -69,7 +69,7 @@ private:
 	float dt = 0.f;
 	Uint64 time = 0ULL;
 	Uint64 last_time = 0ULL;
-	Uint64 frame_count = 0ULL;
+	unsigned int frame_count = 0U;
 };
 
 extern Application* App;

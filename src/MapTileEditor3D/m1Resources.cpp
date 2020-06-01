@@ -111,15 +111,15 @@ void m1Resources::ImportFiles(const Folder& parent, Resource::Type type)
 	
 	for (auto file = parent.files.begin(); file != parent.files.end(); ++file) {
 		if (App->file_system->GetFileExtension((*file).c_str()).compare("meta") != 0) {
-			if (App->file_system->Exists((parent.name + *file + ".meta").c_str())) {
-				nlohmann::json meta = App->file_system->OpenJSONFile((parent.name + *file + ".meta").c_str());
-				if (meta.value("timestamp", 0ULL) == App->file_system->LastTimeWrite((parent.name + *file).c_str())) {
+			if (App->file_system->Exists((parent.full_path + *file + ".meta").c_str())) {
+				nlohmann::json meta = App->file_system->OpenJSONFile((parent.full_path + *file + ".meta").c_str());
+				if (meta.value("timestamp", 0ULL) == App->file_system->LastTimeWrite((parent.full_path + *file).c_str())) {
 					if (App->file_system->Exists((GetLibraryFromType(type) + std::to_string(meta.value("UID", 0ULL)) + GetExtensionFromType(type)).c_str())) {
-						Resource* res = CreateResource(type, (parent.name + *file).c_str(), meta.value("UID", 0ULL));
+						Resource* res = CreateResource(type, (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
 						res->LoadLibrary();
 					}
 					else {
-						Resource* res = CreateResource(type, (parent.name + *file).c_str(), meta.value("UID", 0ULL));
+						Resource* res = CreateResource(type, (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
 
 						res->GenerateFiles();
 					}
@@ -127,18 +127,18 @@ void m1Resources::ImportFiles(const Folder& parent, Resource::Type type)
 				else {
 					DeleteFromLibrary(type, meta.value("UID", 0ULL));
 
-					meta["timestamp"] = App->file_system->LastTimeWrite((parent.name + *file).c_str());
-					App->file_system->SaveJSONFile((parent.name + *file + ".meta").c_str(), meta);
+					meta["timestamp"] = App->file_system->LastTimeWrite((parent.full_path + *file).c_str());
+					App->file_system->SaveJSONFile((parent.full_path + *file + ".meta").c_str(), meta);
 
-					Resource* res = CreateResource(type, (parent.name + *file).c_str(), meta.value("UID", 0ULL));
+					Resource* res = CreateResource(type, (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
 
 					res->GenerateFiles();
 				}
 			}
 			else {
-				uint64_t meta = GenerateMeta((parent.name + *file).c_str());
+				uint64_t meta = GenerateMeta((parent.full_path + *file).c_str());
 
-				Resource* res = CreateResource(type, (parent.name + *file).c_str(), meta);
+				Resource* res = CreateResource(type, (parent.full_path + *file).c_str(), meta);
 				if (res != nullptr)
 					res->GenerateFiles();
 			}

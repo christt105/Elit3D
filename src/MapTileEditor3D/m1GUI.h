@@ -8,6 +8,7 @@ class p1Objects;
 class p1Inspector;
 class p1Console;
 class p1Scene;
+class p1Resources;
 
 struct ImFont;
 
@@ -36,6 +37,7 @@ private:
 	p1Inspector* inspector = nullptr;
 	p1Console* console = nullptr;
 	p1Scene* scene = nullptr;
+	p1Resources* resources = nullptr;
 
 	bool demo = false;
 };

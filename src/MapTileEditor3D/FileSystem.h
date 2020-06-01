@@ -3,9 +3,11 @@
 #include "ExternalTools/JSON/json.hpp"
 
 struct Folder {
-	Folder(const char* n) :name(n) {}
+	Folder() {}
+	Folder(const char* n);
 	std::vector<std::string> files;
 	std::vector<Folder> folders;
+	std::string full_path;
 	std::string name;
 };
 

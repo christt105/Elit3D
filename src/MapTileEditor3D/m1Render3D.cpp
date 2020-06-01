@@ -48,15 +48,33 @@ bool m1Render3D::Init(const nlohmann::json& node)
         LOG("Warning: Unable to set VSync! SDL Error: %s", SDL_GetError());
     }
     
-    
-
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    glClearColor(node["color"][0], node["color"][1], node["color"][2], node["color"][3]);
+    glEnable(GL_MULTISAMPLE);
+    glEnable(GL_DEPTH_TEST);
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, node.value("major_version", 3));
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, node.value("minor_version", 3));
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+
+    for (int i = 0; i < 4; ++i)
+        background_color[i] = node["color"][i];
+
+    glClearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
 
     bShader = new r1Shader("Configuration/Shader/def_vx_shader.glsl", "Configuration/Shader/def_fg_shader.glsl");
-
 
     bShader->Use();
     bShader->SetVec3("color", float3::one);
@@ -64,8 +82,14 @@ bool m1Render3D::Init(const nlohmann::json& node)
 	return ret;
 }
 
+bool m1Render3D::Start()
+{
+    return true;
+}
+
 UpdateStatus m1Render3D::PreUpdate()
 {
+    glClearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     bShader->Use();
