@@ -218,6 +218,7 @@
     <ClCompile Include="p1Objects.cpp" />
     <ClCompile Include="p1Resources.cpp" />
     <ClCompile Include="p1Scene.cpp" />
+    <ClCompile Include="p1Tileset.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="r1Mesh.cpp" />
     <ClCompile Include="r1Model.cpp" />
@@ -496,6 +497,7 @@
     <ClInclude Include="p1Objects.h" />
     <ClInclude Include="p1Resources.h" />
     <ClInclude Include="p1Scene.h" />
+    <ClInclude Include="p1Tileset.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="r1Mesh.h" />
     <ClInclude Include="r1Model.h" />

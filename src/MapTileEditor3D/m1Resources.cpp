@@ -94,43 +94,43 @@ void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 		ret->name = App->file_system->GetNameFile(assets_path);
 		ret->extension.assign(App->file_system->GetFileExtension(assets_path));
 	}
-	ret->library_path.assign(GetLibraryFromType(ret->GetType()) + std::to_string(ret->GetUID()) + GetExtensionFromType(ret->GetType()));
+	ret->library_path.assign(GetLibraryFromType(ret->GetType()) + std::to_string(ret->GetUID()) + GetLibraryExtensionFromType(ret->GetType()));
 }
 
 void m1Resources::GenerateLibrary()
 {
-	ImportFiles(App->file_system->GetFilesRecursive("Assets/Tilesets/"), Resource::Type::Texture);
-	ImportFiles(App->file_system->GetFilesRecursive("Assets/Models/"), Resource::Type::Model);
+	ImportFiles(App->file_system->GetFilesRecursive("Assets/"));
 }
 
-void m1Resources::ImportFiles(const Folder& parent, Resource::Type type)
+void m1Resources::ImportFiles(const Folder& parent)
 {
 	for (auto dir = parent.folders.begin(); dir != parent.folders.end(); ++dir) {
-		ImportFiles(*dir, type);
+		ImportFiles(*dir);
 	}
 	
 	for (auto file = parent.files.begin(); file != parent.files.end(); ++file) {
 		if (App->file_system->GetFileExtension((*file).c_str()).compare("meta") != 0) {
 			if (App->file_system->Exists((parent.full_path + *file + ".meta").c_str())) {
 				nlohmann::json meta = App->file_system->OpenJSONFile((parent.full_path + *file + ".meta").c_str());
+				std::string extension = meta.value("extension", "none");
 				if (meta.value("timestamp", 0ULL) == App->file_system->LastTimeWrite((parent.full_path + *file).c_str())) {
-					if (App->file_system->Exists((GetLibraryFromType(type) + std::to_string(meta.value("UID", 0ULL)) + GetExtensionFromType(type)).c_str())) {
-						Resource* res = CreateResource(type, (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
+					if (App->file_system->Exists((GetLibraryFromType(extension.c_str()) + std::to_string(meta.value("UID", 0ULL)) + GetLibraryExtension(extension.c_str())).c_str())) {
+						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
 						res->LoadLibrary();
 					}
 					else {
-						Resource* res = CreateResource(type, (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
+						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
 
 						res->GenerateFiles();
 					}
 				}
 				else {
-					DeleteFromLibrary(type, meta.value("UID", 0ULL));
+					DeleteFromLibrary(GetTypeFromStr(extension.c_str()), meta.value("UID", 0ULL));
 
 					meta["timestamp"] = App->file_system->LastTimeWrite((parent.full_path + *file).c_str());
 					App->file_system->SaveJSONFile((parent.full_path + *file + ".meta").c_str(), meta);
 
-					Resource* res = CreateResource(type, (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
+					Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
 
 					res->GenerateFiles();
 				}
@@ -138,7 +138,7 @@ void m1Resources::ImportFiles(const Folder& parent, Resource::Type type)
 			else {
 				uint64_t meta = GenerateMeta((parent.full_path + *file).c_str());
 
-				Resource* res = CreateResource(type, (parent.full_path + *file).c_str(), meta);
+				Resource* res = CreateResource(GetTypeFromStr(App->file_system->GetFileExtension((*file).c_str()).c_str()), (parent.full_path + *file).c_str(), meta);
 				if (res != nullptr)
 					res->GenerateFiles();
 			}
@@ -171,6 +171,18 @@ std::vector<Resource*> m1Resources::GetVectorOf(Resource::Type type)
 	return ret;
 }
 
+const char* m1Resources::GetLibraryFromType(const char* type)
+{
+	if(strcmp(type, "fbx") == 0)
+		return LIBRARY_MODELS_PATH;
+	else if(strcmp(type, "jpg") == 0 || strcmp(type, "png") == 0)
+		return LIBRARY_TEXTURES_PATH;
+
+	LOGW("No library path found to type %i", (int)type);
+
+	return "";
+}
+
 const char* m1Resources::GetLibraryFromType(Resource::Type type)
 {
 	switch (type)
@@ -190,7 +202,17 @@ const char* m1Resources::GetLibraryFromType(Resource::Type type)
 	return "";
 }
 
-const char* m1Resources::GetExtensionFromType(Resource::Type type)
+std::string m1Resources::GetLibraryExtension(const char* type)
+{
+	if (strcmp(type, "fbx") == 0)
+		return ".model";
+	else if (strcmp(type, "jpg") == 0)
+		return ".texture";
+
+	return std::string("none");
+}
+
+std::string m1Resources::GetLibraryExtensionFromType(Resource::Type type)
 {
 	switch (type)
 	{
@@ -207,6 +229,18 @@ const char* m1Resources::GetExtensionFromType(Resource::Type type)
 	LOGW("No library path found to type %i", (int)type);
 
 	return "";
+}
+
+Resource::Type m1Resources::GetTypeFromStr(const char* type)
+{
+	if (strcmp(type, "fbx") == 0)
+		return Resource::Type::Model;
+	else if (strcmp(type, "png") == 0)
+		return Resource::Type::Texture;
+
+	LOGW("No library path found to type %i", (int)type);
+
+	return Resource::Type::NONE;
 }
 
 void m1Resources::DeleteFromLibrary(Resource::Type type, const uint64_t& meta)

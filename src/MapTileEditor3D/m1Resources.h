@@ -43,10 +43,15 @@ public:
 
 private:
 	void GenerateLibrary();
-	void ImportFiles(const Folder& parent, Resource::Type type = Resource::Type::NONE);
+	void ImportFiles(const Folder& parent);
 
+	//without dot
+	const char* GetLibraryFromType(const char* type);
 	const char* GetLibraryFromType(Resource::Type type);
-	const char* GetExtensionFromType(Resource::Type type);
+
+	std::string GetLibraryExtension(const char* type);
+	std::string GetLibraryExtensionFromType(Resource::Type type);
+	Resource::Type GetTypeFromStr(const char* type);
 
 	void DeleteFromLibrary(Resource::Type type, const uint64_t& meta);
 

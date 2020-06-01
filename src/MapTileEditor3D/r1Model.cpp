@@ -181,13 +181,13 @@ r1Model::Node r1Model::FillNodeHierarchy(const aiNode* parent, const std::vector
 
 	if (parent->mNumMeshes == 1) {
 		ret.mesh = mesh_ids[parent->mMeshes[0]];
-		ret.texture = tex_ids[parent->mMeshes[0]];
+		ret.texture = 0ULL;//tex_ids[parent->mMeshes[0]];
 	}
 	else {
 		for (unsigned int i = 0u; i < parent->mNumMeshes; ++i) {
 			Node mesh;
 			mesh.mesh = mesh_ids[parent->mMeshes[i]];
-			ret.texture = tex_ids[parent->mMeshes[i]];
+			ret.texture = 0ULL;//tex_ids[parent->mMeshes[i]];
 			ret.children.push_back(mesh);
 		}
 	}

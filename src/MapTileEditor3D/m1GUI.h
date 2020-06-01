@@ -9,6 +9,7 @@ class p1Inspector;
 class p1Console;
 class p1Scene;
 class p1Resources;
+class p1Tileset;
 
 struct ImFont;
 
@@ -38,6 +39,7 @@ private:
 	p1Console* console = nullptr;
 	p1Scene* scene = nullptr;
 	p1Resources* resources = nullptr;
+	p1Tileset* tileset = nullptr;
 
 	bool demo = false;
 };
