@@ -309,7 +309,10 @@
     <ClCompile Include="p1Resources.cpp">
       <Filter>Panels</Filter>
     </ClCompile>
-    <ClCompile Include="p1Tileset.cpp" />
+    <ClCompile Include="p1Tileset.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="r1Tileset.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1143,7 +1146,10 @@
     <ClInclude Include="p1Resources.h">
       <Filter>Panels</Filter>
     </ClInclude>
-    <ClInclude Include="p1Tileset.h" />
+    <ClInclude Include="p1Tileset.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="r1Tileset.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\MathGeoLib\include\Geometry\KDTree.inl">

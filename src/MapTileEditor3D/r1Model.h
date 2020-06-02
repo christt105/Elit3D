@@ -27,7 +27,7 @@ public:
 
 	void GenerateFiles() override;
 
-	void LoadLibrary() override;
+	void GenerateFilesLibrary() override;
 
 	Object* CreateObject();
 

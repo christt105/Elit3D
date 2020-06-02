@@ -97,7 +97,7 @@ void r1Model::GenerateFiles()
 	}
 }
 
-void r1Model::LoadLibrary()
+void r1Model::GenerateFilesLibrary()
 {
 	nlohmann::json model = App->file_system->OpenJSONFile(library_path.c_str());
 

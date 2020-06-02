@@ -9,8 +9,8 @@
 
 #include "ExternalTools/Assimp/include/texture.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "ExternalTools/DevIL/il.h"
+#include "ExternalTools/DevIL/ilut.h"
 
 #include "Logger.h"
 
@@ -26,36 +26,35 @@ r1Texture::~r1Texture()
 
 void r1Texture::Load()
 {
+	ILuint image_id = 0;
 	glEnable(GL_TEXTURE_2D);
-	glGenTextures(1, &id);
-	glBindTexture(GL_TEXTURE_2D, id);
+	glGenTextures(1, &image_id);
+	glBindTexture(GL_TEXTURE_2D, image_id);
+
+	ilutRenderer(ILUT_OPENGL);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load(library_path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-
-	if (data) {
+	if (ilLoad(IL_PNG, library_path.c_str())) { // TODO: load for different types
+		width = ilGetInteger(IL_IMAGE_WIDTH);
+		height = ilGetInteger(IL_IMAGE_HEIGHT);
+		id = ilutGLBindTexImage();
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		if (channels == 3)
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		else if (channels == 4)
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		
+
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
 		--references;
-		LOGE("Failed to load texture %s", name.c_str());
+		LOGE("Failed to load texture %s, error: %s", name.c_str(), ilGetString(ilGetError()));
 	}
 
-	stbi_image_free(data);
-
 	glBindTexture(GL_TEXTURE_2D, NULL);
+
+	ilDeleteImages(1, &image_id);
 }
 
 void r1Texture::Unload()
@@ -70,6 +69,16 @@ void r1Texture::Unload()
 unsigned int r1Texture::GetBufferID()
 {
 	return id;
+}
+
+unsigned int r1Texture::GetWidth()
+{
+	return width;
+}
+
+unsigned int r1Texture::GetHeight()
+{
+	return height;
 }
 
 void r1Texture::GenerateFiles(const aiTexture* texture)

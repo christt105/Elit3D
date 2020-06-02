@@ -78,7 +78,7 @@ bool FileSystem::CreateFolder(const char* path)
     return fs::create_directory(path);
 }
 
-bool FileSystem::DeleteFile(const char* path)
+bool FileSystem::fDeleteFile(const char* path)
 {
     if (fs::remove(path) != 0) {
         LOGW("Could not delete %s", path);

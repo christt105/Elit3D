@@ -16,6 +16,9 @@ public:
 
 	unsigned int GetBufferID();
 
+	unsigned int GetWidth();
+	unsigned int GetHeight();
+
 	void GenerateFiles(const aiTexture* texture);
 
 private:

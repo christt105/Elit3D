@@ -26,7 +26,7 @@ public:
 	uint64_t LastTimeWrite(const char* path);
 
 	bool CreateFolder(const char* path);
-	bool DeleteFile(const char* path);
+	bool fDeleteFile(const char* path);
 	bool CopyTo(const char* source, const char* dst);
 
 	bool IsFileInFolderRecursive(const char* file, const char* folder);

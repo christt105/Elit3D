@@ -10,7 +10,10 @@ public:
 	enum class Type {
 		NONE = -1,
 
-		Mesh, Model, Texture,
+		Mesh, 
+		Model, 
+		Texture,
+		Tileset,
 
 		MAX
 	};
@@ -26,7 +29,7 @@ public:
 	void Attach();
 	void Detach();
 
-	virtual void LoadLibrary() {}
+	virtual void GenerateFilesLibrary() {}
 
 	Resource::Type GetType();
 	

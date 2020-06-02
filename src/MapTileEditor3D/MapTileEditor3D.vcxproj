@@ -223,6 +223,7 @@
     <ClCompile Include="r1Mesh.cpp" />
     <ClCompile Include="r1Model.cpp" />
     <ClCompile Include="r1Texture.cpp" />
+    <ClCompile Include="r1Tileset.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="r1Shader.cpp" />
@@ -502,6 +503,7 @@
     <ClInclude Include="r1Mesh.h" />
     <ClInclude Include="r1Model.h" />
     <ClInclude Include="r1Texture.h" />
+    <ClInclude Include="r1Tileset.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="r1Shader.h" />
