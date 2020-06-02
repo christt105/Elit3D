@@ -14,6 +14,9 @@ public:
 
 	virtual void Update() = 0;
 
+	bool IsFocused();
+	bool IsOnHover();
+
 public:
 	ImGuiWindowFlags flags = ImGuiWindowFlags_None;
 
@@ -21,5 +24,7 @@ private:
 	std::string name;
 	std::string icon;
 	bool active = true;
+	bool focused = false;
+	bool hover = false;
 };
 

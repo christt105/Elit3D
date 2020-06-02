@@ -90,36 +90,7 @@ UpdateStatus m1GUI::PreUpdate()
 	ImGui::NewFrame();
 
 	if (ImGui::BeginMainMenuBar()) {
-		if (ImGui::BeginMenu("File")) {
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu("Panels")) {
-			for (auto i = panels.begin(); i != panels.end(); ++i) {
-				if (*i != about) {
-					ImGui::PushID(*i);
-					if (ImGui::MenuItem((*i)->name.c_str(), "", (*i)->active)) {
-						(*i)->active = !(*i)->active;
-					}
-					ImGui::PopID();
-				}
-			}
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu("Debugging")) {
-			if (ImGui::MenuItem("ImGui Demo Window", "", demo)) {
-				demo = !demo;
-			}
-			ImGui::EndMenu();
-		}
-		
-		if (ImGui::BeginMenu("Help")) {
-			if (ImGui::MenuItem("About", "", about->active)) {
-				about->active = !about->active;
-			}
-			ImGui::EndMenu();
-		}
+		MainMenuBar();
 
 		ImGui::EndMainMenuBar();
 	}
@@ -129,6 +100,40 @@ UpdateStatus m1GUI::PreUpdate()
 	scene->SelectFrameBuffer();
 
 	return UpdateStatus::UPDATE_CONTINUE;
+}
+
+void m1GUI::MainMenuBar()
+{
+	if (ImGui::BeginMenu("File")) {
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("Panels")) {
+		for (auto i = panels.begin(); i != panels.end(); ++i) {
+			if (*i != about) {
+				ImGui::PushID(*i);
+				if (ImGui::MenuItem((*i)->name.c_str(), "", (*i)->active)) {
+					(*i)->active = !(*i)->active;
+				}
+				ImGui::PopID();
+			}
+		}
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("Debugging")) {
+		if (ImGui::MenuItem("ImGui Demo Window", "", demo)) {
+			demo = !demo;
+		}
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("Help")) {
+		if (ImGui::MenuItem("About", "", about->active)) {
+			about->active = !about->active;
+		}
+		ImGui::EndMenu();
+	}
 }
 
 UpdateStatus m1GUI::Update()
@@ -142,6 +147,9 @@ UpdateStatus m1GUI::Update()
 		ImGui::PushID(*i);
 		if ((*i)->active) {
 			if (ImGui::Begin(((*i)->icon + " " + (*i)->name).c_str(), &(*i)->active, (*i)->flags)) {
+				(*i)->focused = ImGui::IsWindowFocused();
+				(*i)->hover = ImGui::IsWindowHovered();
+
 				(*i)->Update();
 			}
 			ImGui::End();

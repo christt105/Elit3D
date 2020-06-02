@@ -3,6 +3,7 @@
 class r1Tileset :
 	public Resource
 {
+	friend class p1Tileset;
 public:
 	r1Tileset(const uint64_t& _uid);
 	~r1Tileset();

@@ -7,6 +7,10 @@
 #include "m1Input.h"
 #include "m1Window.h"
 #include "m1Render3D.h"
+#include "m1GUI.h"
+
+#include "p1Scene.h"
+
 #include "r1Shader.h"
 
 #include "Logger.h"
@@ -52,7 +56,8 @@ void m1Camera3D::SetFov()
 
 UpdateStatus m1Camera3D::PreUpdate()
 {
-	CameraMovement();
+	if (App->gui->scene->IsFocused() && App->gui->scene->IsOnHover())
+		CameraMovement();
 	App->render->bShader->SetMat4("model", float4x4::FromTRS(float3::zero, Quat::identity, float3::one));
 	App->render->bShader->SetMat4("view", frustum.ViewMatrix());
 	App->render->bShader->SetMat4("projection", frustum.ProjectionMatrix());

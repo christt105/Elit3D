@@ -7,3 +7,13 @@ Panel::Panel(const char* name, bool start_active, const char* icon) : name(name)
 Panel::~Panel()
 {
 }
+
+bool Panel::IsFocused()
+{
+	return focused;
+}
+
+bool Panel::IsOnHover()
+{
+	return hover;
+}

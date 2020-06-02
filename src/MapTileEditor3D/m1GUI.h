@@ -17,6 +17,7 @@ class m1GUI :
 	public Module
 {
 	friend class Logger;
+	friend class m1Camera3D;
 public:
 	m1GUI(bool start_enabled = true);
 	~m1GUI();
@@ -24,6 +25,7 @@ public:
 	bool Init(const nlohmann::json& node) override;
 	bool Start() override;
 	UpdateStatus PreUpdate() override;
+	void MainMenuBar();
 	void DockSpace();
 	UpdateStatus Update() override;
 	UpdateStatus PostUpdate() override;

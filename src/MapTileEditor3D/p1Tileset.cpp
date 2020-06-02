@@ -30,8 +30,26 @@ void p1Tileset::Update()
 		r1Tileset* tile = (r1Tileset*)App->resources->Get(tileset);
 		if (tile != nullptr) {
 			r1Texture* texture = (r1Texture*)App->resources->Get(tile->GetTextureUID());
-			if (texture != nullptr)
+			if (texture != nullptr) {
 				ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2(texture->GetWidth(), texture->GetHeight()), ImVec2(0, 0), ImVec2(1, -1));
+				if (ImGui::IsItemHovered()) {
+					ImVec2 tile_mouse = ImVec2(floor(((float)ImGui::GetMousePos().x - 8.f) / tile->width), floor(((float)ImGui::GetMousePos().y + 1.f) / tile->height));
+					ImGui::BeginTooltip();
+					ImGui::Text("Tile: %i, %i", (int)tile_mouse.x, (int)tile_mouse.y - 7);
+					ImGui::EndTooltip();
+
+					ImVec2 min = ImVec2(tile_mouse.x * tile->width + 8, tile_mouse.y * tile->height - 1);
+					ImVec2 max = min + ImVec2(tile->width, tile->height);
+
+					auto draw_list = ImGui::GetCurrentWindow()->DrawList;
+
+					draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.6f)));
+					draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 0.f, 0.f, 1.f)));
+				}
+				if (ImGui::IsItemClicked()) {
+
+				}
+			}
 		}
 	}
 	
@@ -40,11 +58,7 @@ void p1Tileset::Update()
 			if (ImGui::Button("+ Create Tileset")) {
 				modal = true;
 
-				data.tile_size[0] = data.tile_size[1] = 32;
-				data.tile_size[2] = data.tile_size[3] = 0;
-				data.transparent_color[0] = data.transparent_color[1] = data.transparent_color[2] = 1.f;
-				memset(data.buf_name, 0, 25);
-				data.imageUID = 0ULL;
+				data.Reset();
 
 				ImGui::OpenPopup("Create Tileset");
 			}
