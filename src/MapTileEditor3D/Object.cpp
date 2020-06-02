@@ -1,51 +1,53 @@
 #include "Object.h"
-#include <GL/glew.h>
+#include "c1Mesh.h"
+#include "c1Transform.h"
+#include "c1Material.h"
+#include "c1Transform.h"
 
-#include "Shader.h"
+#include "ExternalTools/mmgr/mmgr.h"
 
-Object::Object()
+Object::Object(Object* parent) : parent(parent)
 {
+	transform = CreateComponent<c1Transform>();
 }
 
 Object::~Object()
 {
-	delete[] vertices.data;
-	delete[] indices.data;
+	for (auto i = components.begin(); i != components.end(); ++i)
+		delete* i;
+
+	for (auto i = children.begin(); i != children.end(); ++i)
+		delete* i;
 }
 
-void Object::GenerateBuffers()
+void Object::Update()
 {
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-	glGenBuffers(1, &vertices.id);
-	glBindBuffer(GL_ARRAY_BUFFER, vertices.id);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size * 3, vertices.data, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(0);
-	
-	glGenBuffers(1, &indices.id);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.id);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size, indices.data, GL_STATIC_DRAW);
+	for (auto i = components.begin(); i != components.end(); ++i) {
+		(*i)->Update();
+	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	for (auto i = children.begin(); i != children.end(); ++i) {
+		(*i)->Update();
+	}
 }
 
-void Object::Draw()
+const char* Object::GetName() const
 {
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, vertices.id);
-	glVertexPointer(3, GL_FLOAT, 0, (void*)0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.id);
+	return name.c_str();
+}
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	material.shader->SetVec3("color", float3::one);
-	glDrawElements(GL_TRIANGLES, indices.size, GL_UNSIGNED_INT, (void*)0);
+void Object::SetName(const char* n)
+{
+	name.assign(n);
+}
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glPolygonOffset(-1.f, 1.f);
-	glLineWidth(1.5f);
-	material.shader->SetVec3("color", float3::zero);
-	glDrawElements(GL_TRIANGLES, indices.size, GL_UNSIGNED_INT, (void*)0);
-	glLineWidth(1.f);
+void Object::AddChild(Object* child)
+{
+	children.push_back(child);
+}
+
+Object* Object::CreateChild()
+{
+	children.push_back(new Object(this));
+	return children.back();
 }

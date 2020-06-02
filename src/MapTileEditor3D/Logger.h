@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
+
+#include "ExternalTools/ImGui/imgui.h"
 
 #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
 
@@ -8,12 +11,15 @@
 #define LOGW(format, ...) Logger::Log(1, __FILENAME__, __FUNCTION__, __LINE__, format, __VA_ARGS__);
 #define LOGE(format, ...) Logger::Log(2, __FILENAME__, __FUNCTION__, __LINE__, format, __VA_ARGS__);
 
+struct LineLog;
+
 class Logger
 {
+	friend struct LineLog;
+public:
 	enum class LogType {
 		INFO, WARNING, ERR
 	};
-public:
 	Logger();
 	~Logger();
 
@@ -21,6 +27,23 @@ public:
 
 	static void ExportLog();
 
+	static const char* GetLog();
+
+	static bool console_log;
+
 private:
-	static std::string txt;
+	static ImGuiTextBuffer txt;
+};
+
+struct LineLog {
+	LineLog() {}
+	LineLog(Logger::LogType t, const char* str, const tm* time);
+
+	Logger::LogType type = Logger::LogType::INFO;
+	std::string last_line;
+	std::string identifier;
+	ImGuiTextBuffer buffer;
+	int moment[3] = { 0,0,0 };
+	unsigned int references = 1U;
+	bool opened = false;
 };

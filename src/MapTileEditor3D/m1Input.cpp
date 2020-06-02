@@ -5,6 +5,7 @@
 
 #include "Application.h"
 #include "m1Window.h"
+#include "m1Importer.h"
 
 #include "Logger.h"
 
@@ -76,7 +77,8 @@ UpdateStatus m1Input::PreUpdate()
             break;
         case SDL_DROPFILE: {
             char* file = event.drop.file;
-            LOG("Dropped %s in window", file);
+            LOG("Importing dropped file %s", file);
+            App->importer->Import(file);
             SDL_free(file);
             break;
         }

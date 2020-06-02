@@ -1,30 +1,55 @@
 #pragma once
-#include "Transform.h"
-#include "Material.h"
 
-template<typename T>
-struct Buffer {
-	unsigned int size = 0u;
-	unsigned int id = 0u;
-	T* data = nullptr;
-};
+#include <vector>
+#include <string>
+#include "Component.h"
+
+class c1Transform;
 
 class Object
 {
-	friend class m1Objects;
+	friend class p1Inspector;
 public:
-	Object();
+	Object(Object* parent = nullptr);
 	~Object();
 
-	void GenerateBuffers();
-	void Draw();
+public:
+	void Update();
 
+	const char* GetName() const;
+	void SetName(const char* name);
+
+	void AddChild(Object* child);
+	Object* CreateChild();
+
+	template<class C>
+	C* CreateComponent();
+	template<class C>
+	C* GetComponent();
+
+	c1Transform* transform = nullptr;
+
+	std::vector<Object*> children;
 private:
-	Buffer<float> vertices;
-	Buffer<unsigned int> indices;
-	unsigned int VAO = 0u;
+	std::vector<Component*> components;
 
-	Transform transform;
-	Material material;
+	std::string name = "Object";
+
+	Object* parent = nullptr;
 };
 
+template<class C>
+inline C* Object::CreateComponent()
+{
+	components.push_back(new C(this));
+	return (C*)components.back();
+}
+
+template<class C>
+inline C* Object::GetComponent()
+{
+	for (auto i = components.begin(); i != components.end(); ++i) {
+
+	}
+	return NULL;
+}

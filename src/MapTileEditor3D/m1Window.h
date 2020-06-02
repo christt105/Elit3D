@@ -9,6 +9,7 @@ class m1Window :
 {
 	friend class m1GUI;
 	friend class m1Render3D;
+	friend class p1Configuration;
 public:
 	m1Window(bool start_enabled = true);
 	~m1Window();
@@ -23,6 +24,7 @@ public:
 	unsigned int GetHeight() const;
 
 	void SetWindowSize(const int& w, const int& h);
+	void UpdateWindowSize();
 
 private:
 	SDL_Window* window = nullptr;
@@ -31,5 +33,12 @@ private:
 	int y = 0;
 	int width = 0;
 	int height = 0;
+
+	bool fullscreen = false;
+	bool fullscreen_desktop = false;
+	bool borderless = false;
+	bool resizable = false;
+	bool minimized = false;
+	bool maximized = false;
 };
 

@@ -61,6 +61,27 @@
     <Filter Include="Panels\Base">
       <UniqueIdentifier>{fd60fadd-e751-462d-9d64-d2b607847417}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Objects\Components\Base">
+      <UniqueIdentifier>{befdd797-eb9c-48ed-b706-c01063fdc57f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Base">
+      <UniqueIdentifier>{5135db9f-dce3-4697-97b0-86cd1d1f1d2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\PCG">
+      <UniqueIdentifier>{20812aeb-e39a-4974-aac5-8fbdd5403fb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\Importers">
+      <UniqueIdentifier>{fad32fa3-c10b-49a2-b0cc-e9c638840fb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\Importers\Base">
+      <UniqueIdentifier>{48c15540-8334-4e79-9177-d7bc760d05f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\Assimp">
+      <UniqueIdentifier>{399e8622-25d7-4611-a05f-8f4a07d5d468}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\Assimp\Compiler">
+      <UniqueIdentifier>{6d061906-6aa4-41e6-8a01-bcca51bdfde3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Logger.cpp">
@@ -95,9 +116,6 @@
     </ClCompile>
     <ClCompile Include="FileSystem.cpp">
       <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>Objects</Filter>
     </ClCompile>
     <ClCompile Include="ExternalTools\MathGeoLib\include\Algorithm\Random\LCG.cpp">
       <Filter>External Libraries\MathGeoLib\Algorithm</Filter>
@@ -198,15 +216,6 @@
     <ClCompile Include="m1Camera3D.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Transform.cpp">
-      <Filter>Objects\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Objects\Components</Filter>
-    </ClCompile>
     <ClCompile Include="m1Objects.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
@@ -236,6 +245,75 @@
     </ClCompile>
     <ClCompile Include="ExternalTools\ImGui\imgui_impl_sdl.cpp">
       <Filter>External Libraries\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="c1Mesh.cpp">
+      <Filter>Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="c1Transform.cpp">
+      <Filter>Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="c1Material.cpp">
+      <Filter>Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Objects\Components\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource.cpp">
+      <Filter>Resources\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="m1Resources.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="r1Shader.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Random.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="m1Importer.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Importer.cpp">
+      <Filter>Tools\Importers\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="i1Tileset.cpp">
+      <Filter>Tools\Importers</Filter>
+    </ClCompile>
+    <ClCompile Include="r1Mesh.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="i1Model.cpp">
+      <Filter>Tools\Importers</Filter>
+    </ClCompile>
+    <ClCompile Include="r1Model.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="r1Texture.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="p1Objects.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="p1Inspector.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="p1Console.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="p1Scene.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="p1Resources.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="p1Tileset.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="r1Tileset.cpp">
+      <Filter>Resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -542,9 +620,6 @@
     <ClInclude Include="ExternalTools\par_shapes\par_shapes.h">
       <Filter>External Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
     <ClInclude Include="ExternalTools\MathGeoLib\include\MathBuildConfig.h">
       <Filter>External Libraries\MathGeoLib</Filter>
     </ClInclude>
@@ -728,15 +803,6 @@
     <ClInclude Include="m1Camera3D.h">
       <Filter>Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Transform.h">
-      <Filter>Objects\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>Objects\Components</Filter>
-    </ClInclude>
     <ClInclude Include="m1Objects.h">
       <Filter>Modules</Filter>
     </ClInclude>
@@ -773,6 +839,321 @@
     <ClInclude Include="ExternalTools\ImGui\imgui_impl_sdl.h">
       <Filter>External Libraries\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>External Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="c1Mesh.h">
+      <Filter>Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="c1Transform.h">
+      <Filter>Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="c1Material.h">
+      <Filter>Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>Objects\Components\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Resources\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="m1Resources.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="r1Shader.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\PCG\pcg_random.hpp">
+      <Filter>External Libraries\PCG</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\PCG\pcg_uint128.hpp">
+      <Filter>External Libraries\PCG</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\PCG\pcg_extras.hpp">
+      <Filter>External Libraries\PCG</Filter>
+    </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="m1Importer.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Importer.h">
+      <Filter>Tools\Importers\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="i1Tileset.h">
+      <Filter>Tools\Importers</Filter>
+    </ClInclude>
+    <ClInclude Include="r1Mesh.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="i1Model.h">
+      <Filter>Tools\Importers</Filter>
+    </ClInclude>
+    <ClInclude Include="r1Model.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Bitmap.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\BlobIOSystem.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\ByteSwapper.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\camera.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\cexport.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\cfileio.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\cimport.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\color4.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\config.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\CreateAnimMesh.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\DefaultIOStream.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\DefaultIOSystem.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\DefaultLogger.hpp">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Defines.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\defs.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Exceptional.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Exporter.hpp">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\fast_atof.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\GenericProperty.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Hash.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Importer.hpp">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\importerdesc.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\IOStream.hpp">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\IOStreamBuffer.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\IOSystem.hpp">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\irrXMLWrapper.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\light.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\LineSplitter.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\LogAux.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Logger.hpp">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\LogStream.hpp">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Macros.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\material.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\MathFunctions.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\matrix3x3.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\matrix4x4.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\MemoryIOWrapper.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\mesh.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\metadata.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\NullLogger.hpp">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\ParsingUtils.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\pbrmaterial.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\postprocess.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Profiler.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\ProgressHandler.hpp">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\qnan.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\quaternion.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\RemoveComments.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\scene.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\SceneCombiner.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\SGSpatialSort.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\SkeletonMeshBuilder.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\SmoothingGroups.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\SpatialSort.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\StandardShapes.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\StreamReader.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\StreamWriter.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\StringComparison.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\StringUtils.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Subdivision.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\texture.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\TinyFormatter.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\types.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\vector2.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\vector3.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\version.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Vertex.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\XMLTools.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\ZipArchiveIOSystem.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\aabb.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\ai_assert.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\anim.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\BaseImporter.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Compiler\pstdint.h">
+      <Filter>External Libraries\Assimp\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Compiler\pushpack1.h">
+      <Filter>External Libraries\Assimp\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\Compiler\poppack1.h">
+      <Filter>External Libraries\Assimp\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="r1Texture.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Objects.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Inspector.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Console.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="IconsFontAwesome5.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Scene.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Resources.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Tileset.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="r1Tileset.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\MathGeoLib\include\Geometry\KDTree.inl">
@@ -792,6 +1173,30 @@
     </None>
     <None Include="ExternalTools\MathGeoLib\include\Math\Matrix.inl">
       <Filter>External Libraries\MathGeoLib\Math</Filter>
+    </None>
+    <None Include="ExternalTools\Assimp\include\color4.inl">
+      <Filter>External Libraries\Assimp</Filter>
+    </None>
+    <None Include="ExternalTools\Assimp\include\material.inl">
+      <Filter>External Libraries\Assimp</Filter>
+    </None>
+    <None Include="ExternalTools\Assimp\include\matrix3x3.inl">
+      <Filter>External Libraries\Assimp</Filter>
+    </None>
+    <None Include="ExternalTools\Assimp\include\matrix4x4.inl">
+      <Filter>External Libraries\Assimp</Filter>
+    </None>
+    <None Include="ExternalTools\Assimp\include\quaternion.inl">
+      <Filter>External Libraries\Assimp</Filter>
+    </None>
+    <None Include="ExternalTools\Assimp\include\SmoothingGroups.inl">
+      <Filter>External Libraries\Assimp</Filter>
+    </None>
+    <None Include="ExternalTools\Assimp\include\vector2.inl">
+      <Filter>External Libraries\Assimp</Filter>
+    </None>
+    <None Include="ExternalTools\Assimp\include\vector3.inl">
+      <Filter>External Libraries\Assimp</Filter>
     </None>
   </ItemGroup>
 </Project>
