@@ -24,6 +24,9 @@ void r1Tileset::Load()
 	else
 		LOGW("Texture with id %s not found in tileset %s(%s)", std::to_string(texture_uid).c_str(), name.c_str(), std::to_string(uid).c_str());
 
+	ntiles = json["tile"].value("ntiles", 0);
+	columns = json["tile"].value("columns", 0);
+
 	width = json["tile"].value("width", 32);
 	height = json["tile"].value("hright", 32);
 	margin = json["tile"].value("margin", 0);

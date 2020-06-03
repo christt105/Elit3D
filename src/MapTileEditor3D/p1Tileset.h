@@ -35,6 +35,8 @@ private:
 
 	TileSetData data;
 
+	int tile_selected[2] = { -1, -1 };
+
 	bool select_tileset = false;
 };
 

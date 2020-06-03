@@ -1,5 +1,7 @@
 {
     "Image": 18025728808556756992,
+    "columns": 8,
+    "ntiles": 5208,
     "tile": {
         "height": 32,
         "margin": 0,

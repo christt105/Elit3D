@@ -21,33 +21,66 @@ p1Tileset::~p1Tileset()
 void p1Tileset::Update()
 {
 	static bool modal = false;
-	ImGui::Spacing();
-	if (ImGui::Button("Select Tileset")) { // TODO: Center in window
-		if (!select_tileset)
-			select_tileset = true;
+	
+	if (tileset == 0ULL) {
+		if (ImGui::Button("Select Tileset")) { // TODO: Center in window
+			if (!select_tileset)
+				select_tileset = true;
+		}
 	}
-	if (tileset != 0ULL) {
+	else {
+		if (ImGui::Button("Change Tileset")) { // TODO: Center in window
+			if (!select_tileset)
+				select_tileset = true;
+		}
 		r1Tileset* tile = (r1Tileset*)App->resources->Get(tileset);
+		ImGui::Spacing();
+		ImGui::Text("Tile width:  ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->width);
+		ImGui::SameLine();
+		ImGui::Text("\tMargin: ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->margin);
+		ImGui::Text("Tile height: "); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->height);
+		ImGui::SameLine();
+		ImGui::Text("\tSpacin: ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->spacing);
+
+		ImGui::Separator();
+
 		if (tile != nullptr) {
 			r1Texture* texture = (r1Texture*)App->resources->Get(tile->GetTextureUID());
 			if (texture != nullptr) {
-				ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2(texture->GetWidth(), texture->GetHeight()), ImVec2(0, 0), ImVec2(1, -1));
-				if (ImGui::IsItemHovered()) {
-					ImVec2 tile_mouse = ImVec2(floor(((float)ImGui::GetMousePos().x - 8.f) / tile->width), floor(((float)ImGui::GetMousePos().y + 1.f) / tile->height));
-					ImGui::BeginTooltip();
-					ImGui::Text("Tile: %i, %i", (int)tile_mouse.x, (int)tile_mouse.y - 7);
-					ImGui::EndTooltip();
+				if (ImGui::BeginChild("##tileset")) {
+					ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2(texture->GetWidth(), texture->GetHeight()), ImVec2(0, 0), ImVec2(1, -1));
+					if (ImGui::IsItemHovered()) {
+						ImVec2 mouse = ImGui::GetMousePos() - ImGui::GetItemRectMin();
+						ImVec2 tile_mouse = ImVec2(floor(mouse.x / tile->width), floor(mouse.y / tile->height));
 
-					ImVec2 min = ImVec2(tile_mouse.x * tile->width + 8, tile_mouse.y * tile->height - 1);
-					ImVec2 max = min + ImVec2(tile->width, tile->height);
+						ImGui::BeginTooltip();
+						ImGui::Text("Tile: %i, %i", (int)tile_mouse.x, (int)tile_mouse.y);
+						ImGui::EndTooltip();
 
-					auto draw_list = ImGui::GetCurrentWindow()->DrawList;
+						ImVec2 min = ImGui::GetItemRectMin() + ImVec2(tile_mouse.x * tile->width, tile_mouse.y * tile->height);
+						ImVec2 max = min + ImVec2(tile->width, tile->height);
 
-					draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.6f)));
-					draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 0.f, 0.f, 1.f)));
-				}
-				if (ImGui::IsItemClicked()) {
+						auto draw_list = ImGui::GetCurrentWindow()->DrawList;
 
+						draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.6f)));
+						draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 0.f, 0.f, 1.f)));
+
+						if (ImGui::IsItemClicked()) {
+							tile_selected[0] = tile_mouse.x;
+							tile_selected[1] = tile_mouse.y;
+						}
+
+					}
+					if (tile_selected[0] != -1) {
+						auto draw_list = ImGui::GetCurrentWindow()->DrawList;
+
+						ImVec2 min = ImGui::GetItemRectMin() + ImVec2(tile_selected[0] * tile->width, tile_selected[1] * tile->height);
+						ImVec2 max = min + ImVec2(tile->width, tile->height);
+
+						draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.3f)));
+						draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 1.f, 0.f, 1.f)));
+					}
+					ImGui::EndChild();
 				}
 			}
 		}
@@ -141,6 +174,15 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 			App->file_system->CreateFolder("Assets/Tilesets/");
 
 		jsontileset["Image"] = data.imageUID;
+
+		r1Texture* tex = (r1Texture*)App->resources->Get(data.imageUID);
+		tex->Attach();
+
+		jsontileset["columns"] = (int)floor(tex->GetWidth() / data.tile_size[0]);
+		jsontileset["ntiles"] = (int)floor(tex->GetHeight() / data.tile_size[1]) * jsontileset["columns"];
+
+		tex->Detach();
+
 		jsontileset["tile"]["width"] = data.tile_size[0];
 		jsontileset["tile"]["height"] = data.tile_size[1];
 		jsontileset["tile"]["margin"] = data.tile_size[2];

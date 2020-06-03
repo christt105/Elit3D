@@ -19,5 +19,7 @@ private:
 	int height = 0;
 	int margin = 0;
 	int spacing = 0;
+	int ntiles = 0;
+	int columns = 0;
 };
 
