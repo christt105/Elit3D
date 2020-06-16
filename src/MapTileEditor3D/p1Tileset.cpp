@@ -63,7 +63,7 @@ void p1Tileset::Update()
 						auto draw_list = ImGui::GetCurrentWindow()->DrawList;
 
 						draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.6f)));
-						draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 0.f, 0.f, 1.f)));
+						draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(0.141f, 0.701f, 1.f, 1.f)));
 
 						if (ImGui::IsItemClicked()) {
 							tile_selected[0] = tile_mouse.x;
@@ -78,7 +78,7 @@ void p1Tileset::Update()
 						ImVec2 max = min + ImVec2(tile->width, tile->height);
 
 						draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.3f)));
-						draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 1.f, 0.f, 1.f)));
+						draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 0.654f, 0.141f, 1.f)));
 					}
 					ImGui::EndChild();
 				}

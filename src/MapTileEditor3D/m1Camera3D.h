@@ -21,9 +21,9 @@ public:
 
 	void CameraMovement();
 
-private:
 	Frustum frustum;
 
+private:
 	float2 lastRight;
 	float2 lastMiddle;
 
