@@ -49,7 +49,7 @@ void r1Model::GenerateFiles()
 		}
 
 		for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
-			r1Mesh* m = App->resources->CreateResource<r1Mesh>(assets_path.c_str());
+			r1Mesh* m = App->resources->CreateResource<r1Mesh>(assets_path.c_str(), 0Ui64, false);
 			m->GenerateFiles(scene->mMeshes[i]);
 			meshes.push_back(m->GetUID());
 		}

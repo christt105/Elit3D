@@ -34,7 +34,7 @@ public:
 	Resource* Get(const Uint64& uid) const;
 
 	template<class T>
-	T* CreateResource(const char* assets_path, const uint64_t& force_uid = 0ULL);
+	T* CreateResource(const char* assets_path, const uint64_t& force_uid = 0ULL, bool set_strings = true);
 	Resource* CreateResource(Resource::Type type, const char* assets_path, const uint64_t& force_uid = 0ULL);
 
 	void SetResourceStrings(Resource* ret, const char* assets_path);
@@ -64,11 +64,14 @@ private:
 };
 
 template<class T>
-inline T* m1Resources::CreateResource(const char* assets_path, const uint64_t& force_uid)
+inline T* m1Resources::CreateResource(const char* assets_path, const uint64_t& force_uid, bool set_strings)
 {
 	T* ret = new T((force_uid == 0) ? App->random->RandomGUID() : force_uid);
 
-	SetResourceStrings(ret, assets_path);
+	if (set_strings)
+		SetResourceStrings(ret, assets_path);
+	else
+		SetResourceStrings(ret, "");
 
 	resources[ret->GetUID()] = ret;
 

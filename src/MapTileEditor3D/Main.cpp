@@ -11,10 +11,11 @@
 
 //MathGeoLib--------------------------------------------------------
 #include "ExternalTools/MathGeoLib/include/MathGeoLib.h"
+
 #ifdef _DEBUG
-#pragma comment (lib, "ExternalTools/MathGeoLib/lib_x86/Debug/MathGeoLib.lib")
+#pragma comment (lib, "ExternalTools/MathGeoLib/lib_x86/lDebug/MathGeoLib.lib")
 #else
-#pragma comment (lib, "ExternalTools/MathGeoLib/lib_x86/Release/MathGeoLib.lib")
+#pragma comment (lib, "ExternalTools/MathGeoLib/lib_x86/lRelease/MathGeoLib.lib")
 #endif
 //--------------------------------------------------------------------
 

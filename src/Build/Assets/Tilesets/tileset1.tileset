@@ -1,0 +1,11 @@
+{
+    "Image": 3000284215392291840,
+    "columns": 8,
+    "ntiles": 5000,
+    "tile": {
+        "height": 32,
+        "margin": 0,
+        "spacing": 0,
+        "width": 32
+    }
+}
