@@ -72,8 +72,8 @@ inline T* m1Resources::CreateResource(const char* assets_path, const uint64_t& f
 		SetResourceStrings(ret, assets_path);
 	else
 		SetResourceStrings(ret, "");
-
-	resources[ret->GetUID()] = ret;
+	
+	resources[ret->uid] = ret;
 
 
 	return ret;
