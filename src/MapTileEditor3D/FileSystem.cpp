@@ -5,7 +5,7 @@
 
 #include "Logger.h"
 
-//#include "ExternalTools/mmgr/mmgr.h"
+#include "ExternalTools/mmgr/mmgr.h"
 
 namespace fs = std::filesystem;
 

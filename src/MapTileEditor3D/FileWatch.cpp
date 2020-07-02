@@ -2,6 +2,12 @@
 #include "Logger.h"
 #include "Application.h"
 
+#include <filesystem>
+
+#include "ExternalTools/mmgr/mmgr.h"
+
+namespace fs = std::filesystem;
+
 FileWatch::FileWatch()
 {
 }
@@ -21,7 +27,7 @@ void FileWatch::Subscribe(const char* folder, bool recursive)
 void FileWatch::StartWatching()
 {
 	root = App->file_system->GetFilesRecursive(folder);
-
+	
 	fut = std::async(std::launch::async, &FileWatch::Watch, this);
 }
 
@@ -35,15 +41,19 @@ void FileWatch::Watch()
 
 void FileWatch::Check()
 {
-	Folder base = FileSystem::GetFilesRecursive(folder);
-
-	for (auto i = base.files.begin(); i != base.files.end(); ++i) {
-		if (root.files.find((*i).first) != root.files.end()) {
-
+	for (const auto& entry : fs::directory_iterator(folder)) {
+		if (entry.is_directory()) {
 		}
 		else {
-			LOG("New file %s found", (*i).first.c_str());
-			root.files[(*i).first] = (*i).second;
+			if (root.files.find(entry.path().filename().string()) != root.files.end()) {
+
+			}
+			else {
+				LOG("New file %s found", entry.path().filename().string().c_str());
+				struct stat time;
+				stat(entry.path().u8string().c_str(), &time);
+				root.files[entry.path().filename().string()] = time.st_mtime;
+			}
 		}
 	}
 }
