@@ -16,6 +16,7 @@ public:
 
 private:
 	void Check();
+	void CheckFolder(const char* folder, Folder& f);
 
 private:
 	const char* folder;
