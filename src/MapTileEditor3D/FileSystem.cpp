@@ -5,7 +5,7 @@
 
 #include "Logger.h"
 
-#include "ExternalTools/mmgr/mmgr.h"
+//#include "ExternalTools/mmgr/mmgr.h"
 
 namespace fs = std::filesystem;
 
@@ -107,7 +107,7 @@ bool FileSystem::IsFileInFolderRecursive(const char* file, const char* folder)
 bool FileSystem::IsFileInFolder(const char* file, const Folder& folder)
 {
     for (auto i = folder.files.begin(); i != folder.files.end(); ++i) {
-        if ((*i).compare(file) == 0)
+        if ((*i).first.compare(file) == 0)
             return true;
     }
     
@@ -191,7 +191,7 @@ void FileSystem::GetFiles(Folder& parent) {
             parent.folders.push_back(f);
         }
         else {
-            parent.files.push_back(entry.path().filename().string());
+            parent.files[entry.path().filename().string()] = LastTimeWrite(entry.path().filename().string().c_str());
         }
     }
 }

@@ -195,6 +195,7 @@
     <ClCompile Include="ExternalTools\MathGeoLib\include\Time\Clock.cpp" />
     <ClCompile Include="ExternalTools\mmgr\mmgr.cpp" />
     <ClCompile Include="FileSystem.cpp" />
+    <ClCompile Include="FileWatch.cpp" />
     <ClCompile Include="i1Model.cpp" />
     <ClCompile Include="i1Tileset.cpp" />
     <ClCompile Include="Importer.cpp" />
@@ -475,6 +476,7 @@
     <ClInclude Include="ExternalTools\SDL2\include\SDL_video.h" />
     <ClInclude Include="ExternalTools\SDL2\include\SDL_vulkan.h" />
     <ClInclude Include="FileSystem.h" />
+    <ClInclude Include="FileWatch.h" />
     <ClInclude Include="i1Model.h" />
     <ClInclude Include="i1Tileset.h" />
     <ClInclude Include="IconsFontAwesome5.h" />

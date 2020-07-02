@@ -315,6 +315,9 @@
     <ClCompile Include="r1Tileset.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
+    <ClCompile Include="FileWatch.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1153,6 +1156,9 @@
     </ClInclude>
     <ClInclude Include="r1Tileset.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="FileWatch.h">
+      <Filter>Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,9 +4,11 @@
 #include "Random.h"
 #include "Resource.h"
 #include <SDL_stdinc.h>
+#include <future>
 //#include <winnt.h>
 
 struct Folder;
+class FileWatch;
 
 #define ASSETS_PATH "Assets/"
 #define ASSETS_TEXTURES_PATH "Assets/Textures/"
@@ -47,6 +49,8 @@ private:
 	void GenerateLibrary();
 	void ImportFiles(const Folder& parent);
 
+	void StartFileWatcher();
+
 	//without dot
 	const char* GetLibraryFromType(const char* type);
 	const char* GetLibraryFromType(Resource::Type type);
@@ -61,6 +65,8 @@ private:
 
 private:
 	std::map<uint64_t, Resource*> resources;
+
+	FileWatch* filewatch = nullptr;
 };
 
 template<class T>
