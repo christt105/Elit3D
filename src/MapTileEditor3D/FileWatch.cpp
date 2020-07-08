@@ -1,6 +1,7 @@
 #include "FileWatch.h"
 #include "Logger.h"
 #include "Application.h"
+#include "Globals.h"
 
 #include <filesystem>
 
@@ -26,22 +27,19 @@ void FileWatch::Subscribe(const char* folder, bool recursive)
 
 void FileWatch::StartWatching()
 {
+#if USE_FILEWATCHER
 	root = App->file_system->GetFilesRecursive(folder);
 	
 	fut = std::async(std::launch::async, &FileWatch::Watch, this);
+#endif
 }
 
 void FileWatch::Watch()
 {
 	while (watch) {
-		Check();
+		CheckFolder(root.full_path.c_str(), root);
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
-}
-
-void FileWatch::Check()
-{
-	CheckFolder(root.full_path.c_str(), root);
 }
 
 void FileWatch::CheckFolder(const char* folder, Folder& f)

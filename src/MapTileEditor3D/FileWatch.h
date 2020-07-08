@@ -15,7 +15,6 @@ public:
 	void Watch();
 
 private:
-	void Check();
 	void CheckFolder(const char* folder, Folder& f);
 
 private:
