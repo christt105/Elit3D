@@ -318,6 +318,9 @@
     <ClCompile Include="FileWatch.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
+    <ClCompile Include="m1Events.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1159,6 +1162,12 @@
     </ClInclude>
     <ClInclude Include="FileWatch.h">
       <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="m1Events.h">
+      <Filter>Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

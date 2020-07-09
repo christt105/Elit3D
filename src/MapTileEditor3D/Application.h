@@ -17,6 +17,7 @@ class m1Objects;
 class m1Camera3D;
 class m1Resources;
 class m1Importer;
+class m1Events;
 
 class FileSystem;
 class Random;
@@ -43,7 +44,8 @@ public:
 	m1Objects*		objects = nullptr;
 	m1Camera3D*		camera = nullptr;
 	m1Resources*	resources = nullptr;
-	m1Importer* importer = nullptr;
+	m1Importer*		importer = nullptr;
+	m1Events*		events = nullptr;
 
 	FileSystem* file_system = nullptr;
 	Random*		random = nullptr;
