@@ -29,6 +29,8 @@ public:
 
 	static uint64_t LastTimeWrite(const char* path);
 
+	static std::string NormalizePath(const char* path);
+
 	bool CreateFolder(const char* path);
 	bool fDeleteFile(const char* path);
 	bool CopyTo(const char* source, const char* dst);

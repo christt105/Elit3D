@@ -73,6 +73,24 @@ uint64_t FileSystem::LastTimeWrite(const char* path)
     return 0ULL;
 }
 
+std::string FileSystem::NormalizePath(const char* path)
+{
+    std::string p(path);
+    std::string ret;
+    auto i = p.begin();
+    while (i != p.end()) {
+        if (*i == '\\' /*|| *i == '\/'*/) {
+            ret.push_back('/');
+        }
+        else {
+            ret.push_back(*i);
+        }
+
+        ++i;
+    }
+    return ret;
+}
+
 bool FileSystem::CreateFolder(const char* path)
 {
     return fs::create_directory(path);

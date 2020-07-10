@@ -142,7 +142,8 @@ void m1Resources::ImportFiles(const Folder& parent)
 					else {
 						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
 
-						res->GenerateFiles();
+						if (res != nullptr)
+							res->GenerateFiles();
 					}
 				}
 				else {

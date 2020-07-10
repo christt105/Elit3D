@@ -513,6 +513,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="r1Shader.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="TypeVar.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\Assimp\include\color4.inl" />
