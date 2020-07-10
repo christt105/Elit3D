@@ -117,7 +117,8 @@ void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, m1Events::Eve
 {
 	bool is_moved = false;
 	for (auto j = evs.begin(); j != evs.end(); ++j) {
-		if ((*j)->type == (type == m1Events::Event::Type::FILE_CREATED) ? m1Events::Event::Type::FILE_REMOVED : m1Events::Event::Type::FILE_CREATED) {
+		if (type == m1Events::Event::Type::FILE_CREATED && (*j)->type == m1Events::Event::Type::FILE_REMOVED ||
+			type == m1Events::Event::Type::FILE_REMOVED && (*j)->type == m1Events::Event::Type::FILE_CREATED) {
 			//check if is the same name
 			if (App->file_system->GetNameFile(
 				dynamic_cast<sTypeVar*>(e->info["basic_info"])->value.c_str(), true)
@@ -128,7 +129,10 @@ void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, m1Events::Eve
 				ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "from" : "to"] = new sTypeVar(dynamic_cast<sTypeVar*>(e->info["basic_info"])->value.c_str());
 				ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "to" : "from"] = new sTypeVar(dynamic_cast<sTypeVar*>((*j)->info["basic_info"])->value.c_str());
 
-				LOG("File %s moved from %s to %s", App->file_system->GetNameFile(dynamic_cast<sTypeVar*>(e->info["basic_info"])->value.c_str(), true).c_str(), ev->info["from"])
+				LOG("File %s moved from %s to %s",
+					App->file_system->GetNameFile(dynamic_cast<sTypeVar*>(e->info["basic_info"])->value.c_str(), true).c_str(),
+					dynamic_cast<sTypeVar*>(ev->info["from"])->value.c_str(),
+					dynamic_cast<sTypeVar*>(ev->info["to"])->value.c_str());
 
 				App->events->AddEvent(ev);
 
