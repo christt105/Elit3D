@@ -201,6 +201,27 @@ std::string FileSystem::GetNameFile(const char* file, bool with_extension)
     return name;
 }
 
+std::string FileSystem::GetFolder(const char* path)
+{
+    std::string p(path);
+    std::string ret;
+
+    bool end_of_file = false;
+    for (auto i = p.rbegin(); i != p.rend(); ++i) {
+        if (!end_of_file) {
+            if (*i == '/' || *i == '//' || *i == '\\') {
+                end_of_file = true;
+            }
+        }
+        else {
+            ret.push_back(*i);
+        }
+    }
+
+    std::reverse(ret.begin(), ret.end());
+    return ret;
+}
+
 void FileSystem::GetFiles(Folder& parent) {
     for (const auto& entry : fs::directory_iterator(parent.full_path)) {
         if (entry.is_directory()) {

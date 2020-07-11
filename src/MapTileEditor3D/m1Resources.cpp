@@ -153,8 +153,8 @@ void m1Resources::ImportFiles(const Folder& parent)
 					App->file_system->SaveJSONFile((parent.full_path + (*file).first + ".meta").c_str(), meta);
 
 					Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
-
-					res->GenerateFiles();
+					if (res != nullptr)
+						res->GenerateFiles();
 				}
 			}
 			else {
@@ -168,25 +168,10 @@ void m1Resources::ImportFiles(const Folder& parent)
 	}
 }
 
-/*void m1Resources::watch_callback(filewatch_update_t change, const char* virtual_path, void* udata)
-{
-	const char* change_string = 0;
-	switch (change)
-	{
-	case FILEWATCH_DIR_ADDED: change_string = "FILEWATCH_DIR_ADDED"; break;
-	case FILEWATCH_DIR_REMOVED: change_string = "FILEWATCH_DIR_REMOVED"; break;
-	case FILEWATCH_FILE_ADDED: change_string = "FILEWATCH_FILE_ADDED"; break;
-	case FILEWATCH_FILE_REMOVED: change_string = "FILEWATCH_FILE_REMOVED"; break;
-	case FILEWATCH_FILE_MODIFIED: change_string = "FILEWATCH_FILE_MODIFIED"; break;
-	}
-
-	LOG("%s at %s.", change_string, virtual_path);
-}*/
-
 void m1Resources::StartFileWatcher()
 {
 	filewatch = new FileWatch();
-	filewatch->Subscribe("./Assets/");
+	filewatch->Subscribe("Assets/");
 
 	filewatch->StartWatching();
 }

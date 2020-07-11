@@ -41,6 +41,8 @@ public:
 	std::string GetFileExtension(const char* file, bool with_dot = false);
 	std::string GetNameFile(const char* file, bool with_extension = false);
 
+	static std::string GetFolder(const char* path);
+
 private:
 	static void GetFiles(Folder& parent);
 	bool IsFileInFolder(const char* file, const Folder& folder);

@@ -30,5 +30,8 @@ struct sTypeVar : public TypeVar {
     sTypeVar(const char* n) :value(n) {
         type = Type::String;
     }
+    sTypeVar(const std::string& n) :value(n) {
+        type = Type::String;
+    }
     std::string value;
 };

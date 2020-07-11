@@ -115,30 +115,30 @@ void FileWatch::HandleEvents(std::list<m1Events::Event*>& e)
 
 void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, m1Events::Event* e, m1Events::Event::Type type)
 {
-	bool is_moved = false;
+	bool only_created = true;
 	for (auto j = evs.begin(); j != evs.end(); ++j) {
 		if (type == m1Events::Event::Type::FILE_CREATED && (*j)->type == m1Events::Event::Type::FILE_REMOVED ||
 			type == m1Events::Event::Type::FILE_REMOVED && (*j)->type == m1Events::Event::Type::FILE_CREATED) {
 			//check if is the same name
+			std::string s1 = dynamic_cast<sTypeVar*>(e->info["basic_info"])->value.c_str();
+			std::string s2 = dynamic_cast<sTypeVar*>((*j)->info["basic_info"])->value.c_str();
 			if (App->file_system->GetNameFile(
-				dynamic_cast<sTypeVar*>(e->info["basic_info"])->value.c_str(), true)
-				.compare(App->file_system->GetNameFile(dynamic_cast<sTypeVar*>((*j)->info["basic_info"])->value.c_str(), true)) == 0)
+				s1.c_str(), true)
+				.compare(App->file_system->GetNameFile(s2.c_str(), true)) == 0)
 			{
 				//File Moved to other folder
 				m1Events::Event* ev = new m1Events::Event(m1Events::Event::Type::FILE_MOVED);
-				ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "from" : "to"] = new sTypeVar(dynamic_cast<sTypeVar*>(e->info["basic_info"])->value.c_str());
-				ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "to" : "from"] = new sTypeVar(dynamic_cast<sTypeVar*>((*j)->info["basic_info"])->value.c_str());
+				ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "from" : "to"] = new sTypeVar(s1);
+				ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "to" : "from"] = new sTypeVar(s2);
 
 				LOG("File %s moved from %s to %s",
-					App->file_system->GetNameFile(dynamic_cast<sTypeVar*>(e->info["basic_info"])->value.c_str(), true).c_str(),
+					App->file_system->GetNameFile(s1.c_str(), true).c_str(),
 					dynamic_cast<sTypeVar*>(ev->info["from"])->value.c_str(),
 					dynamic_cast<sTypeVar*>(ev->info["to"])->value.c_str());
 
 				App->events->AddEvent(ev);
 
-				is_moved = true;
-
-				//TODO: delete events
+				only_created = false;
 
 				delete  e;
 				delete* j;
@@ -146,16 +146,34 @@ void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, m1Events::Eve
 
 				break;
 			}
-			else if (/*same folder?*/true) {
+			else if (App->file_system->GetFolder(s1.c_str()).compare(App->file_system->GetFolder(s2.c_str())) == 0) {
+				//File renamed
+				m1Events::Event* ev = new m1Events::Event(m1Events::Event::Type::FILE_RENAMED);
+				ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "to" : "from"] = new sTypeVar(App->file_system->GetNameFile(s1.c_str(), true));
+				ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "from" : "to"] = new sTypeVar(App->file_system->GetNameFile(s2.c_str(), true));
 
+				LOG("File %s renamed to %s",
+					App->file_system->GetNameFile(s1.c_str(), true).c_str(),
+					dynamic_cast<sTypeVar*>(ev->info["to"])->value.c_str());
+
+				App->events->AddEvent(ev);
+
+				only_created = false;
+
+				delete  e;
+				delete* j;
+				*j = nullptr;
+
+				break;
 			}
 			else {
 				//is strange to have on the same frame a file created and other deleted
+				LOGW("File %s created and %s removed", s1.c_str(), s2.c_str());
 			}
 		}
 	}
 
-	if (!is_moved) {
+	if (only_created) {
 		LOG("File %s has created", dynamic_cast<sTypeVar*>(e->info["basic_info"])->value.c_str());
 		App->events->AddEvent(e);
 	}

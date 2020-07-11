@@ -41,7 +41,7 @@ void m1Events::AddEvent(Event* e)
 	events.push(e);
 }
 
-m1Events::Event::Event(): type(Event::Type::NONE)
+m1Events::Event::Event(): type(m1Events::Event::Type::NONE)
 {
 }
 
