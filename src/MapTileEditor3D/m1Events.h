@@ -10,19 +10,26 @@ class m1Events :
 {
 public:
     struct Event {
-        enum Type {
+        enum class Type {
             NONE = -1,
+
             FILE_CREATED,
             FILE_MODIFIED,
             FILE_REMOVED,
             FILE_RENAMED,
-            FILE_MOVED
+            FILE_MOVED,
+
+            FOLDER_CREATED,
+            FOLDER_MODIFIED,
+            FOLDER_REMOVED,
+            FOLDER_RENAMED,
+            FOLDER_MOVED
         };
         Event();
         Event(Type t, const char* basic_info = NULL);
         ~Event();
 
-        Type type = NONE;
+        Type type = Type::NONE;
         std::unordered_map<std::string, TypeVar*> info;
     };
 

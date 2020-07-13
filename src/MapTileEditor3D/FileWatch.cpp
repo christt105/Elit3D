@@ -59,7 +59,7 @@ void FileWatch::CheckFolder(Folder& f, std::list<m1Events::Event*>& ev)
 	auto j = f.folders.begin();
 	while (j != f.folders.end()) {
 		if (!FileSystem::Exists((*j).full_path.c_str())) {
-			LOG("Folder %s deleted", (*j).full_path.c_str());
+			ev.push_back(new m1Events::Event(m1Events::Event::Type::FOLDER_REMOVED, (*j).full_path.c_str()));
 			j = f.folders.erase(j);
 		}
 		else
@@ -73,7 +73,7 @@ void FileWatch::CheckFolder(Folder& f, std::list<m1Events::Event*>& ev)
 				CheckFolder(*it, ev);
 			}
 			else {
-				LOG("New folder %s found", entry.path().u8string().c_str());
+				ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_CREATED, (*j).full_path.c_str()));
 				f.folders.push_back(Folder((FileSystem::NormalizePath(entry.path().u8string().c_str()) + "/").c_str()));
 			}
 		}

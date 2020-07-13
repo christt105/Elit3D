@@ -19,12 +19,26 @@ UpdateStatus m1Events::PreUpdate()
 		switch (e->type)
 		{
 		case Event::Type::FILE_CREATED:
+			// Generate metadata and generate library
 			break;
 		case Event::Type::FILE_MOVED:
+			// Check if metadata is within and change resource assets path
 			break;
 		case Event::Type::FILE_REMOVED:
+			// Remove from library and from resources map
 			break;
 		case Event::Type::FILE_RENAMED:
+			//Change metadata name file and resources assets path
+			break;
+		case Event::Type::FOLDER_CREATED:
+			//Check for resources inside
+			break;
+		case Event::Type::FOLDER_MOVED:
+		case Event::Type::FOLDER_RENAMED:
+			// Change resources assets path
+			break;
+		case Event::Type::FOLDER_REMOVED:
+			// delete all resources inside folder
 			break;
 		default:
 			break;
