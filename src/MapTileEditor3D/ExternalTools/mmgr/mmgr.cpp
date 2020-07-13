@@ -78,6 +78,9 @@
 #pragma warning( disable : 4577 ) // Warning that exceptions are disabled
 #pragma warning( disable : 4530 ) // Warning that exceptions are disabled
 
+#include "../../Globals.h"
+
+#if USE_MMGR
 //#include "stdafx.h"
 #include <iostream>
 #include <stdio.h>
@@ -585,7 +588,6 @@ static	void	dumpLeakReport()
 
 	fclose(fp);
 #endif
-	_CrtDumpMemoryLeaks();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -1442,7 +1444,10 @@ void	m_deallocator(const char *sourceFile, const unsigned int sourceLine, const 
 			sAllocUnit	*au = findAllocUnit(reportedAddress);
 
 			// If you hit this assert, you tried to deallocate RAM that wasn't allocated by this memory manager.
+			/*mmgr is non thread safe :( */
+#if MMGR_ASSERT
 			m_assert(au != NULL);
+#endif
 			if (au == NULL) throw "Request to deallocate RAM that was never allocated";
 
 			// If you hit this assert, then the allocation unit that is about to be deallocated is damaged. But you probably
@@ -1757,3 +1762,5 @@ sMStats	m_getMemoryStatistics()
 // ---------------------------------------------------------------------------------------------------------------------------------
 // mmgr.cpp - End of file
 // ---------------------------------------------------------------------------------------------------------------------------------
+
+#endif

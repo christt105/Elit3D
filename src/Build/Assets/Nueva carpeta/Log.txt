@@ -1,0 +1,43 @@
+19:33:07 [INFO]	Main.cpp | SDL_main(37) : Starting Program...
+19:33:07 [INFO]	Main.cpp | SDL_main(49) : Application Creation
+19:33:07 [INFO]	Main.cpp | SDL_main(54) : Application Init
+19:33:07 [INFO]	Application.cpp | Application::Init(74) : Initializing module Events
+19:33:07 [INFO]	Application.cpp | Application::Init(74) : Initializing module Input
+19:33:07 [INFO]	Application.cpp | Application::Init(74) : Initializing module Window
+19:33:08 [INFO]	Application.cpp | Application::Init(74) : Initializing module Resources
+19:33:08 [INFO]	Application.cpp | Application::Init(74) : Initializing module Importer
+19:33:08 [INFO]	Application.cpp | Application::Init(74) : Initializing module Camera3D
+19:33:08 [INFO]	Application.cpp | Application::Init(74) : Initializing module Scene
+19:33:08 [INFO]	Application.cpp | Application::Init(74) : Initializing module Objects
+19:33:08 [INFO]	Application.cpp | Application::Init(74) : Initializing module GUI
+19:33:08 [INFO]	Application.cpp | Application::Init(74) : Initializing module Render3D
+19:33:08 [INFO]	Main.cpp | SDL_main(64) : Application Start
+19:33:08 [INFO]	Application.cpp | Application::Start(85) : Starting module Events
+19:33:08 [INFO]	Application.cpp | Application::Start(85) : Starting module Input
+19:33:08 [INFO]	Application.cpp | Application::Start(85) : Starting module Window
+19:33:08 [INFO]	Application.cpp | Application::Start(85) : Starting module Resources
+19:33:08 [WARN]	m1Resources.cpp | m1Resources::GetLibraryFromType(228) : No library path found to type 22800788
+19:33:08 [WARN]	m1Resources.cpp | m1Resources::GetTypeFromStr(294) : No library path found to type 22800788
+19:33:08 [WARN]	m1Resources.cpp | m1Resources::CreateResource(99) : Resource -1 from Assets/Nueva carpeta/Log.txt could not be created, resource not setted in switch
+19:33:08 [WARN]	m1Resources.cpp | m1Resources::GetTypeFromStr(294) : No library path found to type 22800992
+19:33:08 [WARN]	m1Resources.cpp | m1Resources::CreateResource(99) : Resource -1 from Assets/Log.txt could not be created, resource not setted in switch
+19:33:08 [INFO]	Application.cpp | Application::Start(85) : Starting module Importer
+19:33:08 [INFO]	Application.cpp | Application::Start(85) : Starting module Camera3D
+19:33:08 [INFO]	Application.cpp | Application::Start(85) : Starting module Scene
+19:33:08 [INFO]	Application.cpp | Application::Start(85) : Starting module Objects
+19:33:08 [INFO]	Application.cpp | Application::Start(85) : Starting module GUI
+19:33:08 [INFO]	m1GUI.cpp | m1GUI::Start(62) : ImGui initialized with version 1.77 WIP
+19:33:08 [INFO]	Application.cpp | Application::Start(85) : Starting module Render3D
+19:33:17 [INFO]	FileWatch.cpp | FileWatch::CheckIfFileMoved(153) : File ./Assets/Log.txt has created
+19:33:34 [INFO]	Application.cpp | Application::Update(112) : Module Input returned Update Stop on PreUpdate()
+19:33:34 [INFO]	Main.cpp | SDL_main(87) : Application CleanUp
+19:33:34 [INFO]	Application.cpp | Application::CleanUp(152) : Cleaning Up module Render3D
+19:33:34 [INFO]	Application.cpp | Application::CleanUp(152) : Cleaning Up module GUI
+19:33:34 [INFO]	Application.cpp | Application::CleanUp(152) : Cleaning Up module Objects
+19:33:34 [INFO]	Application.cpp | Application::CleanUp(152) : Cleaning Up module Scene
+19:33:34 [INFO]	Application.cpp | Application::CleanUp(152) : Cleaning Up module Camera3D
+19:33:34 [INFO]	Application.cpp | Application::CleanUp(152) : Cleaning Up module Importer
+19:33:34 [INFO]	Application.cpp | Application::CleanUp(152) : Cleaning Up module Resources
+19:33:35 [INFO]	Application.cpp | Application::CleanUp(152) : Cleaning Up module Window
+19:33:35 [INFO]	Application.cpp | Application::CleanUp(152) : Cleaning Up module Input
+19:33:35 [INFO]	Application.cpp | Application::CleanUp(152) : Cleaning Up module Events

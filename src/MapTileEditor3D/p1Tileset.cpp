@@ -48,7 +48,7 @@ void p1Tileset::Update()
 			r1Texture* texture = (r1Texture*)App->resources->Get(tile->GetTextureUID());
 			if (texture != nullptr) {
 				if (ImGui::BeginChild("##tileset")) {
-					ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2(texture->GetWidth(), texture->GetHeight()), ImVec2(0, 0), ImVec2(1, -1));
+					ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2((float)texture->GetWidth(), (float)texture->GetHeight()), ImVec2(0, 0), ImVec2(1, -1));
 					if (ImGui::IsItemHovered()) {
 						ImVec2 mouse = ImGui::GetMousePos() - ImGui::GetItemRectMin();
 						ImVec2 tile_mouse = ImVec2(floor(mouse.x / tile->width), floor(mouse.y / tile->height));
@@ -58,7 +58,7 @@ void p1Tileset::Update()
 						ImGui::EndTooltip();
 
 						ImVec2 min = ImGui::GetItemRectMin() + ImVec2(tile_mouse.x * tile->width, tile_mouse.y * tile->height);
-						ImVec2 max = min + ImVec2(tile->width, tile->height);
+						ImVec2 max = min + ImVec2((float)tile->width, (float)tile->height);
 
 						auto draw_list = ImGui::GetCurrentWindow()->DrawList;
 
@@ -66,16 +66,16 @@ void p1Tileset::Update()
 						draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(0.141f, 0.701f, 1.f, 1.f)));
 
 						if (ImGui::IsItemClicked()) {
-							tile_selected[0] = tile_mouse.x;
-							tile_selected[1] = tile_mouse.y;
+							tile_selected[0] = (int)tile_mouse.x;
+							tile_selected[1] = (int)tile_mouse.y;
 						}
 
 					}
 					if (tile_selected[0] != -1) {
 						auto draw_list = ImGui::GetCurrentWindow()->DrawList;
 
-						ImVec2 min = ImGui::GetItemRectMin() + ImVec2(tile_selected[0] * tile->width, tile_selected[1] * tile->height);
-						ImVec2 max = min + ImVec2(tile->width, tile->height);
+						ImVec2 min = ImGui::GetItemRectMin() + ImVec2((float)(tile_selected[0] * tile->width), (float)(tile_selected[1] * tile->height));
+						ImVec2 max = min + ImVec2((float)tile->width, (float)tile->height);
 
 						draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.3f)));
 						draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 0.654f, 0.141f, 1.f)));

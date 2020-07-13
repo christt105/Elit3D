@@ -14,6 +14,7 @@
 #include "m1Camera3D.h"
 #include "m1Resources.h"
 #include "m1Importer.h"
+#include "m1Events.h"
 
 #include "FileSystem.h"
 #include "Random.h"
@@ -40,8 +41,10 @@ bool Application::Init()
 	camera = new m1Camera3D();
 	resources = new m1Resources();
 	importer = new m1Importer();
+	events = new m1Events();
 
 	//Assign order of execution to modules NOTE: Inverse order to CleanUp()
+	modules.push_back(events);
 	modules.push_back(input);
 	modules.push_back(window);
 

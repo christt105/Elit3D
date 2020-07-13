@@ -13,6 +13,8 @@
 
 #include "Logger.h"
 
+#include "FileWatch.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 #pragma comment(lib, "ExternalTools/DevIL/libx86/DevIL.lib")
@@ -48,11 +50,15 @@ bool m1Resources::Start()
 
 	GenerateLibrary();
 
+	StartFileWatcher();
+
 	return true;
 }
 
 bool m1Resources::CleanUp()
 {
+	delete filewatch;
+
 	for (auto i = resources.begin(); i != resources.end(); ++i) {
 		delete (*i).second;
 	}
@@ -124,41 +130,50 @@ void m1Resources::ImportFiles(const Folder& parent)
 	}
 	
 	for (auto file = parent.files.begin(); file != parent.files.end(); ++file) {
-		if (App->file_system->GetFileExtension((*file).c_str()).compare("meta") != 0) {
-			if (App->file_system->Exists((parent.full_path + *file + ".meta").c_str())) {
-				nlohmann::json meta = App->file_system->OpenJSONFile((parent.full_path + *file + ".meta").c_str());
+		if (App->file_system->GetFileExtension((*file).first.c_str()).compare("meta") != 0) {
+			if (App->file_system->Exists((parent.full_path + (*file).first + ".meta").c_str())) {
+				nlohmann::json meta = App->file_system->OpenJSONFile((parent.full_path + (*file).first + ".meta").c_str());
 				std::string extension = meta.value("extension", "none");
-				if (meta.value("timestamp", 0ULL) == App->file_system->LastTimeWrite((parent.full_path + *file).c_str())) {
+				if (meta.value("timestamp", 0ULL) == App->file_system->LastTimeWrite((parent.full_path + (*file).first).c_str())) {
 					if (App->file_system->Exists((GetLibraryFromType(extension.c_str()) + std::to_string(meta.value("UID", 0ULL)) + GetLibraryExtension(extension.c_str())).c_str())) {
-						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
+						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
 						res->GenerateFilesLibrary();
 					}
 					else {
-						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
+						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
 
-						res->GenerateFiles();
+						if (res != nullptr)
+							res->GenerateFiles();
 					}
 				}
 				else {
 					DeleteFromLibrary(GetTypeFromStr(extension.c_str()), meta.value("UID", 0ULL));
 
-					meta["timestamp"] = App->file_system->LastTimeWrite((parent.full_path + *file).c_str());
-					App->file_system->SaveJSONFile((parent.full_path + *file + ".meta").c_str(), meta);
+					meta["timestamp"] = App->file_system->LastTimeWrite((parent.full_path + (*file).first).c_str());
+					App->file_system->SaveJSONFile((parent.full_path + (*file).first + ".meta").c_str(), meta);
 
-					Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + *file).c_str(), meta.value("UID", 0ULL));
-
-					res->GenerateFiles();
+					Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
+					if (res != nullptr)
+						res->GenerateFiles();
 				}
 			}
 			else {
-				uint64_t meta = GenerateMeta((parent.full_path + *file).c_str());
+				uint64_t meta = GenerateMeta((parent.full_path + (*file).first).c_str());
 
-				Resource* res = CreateResource(GetTypeFromStr(App->file_system->GetFileExtension((*file).c_str()).c_str()), (parent.full_path + *file).c_str(), meta);
+				Resource* res = CreateResource(GetTypeFromStr(App->file_system->GetFileExtension((*file).first.c_str()).c_str()), (parent.full_path + (*file).first).c_str(), meta);
 				if (res != nullptr)
 					res->GenerateFiles();
 			}
 		}
 	}
+}
+
+void m1Resources::StartFileWatcher()
+{
+	filewatch = new FileWatch();
+	filewatch->Subscribe("Assets/");
+
+	filewatch->StartWatching();
 }
 
 uint64_t m1Resources::GenerateMeta(const char* file)

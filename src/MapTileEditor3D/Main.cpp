@@ -36,6 +36,10 @@ int main(int argc, char* argv[]) {
 
     LOG("Starting Program...");
 
+    int flag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+    flag |= _CRTDBG_LEAK_CHECK_DF;
+    _CrtSetDbgFlag(flag);
+
     MainState mainState = MainState::CREATION;
     bool running = true;
     while (running) {
@@ -107,6 +111,6 @@ int main(int argc, char* argv[]) {
             break;
         }
     }
-    
+
     return (int)mainState;
 }

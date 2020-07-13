@@ -45,7 +45,7 @@ std::string FileSystem::OpenTextFile(const char* path)
         {
             std::string contents;
             in.seekg(0, std::ios::end);
-            contents.resize(in.tellg());
+            contents.resize((const unsigned int)in.tellg());
             in.seekg(0, std::ios::beg);
             in.read(&contents[0], contents.size());
             in.close();
@@ -71,6 +71,24 @@ uint64_t FileSystem::LastTimeWrite(const char* path)
         return time.st_mtime;
     }
     return 0ULL;
+}
+
+std::string FileSystem::NormalizePath(const char* path)
+{
+    std::string p(path);
+    std::string ret;
+    auto i = p.begin();
+    while (i != p.end()) {
+        if (*i == '\\' /*|| *i == '\/'*/) {
+            ret.push_back('/');
+        }
+        else {
+            ret.push_back(*i);
+        }
+
+        ++i;
+    }
+    return ret;
 }
 
 bool FileSystem::CreateFolder(const char* path)
@@ -107,7 +125,7 @@ bool FileSystem::IsFileInFolderRecursive(const char* file, const char* folder)
 bool FileSystem::IsFileInFolder(const char* file, const Folder& folder)
 {
     for (auto i = folder.files.begin(); i != folder.files.end(); ++i) {
-        if ((*i).compare(file) == 0)
+        if ((*i).first.compare(file) == 0)
             return true;
     }
     
@@ -183,6 +201,27 @@ std::string FileSystem::GetNameFile(const char* file, bool with_extension)
     return name;
 }
 
+std::string FileSystem::GetFolder(const char* path)
+{
+    std::string p(path);
+    std::string ret;
+
+    bool end_of_file = false;
+    for (auto i = p.rbegin(); i != p.rend(); ++i) {
+        if (!end_of_file) {
+            if (*i == '/' || *i == '//' || *i == '\\') {
+                end_of_file = true;
+            }
+        }
+        else {
+            ret.push_back(*i);
+        }
+    }
+
+    std::reverse(ret.begin(), ret.end());
+    return ret;
+}
+
 void FileSystem::GetFiles(Folder& parent) {
     for (const auto& entry : fs::directory_iterator(parent.full_path)) {
         if (entry.is_directory()) {
@@ -191,7 +230,7 @@ void FileSystem::GetFiles(Folder& parent) {
             parent.folders.push_back(f);
         }
         else {
-            parent.files.push_back(entry.path().filename().string());
+            parent.files[entry.path().filename().string()] = LastTimeWrite(entry.path().filename().string().c_str());
         }
     }
 }

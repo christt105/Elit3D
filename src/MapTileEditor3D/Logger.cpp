@@ -39,7 +39,7 @@ void Logger::Log(int i, const char file[], const char func[], int line, const ch
 	vsprintf_s(tmp_string, 4096, format, ap);
 	va_end(ap);
 
-	static std::string strtype;
+	std::string strtype;
 	switch (i) {
 	case 1:
 		strtype.assign("[WARN]");
@@ -87,7 +87,9 @@ void Logger::ExportLog()
 {
 	std::ofstream file;
 	file.open("Log.txt");
+	
 	file << txt.c_str();
+
 	file.close();
 }
 

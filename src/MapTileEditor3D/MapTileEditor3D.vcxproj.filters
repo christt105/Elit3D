@@ -93,9 +93,6 @@
     <ClCompile Include="Application.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="ExternalTools\mmgr\mmgr.cpp">
-      <Filter>External Libraries\mmgr</Filter>
-    </ClCompile>
     <ClCompile Include="Module.cpp">
       <Filter>Modules\Base</Filter>
     </ClCompile>
@@ -314,6 +311,15 @@
     </ClCompile>
     <ClCompile Include="r1Tileset.cpp">
       <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="FileWatch.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="m1Events.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\mmgr\mmgr.cpp">
+      <Filter>External Libraries\mmgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -586,12 +592,6 @@
     </ClInclude>
     <ClInclude Include="Application.h">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="ExternalTools\mmgr\mmgr.h">
-      <Filter>External Libraries\mmgr</Filter>
-    </ClInclude>
-    <ClInclude Include="ExternalTools\mmgr\nommgr.h">
-      <Filter>External Libraries\mmgr</Filter>
     </ClInclude>
     <ClInclude Include="Module.h">
       <Filter>Modules\Base</Filter>
@@ -1153,6 +1153,24 @@
     </ClInclude>
     <ClInclude Include="r1Tileset.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="FileWatch.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="m1Events.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeVar.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\mmgr\mmgr.h">
+      <Filter>External Libraries\mmgr</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\mmgr\nommgr.h">
+      <Filter>External Libraries\mmgr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

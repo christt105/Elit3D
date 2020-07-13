@@ -195,11 +195,13 @@
     <ClCompile Include="ExternalTools\MathGeoLib\include\Time\Clock.cpp" />
     <ClCompile Include="ExternalTools\mmgr\mmgr.cpp" />
     <ClCompile Include="FileSystem.cpp" />
+    <ClCompile Include="FileWatch.cpp" />
     <ClCompile Include="i1Model.cpp" />
     <ClCompile Include="i1Tileset.cpp" />
     <ClCompile Include="Importer.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="m1Camera3D.cpp" />
+    <ClCompile Include="m1Events.cpp" />
     <ClCompile Include="m1GUI.cpp" />
     <ClCompile Include="m1Importer.cpp" />
     <ClCompile Include="m1Input.cpp" />
@@ -475,12 +477,15 @@
     <ClInclude Include="ExternalTools\SDL2\include\SDL_video.h" />
     <ClInclude Include="ExternalTools\SDL2\include\SDL_vulkan.h" />
     <ClInclude Include="FileSystem.h" />
+    <ClInclude Include="FileWatch.h" />
+    <ClInclude Include="Globals.h" />
     <ClInclude Include="i1Model.h" />
     <ClInclude Include="i1Tileset.h" />
     <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="Importer.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="m1Camera3D.h" />
+    <ClInclude Include="m1Events.h" />
     <ClInclude Include="m1GUI.h" />
     <ClInclude Include="m1Importer.h" />
     <ClInclude Include="m1Input.h" />
@@ -508,6 +513,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="r1Shader.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="TypeVar.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\Assimp\include\color4.inl" />

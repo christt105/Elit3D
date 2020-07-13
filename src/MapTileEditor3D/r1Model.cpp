@@ -114,7 +114,7 @@ Object* r1Model::CreateObject()
 	nlohmann::json jobj = App->file_system->OpenJSONFile(library_path.c_str());
 
 	CreateChildren(jobj["Hierarchy"], obj);
-
+	
 	return obj;
 }
 

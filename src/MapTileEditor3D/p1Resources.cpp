@@ -25,8 +25,8 @@ void p1Resources::DisplayFolder(const Folder& folder, bool default_open) {
 			DisplayFolder(*i, false);
 		}
 		for (auto i = folder.files.begin(); i != folder.files.end(); ++i) {
-			if ((*i).compare((*i).length() - 5, (*i).length(), ".meta") != 0)
-				if (ImGui::TreeNodeEx(&*i, ImGuiTreeNodeFlags_Leaf, (*i).c_str()))
+			if ((*i).first.compare((*i).first.length() - 5, (*i).first.length(), ".meta") != 0)
+				if (ImGui::TreeNodeEx(&*i, ImGuiTreeNodeFlags_Leaf, (*i).first.c_str()))
 					ImGui::TreePop();
 		}
 
