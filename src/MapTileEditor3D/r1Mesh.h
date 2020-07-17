@@ -20,7 +20,8 @@ public:
 private:
 	void GenerateBuffers();
 
-private:
+//private: TODO: make it private
+public:
 	unsigned int VAO = 0u;
 
 	Buffer<float> vertices;

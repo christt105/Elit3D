@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <typeinfo>
 #include "Component.h"
 
 class c1Transform;
@@ -49,7 +50,8 @@ template<class C>
 inline C* Object::GetComponent()
 {
 	for (auto i = components.begin(); i != components.end(); ++i) {
-
+		if (typeid(**i) == typeid(C))
+			return (C*)*i;
 	}
 	return NULL;
 }

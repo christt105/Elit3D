@@ -25,6 +25,15 @@ class m1Resources :
 	public Module
 {
 public:
+	enum class EResourceType {
+		NONE = -1,
+
+		TILE,
+
+		MAX
+	};
+
+public:
 	m1Resources(bool start_enabled = true);
 	~m1Resources();
 
@@ -34,6 +43,8 @@ public:
 public:
 	Uint64 Find(const char* file);
 	Resource* Get(const Uint64& uid) const;
+	Resource* FindGet(const char* file);
+	Resource* Get(EResourceType type) const;
 
 	template<class T>
 	T* CreateResource(const char* assets_path, const uint64_t& force_uid = 0ULL, bool set_strings = true);
@@ -47,6 +58,7 @@ public:
 
 private:
 	void GenerateLibrary();
+	void GenerateEngineLibrary();
 	void ImportFiles(const Folder& parent);
 
 	void StartFileWatcher();
@@ -65,6 +77,7 @@ private:
 
 private:
 	std::map<uint64_t, Resource*> resources;
+	std::map<EResourceType, Resource*> engine_resources;
 
 	FileWatch* filewatch = nullptr;
 };

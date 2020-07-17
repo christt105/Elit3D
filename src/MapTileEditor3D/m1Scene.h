@@ -1,5 +1,9 @@
 #pragma once
 #include "Module.h"
+
+class Object;
+class p1Scene;
+
 class m1Scene :
 	public Module
 {
@@ -18,5 +22,9 @@ private:
 	unsigned int VAO = 0;
 	unsigned int grid = 0u;
 	int grid_vertex_size = 0;
+
+	p1Scene* panel_scene = nullptr;
+
+	Object* map[10] = { nullptr };
 };
 

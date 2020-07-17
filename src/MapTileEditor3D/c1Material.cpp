@@ -14,10 +14,6 @@
 c1Material::c1Material(Object* obj) : Component(obj, Type::Material)
 {
 	shader = App->render->bShader;
-
-	tex = App->resources->Find("cat");
-	auto r = App->resources->Get(tex);
-	r->Attach();
 }
 
 c1Material::~c1Material()
@@ -70,6 +66,24 @@ void c1Material::OnInspector()
 			}
 		}
 	}
+}
+
+void c1Material::SetTexture(const uint64_t& id)
+{
+	tex = id;
+	App->resources->Get(tex)->Attach();
+}
+
+void c1Material::SetTexture(const r1Texture* tex)
+{
+	this->tex = tex->uid;
+	App->resources->Get(this->tex)->Attach();
+}
+
+void c1Material::SetTexture(const char* name_tex)
+{
+	tex = App->resources->Find(name_tex);
+	App->resources->Get(tex)->Attach();
 }
 
 void c1Material::ChooseTextureWindow(bool& choose_texture)

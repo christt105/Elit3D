@@ -26,22 +26,23 @@ r1Texture::~r1Texture()
 
 void r1Texture::Load()
 {
-	ILuint image_id = 0;
 	glEnable(GL_TEXTURE_2D);
-	glGenTextures(1, &image_id);
-	glBindTexture(GL_TEXTURE_2D, image_id);
+	ILuint image_id = ilGenImage();
+	ilBindImage(image_id);
 
 	ilutRenderer(ILUT_OPENGL);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	if (ilLoad(IL_PNG, library_path.c_str())) { // TODO: load for different types
 		width = ilGetInteger(IL_IMAGE_WIDTH);
 		height = ilGetInteger(IL_IMAGE_HEIGHT);
 		id = ilutGLBindTexImage();
+
+		glBindTexture(GL_TEXTURE_2D, id);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

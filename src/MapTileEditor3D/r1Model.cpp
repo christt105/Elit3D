@@ -127,7 +127,7 @@ void r1Model::CreateChildren(nlohmann::json& jobj, Object* parent)
 		float3 pos((*i)["position"][0], (*i)["position"][1], (*i)["position"][2]);
 		float3 scale((*i)["scale"][0], (*i)["scale"][1], (*i)["scale"][2]);
 		Quat rot((*i)["rotation"]["x"], (*i)["rotation"]["y"], (*i)["rotation"]["z"], (*i)["rotation"]["w"]);
-		child->transform->mat = float4x4::FromTRS(pos, rot, scale);
+		child->transform->SetMatrix(float4x4::FromTRS(pos, rot, scale));
 
 		if ((*i)["meshID"] != 0) {
 			c1Mesh* mesh = child->CreateComponent<c1Mesh>();

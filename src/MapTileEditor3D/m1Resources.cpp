@@ -49,6 +49,7 @@ bool m1Resources::Start()
 		App->file_system->CreateFolder(LIBRARY_TILESETS_PATH);
 
 	GenerateLibrary();
+	GenerateEngineLibrary();
 
 	StartFileWatcher();
 
@@ -63,6 +64,11 @@ bool m1Resources::CleanUp()
 		delete (*i).second;
 	}
 	resources.clear();
+
+	for (auto i = engine_resources.begin(); i != engine_resources.end(); ++i) {
+		delete (*i).second;
+	}
+	engine_resources.clear();
 
 	return true;
 }
@@ -83,6 +89,16 @@ Resource* m1Resources::Get(const Uint64& uid) const
 {
 	auto ret = resources.find(uid);
 	return (ret == resources.end()) ? nullptr : (*ret).second;
+}
+
+Resource* m1Resources::FindGet(const char* file)
+{
+	return Get(Find(file));
+}
+
+Resource* m1Resources::Get(EResourceType type) const
+{
+	return ((engine_resources.find(type) == engine_resources.end()) ? nullptr : engine_resources.at(type));
 }
 
 Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_path, const uint64_t& force_uid)
@@ -121,6 +137,25 @@ void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 void m1Resources::GenerateLibrary()
 {
 	ImportFiles(App->file_system->GetFilesRecursive("Assets/"));
+}
+
+void m1Resources::GenerateEngineLibrary()
+{
+	auto models = App->file_system->GetFilesRecursive("Configuration/EngineResources/3DModels");
+
+	for (auto i = models.files.begin(); i != models.files.end(); ++i) {
+		r1Mesh* m = new r1Mesh(0ULL);
+
+		m->assets_path.assign(models.full_path + "/" + (*i).first);
+		m->name = (*i).first;
+		m->extension = "mesh";
+		m->library_path = m->assets_path;
+		
+		if (m->name.compare("Tile.mesh") == 0) {
+			engine_resources[m1Resources::EResourceType::TILE] = m;
+		}
+	}
+	
 }
 
 void m1Resources::ImportFiles(const Folder& parent)

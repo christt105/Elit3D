@@ -82,6 +82,9 @@
     <Filter Include="External Libraries\Assimp\Compiler">
       <UniqueIdentifier>{6d061906-6aa4-41e6-8a01-bcca51bdfde3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Objects\Components\Engine">
+      <UniqueIdentifier>{aaec9e15-2eef-4bc0-9109-2325ef7e78e5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Logger.cpp">
