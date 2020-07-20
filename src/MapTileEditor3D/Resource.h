@@ -32,6 +32,7 @@ public:
 	virtual void GenerateFilesLibrary() {}
 
 	Resource::Type GetType();
+	std::string GetStrType();
 	
 public:
 	std::string name;

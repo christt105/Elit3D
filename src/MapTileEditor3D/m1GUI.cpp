@@ -16,6 +16,7 @@
 #include "p1Scene.h"
 #include "p1Resources.h"
 #include "p1Tileset.h"
+#include "p1DebugResources.h"
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 
@@ -41,6 +42,7 @@ bool m1GUI::Init(const nlohmann::json& node)
 	scene = new p1Scene();
 	resources = new p1Resources();
 	tileset = new p1Tileset();
+	dbg_resources = new p1DebugResources();
 
 	panels.push_back(configuration);
 	panels.push_back(objects);
@@ -50,6 +52,7 @@ bool m1GUI::Init(const nlohmann::json& node)
 	panels.push_back(resources);
 	panels.push_back(scene);
 	panels.push_back(tileset);
+	panels.push_back(dbg_resources);
 
 	return true;
 }
@@ -122,6 +125,10 @@ void m1GUI::MainMenuBar()
 	}
 
 	if (ImGui::BeginMenu("Debugging")) {
+		if (ImGui::MenuItem("Resources", "", dbg_resources->GetActive())) {
+			dbg_resources->SetActive(!dbg_resources->GetActive());
+		}
+
 		if (ImGui::MenuItem("ImGui Demo Window", "", demo)) {
 			demo = !demo;
 		}

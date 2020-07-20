@@ -10,6 +10,7 @@ class p1Console;
 class p1Scene;
 class p1Resources;
 class p1Tileset;
+class p1DebugResources;
 
 struct ImFont;
 
@@ -43,6 +44,8 @@ private:
 	p1Scene* scene = nullptr;
 	p1Resources* resources = nullptr;
 	p1Tileset* tileset = nullptr;
+	
+	p1DebugResources* dbg_resources = nullptr;
 
 	bool demo = false;
 };

@@ -17,3 +17,13 @@ bool Panel::IsOnHover()
 {
 	return hover;
 }
+
+bool Panel::GetActive() const
+{
+	return active;
+}
+
+void Panel::SetActive(bool act)
+{
+	active = act;
+}

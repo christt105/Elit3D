@@ -216,6 +216,7 @@
     <ClCompile Include="p1About.cpp" />
     <ClCompile Include="p1Configuration.cpp" />
     <ClCompile Include="p1Console.cpp" />
+    <ClCompile Include="p1DebugResources.cpp" />
     <ClCompile Include="p1Inspector.cpp" />
     <ClCompile Include="p1Objects.cpp" />
     <ClCompile Include="p1Resources.cpp" />
@@ -499,6 +500,7 @@
     <ClInclude Include="p1About.h" />
     <ClInclude Include="p1Configuration.h" />
     <ClInclude Include="p1Console.h" />
+    <ClInclude Include="p1DebugResources.h" />
     <ClInclude Include="p1Inspector.h" />
     <ClInclude Include="p1Objects.h" />
     <ClInclude Include="p1Resources.h" />

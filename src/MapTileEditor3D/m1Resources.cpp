@@ -101,6 +101,11 @@ Resource* m1Resources::Get(EResourceType type) const
 	return ((engine_resources.find(type) == engine_resources.end()) ? nullptr : engine_resources.at(type));
 }
 
+const std::map<uint64_t, Resource*> m1Resources::GetResources() const
+{
+	return resources;
+}
+
 Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_path, const uint64_t& force_uid)
 {
 	Resource* ret = nullptr;

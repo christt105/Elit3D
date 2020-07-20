@@ -17,6 +17,9 @@ public:
 	bool IsFocused();
 	bool IsOnHover();
 
+	bool GetActive() const;
+	void SetActive(bool act);
+
 public:
 	ImGuiWindowFlags flags = ImGuiWindowFlags_None;
 

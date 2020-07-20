@@ -37,3 +37,26 @@ Resource::Type Resource::GetType()
 {
 	return type;
 }
+
+std::string Resource::GetStrType()
+{
+	switch (type)
+	{
+	case Resource::Type::NONE:
+		return std::string("None");
+		break;
+	case Resource::Type::Mesh:
+		return std::string("Mesh");
+		break;
+	case Resource::Type::Model:
+		return std::string("Model");
+		break;
+	case Resource::Type::Texture:
+		return std::string("Texture");
+		break;
+	case Resource::Type::Tileset:
+		return std::string("Tileset");
+		break;
+	}
+	return std::string("None");
+}

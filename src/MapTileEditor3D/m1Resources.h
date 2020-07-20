@@ -46,6 +46,8 @@ public:
 	Resource* FindGet(const char* file);
 	Resource* Get(EResourceType type) const;
 
+	const std::map<uint64_t, Resource*> GetResources() const;
+
 	template<class T>
 	T* CreateResource(const char* assets_path, const uint64_t& force_uid = 0ULL, bool set_strings = true);
 	Resource* CreateResource(Resource::Type type, const char* assets_path, const uint64_t& force_uid = 0ULL);
