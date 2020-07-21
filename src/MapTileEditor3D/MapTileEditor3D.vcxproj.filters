@@ -324,7 +324,9 @@
     <ClCompile Include="ExternalTools\mmgr\mmgr.cpp">
       <Filter>External Libraries\mmgr</Filter>
     </ClCompile>
-    <ClCompile Include="p1DebugResources.cpp" />
+    <ClCompile Include="p1DebugResources.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1176,7 +1178,9 @@
     <ClInclude Include="ExternalTools\mmgr\nommgr.h">
       <Filter>External Libraries\mmgr</Filter>
     </ClInclude>
-    <ClInclude Include="p1DebugResources.h" />
+    <ClInclude Include="p1DebugResources.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\MathGeoLib\include\Geometry\KDTree.inl">

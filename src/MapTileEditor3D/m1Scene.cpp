@@ -127,6 +127,8 @@ UpdateStatus m1Scene::Update()
 	for (int i = 0; i < 10; ++i) {
 		map[i]->GetComponent<c1Mesh>()->Update();
 	}
+
+	App->gui->scene->DeselectFrameBuffer();
 	
 	return UpdateStatus::UPDATE_CONTINUE;
 }

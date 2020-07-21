@@ -14,9 +14,16 @@ public:
 	void DeselectFrameBuffer();
 
 private:
-	unsigned int tex_buf = 0u;
-	unsigned int fbo = 0u;
-	unsigned int rbo = 0u;
+	enum FBOIDS
+	{
+		FBO,
+		FBO_MS,
+		TEXTURE,
+		TEXTURE_MS,
+		RBO,
+		RBO_MS
+	};
+	unsigned int ID[8];
 
 	ImVec2 window_size;
 };

@@ -6,6 +6,10 @@
 #include "m1Render3D.h"
 #include "ExternalTools/par_shapes/par_shapes.h"
 
+//TEMP
+#include "m1GUI.h"
+#include "p1Scene.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 m1Objects::m1Objects(bool start_enabled) : Module("Objects", start_enabled)
@@ -34,6 +38,7 @@ bool m1Objects::Start()
 
 UpdateStatus m1Objects::Update()
 {
+	App->gui->scene->SelectFrameBuffer();
 	for (auto i = objects.begin(); i != objects.end(); ++i) {
 		(*i)->Update();
 	}

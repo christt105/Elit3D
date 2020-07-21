@@ -33,7 +33,7 @@ public:
 	UpdateStatus PostUpdate() override;
 	bool CleanUp() override;
 
-private:
+public: //TODO private
 	std::vector<Panel*> panels;
 
 	p1Configuration* configuration = nullptr;
