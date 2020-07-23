@@ -199,6 +199,7 @@
     <ClCompile Include="i1Model.cpp" />
     <ClCompile Include="i1Tileset.cpp" />
     <ClCompile Include="Importer.cpp" />
+    <ClCompile Include="int2.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="m1Camera3D.cpp" />
     <ClCompile Include="m1Events.cpp" />
@@ -230,6 +231,7 @@
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="r1Shader.cpp" />
+    <ClCompile Include="Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -484,6 +486,7 @@
     <ClInclude Include="i1Tileset.h" />
     <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="Importer.h" />
+    <ClInclude Include="int2.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="m1Camera3D.h" />
     <ClInclude Include="m1Events.h" />
@@ -516,6 +519,7 @@
     <ClInclude Include="r1Shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="TypeVar.h" />
+    <ClInclude Include="Viewport.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\Assimp\include\color4.inl" />

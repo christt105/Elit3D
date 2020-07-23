@@ -85,6 +85,9 @@
     <Filter Include="Objects\Components\Engine">
       <UniqueIdentifier>{aaec9e15-2eef-4bc0-9109-2325ef7e78e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Tools\Math">
+      <UniqueIdentifier>{21deb4c4-8478-4ad6-b09c-58974fd6aba3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Logger.cpp">
@@ -327,6 +330,10 @@
     <ClCompile Include="p1DebugResources.cpp">
       <Filter>Panels</Filter>
     </ClCompile>
+    <ClCompile Include="Viewport.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="int2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1181,6 +1188,10 @@
     <ClInclude Include="p1DebugResources.h">
       <Filter>Panels</Filter>
     </ClInclude>
+    <ClInclude Include="Viewport.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="int2.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\MathGeoLib\include\Geometry\KDTree.inl">

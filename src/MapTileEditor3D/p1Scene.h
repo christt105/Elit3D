@@ -23,7 +23,7 @@ private:
 		RBO,
 		RBO_MS
 	};
-	unsigned int ID[8];
+	unsigned int ID[6];
 
 	ImVec2 window_size;
 };
