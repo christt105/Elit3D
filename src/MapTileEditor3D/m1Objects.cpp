@@ -9,6 +9,7 @@
 //TEMP
 #include "m1GUI.h"
 #include "p1Scene.h"
+#include "Viewport.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
@@ -38,10 +39,13 @@ bool m1Objects::Start()
 
 UpdateStatus m1Objects::Update()
 {
-	App->gui->scene->SelectFrameBuffer();
+	App->gui->scene->viewport->Begin();
+
 	for (auto i = objects.begin(); i != objects.end(); ++i) {
 		(*i)->Update();
 	}
+
+	App->gui->scene->viewport->End();
 
 	return UpdateStatus::UPDATE_CONTINUE;
 }

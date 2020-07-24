@@ -9,6 +9,7 @@
 
 #include "m1GUI.h"
 #include "p1Scene.h"
+#include "Viewport.h"
 
 #include "m1Resources.h"
 #include "r1Mesh.h"
@@ -18,6 +19,8 @@
 #include "c1Transform.h"
 #include "c1Mesh.h"
 #include "c1Material.h"
+
+#include "r1Model.h"
 //==========================================
 
 #include "ExternalTools/MathGeoLib/include/Geometry/Ray.h"
@@ -42,7 +45,7 @@ bool m1Scene::Init(const nlohmann::json& node)
 
 bool m1Scene::Start()
 {
-	GenerateGrid();
+	GenerateGrid(); // TODO: Set grid in a shader
 
 	panel_scene = App->gui->scene;
 
@@ -52,7 +55,6 @@ bool m1Scene::Start()
 		map[i] = new Object();
 		map[i]->transform->SetPosition(float3(i, 0.f, 0.f));
 		map[i]->CreateComponent<c1Mesh>()->SetEMesh(m1Resources::EResourceType::TILE);
-		//map[i]->GetComponent<c1Material>()
 	}
 
 	return true;
@@ -104,6 +106,8 @@ UpdateStatus m1Scene::Update()
 	if (App->input->IsKeyDown(SDL_SCANCODE_ESCAPE))
 		return UpdateStatus::UPDATE_STOP;
 
+	App->gui->scene->viewport->Begin();
+
 	DrawGrid();
 
 	if(panel_scene->IsOnHover())
@@ -128,7 +132,7 @@ UpdateStatus m1Scene::Update()
 		map[i]->GetComponent<c1Mesh>()->Update();
 	}
 
-	App->gui->scene->DeselectFrameBuffer();
+	App->gui->scene->viewport->End();
 	
 	return UpdateStatus::UPDATE_CONTINUE;
 }

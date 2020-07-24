@@ -12,6 +12,7 @@ public:
 	Panel(const char* name, bool start_active, const char* icon);
 	virtual ~Panel();
 
+	virtual void Start();
 	virtual void Update() = 0;
 
 	bool IsFocused();

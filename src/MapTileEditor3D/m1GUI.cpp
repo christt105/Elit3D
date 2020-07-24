@@ -81,7 +81,9 @@ bool m1GUI::Start()
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->render->context);
 	ImGui_ImplOpenGL3_Init("#version 330");
 	
-	scene->InitFrameBuffer();
+	for (auto i = panels.begin(); i != panels.end(); ++i) {
+		(*i)->Start();
+	}
 
 	return true;
 }
@@ -99,8 +101,6 @@ UpdateStatus m1GUI::PreUpdate()
 	}
 
 	DockSpace();
-	
-	scene->SelectFrameBuffer();
 
 	return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -147,8 +147,6 @@ UpdateStatus m1GUI::Update()
 {
 	if (demo)
 		ImGui::ShowDemoWindow(&demo);
-
-	scene->DeselectFrameBuffer();
 
 	for (auto i = panels.begin(); i != panels.end(); ++i) {
 		ImGui::PushID(*i);

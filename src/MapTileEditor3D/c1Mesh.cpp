@@ -39,6 +39,7 @@ void c1Mesh::Update()
 
 		material->BindTex();
 		glDrawElements(GL_TRIANGLES, rmesh->indices.size, GL_UNSIGNED_INT, (void*)0);
+		material->shader->SetMat4("model", float4x4::identity);
 		material->UnBindTex();
 	}
 	else

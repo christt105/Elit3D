@@ -13,6 +13,8 @@
 
 #include "FileSystem.h"
 
+#include "Viewport.h"
+
 #include "ExternalTools/MathGeoLib/include/Math/float4x4.h"
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
@@ -89,8 +91,12 @@ bool m1Render3D::Start()
 
 UpdateStatus m1Render3D::PreUpdate()
 {
-    glClearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for (auto i = viewports.begin(); i != viewports.end(); ++i)
+        (*i)->Clear();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(.1f, .1f, .1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     
     bShader->Use();
 
@@ -106,7 +112,17 @@ UpdateStatus m1Render3D::PostUpdate()
 
 bool m1Render3D::CleanUp()
 {
+    for (auto i = viewports.begin(); i != viewports.end(); ++i)
+        delete* i;
+
     SDL_GL_DeleteContext(context);
 
     return true;
+}
+
+Viewport* m1Render3D::CreateViewport()
+{
+    Viewport* v = new Viewport();
+    viewports.push_back(v);
+    return v;
 }

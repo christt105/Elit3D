@@ -8,6 +8,10 @@ Panel::~Panel()
 {
 }
 
+void Panel::Start()
+{
+}
+
 bool Panel::IsFocused()
 {
 	return focused;
