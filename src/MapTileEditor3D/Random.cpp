@@ -20,7 +20,7 @@ float Random::Randomf(float min, float max)
 
 int Random::Randomi(int min, int max)
 {
-	std::uniform_real_distribution<double> rand(min, max);
+	std::uniform_real_distribution<double> rand(min, ++max);
 	return (int)rand(rng);
 }
 

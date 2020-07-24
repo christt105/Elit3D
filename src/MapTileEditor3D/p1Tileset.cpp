@@ -21,6 +21,8 @@ p1Tileset::~p1Tileset()
 void p1Tileset::Update()
 {
 	static bool modal = false;
+
+	//TODO: Multiple tilesets
 	
 	if (tileset == 0ULL) {
 		if (ImGui::Button("Select Tileset")) { // TODO: Center in window

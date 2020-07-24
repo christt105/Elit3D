@@ -15,6 +15,7 @@
 #include "m1Resources.h"
 #include "m1Importer.h"
 #include "m1Events.h"
+#include "m1MapEditor.h"
 
 #include "FileSystem.h"
 #include "Random.h"
@@ -42,6 +43,7 @@ bool Application::Init()
 	resources = new m1Resources();
 	importer = new m1Importer();
 	events = new m1Events();
+	map_editor = new m1MapEditor();
 
 	//Assign order of execution to modules NOTE: Inverse order to CleanUp()
 	modules.push_back(events);
@@ -52,6 +54,7 @@ bool Application::Init()
 	modules.push_back(importer);
 
 	modules.push_back(camera);
+	modules.push_back(map_editor);
 	modules.push_back(scene);
 	modules.push_back(objects);
 

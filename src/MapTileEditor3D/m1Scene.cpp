@@ -51,12 +51,6 @@ bool m1Scene::Start()
 
 	//((r1Model*)App->resources->Get(App->resources->Find("cubecat")))->CreateObject();
 
-	for (int i = 0; i < 10; ++i) {
-		map[i] = new Object();
-		map[i]->transform->SetPosition(float3(i, 0.f, 0.f));
-		map[i]->CreateComponent<c1Mesh>()->SetEMesh(m1Resources::EResourceType::TILE);
-	}
-
 	return true;
 }
 
@@ -116,21 +110,8 @@ UpdateStatus m1Scene::Update()
 			/*auto l = App->camera->frustum.UnProjectLineSegment(0, 0);
 			Ray r(l);*/
 
-			map[0]->GetComponent<c1Material>()->SetTexture("test2");
-			auto mesh = map[0]->GetComponent<c1Mesh>();
-			float* t = new float[2 * 4];
-			t[0] = 0.f; t[1] = 1.f - 1.f / 625.f;
-			t[2] = 0.125f; t[3] = 1.f - 1.f / 625.f;
-			t[4] = 0.125f; t[5] = 1.f;
-			t[6] = 0.f; t[7] = 1.f;
-			glBindBuffer(GL_ARRAY_BUFFER, mesh->emesh->texture.id);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * mesh->emesh->texture.size, t, GL_STATIC_DRAW);
-			delete[] t;
+			
 		}
-
-	for (int i = 0; i < 10; ++i) {
-		map[i]->GetComponent<c1Mesh>()->Update();
-	}
 
 	App->gui->scene->viewport->End();
 	

@@ -18,6 +18,7 @@ class m1Camera3D;
 class m1Resources;
 class m1Importer;
 class m1Events;
+class m1MapEditor;
 
 class FileSystem;
 class Random;
@@ -46,6 +47,7 @@ public:
 	m1Resources*	resources = nullptr;
 	m1Importer*		importer = nullptr;
 	m1Events*		events = nullptr;
+	m1MapEditor*	map_editor = nullptr;
 
 	FileSystem* file_system = nullptr;
 	Random*		random = nullptr;

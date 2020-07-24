@@ -333,7 +333,12 @@
     <ClCompile Include="Viewport.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
-    <ClCompile Include="int2.cpp" />
+    <ClCompile Include="int2.cpp">
+      <Filter>Tools\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="m1MapEditor.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1191,7 +1196,12 @@
     <ClInclude Include="Viewport.h">
       <Filter>Tools</Filter>
     </ClInclude>
-    <ClInclude Include="int2.h" />
+    <ClInclude Include="int2.h">
+      <Filter>Tools\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="m1MapEditor.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\MathGeoLib\include\Geometry\KDTree.inl">

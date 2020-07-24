@@ -206,6 +206,7 @@
     <ClCompile Include="m1GUI.cpp" />
     <ClCompile Include="m1Importer.cpp" />
     <ClCompile Include="m1Input.cpp" />
+    <ClCompile Include="m1MapEditor.cpp" />
     <ClCompile Include="m1Render3D.cpp" />
     <ClCompile Include="m1Resources.cpp" />
     <ClCompile Include="m1Scene.cpp" />
@@ -493,6 +494,7 @@
     <ClInclude Include="m1GUI.h" />
     <ClInclude Include="m1Importer.h" />
     <ClInclude Include="m1Input.h" />
+    <ClInclude Include="m1MapEditor.h" />
     <ClInclude Include="m1Render3D.h" />
     <ClInclude Include="m1Resources.h" />
     <ClInclude Include="m1Scene.h" />

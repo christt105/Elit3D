@@ -10,7 +10,7 @@ class r1Mesh;
 class c1Mesh : public Component
 {
 	friend class m1Objects;
-	friend class m1Scene;
+	friend class m1MapEditor;
 public:
 	c1Mesh(Object* obj);
 	~c1Mesh();
