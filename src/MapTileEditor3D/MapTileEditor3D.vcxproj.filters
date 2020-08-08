@@ -339,6 +339,9 @@
     <ClCompile Include="m1MapEditor.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="Chunk.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1201,6 +1204,9 @@
     </ClInclude>
     <ClInclude Include="m1MapEditor.h">
       <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Chunk.h">
+      <Filter>Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

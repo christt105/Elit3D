@@ -9,6 +9,8 @@
 
 #include "Object.h"
 
+#include "Chunk.h"
+
 #include "c1Mesh.h"
 #include "c1Transform.h"
 #include "c1Material.h"
@@ -28,7 +30,9 @@ bool m1MapEditor::Start()
 {
 	panel_scene = App->gui->scene;
 
-	map = new int[size.x * size.y];
+	chunks = new Chunk();
+
+	/*map = new int[size.x * size.y];
 	memset(map, 0, sizeof(int) * size.x * size.y);
 
 	tiles = new Object * [size.x * size.y];
@@ -46,14 +50,12 @@ bool m1MapEditor::Start()
 
 		tiles[i]->CreateComponent<c1Mesh>()->SetEMesh(m1Resources::EResourceType::TILE);
 
-		if (App->random->Randomi(0, 1) == 1) {
-			tiles[i]->GetComponent<c1Material>()->SetTexture("test2");
-			auto mesh = tiles[i]->GetComponent<c1Mesh>();
-			glBindBuffer(GL_ARRAY_BUFFER, mesh->emesh->texture.id);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * mesh->emesh->texture.size, t, GL_STATIC_DRAW);
-		}
+		tiles[i]->GetComponent<c1Material>()->SetTexture("test2");
+		auto mesh = tiles[i]->GetComponent<c1Mesh>();
+		glBindBuffer(GL_ARRAY_BUFFER, mesh->emesh->texture.id);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * mesh->emesh->texture.size, t, GL_STATIC_DRAW);
 	}
-	delete[] t;
+	delete[] t;*/
 
 	return true;
 }
@@ -62,9 +64,11 @@ UpdateStatus m1MapEditor::Update()
 {
 	panel_scene->viewport->Begin();
 
-	for (int i = 0; i < size.x * size.y; ++i) {
+
+	chunks->Update();
+	/*for (int i = 0; i < size.x * size.y; ++i) {
 		tiles[i]->Update();
-	}
+	}*/
 
 	panel_scene->viewport->End();
 
@@ -73,8 +77,12 @@ UpdateStatus m1MapEditor::Update()
 
 bool m1MapEditor::CleanUp()
 {
-	delete[] map;
-	delete[] tiles;
+	delete chunks;
+	/*delete[] map;
+	for (int i = 0; i < size.x * size.y; ++i) {
+		delete tiles[i];;
+	}
+	delete[] tiles;*/
 
 	return true;
 }

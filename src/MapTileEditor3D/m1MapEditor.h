@@ -2,9 +2,11 @@
 
 #include "Module.h"
 #include "int2.h"
+#include "Buffer.h"
 
 class Object;
 class p1Scene;
+class Chunk;
 
 class m1MapEditor :
     public Module
@@ -18,10 +20,8 @@ public:
     bool CleanUp() override;
 
 private:
-    int* map = nullptr;
-    int2 size = { 10,10 };
-    Object** tiles = nullptr;
-
+    Chunk* chunks = nullptr;
+    
     p1Scene* panel_scene = nullptr;
 };
 
