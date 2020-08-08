@@ -5,6 +5,7 @@
 #include "Application.h"
 #include "m1GUI.h"
 #include "p1Scene.h"
+#include "p1Tileset.h"
 #include "Viewport.h"
 
 #include "Object.h"
@@ -29,6 +30,7 @@ m1MapEditor::~m1MapEditor()
 bool m1MapEditor::Start()
 {
 	panel_scene = App->gui->scene;
+	panel_tileset = App->gui->tileset;
 
 	chunks = new Chunk();
 
@@ -64,11 +66,11 @@ UpdateStatus m1MapEditor::Update()
 {
 	panel_scene->viewport->Begin();
 
+	panel_tileset->SelectTex();
 
 	chunks->Update();
-	/*for (int i = 0; i < size.x * size.y; ++i) {
-		tiles[i]->Update();
-	}*/
+
+	glBindTexture(GL_TEXTURE_2D, NULL);
 
 	panel_scene->viewport->End();
 

@@ -102,7 +102,8 @@ UpdateStatus m1Scene::Update()
 
 	App->gui->scene->viewport->Begin();
 
-	DrawGrid();
+	if (draw_grid)
+		DrawGrid();
 
 	if(panel_scene->IsOnHover())
 		if (App->input->IsMouseButtonDown(1)) {

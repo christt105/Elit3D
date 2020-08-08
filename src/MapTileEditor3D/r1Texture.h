@@ -21,6 +21,9 @@ public:
 
 	void GenerateFiles(const aiTexture* texture);
 
+	void Bind();
+	void Unbind();
+
 private:
 	unsigned int id = 0U;
 

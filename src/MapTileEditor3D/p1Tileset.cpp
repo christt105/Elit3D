@@ -121,6 +121,24 @@ void p1Tileset::Update()
 	}
 }
 
+void p1Tileset::SelectTex()
+{
+	if (tileset != 0) {
+		auto res = (r1Tileset*)App->resources->Get(tileset);
+		if (res) {
+			auto tex = (r1Texture*)App->resources->Get(res->GetTextureUID());
+			if (tex)
+				tex->Bind();
+		}
+
+	}
+}
+
+void p1Tileset::DeselectTex()
+{
+	
+}
+
 void p1Tileset::ModalCreateTileset(bool& modal)
 {
 	ImGui::InputText("Name", data.buf_name, 25);

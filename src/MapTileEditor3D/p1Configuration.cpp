@@ -4,6 +4,9 @@
 #include "m1Camera3D.h"
 #include "m1Render3D.h"
 #include "m1Window.h"
+#include "m1Scene.h"
+
+#include "GL/glew.h"
 
 p1Configuration::p1Configuration(bool start_enabled) : Panel("Configuration", start_enabled, ICON_FA_WRENCH)
 {
@@ -23,6 +26,16 @@ void p1Configuration::Update()
 	}
 
 	if (ImGui::CollapsingHeader("Render")) {
+		ImGui::Checkbox("Draw Grid", &App->scene->draw_grid);
+		static bool wired = false;
+		if(ImGui::Checkbox("Wired Mode", &wired))
+			if (wired) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+			else
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
 		ImGui::ColorEdit3("Background Color", App->render->background_color);
 	}
 

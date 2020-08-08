@@ -4,6 +4,9 @@
 #include "c1Material.h"
 #include "Application.h"
 #include "m1Render3D.h"
+
+#include "r1Shader.h"
+
 #include "ExternalTools/par_shapes/par_shapes.h"
 
 //TEMP
@@ -44,6 +47,8 @@ UpdateStatus m1Objects::Update()
 	for (auto i = objects.begin(); i != objects.end(); ++i) {
 		(*i)->Update();
 	}
+
+	App->render->bShader->SetMat4("model", float4x4::identity);
 
 	App->gui->scene->viewport->End();
 

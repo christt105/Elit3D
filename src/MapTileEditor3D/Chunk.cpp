@@ -64,6 +64,20 @@ Chunk::Chunk()
 			indices.data[i+3], indices.data[i + 4], indices.data[i + 5]);
 	}*/
 
+	texture.size = size * size + 2 * size + 1;
+	texture.data = new float[texture.size * 2];
+	memset(texture.data, 0.f, texture.size * 2 * sizeof(float));
+	
+	texture.data[0] = 0.f;		texture.data[1] = 1.f - 1.f / 625.f;
+	texture.data[2] = 0.125f;	texture.data[3] = 1.f;
+	texture.data[18] = 0.125f;	texture.data[19] = 1.f - 1.f / 625.f;
+	texture.data[20] = 0.f;		texture.data[21] = 1.f;
+
+	/*texture.data[0] = 0.f;		texture.data[1] = 0.f;
+	texture.data[2] = 1.f;		texture.data[3] = 1.f;
+	texture.data[4] = 1.f;		texture.data[5] = 0.f;
+	texture.data[6] = 0.f;		texture.data[7] = 1.f;*/
+
 	// VERTEX ARRAY OBJECT
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -97,6 +111,7 @@ Chunk::~Chunk()
 {
 	delete[] vertices.data;
 	delete[] indices.data;
+	delete[] texture.data;
 }
 
 void Chunk::Update()
@@ -104,10 +119,8 @@ void Chunk::Update()
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, vertices.id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.id);
-
-	float4x4 mat = float4x4::FromTRS(float3(position.x, 0, position.y), Quat::identity, float3::one);
 	
-	App->render->bShader->SetMat4("model", mat);
+	App->render->bShader->SetMat4("model", float4x4::identity);
 
 	glDrawElements(GL_TRIANGLES, indices.size, GL_UNSIGNED_INT, (void*)0);
 }

@@ -26,6 +26,9 @@ public:
 
 	void Update() override;
 
+	void SelectTex();
+	void DeselectTex();
+
 private:
 	void ModalCreateTileset(bool& modal);
 	void ModalSelectImageTileset();

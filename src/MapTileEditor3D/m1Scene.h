@@ -26,5 +26,8 @@ private:
 	p1Scene* panel_scene = nullptr;
 
 	Object* map[10] = { nullptr };
+
+public:
+	bool draw_grid = true;
 };
 

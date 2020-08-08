@@ -86,3 +86,13 @@ void r1Texture::GenerateFiles(const aiTexture* texture)
 {
 	
 }
+
+void r1Texture::Bind()
+{
+	glBindTexture(GL_TEXTURE_2D, id);
+}
+
+void r1Texture::Unbind()
+{
+	glBindTexture(GL_TEXTURE_2D, NULL);
+}
