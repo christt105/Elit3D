@@ -2,6 +2,20 @@
 #include "int2.h"
 #include "Buffer.h"
 
+class r1Mesh;
+
+class Tile {
+public:
+    Tile();
+    ~Tile();
+
+    unsigned int VAO = 0u;
+
+    Buffer<float> vertices;
+    Buffer<unsigned int> indices;
+    Buffer<float> texture;
+};
+
 class Chunk {
 public:
     Chunk();
@@ -13,9 +27,6 @@ public:
     void Update();
 
 private:
-    unsigned int VAO = 0u;
-
-    Buffer<float> vertices;
-    Buffer<unsigned int> indices;
-    Buffer<float> texture;
+    Tile tile;
+    int* tiles = nullptr;
 };
