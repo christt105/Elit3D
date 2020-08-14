@@ -342,6 +342,9 @@
     <ClCompile Include="Chunk.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
+    <ClCompile Include="Profiler.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1049,9 +1052,6 @@
     <ClInclude Include="ExternalTools\Assimp\include\postprocess.h">
       <Filter>External Libraries\Assimp</Filter>
     </ClInclude>
-    <ClInclude Include="ExternalTools\Assimp\include\Profiler.h">
-      <Filter>External Libraries\Assimp</Filter>
-    </ClInclude>
     <ClInclude Include="ExternalTools\Assimp\include\ProgressHandler.hpp">
       <Filter>External Libraries\Assimp</Filter>
     </ClInclude>
@@ -1207,6 +1207,12 @@
     </ClInclude>
     <ClInclude Include="Chunk.h">
       <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Profiler.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\AssimpProfiler.h">
+      <Filter>External Libraries\Assimp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

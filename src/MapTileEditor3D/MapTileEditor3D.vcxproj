@@ -230,6 +230,7 @@
     <ClCompile Include="p1Scene.cpp" />
     <ClCompile Include="p1Tileset.cpp" />
     <ClCompile Include="Panel.cpp" />
+    <ClCompile Include="Profiler.cpp" />
     <ClCompile Include="r1Mesh.cpp" />
     <ClCompile Include="r1Model.cpp" />
     <ClCompile Include="r1Texture.cpp" />
@@ -297,7 +298,7 @@
     <ClInclude Include="ExternalTools\Assimp\include\ParsingUtils.h" />
     <ClInclude Include="ExternalTools\Assimp\include\pbrmaterial.h" />
     <ClInclude Include="ExternalTools\Assimp\include\postprocess.h" />
-    <ClInclude Include="ExternalTools\Assimp\include\Profiler.h" />
+    <ClInclude Include="ExternalTools\Assimp\include\AssimpProfiler.h" />
     <ClInclude Include="ExternalTools\Assimp\include\ProgressHandler.hpp" />
     <ClInclude Include="ExternalTools\Assimp\include\qnan.h" />
     <ClInclude Include="ExternalTools\Assimp\include\quaternion.h" />
@@ -518,6 +519,7 @@
     <ClInclude Include="p1Scene.h" />
     <ClInclude Include="p1Tileset.h" />
     <ClInclude Include="Panel.h" />
+    <ClInclude Include="Profiler.h" />
     <ClInclude Include="r1Mesh.h" />
     <ClInclude Include="r1Model.h" />
     <ClInclude Include="r1Texture.h" />

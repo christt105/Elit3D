@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Profiler.h
+/** @file AssimpProfiler.h
  *  @brief Utility to measure the respective runtime of each import step
  */
 #ifndef INCLUDED_PROFILER_H
@@ -61,9 +61,9 @@ using namespace Formatter;
 /** Simple wrapper around boost::timer to simplify reporting. Timings are automatically
  *  dumped to the log file.
  */
-class Profiler {
+class AssimpProfiler {
 public:
-    Profiler() {
+    AssimpProfiler() {
         // empty
     }
 

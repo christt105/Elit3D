@@ -93,9 +93,6 @@ int main(int argc, char* argv[]) {
                 mainState = MainState::EXIT_ERROR;
             }
 
-            delete App;
-            App = nullptr;
-
             break;
         case MainState::EXIT:
             Logger::ExportLog();
@@ -111,6 +108,8 @@ int main(int argc, char* argv[]) {
             break;
         }
     }
+    delete App;
+    App = nullptr;
 
     return (int)mainState;
 }
