@@ -19,6 +19,8 @@
 
 #include "Logger.h"
 
+#include "Profiler.h"
+
 m1MapEditor::m1MapEditor() : Module("MapEditor", true)
 {
 }
@@ -29,6 +31,8 @@ m1MapEditor::~m1MapEditor()
 
 bool m1MapEditor::Start()
 {
+	PROFILE_FUNCTION();
+
 	panel_scene = App->gui->scene;
 	panel_tileset = App->gui->tileset;
 
@@ -64,6 +68,7 @@ bool m1MapEditor::Start()
 
 UpdateStatus m1MapEditor::Update()
 {
+	PROFILE_FUNCTION();
 	panel_scene->viewport->Begin();
 
 	panel_tileset->SelectTex();
@@ -79,6 +84,7 @@ UpdateStatus m1MapEditor::Update()
 
 bool m1MapEditor::CleanUp()
 {
+	PROFILE_FUNCTION();
 	delete chunks;
 	/*delete[] map;
 	for (int i = 0; i < size.x * size.y; ++i) {

@@ -1,11 +1,12 @@
 #include "m1Events.h"
 #include "Logger.h"
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 m1Events::m1Events() : Module("Events", true)
 {
-	events.push(new Event(Event::Type::FILE_REMOVED, "XD LOLLLLLL"));
 }
 
 m1Events::~m1Events()
@@ -14,6 +15,7 @@ m1Events::~m1Events()
 
 UpdateStatus m1Events::PreUpdate()
 {
+	PROFILE_FUNCTION();
 	while (!events.empty()) {
 		auto e = events.top();
 		switch (e->type)

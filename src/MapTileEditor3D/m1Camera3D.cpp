@@ -15,6 +15,8 @@
 
 #include "Logger.h"
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 m1Camera3D::m1Camera3D(bool start_enabled) : Module("Camera3D", start_enabled)
@@ -27,6 +29,7 @@ m1Camera3D::~m1Camera3D()
 
 bool m1Camera3D::Start()
 {
+	PROFILE_FUNCTION();
 	bool ret = true;
 
 	frustum.type = FrustumType::PerspectiveFrustum;
@@ -56,6 +59,7 @@ void m1Camera3D::SetFov()
 
 UpdateStatus m1Camera3D::PreUpdate()
 {
+	PROFILE_FUNCTION();
 	CameraMovement();
 	App->render->bShader->SetMat4("model", float4x4::FromTRS(float3::zero, Quat::identity, float3::one));
 	App->render->bShader->SetMat4("view", frustum.ViewMatrix());

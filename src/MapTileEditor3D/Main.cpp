@@ -7,6 +7,7 @@
 
 #include "Logger.h"
 #include "Application.h"
+#include "Profiler.h"
 #include "Module.h"
 
 //MathGeoLib--------------------------------------------------------
@@ -43,6 +44,7 @@ int main(int argc, char* argv[]) {
     MainState mainState = MainState::CREATION;
     bool running = true;
     while (running) {
+        PROFILE_SECTION("MAIN THREAD");
         switch (mainState)
         {
         case MainState::CREATION:
@@ -108,6 +110,7 @@ int main(int argc, char* argv[]) {
             break;
         }
     }
+
     delete App;
     App = nullptr;
 

@@ -18,6 +18,7 @@ Chunk::Chunk()
 
 Chunk::~Chunk()
 {
+	delete[] tiles;
 }
 
 void Chunk::Update()

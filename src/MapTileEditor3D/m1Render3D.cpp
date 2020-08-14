@@ -18,6 +18,8 @@
 #include "ExternalTools/MathGeoLib/include/Math/float4x4.h"
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 m1Render3D::m1Render3D(bool start_enabled) : Module("Render3D", start_enabled)
@@ -31,6 +33,7 @@ m1Render3D::~m1Render3D()
 
 bool m1Render3D::Init(const nlohmann::json& node)
 {
+    PROFILE_FUNCTION();
 	bool ret = true;
 
     context = SDL_GL_CreateContext(App->window->window);
@@ -91,6 +94,7 @@ bool m1Render3D::Start()
 
 UpdateStatus m1Render3D::PreUpdate()
 {
+    PROFILE_FUNCTION();
     for (auto i = viewports.begin(); i != viewports.end(); ++i)
         (*i)->Clear();
 
@@ -105,6 +109,7 @@ UpdateStatus m1Render3D::PreUpdate()
 
 UpdateStatus m1Render3D::PostUpdate()
 {
+    PROFILE_FUNCTION();
     SDL_GL_SwapWindow(App->window->window);
 
     return UpdateStatus::UPDATE_CONTINUE;
@@ -112,6 +117,7 @@ UpdateStatus m1Render3D::PostUpdate()
 
 bool m1Render3D::CleanUp()
 {
+    PROFILE_FUNCTION();
     for (auto i = viewports.begin(); i != viewports.end(); ++i)
         delete* i;
 

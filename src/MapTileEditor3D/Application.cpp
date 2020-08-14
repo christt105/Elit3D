@@ -33,6 +33,7 @@ Application::~Application()	{
 
 bool Application::Init()
 {
+	PROFILE_FUNCTION();
 	//Create instances of modules
 	input = new m1Input();
 	window = new m1Window();
@@ -84,6 +85,7 @@ bool Application::Init()
 
 bool Application::Start()
 {
+	PROFILE_FUNCTION();
 	for (auto i = modules.begin(); i != modules.end(); ++i) {
 		LOG("Starting module %s", (*i)->name.c_str());
 		(*i)->Start();
@@ -105,31 +107,41 @@ void Application::PrepareUpdate()
 
 UpdateStatus Application::Update()
 {
+	PROFILE_FUNCTION();
 	UpdateStatus ret = UpdateStatus::UPDATE_CONTINUE;
 
 	PrepareUpdate();
 	
-	for (auto i = modules.begin(); i != modules.end(); ++i) {
-		ret = (*i)->PreUpdate();
-		if (ret != UpdateStatus::UPDATE_CONTINUE) {
-			LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
-			return ret;
+	{
+		PROFILE_SECTION("Application::PreUpdate");
+		for (auto i = modules.begin(); i != modules.end(); ++i) {
+			ret = (*i)->PreUpdate();
+			if (ret != UpdateStatus::UPDATE_CONTINUE) {
+				LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
+				return ret;
+			}
 		}
 	}
 	
-	for (auto i = modules.begin(); i != modules.end(); ++i) {
-		ret = (*i)->Update();
-		if (ret != UpdateStatus::UPDATE_CONTINUE) {
-			LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
-			return ret;
+	{
+		PROFILE_SECTION("Application::Update");
+		for (auto i = modules.begin(); i != modules.end(); ++i) {
+			ret = (*i)->Update();
+			if (ret != UpdateStatus::UPDATE_CONTINUE) {
+				LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
+				return ret;
+			}
 		}
 	}
 	
-	for (auto i = modules.begin(); i != modules.end(); ++i) {
-		ret = (*i)->PostUpdate();
-		if (ret != UpdateStatus::UPDATE_CONTINUE) {
-			LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
-			return ret;
+	{
+		PROFILE_SECTION("Application::PostUpdate");
+		for (auto i = modules.begin(); i != modules.end(); ++i) {
+			ret = (*i)->PostUpdate();
+			if (ret != UpdateStatus::UPDATE_CONTINUE) {
+				LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
+				return ret;
+			}
 		}
 	}
 
@@ -144,6 +156,7 @@ void Application::FinishUpdate()
 
 bool Application::CleanUp()
 {
+	PROFILE_FUNCTION();
 	bool ret = true;
 
 	Logger::console_log = false;

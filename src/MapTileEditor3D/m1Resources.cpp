@@ -15,6 +15,8 @@
 
 #include "FileWatch.h"
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 #pragma comment(lib, "ExternalTools/DevIL/libx86/DevIL.lib")
@@ -31,6 +33,7 @@ m1Resources::~m1Resources()
 
 bool m1Resources::Start()
 {
+	PROFILE_FUNCTION();
 	ilInit();
 
 	if (!App->file_system->Exists(LIBRARY_PATH))
@@ -58,6 +61,7 @@ bool m1Resources::Start()
 
 bool m1Resources::CleanUp()
 {
+	PROFILE_FUNCTION();
 	delete filewatch;
 
 	for (auto i = resources.begin(); i != resources.end(); ++i) {
@@ -75,6 +79,7 @@ bool m1Resources::CleanUp()
 
 Uint64 m1Resources::Find(const char* file)
 {
+	PROFILE_FUNCTION();
 	for (auto i = resources.begin(); i != resources.end(); ++i) {
 		if ((*i).second->name.compare(file) == 0)
 			return (*i).first;
@@ -87,6 +92,7 @@ Uint64 m1Resources::Find(const char* file)
 
 Resource* m1Resources::Get(const Uint64& uid) const
 {
+	PROFILE_FUNCTION();
 	auto ret = resources.find(uid);
 	return (ret == resources.end()) ? nullptr : (*ret).second;
 }
@@ -141,11 +147,13 @@ void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 
 void m1Resources::GenerateLibrary()
 {
+	PROFILE_FUNCTION();
 	ImportFiles(App->file_system->GetFilesRecursive("Assets/"));
 }
 
 void m1Resources::GenerateEngineLibrary()
 {
+	PROFILE_FUNCTION();
 	auto models = App->file_system->GetFilesRecursive("Configuration/EngineResources/3DModels");
 
 	for (auto i = models.files.begin(); i != models.files.end(); ++i) {
@@ -165,7 +173,8 @@ void m1Resources::GenerateEngineLibrary()
 
 void m1Resources::ImportFiles(const Folder& parent)
 {
-	for (auto dir = parent.folders.begin(); dir != parent.folders.end(); ++dir) {
+	PROFILE_FUNCTION();
+	for (auto dir = parent.folders.begin(); dir != parent.folders.end(); ++dir) { //TODO: DO IT ITERATIVE
 		ImportFiles(*dir);
 	}
 	

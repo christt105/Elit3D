@@ -14,6 +14,8 @@
 #include "p1Scene.h"
 #include "Viewport.h"
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 m1Objects::m1Objects(bool start_enabled) : Module("Objects", start_enabled)
@@ -42,6 +44,7 @@ bool m1Objects::Start()
 
 UpdateStatus m1Objects::Update()
 {
+	PROFILE_FUNCTION();
 	App->gui->scene->viewport->Begin();
 
 	for (auto i = objects.begin(); i != objects.end(); ++i) {

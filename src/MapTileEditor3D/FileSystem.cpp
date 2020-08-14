@@ -5,6 +5,8 @@
 
 #include "Logger.h"
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 namespace fs = std::filesystem;
@@ -19,6 +21,7 @@ FileSystem::~FileSystem()
 
 nlohmann::json FileSystem::OpenJSONFile(const char* path)
 {
+    PROFILE_FUNCTION();
 	std::ifstream f(path);
 	if (f.good()) {
 		nlohmann::json j;
@@ -33,12 +36,14 @@ nlohmann::json FileSystem::OpenJSONFile(const char* path)
 
 void FileSystem::SaveJSONFile(const char* path, const nlohmann::json& file)
 {
+    PROFILE_FUNCTION();
     std::ofstream o(path);
     o << std::setw(4) << file << std::endl;
 }
 
 std::string FileSystem::OpenTextFile(const char* path)
 {
+    PROFILE_FUNCTION();
     try {
         std::ifstream in(path, std::ios::in | std::ios::binary);
         if (in)

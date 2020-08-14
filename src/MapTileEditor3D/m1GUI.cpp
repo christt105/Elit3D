@@ -22,6 +22,8 @@
 
 #include "Logger.h"
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 m1GUI::m1GUI(bool start_enabled) : Module("GUI", start_enabled)
@@ -34,6 +36,7 @@ m1GUI::~m1GUI()
 
 bool m1GUI::Init(const nlohmann::json& node)
 {
+	PROFILE_FUNCTION();
 	configuration = new p1Configuration();
 	about = new p1About(false);
 	objects = new p1Objects();
@@ -59,6 +62,7 @@ bool m1GUI::Init(const nlohmann::json& node)
 
 bool m1GUI::Start()
 {
+	PROFILE_FUNCTION();
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
@@ -90,6 +94,7 @@ bool m1GUI::Start()
 
 UpdateStatus m1GUI::PreUpdate()
 {
+	PROFILE_FUNCTION();
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(App->window->window);
 	ImGui::NewFrame();
@@ -107,6 +112,7 @@ UpdateStatus m1GUI::PreUpdate()
 
 void m1GUI::MainMenuBar()
 {
+	PROFILE_FUNCTION();
 	if (ImGui::BeginMenu("File")) {
 		ImGui::EndMenu();
 	}
@@ -145,6 +151,7 @@ void m1GUI::MainMenuBar()
 
 UpdateStatus m1GUI::Update()
 {
+	PROFILE_FUNCTION();
 	if (demo)
 		ImGui::ShowDemoWindow(&demo);
 
@@ -167,6 +174,7 @@ UpdateStatus m1GUI::Update()
 
 UpdateStatus m1GUI::PostUpdate()
 {
+	PROFILE_FUNCTION();
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -175,6 +183,7 @@ UpdateStatus m1GUI::PostUpdate()
 
 bool m1GUI::CleanUp()
 {
+	PROFILE_FUNCTION();
 	for (auto i = panels.begin(); i != panels.end(); ++i) {
 		delete* i;
 	}

@@ -28,6 +28,8 @@
 
 #include "Logger.h"
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 m1Scene::m1Scene(bool start_enabled) : Module("Scene", start_enabled)
@@ -45,6 +47,7 @@ bool m1Scene::Init(const nlohmann::json& node)
 
 bool m1Scene::Start()
 {
+	PROFILE_FUNCTION();
 	GenerateGrid(); // TODO: Set grid in a shader
 
 	panel_scene = App->gui->scene;
@@ -97,6 +100,7 @@ void m1Scene::GenerateGrid()
 
 UpdateStatus m1Scene::Update()
 {
+	PROFILE_FUNCTION();
 	if (App->input->IsKeyDown(SDL_SCANCODE_ESCAPE))
 		return UpdateStatus::UPDATE_STOP;
 
@@ -130,6 +134,7 @@ void m1Scene::DrawGrid()
 
 bool m1Scene::CleanUp()
 {
+	PROFILE_FUNCTION();
 	for (int i = 0; i < 10; ++i)
 		delete map[i];
 

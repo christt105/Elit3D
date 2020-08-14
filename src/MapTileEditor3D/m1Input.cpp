@@ -9,10 +9,13 @@
 
 #include "Logger.h"
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 m1Input::m1Input(bool start_enabled) : Module("Input", start_enabled)
 {
+    PROFILE_FUNCTION();
     keyboard = new KeyState[SDL_MAX_KEYS];
     memset(keyboard, (int)KeyState::IDLE, SDL_MAX_KEYS);
 }
@@ -24,66 +27,73 @@ m1Input::~m1Input()
 
 UpdateStatus m1Input::PreUpdate()
 {
+    PROFILE_FUNCTION();
     SDL_PumpEvents();
 
     HandleKeyboard();
 
-    for (int i = 0; i < 3; ++i) {
-        if (mouse[i] == KeyState::DOWN) {
-            mouse[i] = KeyState::REPEAT;
+    {
+        PROFILE_SECTION("m1Input::PreUpdate::HandleMouse");
+        for (int i = 0; i < 3; ++i) {
+            if (mouse[i] == KeyState::DOWN) {
+                mouse[i] = KeyState::REPEAT;
+            }
+            else if (mouse[i] == KeyState::UP) {
+                mouse[i] = KeyState::IDLE;
+            }
         }
-        else if (mouse[i] == KeyState::UP) {
-            mouse[i] = KeyState::IDLE;
-        }
-    }
 
     SDL_GetMouseState(&mouseX, &mouseY);
     mouseZ = 0;
+    }
 
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
     {
-        ImGui_ImplSDL2_ProcessEvent(&event);
-        switch (event.type)
+        PROFILE_SECTION("m1Input::PreUpdate::HandleSDLEvents");
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
         {
-        case SDL_QUIT:
-            return UpdateStatus::UPDATE_STOP;
-        case SDL_WINDOWEVENT:
-            switch (event.window.event)
+            ImGui_ImplSDL2_ProcessEvent(&event);
+            switch (event.type)
             {
-            case SDL_WINDOWEVENT_RESIZED:
-                App->window->SetWindowSize(event.window.data1, event.window.data2);
+            case SDL_QUIT:
+                return UpdateStatus::UPDATE_STOP;
+            case SDL_WINDOWEVENT:
+                switch (event.window.event)
+                {
+                case SDL_WINDOWEVENT_RESIZED:
+                    App->window->SetWindowSize(event.window.data1, event.window.data2);
+                    break;
+                case SDL_WINDOWEVENT_SIZE_CHANGED:
+                    App->window->SetWindowSize(event.window.data1, event.window.data2);
+                    break;
+                default:
+                    break;
+                }
                 break;
-            case SDL_WINDOWEVENT_SIZE_CHANGED:
-                App->window->SetWindowSize(event.window.data1, event.window.data2);
+            case SDL_MOUSEMOTION:
+
                 break;
+            case SDL_MOUSEBUTTONDOWN:
+                if (mouse[event.button.button - 1] == KeyState::IDLE || mouse[event.button.button - 1] == KeyState::UP) {
+                    mouse[event.button.button - 1] = KeyState::DOWN;
+                }
+                break;
+            case SDL_MOUSEBUTTONUP:
+                mouse[event.button.button - 1] = KeyState::UP;
+                break;
+            case SDL_MOUSEWHEEL:
+                mouseZ = event.wheel.y;
+                break;
+            case SDL_DROPFILE: {
+                char* file = event.drop.file;
+                LOG("Importing dropped file %s", file);
+                App->importer->Import(file);
+                SDL_free(file);
+                break;
+            }
             default:
                 break;
             }
-            break;
-        case SDL_MOUSEMOTION:
-            
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-            if (mouse[event.button.button-1] == KeyState::IDLE || mouse[event.button.button-1] == KeyState::UP) {
-                mouse[event.button.button-1] = KeyState::DOWN;
-            }
-            break;
-        case SDL_MOUSEBUTTONUP:
-            mouse[event.button.button-1] = KeyState::UP;
-            break;
-        case SDL_MOUSEWHEEL:
-            mouseZ = event.wheel.y;
-            break;
-        case SDL_DROPFILE: {
-            char* file = event.drop.file;
-            LOG("Importing dropped file %s", file);
-            App->importer->Import(file);
-            SDL_free(file);
-            break;
-        }
-        default:
-            break;
         }
     }
 
@@ -92,6 +102,7 @@ UpdateStatus m1Input::PreUpdate()
 
 void m1Input::HandleKeyboard()
 {
+    PROFILE_FUNCTION();
     const Uint8* keys = SDL_GetKeyboardState(NULL);
 
     for (int i = 0; i < SDL_MAX_KEYS; ++i) {
