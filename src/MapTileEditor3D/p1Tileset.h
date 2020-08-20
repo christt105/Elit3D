@@ -24,6 +24,7 @@ public:
 	p1Tileset(bool start_enabled = true);
 	~p1Tileset();
 
+	void Start() override;
 	void Update() override;
 
 	void SelectTex();

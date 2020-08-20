@@ -3,6 +3,7 @@
 #include "FileSystem.h"
 
 Profiler::Profiler()
+	:profileCount(0)
 {
 	Begin();
 }
@@ -14,35 +15,48 @@ Profiler::~Profiler()
 
 void Profiler::Begin()
 {
-	file.clear();
-	file["otherData"] = nlohmann::json::object();
-	file["traceEvents"] = nlohmann::json::array();
+	output.open("profile.json");
+	InsertHeader();
 }
 
 void Profiler::End()
 {
-	FileSystem::SaveJSONFile("profile.json", file);
+	InsertFooter();
+	output.close();
+	profileCount = 0;
+}
+
+void Profiler::InsertHeader()
+{
+	output << "{\"otherData\": {},\"traceEvents\":[";
+	output.flush();
+}
+
+void Profiler::InsertFooter()
+{
+	output << "]}";
+	output.flush();
 }
 
 void Profiler::Insert(const Result& result)
 {
-	nlohmann::json node;
+	if (profileCount++ > 0)
+		output << ",";
 
-	node["name"] = result.name;
-	node["dur"]	 = (result.end - result.start);
-	node["ts"]   = result.start;
-	node["cat"]  = "function";
-	node["ph"]   = "X";
-	node["pid"]  = 0;
-	node["tid"]  = 0;
+	std::string name = result.name;
+	std::replace(name.begin(), name.end(), '"', '\'');
 
-	file["traceEvents"].push_back(node);
-}
+	output << "{";
+	output << "\"cat\":\"function\",";
+	output << "\"dur\":" << (result.end - result.start) << ',';
+	output << "\"name\":\"" << name << "\",";
+	output << "\"ph\":\"X\",";
+	output << "\"pid\":0,";
+	output << "\"tid\":0," /*<< result.ThreadID << ","*/;
+	output << "\"ts\":" << result.start;
+	output << "}";
 
-Profiler& Profiler::Get()
-{
-	static Profiler instance;
-	return instance;
+	output.flush();
 }
 
 ProfilerTimer::ProfilerTimer(const char* name)

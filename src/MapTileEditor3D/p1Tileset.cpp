@@ -18,6 +18,15 @@ p1Tileset::~p1Tileset()
 {
 }
 
+void p1Tileset::Start()
+{
+	//TEMP Auto select default tileset
+	select_tileset = false;
+	auto res = App->resources->FindGet("tileset1");
+	tileset = res->GetUID();
+	res->Attach();
+}
+
 void p1Tileset::Update()
 {
 	static bool modal = false;

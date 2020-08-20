@@ -19,16 +19,17 @@
 
 #include "FileSystem.h"
 #include "Random.h"
+
 #include "Profiler.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-Application::Application() {
-	profiler = new Profiler();
+Application::Application() 
+{
 }
 
-Application::~Application()	{
-	delete profiler;
+Application::~Application()	
+{
 }
 
 bool Application::Init()

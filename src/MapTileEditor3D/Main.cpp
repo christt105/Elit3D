@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     MainState mainState = MainState::CREATION;
     bool running = true;
     while (running) {
-        PROFILE_SECTION("MAIN THREAD");
+        //PROFILE_SECTION("MAIN THREAD");
         switch (mainState)
         {
         case MainState::CREATION:

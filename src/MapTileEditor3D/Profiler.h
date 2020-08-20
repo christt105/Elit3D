@@ -4,11 +4,19 @@
 #include <vector>
 
 #include <chrono>
+#include <fstream>
 
 #include "ExternalTools/JSON/json.hpp"
 
+#define USE_PROFILER 1
+
+#if USE_PROFILER
 #define PROFILE_SECTION(name) ProfilerTimer timer##__LINE__(name)
 #define PROFILE_FUNCTION() PROFILE_SECTION(__FUNCTION__)
+#else
+#define PROFILE_SECTION(name)
+#define PROFILE_FUNCTION()
+#endif
 
 
 class Profiler
@@ -25,12 +33,19 @@ public:
 
 	void Begin();
 	void End();
+
+	void InsertHeader();
+	void InsertFooter();
 	void Insert(const Result& result);
 
-	static Profiler& Get();
+	static Profiler& Get() {
+		static Profiler instance;
+		return instance;
+	}
 	
 private:
-	nlohmann::json file;
+	std::ofstream output;
+	int profileCount = 0;
 };
 
 class ProfilerTimer {

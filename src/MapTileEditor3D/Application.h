@@ -22,7 +22,6 @@ class m1MapEditor;
 
 class FileSystem;
 class Random;
-class Profiler;
 
 class Application
 {
@@ -52,7 +51,6 @@ public:
 
 	FileSystem* file_system = nullptr;
 	Random*		random = nullptr;
-	Profiler*	profiler = nullptr;
 
 public:
 	const char* GetName();
