@@ -47,11 +47,14 @@ UpdateStatus m1Objects::Update()
 	PROFILE_FUNCTION();
 	App->gui->scene->viewport->Begin();
 
+	auto shader = App->render->GetShader("default");
+	shader->Use();
+
 	for (auto i = objects.begin(); i != objects.end(); ++i) {
 		(*i)->Update();
 	}
 
-	App->render->bShader->SetMat4("model", float4x4::identity);
+	shader->SetMat4("model", float4x4::identity);
 
 	App->gui->scene->viewport->End();
 

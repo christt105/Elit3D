@@ -53,27 +53,31 @@ bool m1MapEditor::Start()
 UpdateStatus m1MapEditor::Update()
 {
 	PROFILE_FUNCTION();
+
 	panel_scene->viewport->Begin();
+
+	static auto shader = App->render->GetShader("tilemap");
+	shader->Use();
 
 	Layer::SelectBuffers();
 
 	glActiveTexture(GL_TEXTURE0 + 0);
 	panel_tileset->SelectTex();
-	App->render->bShader->SetInt("tileAtlas", 0);
+	shader->SetInt("tileAtlas", 0);
 
 	glActiveTexture(GL_TEXTURE0 + 1);
 	static auto tex = (r1Texture*)App->resources->FindGet("testtilemap");
 	if (tex != nullptr) {
 		glBindTexture(GL_TEXTURE_2D, tex->GetBufferID());
 	}
-	App->render->bShader->SetInt("tilemap", 1);
+	shader->SetInt("tilemap", 1);
 
-	App->render->bShader->SetInt2("ntilesMap", { 1000, 1000 });
-	App->render->bShader->SetInt2("ntilesAtlas", { 8, 624 });
+	shader->SetInt2("ntilesMap", { 100, 100 });
+	shader->SetInt2("ntilesAtlas", { 8, 624 });
 	
 
-	for(auto chunk : layers)
-		chunk->Update();
+	for(auto layer : layers)
+		layer->Update();
 
 	glBindTexture(GL_TEXTURE_2D, NULL);
 

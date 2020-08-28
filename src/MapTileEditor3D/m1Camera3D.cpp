@@ -61,9 +61,17 @@ UpdateStatus m1Camera3D::PreUpdate()
 {
 	PROFILE_FUNCTION();
 	CameraMovement();
-	App->render->bShader->SetMat4("model", float4x4::FromTRS(float3::zero, Quat::identity, float3::one));
-	App->render->bShader->SetMat4("view", frustum.ViewMatrix());
-	App->render->bShader->SetMat4("projection", frustum.ProjectionMatrix());
+
+	auto shader = App->render->GetShader("default");
+	shader->Use();
+	shader->SetMat4("model", float4x4::identity);
+	shader->SetMat4("view", frustum.ViewMatrix());
+	shader->SetMat4("projection", frustum.ProjectionMatrix());
+	shader = App->render->GetShader("tilemap");
+	shader->Use();
+	shader->SetMat4("model", float4x4::identity);
+	shader->SetMat4("view", frustum.ViewMatrix());
+	shader->SetMat4("projection", frustum.ProjectionMatrix());
 	
 	return UpdateStatus::UPDATE_CONTINUE;
 }

@@ -13,7 +13,7 @@
 
 c1Material::c1Material(Object* obj) : Component(obj, Type::Material)
 {
-	shader = App->render->bShader;
+	shader = App->render->GetShader("default");
 }
 
 c1Material::~c1Material()

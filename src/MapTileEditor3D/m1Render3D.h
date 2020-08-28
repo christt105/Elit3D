@@ -28,11 +28,18 @@ public:
 
 	Viewport* CreateViewport();
 
-	r1Shader* bShader = nullptr;
+	r1Shader* GetShader(const char* name);
+
+private:
+	void loadShaders();
+
 private:
 	SDL_GLContext context = nullptr;
 
 	std::vector<Viewport*> viewports;
+
+	std::map<std::string, unsigned int> shaders;
+	std::map<std::string, r1Shader*> programs;
 
 	float background_color[4] = { 0.f, 0.f, 0.f, 1.f };
 };

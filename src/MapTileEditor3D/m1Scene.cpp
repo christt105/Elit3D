@@ -109,7 +109,9 @@ UpdateStatus m1Scene::Update()
 
 	App->gui->scene->viewport->Begin();
 
-	App->render->bShader->SetMat4("model", float4x4::identity);
+	static auto shader = App->render->GetShader("default");
+	shader->Use();
+	shader->SetMat4("model", float4x4::identity);
 
 	if (draw_grid)
 		DrawGrid();

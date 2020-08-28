@@ -9,11 +9,12 @@ class int2;
 class r1Shader
 {
 private:
+	friend class m1Render3D;
 	enum class Type {
 		PROGRAM, VERTEX, FRAGMENT
 	};
 public:
-	r1Shader(const char* vertexPath, const char* fragmentPath);
+	r1Shader();
 	~r1Shader();
 
 	void Use();
@@ -26,11 +27,18 @@ public:
 	void SetVec3(const char* name, const float3& value);
 	void SetMat4(const char* name, const float4x4& value);
 
+	void Link(unsigned int vertex, unsigned int fragment);
+
 protected:
 	unsigned int id;
 
+	std::string name;
+
+	void SetName(const char* nname);
+
 private:
-	void CheckCompileErrors(unsigned int shader, Type type);
+	static unsigned int Compile(const std::string& filepath);
+	static void CheckCompileErrors(unsigned int shader, Type type);
 
 	std::unordered_map<std::string, int> uniform_cache;
 };

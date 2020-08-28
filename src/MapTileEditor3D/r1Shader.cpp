@@ -8,39 +8,8 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-r1Shader::r1Shader(const char* vertexPath, const char* fragmentPath)
+r1Shader::r1Shader()
 {
-    std::string vertexShaderSource;
-    std::string fragmentShaderSource;
-    try {
-        vertexShaderSource = App->file_system->OpenTextFile(vertexPath);
-        fragmentShaderSource = App->file_system->OpenTextFile(fragmentPath);
-    }
-    catch (const char* fail) {
-        LOGE("FAILED TO READ SHADER %s", fail);
-    }
-
-    const char* vertexCode = vertexShaderSource.c_str();
-    const char* fragmentCode = fragmentShaderSource.c_str();
-
-    unsigned int vertex = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex, 1, &vertexCode, NULL);
-    glCompileShader(vertex);
-    CheckCompileErrors(vertex, Type::VERTEX);
-
-    unsigned int fragment = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment, 1, &fragmentCode, NULL);
-    glCompileShader(fragment);
-    CheckCompileErrors(fragment, Type::FRAGMENT);
-
-    id = glCreateProgram();
-    glAttachShader(id, vertex);
-    glAttachShader(id, fragment);
-    glLinkProgram(id);
-    CheckCompileErrors(id, Type::PROGRAM);
-
-    glDeleteShader(vertex);
-    glDeleteShader(fragment);
 }
 
 r1Shader::~r1Shader()
@@ -153,6 +122,20 @@ void r1Shader::SetMat4(const char* name, const float4x4& value)
     }
 }
 
+void r1Shader::Link(unsigned int vertex, unsigned int fragment)
+{
+    id = glCreateProgram();
+    glAttachShader(id, vertex);
+    glAttachShader(id, fragment);
+    glLinkProgram(id);
+    CheckCompileErrors(id, Type::PROGRAM);
+}
+
+void r1Shader::SetName(const char* nname)
+{
+    name.assign(nname);
+}
+
 void r1Shader::CheckCompileErrors(unsigned int shader, Type type)
 {
     int success = 0;
@@ -177,4 +160,36 @@ void r1Shader::CheckCompileErrors(unsigned int shader, Type type)
                 LOGE("SHADER::FRAGMENT::COMPILATION_FAILED : %s", infoLog);
         }
     }
+}
+
+unsigned int r1Shader::Compile(const std::string& filepath)
+{
+    std::string shaderSource;
+    try {
+        shaderSource = App->file_system->OpenTextFile(filepath.c_str());
+    }
+    catch (const char* fail) {
+        LOGE("FAILED TO READ SHADER %s", fail);
+    }
+
+    const char* code = shaderSource.c_str();
+    unsigned int ret = 0;
+
+    if (filepath.find(".vertex.glsl") != filepath.npos) {
+        ret = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(ret, 1, &code, NULL);
+        glCompileShader(ret);
+        CheckCompileErrors(ret, Type::VERTEX);
+    }
+    else if (filepath.find(".fragment.glsl") != filepath.npos) {
+        ret = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(ret, 1, &code, NULL);
+        glCompileShader(ret);
+        CheckCompileErrors(ret, Type::FRAGMENT);
+    }
+    else {
+        LOG("Syntaxi of shader %s not allowed", filepath.c_str());
+    }
+    
+    return ret;
 }

@@ -28,7 +28,8 @@ m1Render3D::m1Render3D(bool start_enabled) : Module("Render3D", start_enabled)
 
 m1Render3D::~m1Render3D()
 {
-    delete bShader;
+    for (auto i = programs.begin(); i != programs.end(); ++i)
+        delete (*i).second;
 }
 
 bool m1Render3D::Init(const nlohmann::json& node)
@@ -79,10 +80,7 @@ bool m1Render3D::Init(const nlohmann::json& node)
 
     glClearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
 
-    bShader = new r1Shader("Configuration/Shader/def_vx_shader.glsl", "Configuration/Shader/def_fg_shader.glsl");
-
-    bShader->Use();
-    bShader->SetVec3("color", float3::one);
+    loadShaders();
 
 	return ret;
 }
@@ -101,8 +99,6 @@ UpdateStatus m1Render3D::PreUpdate()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(.1f, .1f, .1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    
-    bShader->Use();
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -121,6 +117,11 @@ bool m1Render3D::CleanUp()
     for (auto i = viewports.begin(); i != viewports.end(); ++i)
         delete* i;
 
+    for(auto shader : shaders)
+    {
+        glDeleteShader(shader.second);
+    }
+
     SDL_GL_DeleteContext(context);
 
     return true;
@@ -131,4 +132,56 @@ Viewport* m1Render3D::CreateViewport()
     Viewport* v = new Viewport();
     viewports.push_back(v);
     return v;
+}
+
+r1Shader* m1Render3D::GetShader(const char* name)
+{
+    auto p = programs.find(name);
+    return (p == programs.end()) ? nullptr : (*p).second;
+}
+
+void m1Render3D::loadShaders()
+{
+    //load all shaders
+    Folder fshaders = FileSystem::GetFilesRecursive("Configuration/Shader/Shaders/");
+
+    for (auto shader : fshaders.files) {
+        shaders[shader.first] = r1Shader::Compile(fshaders.full_path + shader.first);
+    }
+
+    //link
+    std::string link = App->file_system->OpenTextFile("Configuration/Shader/shaders_link.txt");
+
+    std::istringstream iss(link);
+
+    for (std::string line; std::getline(iss, line); )
+    {
+        r1Shader* shader = new r1Shader();
+        int index = 0;
+        std::string name, vertex, fragment;
+        for (auto i = line.begin(); i != line.end(); ++i) {
+            if (*i != ' ' && *i != '\n' && *i != '\r') {
+                switch (index)
+                {
+                case 0: // name
+                    name.push_back(*i);
+                    break;
+                case 1: // vertex shader
+                    vertex.push_back(*i);
+                    break;
+                case 2: // fragment shader
+                    fragment.push_back(*i);
+                    break;
+                default:
+                    break;
+                }
+            }
+            else {
+                ++index;
+            }
+        }
+        shader->SetName(name.c_str());
+        shader->Link(shaders[vertex], shaders[fragment]);
+        programs[name] = shader;
+    }
 }

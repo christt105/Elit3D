@@ -28,8 +28,9 @@ void Layer::Update()
 	PROFILE_FUNCTION();
 
 	float4x4 mat = float4x4::identity;
-	mat = float4x4::FromTRS(float3(position.x * size, 0.f, position.y * size), Quat::identity, float3::one);
-	App->render->bShader->SetMat4("model", mat);
+	mat = float4x4::FromTRS(float3(position.x * size, 0.f, position.y * size), Quat::identity, float3::one); // TODO: THIS UGLY
+	static auto shader = App->render->GetShader("tilemap");
+	shader->SetMat4("model", mat);
 	glDrawElements(GL_TRIANGLES, tile.indices.size, GL_UNSIGNED_INT, (void*)0);
 }
 
