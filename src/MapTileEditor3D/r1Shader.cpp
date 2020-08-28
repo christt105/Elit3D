@@ -1,8 +1,9 @@
 #include "r1Shader.h"
 #include <GL/glew.h>
+#include <string>
 #include "Application.h"
 #include "FileSystem.h"
-#include <string>
+#include "int2.h"
 #include "Logger.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
@@ -98,6 +99,22 @@ void r1Shader::SetFloat(const char* name, float value)
         if (loc != -1) {
             uniform_cache[name] = loc;
             glUniform1f(loc, value);
+        }
+        else
+            LOGW("Variable %s not found in %i shader", name, id);
+    }
+}
+
+void r1Shader::SetInt2(const char* name, const int2& value)
+{
+    auto it = uniform_cache.find(name);
+    if (it != uniform_cache.end())
+        glUniform2iv((*it).second, 1, value.ptr());
+    else {
+        int loc = glGetUniformLocation(id, name);
+        if (loc != -1) {
+            uniform_cache[name] = loc;
+            glUniform2iv(loc, 1, value.ptr());
         }
         else
             LOGW("Variable %s not found in %i shader", name, id);

@@ -61,6 +61,9 @@ public:
 
 	float GetDt() const;
 	unsigned int GetFrames() const;
+	inline unsigned char GetFrameRate() const {
+		return framerate;
+	}
 
 	void ExecuteURL(const char* url);
 
@@ -72,6 +75,7 @@ private:
 
 	float dt = 0.f;
 	Uint64 time = 0ULL;
+	unsigned char framerate = 0u; //TODO: save this in a vector
 	Uint64 last_time = 0ULL;
 	unsigned int frame_count = 0U;
 };

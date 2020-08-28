@@ -7,6 +7,9 @@
 #include "m1Input.h"
 #include "m1Camera3D.h"
 
+#include "m1Render3D.h"
+#include "r1Shader.h"
+
 #include "m1GUI.h"
 #include "p1Scene.h"
 #include "Viewport.h"
@@ -105,6 +108,8 @@ UpdateStatus m1Scene::Update()
 		return UpdateStatus::UPDATE_STOP;
 
 	App->gui->scene->viewport->Begin();
+
+	App->render->bShader->SetMat4("model", float4x4::identity);
 
 	if (draw_grid)
 		DrawGrid();

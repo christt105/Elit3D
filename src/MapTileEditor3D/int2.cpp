@@ -13,3 +13,13 @@ int2::int2(int x, int y)
 int2::~int2()
 {
 }
+
+int* int2::ptr()
+{
+	return &x;
+}
+
+const int* int2::ptr() const
+{
+	return &x;
+}

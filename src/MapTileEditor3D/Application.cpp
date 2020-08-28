@@ -104,6 +104,7 @@ void Application::PrepareUpdate()
 	++frame_count;
 
 	dt = (float)((time - last_time) / (double)SDL_GetPerformanceFrequency());
+	framerate = 1 / dt;
 }
 
 UpdateStatus Application::Update()

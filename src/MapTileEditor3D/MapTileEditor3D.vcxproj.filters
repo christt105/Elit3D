@@ -339,10 +339,10 @@
     <ClCompile Include="m1MapEditor.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Chunk.cpp">
+    <ClCompile Include="Profiler.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
-    <ClCompile Include="Profiler.cpp">
+    <ClCompile Include="MapLayer.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1205,14 +1205,14 @@
     <ClInclude Include="m1MapEditor.h">
       <Filter>Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Chunk.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
     <ClInclude Include="Profiler.h">
       <Filter>Tools</Filter>
     </ClInclude>
     <ClInclude Include="ExternalTools\Assimp\include\AssimpProfiler.h">
       <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="MapLayer.h">
+      <Filter>Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

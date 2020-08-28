@@ -158,7 +158,7 @@
     <ClCompile Include="c1Material.cpp" />
     <ClCompile Include="c1Mesh.cpp" />
     <ClCompile Include="c1Transform.cpp" />
-    <ClCompile Include="Chunk.cpp" />
+    <ClCompile Include="MapLayer.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ExternalTools\ImGui\imgui.cpp" />
     <ClCompile Include="ExternalTools\ImGui\imgui_demo.cpp" />
@@ -246,7 +246,7 @@
     <ClInclude Include="c1Material.h" />
     <ClInclude Include="c1Mesh.h" />
     <ClInclude Include="c1Transform.h" />
-    <ClInclude Include="Chunk.h" />
+    <ClInclude Include="MapLayer.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ExternalTools\Assimp\include\aabb.h" />
     <ClInclude Include="ExternalTools\Assimp\include\ai_assert.h" />

@@ -1,4 +1,4 @@
-#include "Chunk.h"
+#include "MapLayer.h"
 
 #include <GL/glew.h>
 
@@ -8,42 +8,65 @@
 
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
+#include "Profiler.h"
+
 //#include "Logger.h"
 
-Chunk::Chunk()
+OpenGLBuffers Layer::tile = OpenGLBuffers();
+
+Layer::Layer()
 {
-	tiles = new int[size * size];
-	memset(tiles, -1, size * size * sizeof(int));
+	tile.InitData();
 }
 
-Chunk::~Chunk()
+Layer::~Layer()
 {
-	delete[] tiles;
 }
 
-void Chunk::Update()
+void Layer::Update()
+{
+	PROFILE_FUNCTION();
+
+	float4x4 mat = float4x4::identity;
+	mat = float4x4::FromTRS(float3(position.x * size, 0.f, position.y * size), Quat::identity, float3::one);
+	App->render->bShader->SetMat4("model", mat);
+	glDrawElements(GL_TRIANGLES, tile.indices.size, GL_UNSIGNED_INT, (void*)0);
+}
+
+void Layer::SelectBuffers()
 {
 	glBindVertexArray(tile.VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, tile.vertices.id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, tile.indices.id);
-	
-	float4x4 mat = float4x4::identity;
-	for (int i = 0; i < size * size; ++i) {
-		mat = float4x4::FromTRS(float3(i / size, 0.f, i % size), Quat::identity, float3::one);
-		App->render->bShader->SetMat4("model", mat);
-		glDrawElements(GL_TRIANGLES, tile.indices.size, GL_UNSIGNED_INT, (void*)0);
-	}
 }
 
-Tile::Tile()
+OpenGLBuffers::OpenGLBuffers()
+{
+}
+
+OpenGLBuffers::~OpenGLBuffers()
+{
+	glDeleteBuffers(1, &vertices.id);
+	glDeleteBuffers(1, &indices.id);
+	glDeleteBuffers(1, &texture.id);
+
+	delete[] vertices.data;
+	delete[] indices.data;
+	delete[] texture.data;
+}
+
+void OpenGLBuffers::InitData()
 {
 	vertices.size = 4;
 	vertices.data = new float[vertices.size * 3];
 
-	vertices.data[0] = 0.f; vertices.data[1] = 0.f; vertices.data[2] = 0.f;
-	vertices.data[3] = 1.f; vertices.data[4] = 0.f; vertices.data[5] = 0.f;
-	vertices.data[6] = 1.f; vertices.data[7] = 0.f; vertices.data[8] = 1.f;
-	vertices.data[9] = 0.f; vertices.data[10] = 0.f; vertices.data[11] = 1.f;
+	float width, height;
+	width = height = 100;
+
+	vertices.data[0] = 0.f;		vertices.data[1] = 0.f;		vertices.data[2] = 0.f;
+	vertices.data[3] = width;	vertices.data[4] = 0.f;		vertices.data[5] = 0.f;
+	vertices.data[6] = width;	vertices.data[7] = 0.f;		vertices.data[8] = height;
+	vertices.data[9] = 0.f;		vertices.data[10] = 0.f;	vertices.data[11] = height;
 
 	indices.size = 6;
 	indices.data = new unsigned int[indices.size];
@@ -55,9 +78,9 @@ Tile::Tile()
 	texture.data = new float[texture.size * 2];
 	memset(texture.data, 0.f, texture.size * 2 * sizeof(float));
 
-	texture.data[0] = 0.f;		texture.data[1] = 1.f - 1.f / 625.f;
-	texture.data[2] = 0.125f;	texture.data[3] = 1.f - 1.f / 625.f;
-	texture.data[4] = 0.125f;	texture.data[5] = 1.f;
+	texture.data[0] = 0.f;		texture.data[1] = 0.f;
+	texture.data[2] = 1.f;		texture.data[3] = 0.f;
+	texture.data[4] = 1.f;		texture.data[5] = 1.f;
 	texture.data[6] = 0.f;		texture.data[7] = 1.f;
 
 	// VERTEX ARRAY OBJECT
@@ -85,15 +108,4 @@ Tile::Tile()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-}
-
-Tile::~Tile()
-{
-	glDeleteBuffers(1, &vertices.id);
-	glDeleteBuffers(1, &indices.id);
-	glDeleteBuffers(1, &texture.id);
-
-	delete[] vertices.data;
-	delete[] indices.data;
-	delete[] texture.data;
 }

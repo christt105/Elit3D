@@ -1197,13 +1197,13 @@ extern "C" {
 /**
  *  \brief  Controls how the size of the RIFF chunk affects the loading of a WAVE file.
  *
- *  The size of the RIFF chunk (which includes all the sub-chunks of the WAVE
+ *  The size of the RIFF chunk (which includes all the sub-layers of the WAVE
  *  file) is not always reliable. In case the size is wrong, it's possible to
- *  just ignore it and step through the chunks until a fixed limit is reached.
+ *  just ignore it and step through the layers until a fixed limit is reached.
  *
  *  Note that files that have trailing data unrelated to the WAVE file or
  *  corrupt files may slow down the loading process without a reliable boundary.
- *  By default, SDL stops after 10000 chunks to prevent wasting time. Use the
+ *  By default, SDL stops after 10000 layers to prevent wasting time. Use the
  *  environment variable SDL_WAVE_CHUNK_LIMIT to adjust this value.
  *
  *  This variable can be set to the following values:
@@ -1211,14 +1211,14 @@ extern "C" {
  *    "force"        - Always use the RIFF chunk size as a boundary for the chunk search
  *    "ignorezero"   - Like "force", but a zero size searches up to 4 GiB (default)
  *    "ignore"       - Ignore the RIFF chunk size and always search up to 4 GiB
- *    "maximum"      - Search for chunks until the end of file (not recommended)
+ *    "maximum"      - Search for layers until the end of file (not recommended)
  */
 #define SDL_HINT_WAVE_RIFF_CHUNK_SIZE   "SDL_WAVE_RIFF_CHUNK_SIZE"
 
 /**
  *  \brief  Controls how a truncated WAVE file is handled.
  *
- *  A WAVE file is considered truncated if any of the chunks are incomplete or
+ *  A WAVE file is considered truncated if any of the layers are incomplete or
  *  the data chunk size is not a multiple of the block size. By default, SDL
  *  decodes until the first incomplete block, as most applications seem to do.
  *

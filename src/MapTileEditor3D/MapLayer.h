@@ -4,10 +4,12 @@
 
 class r1Mesh;
 
-class Tile {
+class OpenGLBuffers {
 public:
-    Tile();
-    ~Tile();
+    OpenGLBuffers();
+    ~OpenGLBuffers();
+
+    void InitData();
 
     unsigned int VAO = 0u;
 
@@ -16,17 +18,17 @@ public:
     Buffer<float> texture;
 };
 
-class Chunk {
+class Layer {
 public:
-    Chunk();
-    ~Chunk();
+    Layer();
+    ~Layer();
     int2 position = int2(0, 0);
 
-    int size = 8;
+    int size = 100;
 
     void Update();
+    static void SelectBuffers();
 
-private:
-    Tile tile;
-    int* tiles = nullptr;
+protected:
+    static OpenGLBuffers tile;
 };

@@ -8,14 +8,18 @@
 #include "p1Tileset.h"
 #include "Viewport.h"
 
+#include "m1Render3D.h"
+#include "r1Shader.h"
+
 #include "Object.h"
 
-#include "Chunk.h"
+#include "MapLayer.h"
 
 #include "c1Mesh.h"
 #include "c1Transform.h"
 #include "c1Material.h"
 #include "r1Mesh.h"
+#include "r1Texture.h"
 
 #include "Logger.h"
 
@@ -36,32 +40,12 @@ bool m1MapEditor::Start()
 	panel_scene = App->gui->scene;
 	panel_tileset = App->gui->tileset;
 
-	chunks = new Chunk();
+	layers.push_back(new Layer());
 
-	/*map = new int[size.x * size.y];
-	memset(map, 0, sizeof(int) * size.x * size.y);
-
-	tiles = new Object * [size.x * size.y];
-	for (int i = 0; i < size.x * size.y; ++i) {
-		tiles[i] = new Object();
+	auto tex = (r1Texture*)App->resources->FindGet("testtilemap");
+	if (tex != nullptr) {
+		tex->Attach();
 	}
-
-	float* t = new float[2 * 4];
-	t[0] = 0.f; t[1] = 1.f - 1.f / 625.f;
-	t[2] = 0.125f; t[3] = 1.f - 1.f / 625.f;
-	t[4] = 0.125f; t[5] = 1.f;
-	t[6] = 0.f; t[7] = 1.f;
-	for (int i = 0; i < size.x * size.y; ++i) {
-		tiles[i]->transform->SetPosition(i / size.x, 0.f, i % size.x);
-
-		tiles[i]->CreateComponent<c1Mesh>()->SetEMesh(m1Resources::EResourceType::TILE);
-
-		tiles[i]->GetComponent<c1Material>()->SetTexture("test2");
-		auto mesh = tiles[i]->GetComponent<c1Mesh>();
-		glBindBuffer(GL_ARRAY_BUFFER, mesh->emesh->texture.id);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * mesh->emesh->texture.size, t, GL_STATIC_DRAW);
-	}
-	delete[] t;*/
 
 	return true;
 }
@@ -71,9 +55,25 @@ UpdateStatus m1MapEditor::Update()
 	PROFILE_FUNCTION();
 	panel_scene->viewport->Begin();
 
-	panel_tileset->SelectTex();
+	Layer::SelectBuffers();
 
-	chunks->Update();
+	glActiveTexture(GL_TEXTURE0 + 0);
+	panel_tileset->SelectTex();
+	App->render->bShader->SetInt("tileAtlas", 0);
+
+	glActiveTexture(GL_TEXTURE0 + 1);
+	static auto tex = (r1Texture*)App->resources->FindGet("testtilemap");
+	if (tex != nullptr) {
+		glBindTexture(GL_TEXTURE_2D, tex->GetBufferID());
+	}
+	App->render->bShader->SetInt("tilemap", 1);
+
+	App->render->bShader->SetInt2("ntilesMap", { 1000, 1000 });
+	App->render->bShader->SetInt2("ntilesAtlas", { 8, 624 });
+	
+
+	for(auto chunk : layers)
+		chunk->Update();
 
 	glBindTexture(GL_TEXTURE_2D, NULL);
 
@@ -85,12 +85,9 @@ UpdateStatus m1MapEditor::Update()
 bool m1MapEditor::CleanUp()
 {
 	PROFILE_FUNCTION();
-	delete chunks;
-	/*delete[] map;
-	for (int i = 0; i < size.x * size.y; ++i) {
-		delete tiles[i];;
-	}
-	delete[] tiles;*/
+
+	for (auto i = layers.begin(); i != layers.end(); ++i)
+		delete* i;
 
 	return true;
 }
