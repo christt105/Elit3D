@@ -1,6 +1,8 @@
 #pragma once
 #include "Module.h"
 
+#include "Buffer.h"
+
 class Object;
 class p1Scene;
 
@@ -25,7 +27,11 @@ private:
 
 	p1Scene* panel_scene = nullptr;
 
-	Object* map[10] = { nullptr };
+	unsigned int VAOG = 0u;
+
+	Buffer<float> vertices;
+	Buffer<unsigned int> indices;
+	Buffer<float> texture;
 
 public:
 	bool draw_grid = true;

@@ -33,8 +33,8 @@ bool m1Camera3D::Start()
 	bool ret = true;
 
 	frustum.type = FrustumType::PerspectiveFrustum;
-	frustum.pos = float3(0.f, 1.f, -5.f);
-	frustum.front = float3::unitZ;
+	frustum.pos = float3(0.f, 1.f, 5.f);
+	frustum.front = -float3::unitZ;
 	frustum.up = float3::unitY;
 	
 	frustum.nearPlaneDistance = 0.1f;
@@ -67,9 +67,15 @@ UpdateStatus m1Camera3D::PreUpdate()
 	shader->SetMat4("model", float4x4::identity);
 	shader->SetMat4("view", frustum.ViewMatrix());
 	shader->SetMat4("projection", frustum.ProjectionMatrix());
+
 	shader = App->render->GetShader("tilemap");
 	shader->Use();
 	shader->SetMat4("model", float4x4::identity);
+	shader->SetMat4("view", frustum.ViewMatrix());
+	shader->SetMat4("projection", frustum.ProjectionMatrix());
+
+	shader = App->render->GetShader("grid");
+	shader->Use();
 	shader->SetMat4("view", frustum.ViewMatrix());
 	shader->SetMat4("projection", frustum.ProjectionMatrix());
 	
@@ -129,7 +135,22 @@ void m1Camera3D::CameraMovement()
 			frustum.pos += frustum.up.Cross(frustum.front) * offset.x * App->GetDt() + frustum.up * offset.y * App->GetDt();
 		}
 		if (App->input->GetMouseZ() != 0) {
-			frustum.pos += frustum.front * (float)App->input->GetMouseZ() * zoom_speed * App->GetDt();
+			switch (frustum.type)
+			{
+			case FrustumType::OrthographicFrustum: {
+				/*float val = (float)App->input->GetMouseZ() * zoom_speed * App->GetDt();
+				static float size = 5.f;
+				size += val;
+				frustum.orthographicHeight = 2.f * val;
+				frustum.orthographicWidth = 2.f* frustum.orthographicHeight * frustum.AspectRatio();*/
+				break;
+			}
+			case FrustumType::PerspectiveFrustum:
+				frustum.pos += frustum.front * (float)App->input->GetMouseZ() * zoom_speed * App->GetDt();
+				break;
+			default:
+				break;
+			}
 		}
 	}
 }

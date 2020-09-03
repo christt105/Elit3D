@@ -53,7 +53,7 @@ bool m1MapEditor::Start()
 UpdateStatus m1MapEditor::Update()
 {
 	PROFILE_FUNCTION();
-
+	return UpdateStatus::UPDATE_CONTINUE;
 	panel_scene->viewport->Begin();
 
 	static auto shader = App->render->GetShader("tilemap");
@@ -79,7 +79,10 @@ UpdateStatus m1MapEditor::Update()
 	for(auto layer : layers)
 		layer->Update();
 
-	glBindTexture(GL_TEXTURE_2D, NULL);
+	for (int i = 0; i < 2; ++i) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, NULL);
+	}
 
 	panel_scene->viewport->End();
 

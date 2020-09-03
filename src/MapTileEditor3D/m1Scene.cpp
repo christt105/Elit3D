@@ -55,7 +55,59 @@ bool m1Scene::Start()
 
 	panel_scene = App->gui->scene;
 
-	//((r1Model*)App->resources->Get(App->resources->Find("cubecat")))->CreateObject();
+	vertices.size = 4;
+	vertices.data = new float[vertices.size * 3];
+
+	float width, height;
+	width = height = 1;
+
+	vertices.data[0] = -width;		vertices.data[1] =  -width;	vertices.data[2] = 0.f;
+	vertices.data[3] =  -width;		vertices.data[4] =	 width;	vertices.data[5] = 0.f;
+	vertices.data[6] =	width;		vertices.data[7] =	 width;	vertices.data[8] = 0.f;
+	vertices.data[9] =	width;		vertices.data[10] = -width;	vertices.data[11] = 0.f;
+
+	indices.size = 6;
+	indices.data = new unsigned int[indices.size];
+
+	indices.data[0] = 0u; indices.data[1] = 1u; indices.data[2] = 2u;
+	indices.data[3] = 0u; indices.data[4] = 2u; indices.data[5] = 3u;
+
+	texture.size = 4;
+	texture.data = new float[texture.size * 2];
+	memset(texture.data, 0.f, texture.size * 2 * sizeof(float));
+
+	texture.data[0] = 0.f;		texture.data[1] = 0.f;
+	texture.data[2] = 1.f;		texture.data[3] = 0.f;
+	texture.data[4] = 1.f;		texture.data[5] = 1.f;
+	texture.data[6] = 0.f;		texture.data[7] = 1.f;
+
+	// VERTEX ARRAY OBJECT
+	glGenVertexArrays(1, &VAOG);
+	glBindVertexArray(VAOG);
+
+	// VERTICES BUFFER
+	glGenBuffers(1, &vertices.id);
+	glBindBuffer(GL_ARRAY_BUFFER, vertices.id);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size * 3, vertices.data, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// TEXTURE COORDS BUFFER
+	glGenBuffers(1, &texture.id);
+	glBindBuffer(GL_ARRAY_BUFFER, texture.id);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * texture.size, texture.data, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(1);
+
+	// INDICES BUFFER
+	glGenBuffers(1, &indices.id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.id);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size, indices.data, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	((r1Model*)App->resources->Get(App->resources->Find("cubecat")))->CreateObject();
 
 	return true;
 }
@@ -109,6 +161,14 @@ UpdateStatus m1Scene::Update()
 
 	App->gui->scene->viewport->Begin();
 
+	glBindVertexArray(VAOG);
+	glBindBuffer(GL_ARRAY_BUFFER, vertices.id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.id);
+
+	static auto shader1 = App->render->GetShader("grid");
+	shader1->Use();
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
 	static auto shader = App->render->GetShader("default");
 	shader->Use();
 	shader->SetMat4("model", float4x4::identity);
@@ -142,8 +202,10 @@ void m1Scene::DrawGrid()
 bool m1Scene::CleanUp()
 {
 	PROFILE_FUNCTION();
-	for (int i = 0; i < 10; ++i)
-		delete map[i];
+
+	delete[] this->vertices.data;
+	delete[] this->texture.data;
+	delete[] this->indices.data;
 
 	return true;
 }

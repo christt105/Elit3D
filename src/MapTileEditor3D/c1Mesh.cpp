@@ -34,7 +34,6 @@ void c1Mesh::Update()
 		glBindBuffer(GL_ARRAY_BUFFER, rmesh->vertices.id);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rmesh->indices.id);
 
-		material->shader->SetVec3("color", float3::one);
 		material->shader->SetMat4("model", object->transform->GetMatrix());
 
 		material->BindTex();
