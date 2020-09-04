@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "int2.h"
+
 #include "ExternalTools/ImGui/imgui.h"
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 
@@ -21,8 +23,15 @@ public:
 	bool GetActive() const;
 	void SetActive(bool act);
 
+	int2 GetPosition() const;
+	int2 GetSize() const;
+
 public:
 	ImGuiWindowFlags flags = ImGuiWindowFlags_None;
+
+protected:
+	int2 position;
+	int2 size;
 
 private:
 	std::string name;

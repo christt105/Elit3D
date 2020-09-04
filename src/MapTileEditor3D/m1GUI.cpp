@@ -162,6 +162,9 @@ UpdateStatus m1GUI::Update()
 				(*i)->focused = ImGui::IsWindowFocused();
 				(*i)->hover = ImGui::IsWindowHovered();
 
+				(*i)->position.Set(ImGui::GetWindowPos());
+				(*i)->size.Set(ImGui::GetWindowSize());
+
 				(*i)->Update();
 			}
 			ImGui::End();

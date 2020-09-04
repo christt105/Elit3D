@@ -40,7 +40,5 @@ private:
 
 	std::map<std::string, unsigned int> shaders;
 	std::map<std::string, r1Shader*> programs;
-
-	float background_color[4] = { 0.f, 0.f, 0.f, 1.f };
 };
 

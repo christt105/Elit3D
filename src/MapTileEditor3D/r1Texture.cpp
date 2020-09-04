@@ -35,9 +35,13 @@ void r1Texture::Load()
 	if (ilLoad(IL_PNG, library_path.c_str())) { // TODO: load for different types
 		width = ilGetInteger(IL_IMAGE_WIDTH);
 		height = ilGetInteger(IL_IMAGE_HEIGHT);
+
+		auto data = ilGetData();
+
 		id = ilutGLBindTexImage();
 
 		glBindTexture(GL_TEXTURE_2D, id);
+
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

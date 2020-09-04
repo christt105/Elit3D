@@ -61,8 +61,8 @@ void OpenGLBuffers::InitData()
 	vertices.size = 4;
 	vertices.data = new float[vertices.size * 3];
 
-	float width, height;
-	width = height = 100;
+	float width = 8, height = 6;
+	//width = height = 100;
 
 	vertices.data[0] = 0.f;		vertices.data[1] = 0.f;		vertices.data[2] = 0.f;
 	vertices.data[3] = width;	vertices.data[4] = 0.f;		vertices.data[5] = 0.f;

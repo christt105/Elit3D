@@ -43,7 +43,6 @@ bool m1Render3D::Init(const nlohmann::json& node)
         LOG("OpenGL context could not be created! SDL Error: %s", SDL_GetError());
         ret = false;
     }
-
     GLenum error = glewInit();
     if (error != GLEW_OK) {
         LOG("Unable to initialize OpenGL with glewInit()! Error: %s", glewGetErrorString(error));
@@ -75,10 +74,7 @@ bool m1Render3D::Init(const nlohmann::json& node)
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
 
-    for (int i = 0; i < 4; ++i)
-        background_color[i] = node["color"][i];
-
-    glClearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
     loadShaders();
 

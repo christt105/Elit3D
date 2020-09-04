@@ -53,7 +53,7 @@ bool m1MapEditor::Start()
 UpdateStatus m1MapEditor::Update()
 {
 	PROFILE_FUNCTION();
-	return UpdateStatus::UPDATE_CONTINUE;
+	
 	panel_scene->viewport->Begin();
 
 	static auto shader = App->render->GetShader("tilemap");
@@ -72,8 +72,7 @@ UpdateStatus m1MapEditor::Update()
 	}
 	shader->SetInt("tilemap", 1);
 
-	shader->SetInt2("ntilesMap", { 100, 100 });
-	shader->SetInt2("ntilesAtlas", { 8, 624 });
+	shader->SetInt2("ntilesMap", { 8, 6 });
 	
 
 	for(auto layer : layers)

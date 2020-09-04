@@ -21,9 +21,11 @@ public:
 	void Begin() const;
 	void End() const;
 
+public:
+	float color[3] = { .2f, .2f, .2f };
 
 private:
-	int smaa = 8;
+	int smaa = 32;
 	int2 size;
 
 	enum FBOIDS
@@ -36,8 +38,6 @@ private:
 		RBO_MS
 	};
 	unsigned int ID[6];
-
-	float color[3] = { .2f, .2f, .2f };
 
 	//Camera* camera = nullptr;
 };

@@ -103,6 +103,7 @@ void Viewport::Update()
 void Viewport::UpdateSize(int x, int y)
 {
 	size = { x, y };
+	glViewport(0, 0, size.x, size.y);
 }
 
 void Viewport::Blit() const

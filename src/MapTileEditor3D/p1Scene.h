@@ -13,6 +13,7 @@ public:
 	void Start() override;
 	void Update() override;
 
+	void MenuBar();
+
 	Viewport* viewport = nullptr;
 };
-

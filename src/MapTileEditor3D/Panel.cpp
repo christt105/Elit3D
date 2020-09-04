@@ -31,3 +31,13 @@ void Panel::SetActive(bool act)
 {
 	active = act;
 }
+
+int2 Panel::GetPosition() const
+{
+	return position;
+}
+
+int2 Panel::GetSize() const
+{
+	return size;
+}

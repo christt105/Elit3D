@@ -1,9 +1,8 @@
 #pragma once
 #include "Module.h"
 
-#include "Buffer.h"
+#include "int2.h"
 
-class Object;
 class p1Scene;
 
 class m1Scene :
@@ -15,23 +14,13 @@ public:
 
 	bool Init(const nlohmann::json& node) override;
 	bool Start() override;
-	void GenerateGrid();
 	UpdateStatus Update() override;
-	void DrawGrid();
 	bool CleanUp() override;
 
 private:
-	unsigned int VAO = 0;
-	unsigned int grid = 0u;
-	int grid_vertex_size = 0;
-
 	p1Scene* panel_scene = nullptr;
 
-	unsigned int VAOG = 0u;
-
-	Buffer<float> vertices;
-	Buffer<unsigned int> indices;
-	Buffer<float> texture;
+	int2 last_mouse_click;
 
 public:
 	bool draw_grid = true;

@@ -2,6 +2,8 @@
 #include "Application.h"
 #include "m1Resources.h"
 #include "FileSystem.h"
+#include "m1Render3D.h"
+#include "r1Shader.h"
 
 #include "r1Texture.h"
 #include "r1Tileset.h"
@@ -25,6 +27,9 @@ void p1Tileset::Start()
 	auto res = App->resources->FindGet("tileset1");
 	tileset = res->GetUID();
 	res->Attach();
+	auto shader = App->render->GetShader("tilemap");
+	shader->Use();
+	shader->SetInt2("ntilesAtlas", { ((r1Tileset*)res)->columns, ((r1Tileset*)res)->ntiles / ((r1Tileset*)res)->columns });
 }
 
 void p1Tileset::Update()
@@ -44,7 +49,10 @@ void p1Tileset::Update()
 			if (!select_tileset)
 				select_tileset = true;
 		}
+		ImGui::Separator();
+
 		r1Tileset* tile = (r1Tileset*)App->resources->Get(tileset);
+		ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), tile->name.c_str());
 		ImGui::Spacing();
 		ImGui::Text("Tile width:  ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->width);
 		ImGui::SameLine();
@@ -52,6 +60,9 @@ void p1Tileset::Update()
 		ImGui::Text("Tile height: "); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->height);
 		ImGui::SameLine();
 		ImGui::Text("\tSpacin: ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->spacing);
+
+		ImGui::Text("Columns:\t");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->columns);
+		ImGui::Text("Rows:\t"); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->ntiles / tile->columns);
 
 		ImGui::Separator();
 
@@ -122,6 +133,10 @@ void p1Tileset::Update()
 					select_tileset = false;
 					tileset = (*i)->GetUID();
 					(*i)->Attach();
+
+					auto shader = App->render->GetShader("tilemap");
+					shader->Use();
+					shader->SetInt2("ntilesAtlas", { ((r1Tileset*)(*i))->columns, ((r1Tileset*)(*i))->ntiles / ((r1Tileset*)(*i))->columns });
 				}
 			}
 

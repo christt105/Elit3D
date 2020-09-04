@@ -6,6 +6,10 @@
 #include "m1Window.h"
 #include "m1Scene.h"
 
+#include "m1GUI.h"
+#include "p1Scene.h"
+#include "Viewport.h"
+
 #include "GL/glew.h"
 
 p1Configuration::p1Configuration(bool start_enabled) : Panel("Configuration", start_enabled, ICON_FA_WRENCH)
@@ -37,7 +41,7 @@ void p1Configuration::Update()
 			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
-		ImGui::ColorEdit3("Background Color", App->render->background_color);
+		ImGui::ColorEdit3("Background Color", App->gui->scene->viewport->color);
 	}
 
 	if (ImGui::CollapsingHeader("Camera Control")) {
@@ -46,6 +50,7 @@ void p1Configuration::Update()
 		ImGui::SliderFloat("Orbit Speed", &App->camera->orbit_speed, 0.01f, 0.5f);
 		ImGui::SliderFloat("Zoom Speed", &App->camera->zoom_speed, 1.f, 100.f);
 		ImGui::SliderFloat("Movement Speed", &App->camera->mov_speed, 1.f, 50.f);
+		ImGui::SliderFloat("Turbo Speed", &App->camera->turbo_speed, 1.f, 50.f);
 		if (ImGui::SliderFloat("FOV", &App->camera->FOV, 30.f, 120.f))
 			App->camera->SetFov();
 	}
