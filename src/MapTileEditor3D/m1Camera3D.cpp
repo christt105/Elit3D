@@ -1,7 +1,6 @@
 #include "m1Camera3D.h"
 
-#include "ExternalTools/MathGeoLib/include/Math/MathFunc.h"
-#include "ExternalTools/MathGeoLib/include/Math/Quat.h"
+#include "ExternalTools/MathGeoLib/include/MathGeoLib.h"
 
 #include "Application.h"
 #include "m1Input.h"
@@ -33,9 +32,9 @@ bool m1Camera3D::Start()
 	bool ret = true;
 
 	frustum.type = FrustumType::PerspectiveFrustum;
-	frustum.pos = float3(0.f, 1.f, -5.f);
-	frustum.front = float3::unitZ;
-	frustum.up = float3::unitY;
+	frustum.pos = { 0, 15, 0 };
+	frustum.front = -float3::unitY;
+	frustum.up = float3::unitZ;
 
 	SetFov(60.f);
 	
@@ -62,6 +61,8 @@ UpdateStatus m1Camera3D::PreUpdate()
 	PROFILE_FUNCTION();
 	CameraMovement();
 
+	static auto m = float4x4::FromTRS(float3::zero, Quat::identity, float3(-1.f, 1.f, 1.f)); // TODO: research about inverted x
+
 	auto shader = App->render->GetShader("default");
 	shader->Use();
 	shader->SetMat4("model", float4x4::identity);
@@ -71,7 +72,7 @@ UpdateStatus m1Camera3D::PreUpdate()
 	shader = App->render->GetShader("tilemap");
 	shader->Use();
 	shader->SetMat4("model", float4x4::identity);
-	shader->SetMat4("view", frustum.ViewMatrix());
+	shader->SetMat4("view", frustum.ViewMatrix() * m);
 	shader->SetMat4("projection", frustum.ProjectionMatrix());
 
 	shader = App->render->GetShader("grid");

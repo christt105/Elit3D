@@ -60,7 +60,6 @@ UpdateStatus m1MapEditor::Update()
 	shader->Use();
 
 	Layer::SelectBuffers();
-
 	glActiveTexture(GL_TEXTURE0 + 0);
 	panel_tileset->SelectTex();
 	shader->SetInt("tileAtlas", 0);

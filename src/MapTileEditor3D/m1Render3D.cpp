@@ -54,7 +54,7 @@ bool m1Render3D::Init(const nlohmann::json& node)
     }
     
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    glCullFace(GL_FRONT);
 
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);

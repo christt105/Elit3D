@@ -6,8 +6,8 @@ and the post (http://asliceofrendering.com/scene%20helper/2020/01/05/InfiniteGri
 */
 
 vec3 gridPlane[6] = vec3[] (
-    vec3(-1, -1, 0), vec3(1, 1, 0), vec3(-1, 1, 0),
-    vec3(-1, -1, 0), vec3(1, -1, 0), vec3(1, 1, 0)
+    vec3(1, 1, 0), vec3(-1, -1, 0), vec3(-1, 1, 0),
+    vec3(-1, -1, 0), vec3(1, 1, 0), vec3(1, -1, 0)
 );
 
 uniform mat4 view;
