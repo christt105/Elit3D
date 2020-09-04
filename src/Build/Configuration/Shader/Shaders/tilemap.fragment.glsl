@@ -13,18 +13,24 @@ out vec4 FragColor;
 void main()
 {   
     //Get the pixel information from the texture of the map that indicates de column and the row of the tileset
-    vec4 colRow = texture(tilemap, TexCoord) * 255.0; // * 255 because it returns a normalized value
+    vec4 colRow = texture(tilemap, TexCoord) * 255.0; // * 255 because it returns a normalized value [0, 1]
 
     /*
-    I use z coordinate as a helper:
-        * 0 means there isn't a tile
-        * other number is a multiplier for long tilesets (ntilesAtlas > 255 tiles)
-    */  
-    if(colRow.z == 0) {
+        For TileAtlas higher than 255 rows I use also the Blue value.
+        In order to do that, we use the Euclidean division. We want to store values grater than 255 in two numbers from 0 to 255.
+
+        Here there is the equation:
+
+        X = A * 256 + B
+
+        If we use A and B for the Y position, we can have 65.535 rows, and a max number of tiles of more than 16.700.000.
+        However I reserve Green value of 255 as an indicator of not to draw the tile, and who knows if I will give it another utility.
+    */
+    if(colRow.y == 255) {
         discard;
     }
 
-    colRow.y *= colRow.z;
+    colRow.y = colRow.y * 256 + colRow.z;
 
     //Calculate the pixel of the tile we want to paint
     vec2 pixel = TexCoord * ntilesMap;

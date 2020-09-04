@@ -91,7 +91,6 @@ UpdateStatus m1Scene::Update()
 		int2 mouse_pos = last_mouse_click - panel_scene->GetPosition() - int2(0, 16 + 15);
 		mouse_pos.y = panel_scene->GetSize().y - mouse_pos.y;
 		float2 mouse_perc(2 * ((float)mouse_pos.x) / ((float)panel_scene->GetSize().x) - 1, 2 * ((float)mouse_pos.y) / ((float)panel_scene->GetSize().y) - 1);
-		LOG(mouse_perc.ToString().c_str());
 
 		if (App->input->IsMouseButtonDown(1)) {
 

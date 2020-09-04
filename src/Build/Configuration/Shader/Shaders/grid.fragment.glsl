@@ -48,13 +48,6 @@ float computeDepth(vec3 pos) {
 	return depth;
 }
 
-float checkerboard(vec2 R, float scale) {
-	return float((
-		int(floor(R.x / scale)) +
-		int(floor(R.y / scale))
-	) % 2);
-}
-
 void main()
 {   
     float t = -nearPoint.y / (farPoint.y - nearPoint.y);
@@ -64,17 +57,4 @@ void main()
     gl_FragDepth = computeDepth(fragPos3D);
         
     FragColor = (grid(fragPos3D, 1))* float(t > 0);
-    //=============================================================
-
-    /*float t = -nearPoint.y / (farPoint.y-nearPoint.y);
-
-	vec3 R = nearPoint + t * (farPoint-nearPoint);
-
-	float c =
-		checkerboard(R.xz, 1) * 0.3 +
-		checkerboard(R.xz, 10) * 0.2 +
-		checkerboard(R.xz, 100) * 0.1 +
-		0.1;
-
-	FragColor = vec4(vec3(c/2.0 + 0.3), 1) * float(t > 0);*/
 }

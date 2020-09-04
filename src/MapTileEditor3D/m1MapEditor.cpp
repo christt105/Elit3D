@@ -101,8 +101,18 @@ bool m1MapEditor::CleanUp()
 
 void m1MapEditor::MousePicking(const float3& position)
 {
-	auto tex = (r1Texture*)App->resources->FindGet("testtilemap");
 	int2 tile = panel_tileset->GetTileSelected();
-	if (tile.x != -1 || tile.y != -1)
-		tex->Edit(floor(position.z), floor(-position.x), tile.x, tile.y, 1);
+	if (tile.x != -1 && tile.y != -1) {
+
+		// tile.y = A * 256 + B
+		int A = 0;
+		int B = 0;
+
+		A = tile.y / 256;
+		B = tile.y % 256;
+
+		auto tex = (r1Texture*)App->resources->FindGet("testtilemap");
+		if (tex)
+			tex->Edit(floor(position.z), floor(-position.x), tile.x, A, B);
+	}
 }

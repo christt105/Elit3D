@@ -165,7 +165,10 @@ void p1Tileset::DeselectTex()
 
 int2 p1Tileset::GetTileSelected() const
 {
-	return int2(tile_selected[0], tile_selected[1]);
+	int2 ret = { tile_selected[0], tile_selected[1] };
+	auto tile = (r1Tileset*)App->resources->Get(tileset);
+	ret.y = tile->ntiles / tile->columns - ret.y - 1;
+	return ret;
 }
 
 void p1Tileset::ModalCreateTileset(bool& modal)

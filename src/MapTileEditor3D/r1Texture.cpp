@@ -108,5 +108,9 @@ void r1Texture::Edit(int row, int col, int r, int g, int b)
 	bits[1] = g;
 	bits[2] = b;
 	glTexSubImage2D(GL_TEXTURE_2D, 0, col, row, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, bits);
+	ilEnable(IL_FILE_OVERWRITE);
+	if (!ilutGLSaveImage((char*)"./Assets/Maps/testtilemap.png", id)) {
+		LOGE("Failed to load texture %s, error: %s", name.c_str(), ilGetString(ilGetError()));
+	}
 	Unbind();
 }
