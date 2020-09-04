@@ -1,6 +1,11 @@
 #include "m1Events.h"
 #include "Logger.h"
 
+#include "Application.h"
+
+#include "m1MapEditor.h"
+#include "ExternalTools/MathGeoLib/include/Math/float3.h"
+
 #include "Profiler.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
@@ -41,6 +46,16 @@ UpdateStatus m1Events::PreUpdate()
 			break;
 		case Event::Type::FOLDER_REMOVED:
 			// delete all resources inside folder
+			break;
+
+		case Event::Type::MOUSE_PICKING:
+			App->map_editor->MousePicking(
+				float3(
+					((fTypeVar*)e->info["collisionX"])->value,
+					((fTypeVar*)e->info["collisionY"])->value,
+					((fTypeVar*)e->info["collisionZ"])->value
+				)
+			);
 			break;
 		default:
 			break;

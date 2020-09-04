@@ -30,6 +30,8 @@ public:
 	void SelectTex();
 	void DeselectTex();
 
+	int2 GetTileSelected() const;
+
 private:
 	void ModalCreateTileset(bool& modal);
 	void ModalSelectImageTileset();

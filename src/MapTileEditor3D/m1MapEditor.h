@@ -4,6 +4,8 @@
 #include "int2.h"
 #include "Buffer.h"
 
+#include "ExternalTools/MathGeoLib/include/Math/float3.h"
+
 class Object;
 class p1Scene;
 class p1Tileset;
@@ -19,6 +21,8 @@ public:
     bool Start() override;
     UpdateStatus Update() override;
     bool CleanUp() override;
+
+    void MousePicking(const float3& position);
 
 private:
     std::vector<Layer*> layers;

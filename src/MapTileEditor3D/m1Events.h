@@ -23,7 +23,9 @@ public:
             FOLDER_MODIFIED,
             FOLDER_REMOVED,
             FOLDER_RENAMED,
-            FOLDER_MOVED
+            FOLDER_MOVED,
+
+            MOUSE_PICKING
         };
         Event();
         Event(Type t, const char* basic_info = NULL);

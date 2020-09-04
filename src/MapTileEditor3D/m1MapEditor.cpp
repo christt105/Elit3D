@@ -21,6 +21,8 @@
 #include "r1Mesh.h"
 #include "r1Texture.h"
 
+#include "m1Input.h"
+
 #include "Logger.h"
 
 #include "Profiler.h"
@@ -95,4 +97,12 @@ bool m1MapEditor::CleanUp()
 		delete* i;
 
 	return true;
+}
+
+void m1MapEditor::MousePicking(const float3& position)
+{
+	auto tex = (r1Texture*)App->resources->FindGet("testtilemap");
+	int2 tile = panel_tileset->GetTileSelected();
+	if (tile.x != -1 || tile.y != -1)
+		tex->Edit(floor(position.z), floor(-position.x), tile.x, tile.y, 1);
 }

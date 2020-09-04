@@ -28,6 +28,8 @@
 #include "m1Window.h"
 
 #include "ExternalTools/MathGeoLib/include/Geometry/Plane.h"
+
+#include "m1Events.h"
 //==========================================
 
 #include "ExternalTools/MathGeoLib/include/Geometry/Ray.h"
@@ -102,10 +104,15 @@ UpdateStatus m1Scene::Update()
 			xd1 = ray.pos + ray.dir * 50.f;
 
 			float t = 0.f;
-			if(Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), 0.f, ray.pos, ray.dir, t) && t > 0.f)
-				LOG("DING DING DING %s", ray.GetPoint(t).ToString().c_str());
-
-
+			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), 0.f, ray.pos, ray.dir, t) && t > 0.f) {
+				float3 pos = ray.GetPoint(t);
+				LOG("DING DING DING %s", pos.ToString().c_str());
+				m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::MOUSE_PICKING);
+				e->info["collisionX"] = new fTypeVar(pos.x);
+				e->info["collisionY"] = new fTypeVar(pos.y);
+				e->info["collisionZ"] = new fTypeVar(pos.z);
+				App->events->AddEvent(e);
+			}
 		}
 	}
 

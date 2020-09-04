@@ -42,7 +42,6 @@ void r1Texture::Load()
 
 		glBindTexture(GL_TEXTURE_2D, id);
 
-
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -99,4 +98,15 @@ void r1Texture::Bind()
 void r1Texture::Unbind()
 {
 	glBindTexture(GL_TEXTURE_2D, NULL);
+}
+
+void r1Texture::Edit(int row, int col, int r, int g, int b)
+{
+	Bind();
+	unsigned char bits[3];
+	bits[0] = r;
+	bits[1] = g;
+	bits[2] = b;
+	glTexSubImage2D(GL_TEXTURE_2D, 0, col, row, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, bits);
+	Unbind();
 }

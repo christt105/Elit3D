@@ -163,6 +163,11 @@ void p1Tileset::DeselectTex()
 	
 }
 
+int2 p1Tileset::GetTileSelected() const
+{
+	return int2(tile_selected[0], tile_selected[1]);
+}
+
 void p1Tileset::ModalCreateTileset(bool& modal)
 {
 	ImGui::InputText("Name", data.buf_name, 25);
