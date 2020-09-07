@@ -7,6 +7,7 @@
 
 #include "r1Texture.h"
 #include "r1Tileset.h"
+#include "r1Shader.h"
 
 #include "ExternalTools/ImGui/imgui_internal.h"
 
@@ -151,16 +152,29 @@ void p1Tileset::SelectTex()
 		auto res = (r1Tileset*)App->resources->Get(tileset);
 		if (res) {
 			auto tex = (r1Texture*)App->resources->Get(res->GetTextureUID());
-			if (tex)
+			if (tex) {
 				tex->Bind();
+			}
 		}
-
 	}
 }
 
 void p1Tileset::DeselectTex()
 {
 	
+}
+
+void p1Tileset::SelectTransparentColor(r1Shader*& shader)
+{
+	if (tileset != 0) {
+		auto res = (r1Tileset*)App->resources->Get(tileset);
+		if (res) {
+			shader->SetBool("useTransparent", res->use_transparent);
+			if (res->use_transparent) {
+				shader->SetVec3("transparentColor", float3(res->transparent_color[0], res->transparent_color[1], res->transparent_color[2]));
+			}
+		}
+	}
 }
 
 int2 p1Tileset::GetTileSelected() const
@@ -239,6 +253,11 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 		jsontileset["tile"]["height"] = data.tile_size[1];
 		jsontileset["tile"]["margin"] = data.tile_size[2];
 		jsontileset["tile"]["spacing"] = data.tile_size[3];
+
+		jsontileset["use transparent"] = data.transparent;
+		jsontileset["transparent color"]["r"] = data.transparent_color[0];
+		jsontileset["transparent color"]["g"] = data.transparent_color[1];
+		jsontileset["transparent color"]["b"] = data.transparent_color[2];
 
 		std::string path("Assets/Tilesets/" + std::string(data.buf_name) + ".tileset");
 		App->file_system->SaveJSONFile(path.c_str(), jsontileset);

@@ -31,6 +31,11 @@ void r1Tileset::Load()
 	height = json["tile"].value("hright", 32);
 	margin = json["tile"].value("margin", 0);
 	spacing = json["tile"].value("spacing", 0);
+
+	use_transparent = json.value("use transparent", false);
+	transparent_color[0] = json["transparent color"].value("r", -1.f);
+	transparent_color[1] = json["transparent color"].value("g", -1.f);
+	transparent_color[2] = json["transparent color"].value("b", -1.f);
 }
 
 uint64_t r1Tileset::GetTextureUID()

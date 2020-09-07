@@ -1,6 +1,8 @@
 #pragma once
 #include "Panel.h"
 
+class r1Shader;
+
 struct TileSetData {
 	char buf_name[25];
 	bool transparent = false;
@@ -29,6 +31,8 @@ public:
 
 	void SelectTex();
 	void DeselectTex();
+
+	void SelectTransparentColor(r1Shader*& shader);
 
 	int2 GetTileSelected() const;
 

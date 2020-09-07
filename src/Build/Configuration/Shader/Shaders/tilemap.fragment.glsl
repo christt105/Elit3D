@@ -8,6 +8,9 @@ uniform sampler2D tilemap;
 uniform ivec2 ntilesMap;
 uniform ivec2 ntilesAtlas;
 
+uniform bool useTransparent = false;
+uniform vec3 transparentColor;
+
 out vec4 FragColor;
 
 void main()
@@ -39,5 +42,16 @@ void main()
     //Calculate the position of the atlas
     vec2 atlasPos = (tilePos + colRow.xy) / ntilesAtlas;
 
-    FragColor = texture(tileAtlas, atlasPos);
+    if (useTransparent) {
+        vec4 color = texture(tileAtlas, atlasPos);
+        if (color.xyz == transparentColor) {
+            discard;
+        }
+        else {
+            FragColor = color;
+        }
+    }
+    else {
+        FragColor = texture(tileAtlas, atlasPos);
+    }
 }
