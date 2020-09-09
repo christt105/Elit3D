@@ -20,10 +20,14 @@
 #include "c1Material.h"
 #include "r1Mesh.h"
 #include "r1Texture.h"
+#include "r1Map.h"
 
 #include "m1Input.h"
 
 #include "Logger.h"
+
+
+#include "FileSystem.h"
 
 #include "Profiler.h"
 
@@ -42,50 +46,47 @@ bool m1MapEditor::Start()
 	panel_scene = App->gui->scene;
 	panel_tileset = App->gui->tileset;
 
-	layers.push_back(new Layer());
-
-	auto tex = (r1Texture*)App->resources->FindGet("testtilemap");
-	if (tex != nullptr) {
-		tex->Attach();
-	}
-
 	return true;
 }
 
 UpdateStatus m1MapEditor::Update()
 {
 	PROFILE_FUNCTION();
-	
-	panel_scene->viewport->Begin();
 
-	static auto shader = App->render->GetShader("tilemap");
-	shader->Use();
-
-	Layer::SelectBuffers();
-	glActiveTexture(GL_TEXTURE0 + 0);
-	panel_tileset->SelectTex();
-	panel_tileset->SelectTransparentColor(shader);
-	shader->SetInt("tileAtlas", 0);
-
-	glActiveTexture(GL_TEXTURE0 + 1);
-	static auto tex = (r1Texture*)App->resources->FindGet("testtilemap");
-	if (tex != nullptr) {
-		glBindTexture(GL_TEXTURE_2D, tex->GetBufferID());
+	if (map == 0ULL) {
+		LoadMap(App->resources->Find("map"));
 	}
-	shader->SetInt("tilemap", 1);
+	else {
 
-	shader->SetInt2("ntilesMap", { 8, 6 });
-	
+		panel_scene->viewport->Begin();
 
-	for(auto layer : layers)
-		layer->Update();
+		static auto shader = App->render->GetShader("tilemap");
+		shader->Use();
 
-	for (int i = 0; i < 2; ++i) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, NULL);
+		Layer::SelectBuffers();
+		glActiveTexture(GL_TEXTURE0 + 0);
+		panel_tileset->SelectTex();
+		panel_tileset->SelectTransparentColor(shader);
+		shader->SetInt("tileAtlas", 0); // for now we only can draw a map with a single texture (TODO)
+		shader->SetInt2("ntilesMap", { 10, 10 });
+		glActiveTexture(GL_TEXTURE0 + 1);
+
+		auto m = (r1Map*)App->resources->Get(map);
+		for (auto layer : m->layers) {
+			layer->Prepare();
+			shader->SetInt("tilemap", 1);
+			layer->Update();
+		}
+
+		for (int i = 0; i < 2; ++i) {
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, NULL);
+		}
+
+		glActiveTexture(GL_TEXTURE0);
+
+		panel_scene->viewport->End();
 	}
-
-	panel_scene->viewport->End();
 
 	return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -94,10 +95,17 @@ bool m1MapEditor::CleanUp()
 {
 	PROFILE_FUNCTION();
 
-	for (auto i = layers.begin(); i != layers.end(); ++i)
-		delete* i;
+	/*for (auto i = layers.begin(); i != layers.end(); ++i)
+		delete* i;*/
 
 	return true;
+}
+
+void m1MapEditor::LoadMap(const uint64_t& id)
+{
+	map = id;
+	auto m = (r1Map*)App->resources->Get(id);
+	m->Attach();
 }
 
 void m1MapEditor::MousePicking(const float3& position)
@@ -112,8 +120,13 @@ void m1MapEditor::MousePicking(const float3& position)
 		A = tile.y / 256;
 		B = tile.y % 256;
 
-		auto tex = (r1Texture*)App->resources->FindGet("testtilemap");
-		if (tex)
-			tex->Edit(floor(position.z), floor(-position.x), tile.x, A, B);
+		auto m = (r1Map*)App->resources->Get(map);
+		if (m)
+			m->Edit(0, floor(position.z), floor(-position.x), tile.x, A, B);
 	}
+}
+
+bool m1MapEditor::ValidMap() const
+{
+	return map != 0ULL;
 }

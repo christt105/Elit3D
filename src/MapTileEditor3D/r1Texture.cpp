@@ -7,8 +7,6 @@
 
 #include "m1Resources.h"
 
-#include "ExternalTools/Assimp/include/texture.h"
-
 #include "ExternalTools/DevIL/il.h"
 #include "ExternalTools/DevIL/ilut.h"
 

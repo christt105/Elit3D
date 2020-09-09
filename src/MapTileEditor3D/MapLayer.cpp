@@ -16,11 +16,18 @@ OpenGLBuffers Layer::tile = OpenGLBuffers();
 
 Layer::Layer()
 {
-	tile.InitData();
+	tile.InitData(size);
 }
 
 Layer::~Layer()
 {
+	if (data)
+		delete[] data;
+}
+
+void Layer::Prepare()
+{
+	glBindTexture(GL_TEXTURE_2D, id_tex);
 }
 
 void Layer::Update()
@@ -28,7 +35,7 @@ void Layer::Update()
 	PROFILE_FUNCTION();
 
 	float4x4 mat = float4x4::identity;
-	mat = float4x4::FromTRS(float3(position.x * size, 0.f, position.y * size), Quat::identity, float3::one); // TODO: THIS UGLY
+	mat = float4x4::FromTRS(float3(0.f, height, 0.f), Quat::identity, float3::one); // TODO: THIS UGLY
 	static auto shader = App->render->GetShader("tilemap");
 	shader->SetMat4("model", mat);
 	glDrawElements(GL_TRIANGLES, tile.indices.size, GL_UNSIGNED_INT, (void*)0);
@@ -56,18 +63,15 @@ OpenGLBuffers::~OpenGLBuffers()
 	delete[] texture.data;
 }
 
-void OpenGLBuffers::InitData()
+void OpenGLBuffers::InitData(const int2& size)
 {
 	vertices.size = 4;
 	vertices.data = new float[vertices.size * 3];
 
-	float width = 8, height = 6;
-	//width = height = 100;
-
 	vertices.data[0] = 0.f;		vertices.data[1] = 0.f;		vertices.data[2] = 0.f;
-	vertices.data[3] = width;	vertices.data[4] = 0.f;		vertices.data[5] = 0.f;
-	vertices.data[6] = width;	vertices.data[7] = 0.f;		vertices.data[8] = height;
-	vertices.data[9] = 0.f;		vertices.data[10] = 0.f;	vertices.data[11] = height;
+	vertices.data[3] = (float)size.x;	vertices.data[4] = 0.f;		vertices.data[5] = 0.f;
+	vertices.data[6] = (float)size.x;	vertices.data[7] = 0.f;		vertices.data[8] = (float)size.y;
+	vertices.data[9] = 0.f;		vertices.data[10] = 0.f;	vertices.data[11] = (float)size.y;
 
 	indices.size = 6;
 	indices.data = new unsigned int[indices.size];

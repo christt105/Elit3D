@@ -231,6 +231,7 @@
     <ClCompile Include="p1Tileset.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="Profiler.cpp" />
+    <ClCompile Include="r1Map.cpp" />
     <ClCompile Include="r1Mesh.cpp" />
     <ClCompile Include="r1Model.cpp" />
     <ClCompile Include="r1Texture.cpp" />
@@ -520,6 +521,7 @@
     <ClInclude Include="p1Tileset.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="Profiler.h" />
+    <ClInclude Include="r1Map.h" />
     <ClInclude Include="r1Mesh.h" />
     <ClInclude Include="r1Model.h" />
     <ClInclude Include="r1Texture.h" />

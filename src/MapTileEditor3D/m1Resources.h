@@ -14,12 +14,14 @@ class FileWatch;
 #define ASSETS_TEXTURES_PATH "Assets/Textures/"
 #define ASSETS_MODELS_PATH "Assets/Models/"
 #define ASSETS_TILESETS_PATH "Assets/Tilesets/"
+#define ASSETS_MAPS_PATH "Assets/Maps/"
 
 #define LIBRARY_PATH "Library/"
 #define LIBRARY_TEXTURES_PATH "Library/Textures/"
 #define LIBRARY_MODELS_PATH "Library/Models/"
 #define LIBRARY_MESHES_PATH "Library/Meshes/"
 #define LIBRARY_TILESETS_PATH "Library/Tilesets/"
+#define LIBRARY_MAPS_PATH "Library/Maps/"
 
 class m1Resources :
 	public Module

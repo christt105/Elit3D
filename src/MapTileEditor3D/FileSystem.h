@@ -21,9 +21,9 @@ public:
 	FileSystem();
 	~FileSystem();
 
-	nlohmann::json	OpenJSONFile(const char* path);
-	static void		SaveJSONFile(const char* path, const nlohmann::json& file);
-	std::string		OpenTextFile(const char* path);
+	static nlohmann::json	OpenJSONFile(const char* path);
+	static void				SaveJSONFile(const char* path, const nlohmann::json& file);
+	std::string				OpenTextFile(const char* path);
 
 	static bool Exists(const char* path);
 

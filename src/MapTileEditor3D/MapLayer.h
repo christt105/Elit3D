@@ -9,7 +9,7 @@ public:
     OpenGLBuffers();
     ~OpenGLBuffers();
 
-    void InitData();
+    void InitData(const int2& size);
 
     unsigned int VAO = 0u;
 
@@ -19,16 +19,20 @@ public:
 };
 
 class Layer {
+    friend class r1Map;
 public:
     Layer();
     ~Layer();
-    int2 position = int2(0, 0);
+    int2 size = int2(10, 10);
+    float height = 0.f;
 
-    int size = 100;
+    unsigned int id_tex = 0u;
 
+    void Prepare();
     void Update();
     static void SelectBuffers();
 
 protected:
     static OpenGLBuffers tile;
+    unsigned char* data = nullptr;
 };

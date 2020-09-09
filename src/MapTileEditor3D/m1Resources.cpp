@@ -4,6 +4,7 @@
 #include "r1Model.h"
 #include "r1Mesh.h"
 #include "r1Tileset.h"
+#include "r1Map.h"
 
 #include "FileSystem.h"
 
@@ -50,6 +51,9 @@ bool m1Resources::Start()
 
 	if (!App->file_system->Exists(LIBRARY_TILESETS_PATH))
 		App->file_system->CreateFolder(LIBRARY_TILESETS_PATH);
+
+	if (!App->file_system->Exists(LIBRARY_MAPS_PATH))
+		App->file_system->CreateFolder(LIBRARY_MAPS_PATH);
 
 	GenerateLibrary();
 	GenerateEngineLibrary();
@@ -122,6 +126,7 @@ Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_pa
 	case Resource::Type::Model:		ret = new r1Model((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
 	case Resource::Type::Texture:	ret = new r1Texture((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
 	case Resource::Type::Tileset:	ret = new r1Tileset((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
+	case Resource::Type::Map:		ret = new r1Map((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
 	default:
 		LOGW("Resource %i from %s could not be created, resource not setted in switch", (int)type, assets_path);
 		break;
@@ -258,6 +263,8 @@ const char* m1Resources::GetLibraryFromType(const char* type)
 		return LIBRARY_TEXTURES_PATH;
 	else if (strcmp(type, "tileset") == 0)
 		return LIBRARY_TILESETS_PATH;
+	else if (strcmp(type, "scene") == 0)
+		return LIBRARY_MAPS_PATH;
 
 	LOGW("No library path found to type %i", (int)type);
 
@@ -276,6 +283,8 @@ const char* m1Resources::GetLibraryFromType(Resource::Type type)
 		return LIBRARY_TEXTURES_PATH;
 	case Resource::Type::Tileset:
 		return LIBRARY_TILESETS_PATH;
+	case Resource::Type::Map:
+		return LIBRARY_MAPS_PATH;
 	default:
 		break;
 	}
@@ -307,6 +316,8 @@ std::string m1Resources::GetLibraryExtensionFromType(Resource::Type type)
 		return ".texture";
 	case Resource::Type::Tileset:
 		return ".tileset";
+	case Resource::Type::Map:
+		return ".scene";
 	default:
 		break;
 	}
@@ -324,6 +335,8 @@ Resource::Type m1Resources::GetTypeFromStr(const char* type)
 		return Resource::Type::Texture;
 	else if (strcmp(type, "tileset") == 0)
 		return Resource::Type::Tileset;
+	else if (strcmp(type, "scene") == 0)
+		return Resource::Type::Map;
 
 	LOGW("No library path found to type %i", (int)type);
 
@@ -338,12 +351,9 @@ void m1Resources::DeleteFromLibrary(Resource::Type type, const uint64_t& meta)
 		DeleteMeshes(meta);
 		App->file_system->fDeleteFile((LIBRARY_MODELS_PATH + std::to_string(meta) + ".model").c_str());
 		break;
-	case Resource::Type::Texture:
-	case Resource::Type::Tileset:
-		App->file_system->fDeleteFile((GetLibraryFromType(type) + std::to_string(meta) + GetLibraryExtensionFromType(type)).c_str());
-		break;
 	default:
-		LOGW("Resource type %i could not be deleted, type not setted in switch", (int)type);
+		App->file_system->fDeleteFile((GetLibraryFromType(type) + std::to_string(meta) + GetLibraryExtensionFromType(type)).c_str());
+		//LOGW("Resource type %i could not be deleted, type not setted in switch", (int)type);
 		break;
 	}
 }

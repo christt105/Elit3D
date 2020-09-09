@@ -345,6 +345,9 @@
     <ClCompile Include="MapLayer.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
+    <ClCompile Include="r1Map.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1213,6 +1216,9 @@
     </ClInclude>
     <ClInclude Include="MapLayer.h">
       <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="r1Map.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

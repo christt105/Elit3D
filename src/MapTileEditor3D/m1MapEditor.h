@@ -22,10 +22,14 @@ public:
     UpdateStatus Update() override;
     bool CleanUp() override;
 
+    void LoadMap(const uint64_t& id);
+
     void MousePicking(const float3& position);
 
+    bool ValidMap() const;
+
 private:
-    std::vector<Layer*> layers;
+    uint64_t map = 0ULL;
     
     p1Scene* panel_scene = nullptr;
     p1Tileset* panel_tileset = nullptr;
