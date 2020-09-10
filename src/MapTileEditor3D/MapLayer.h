@@ -20,6 +20,7 @@ public:
 
 class Layer {
     friend class r1Map;
+    friend class m1MapEditor;
 public:
     Layer();
     ~Layer();

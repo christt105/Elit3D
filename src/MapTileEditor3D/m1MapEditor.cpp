@@ -126,8 +126,17 @@ void m1MapEditor::MousePicking(const float3& position)
 		B = tile.y % 256;
 
 		auto m = (r1Map*)App->resources->Get(map);
-		if (m)
-			m->Edit(0, floor(position.z), floor(-position.x), tile.x, A, B);
+		if (m) {
+			int col = floor(position.z);
+			int row = floor(-position.x);
+
+			if (m->layers[0]->data[(m->size.x * col + row) * 3] != tile.x ||
+				m->layers[0]->data[(m->size.x * col + row) * 3 + 1] != A ||
+				m->layers[0]->data[(m->size.x * col + row) * 3 + 2] != B) 
+			{
+				m->Edit(0, floor(position.z), floor(-position.x), tile.x, A, B);
+			}
+		}
 	}
 }
 

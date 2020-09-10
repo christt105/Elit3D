@@ -92,12 +92,9 @@ UpdateStatus m1Scene::Update()
 		mouse_pos.y = panel_scene->GetSize().y - mouse_pos.y;
 		float2 mouse_perc(2 * ((float)mouse_pos.x) / ((float)panel_scene->GetSize().x) - 1, 2 * ((float)mouse_pos.y) / ((float)panel_scene->GetSize().y) - 1);
 
-		if (App->input->IsMouseButtonDown(1)) {
+		if (App->input->IsMouseButtonPressed(1)) {
 
 			auto ray = App->camera->frustum.UnProject(mouse_perc.x, mouse_perc.y);
-			
-			/*xd0 = ray.a;
-			xd1 = ray.b;*/
 
 			xd0 = ray.pos;
 			xd1 = ray.pos + ray.dir * 50.f;
@@ -105,7 +102,6 @@ UpdateStatus m1Scene::Update()
 			float t = 0.f;
 			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), 0.f, ray.pos, ray.dir, t) && t > 0.f) {
 				float3 pos = ray.GetPoint(t);
-				LOG("DING DING DING %s", pos.ToString().c_str());
 				m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::MOUSE_PICKING);
 				e->info["collisionX"] = new fTypeVar(pos.x);
 				e->info["collisionY"] = new fTypeVar(pos.y);
