@@ -7,6 +7,8 @@
 #include "Application.h"
 #include "m1Window.h"
 #include "m1Render3D.h"
+#include "m1Events.h"
+#include "r1Map.h"
 
 #include "p1Configuration.h"
 #include "p1About.h"
@@ -114,6 +116,14 @@ void m1GUI::MainMenuBar()
 {
 	PROFILE_FUNCTION();
 	if (ImGui::BeginMenu("File")) {
+		if (ImGui::MenuItem("New Map")) {
+			r1Map::CreateNewMap(10, 10);
+		}
+		if (ImGui::MenuItem("Save")) {
+			m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::SAVE_MAP);
+			App->events->AddEvent(e);
+		}
+
 		ImGui::EndMenu();
 	}
 

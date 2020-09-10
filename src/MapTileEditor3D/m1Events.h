@@ -25,7 +25,9 @@ public:
             FOLDER_RENAMED,
             FOLDER_MOVED,
 
-            MOUSE_PICKING
+            MOUSE_PICKING,
+
+            SAVE_MAP
         };
         Event();
         Event(Type t, const char* basic_info = NULL);

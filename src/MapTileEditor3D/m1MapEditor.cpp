@@ -101,6 +101,11 @@ bool m1MapEditor::CleanUp()
 	return true;
 }
 
+void m1MapEditor::SaveMap()
+{
+	((r1Map*)App->resources->Get(map))->Save();
+}
+
 void m1MapEditor::LoadMap(const uint64_t& id)
 {
 	map = id;

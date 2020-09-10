@@ -16,6 +16,7 @@ public:
     r1Map(const uint64_t& _uid);
     ~r1Map();
 
+    void Save();
     void Load() override;
     void Edit(int layer, int row, int col, char r, char g, char b);
 

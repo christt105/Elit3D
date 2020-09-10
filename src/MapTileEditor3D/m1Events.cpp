@@ -57,6 +57,9 @@ UpdateStatus m1Events::PreUpdate()
 				)
 			);
 			break;
+		case Event::Type::SAVE_MAP:
+			App->map_editor->SaveMap();
+			break;
 		default:
 			break;
 		}

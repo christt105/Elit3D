@@ -22,6 +22,7 @@ public:
     UpdateStatus Update() override;
     bool CleanUp() override;
 
+    void SaveMap();
     void LoadMap(const uint64_t& id);
 
     void MousePicking(const float3& position);
