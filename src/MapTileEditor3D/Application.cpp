@@ -57,8 +57,8 @@ bool Application::Init()
 	modules.push_back(importer);
 
 	modules.push_back(camera);
-	modules.push_back(map_editor);
 	modules.push_back(scene);
+	modules.push_back(map_editor);
 	modules.push_back(objects);
 
 	modules.push_back(gui);

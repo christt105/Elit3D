@@ -1,7 +1,5 @@
 #include "r1Texture.h"
 
-#include <GL/glew.h>
-
 #include "Application.h"
 #include "FileSystem.h"
 
@@ -9,6 +7,8 @@
 
 #include "ExternalTools/DevIL/il.h"
 #include "ExternalTools/DevIL/ilut.h"
+
+#include "OpenGLHelper.h"
 
 #include "Logger.h"
 
@@ -34,20 +34,9 @@ void r1Texture::Load()
 		width = ilGetInteger(IL_IMAGE_WIDTH);
 		height = ilGetInteger(IL_IMAGE_HEIGHT);
 
-		auto data = ilGetData();
-
 		id = ilutGLBindTexImage();
-
-		glBindTexture(GL_TEXTURE_2D, id);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-		glGenerateMipmap(GL_TEXTURE_2D);
+		
+		oglh::SetTextureProperties(id, true, true);
 	}
 	else {
 		--references;

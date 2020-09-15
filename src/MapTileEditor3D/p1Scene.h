@@ -13,6 +13,10 @@ public:
 	void Start() override;
 	void Update() override;
 
+	void ShowCreateMap();
+
+	void PopUpCreateMap();
+
 	void MenuBar();
 
 	Viewport* viewport = nullptr;

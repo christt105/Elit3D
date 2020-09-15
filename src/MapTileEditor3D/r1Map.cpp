@@ -3,7 +3,7 @@
 #include "FileSystem.h"
 #include "ExternalTools/JSON/json.hpp"
 
-#include <GL/glew.h>
+#include "OpenGLHelper.h"
 
 #include "ExternalTools/DevIL/il.h"
 #include "ExternalTools/DevIL/ilut.h"
@@ -62,19 +62,7 @@ void r1Map::Load()
 			layer->data[i] = *it;
 		}
 
-		glGenTextures(1, &layer->id_tex);
-		glBindTexture(GL_TEXTURE_2D, layer->id_tex);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, size.x, size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, layer->data);
-
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-		glGenerateMipmap(GL_TEXTURE_2D);
+		oglh::GenTextureData(layer->id_tex, true, true, size.x, size.y, layer->data);
 
 		layers.push_back(layer);
 	}
@@ -90,13 +78,14 @@ void r1Map::Edit(int layer, int row, int col, char r, char g, char b)
 	loc[(layers[layer]->size.x * row + col) * 3 + 2] = b;
 
 	//gpu
-	glBindTexture(GL_TEXTURE_2D, layers[layer]->id_tex); //TODO: save data in an array in order to save it later
+	glBindTexture(GL_TEXTURE_2D, layers[layer]->id_tex);
 
 	unsigned char bits[3];
 	bits[0] = r;
 	bits[1] = g;
 	bits[2] = b;
-	glTexSubImage2D(GL_TEXTURE_2D, 0, col, row, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, bits);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, col, row, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, bits);
+	oglh::HandleError();
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -110,7 +99,7 @@ void r1Map::CreateNewMap(int width, int height)
 
 	nlohmann::json data = nlohmann::json::object();
 
-	int byte[3] = { 0, 255, 0 };
+	int byte[3] = { 0, 255, 0 }; // TODO: Save with only one number (gid) & compression?
 
 	for (int i = 0; i < width * height; ++i) {
 		data["data"].push_back(byte[0]);

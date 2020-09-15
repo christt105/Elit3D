@@ -1,11 +1,10 @@
 #include "m1Scene.h"
 
-#include <GL/glew.h>
-#include <SDL.h>
-
 #include "Application.h"
 #include "m1Input.h"
 #include "m1Camera3D.h"
+
+#include "OpenGLHelper.h"
 
 #include "m1Render3D.h"
 #include "r1Shader.h"
@@ -16,6 +15,8 @@
 
 #include "m1Resources.h"
 #include "r1Mesh.h"
+
+#include "m1MapEditor.h"
 
 // TEMP ====================================
 #include "Object.h"
@@ -76,13 +77,12 @@ UpdateStatus m1Scene::Update()
 	if (draw_grid) {
 		static auto shader1 = App->render->GetShader("grid");
 		shader1->Use();
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		oglh::DrawArrays(6);
 	}
 
 	static auto shader = App->render->GetShader("default");
 	shader->Use();
 	shader->SetMat4("model", float4x4::identity);
-
 
 	static float3 xd0 = float3::zero;
 	static float3 xd1 = float3::one;
@@ -101,21 +101,12 @@ UpdateStatus m1Scene::Update()
 
 			float t = 0.f;
 			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), 0.f, ray.pos, ray.dir, t) && t > 0.f) {
-				float3 pos = ray.GetPoint(t);
-				m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::MOUSE_PICKING);
-				e->info["collisionX"] = new fTypeVar(pos.x);
-				e->info["collisionY"] = new fTypeVar(pos.y);
-				e->info["collisionZ"] = new fTypeVar(pos.z);
-				App->events->AddEvent(e);
+				App->map_editor->MousePicking(ray.GetPoint(t));
 			}
 		}
 	}
 
-	glBegin(GL_LINES);
-	glColor3f(1.0f, 0.f, 0.f);
-	glVertex3f(xd0.x, xd0.y, xd0.z);
-	glVertex3f(xd1.x, xd1.y, xd1.z);
-	glEnd();
+	oglh::OldDrawLines(xd0, xd1);
 
 	App->gui->scene->viewport->End();
 	

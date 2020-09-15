@@ -1,7 +1,5 @@
 #include "m1MapEditor.h"
 
-#include <GL/glew.h>
-
 #include "Application.h"
 #include "m1GUI.h"
 #include "p1Scene.h"
@@ -26,6 +24,7 @@
 
 #include "Logger.h"
 
+#include "OpenGLHelper.h"
 
 #include "FileSystem.h"
 
@@ -42,7 +41,7 @@ m1MapEditor::~m1MapEditor()
 bool m1MapEditor::Start()
 {
 	PROFILE_FUNCTION();
-
+	
 	panel_scene = App->gui->scene;
 	panel_tileset = App->gui->tileset;
 
@@ -64,12 +63,12 @@ UpdateStatus m1MapEditor::Update()
 		shader->Use();
 
 		Layer::SelectBuffers();
-		glActiveTexture(GL_TEXTURE0 + 0);
+		oglh::ActiveTexture(0);
 		panel_tileset->SelectTex();
 		panel_tileset->SelectTransparentColor(shader);
 		shader->SetInt("tileAtlas", 0); // for now we only can draw a map with a single texture (TODO)
 		shader->SetInt2("ntilesMap", { 10, 10 });
-		glActiveTexture(GL_TEXTURE0 + 1);
+		oglh::ActiveTexture(1);
 
 		auto m = (r1Map*)App->resources->Get(map);
 		for (auto layer : m->layers) {
@@ -79,11 +78,11 @@ UpdateStatus m1MapEditor::Update()
 		}
 
 		for (int i = 0; i < 2; ++i) {
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D, NULL);
+			oglh::ActiveTexture(i);
+			oglh::UnBindTexture();
 		}
 
-		glActiveTexture(GL_TEXTURE0);
+		oglh::ActiveTexture(0);
 
 		panel_scene->viewport->End();
 	}
@@ -127,14 +126,14 @@ void m1MapEditor::MousePicking(const float3& position)
 
 		auto m = (r1Map*)App->resources->Get(map);
 		if (m) {
-			int col = floor(position.z);
-			int row = floor(-position.x);
+			int col = (int)floor(position.z);
+			int row = (int)floor(-position.x);
 
 			if (m->layers[0]->data[(m->size.x * col + row) * 3] != tile.x ||
 				m->layers[0]->data[(m->size.x * col + row) * 3 + 1] != A ||
 				m->layers[0]->data[(m->size.x * col + row) * 3 + 2] != B) 
 			{
-				m->Edit(0, floor(position.z), floor(-position.x), tile.x, A, B);
+				m->Edit(0, col, row, tile.x, A, B);
 			}
 		}
 	}

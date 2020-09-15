@@ -348,6 +348,9 @@
     <ClCompile Include="r1Map.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
+    <ClCompile Include="OpenGLHelper.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1219,6 +1222,9 @@
     </ClInclude>
     <ClInclude Include="r1Map.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGLHelper.h">
+      <Filter>Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

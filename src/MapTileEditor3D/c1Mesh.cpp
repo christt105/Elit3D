@@ -1,5 +1,4 @@
 #include "c1Mesh.h"
-#include <GL/glew.h>
 
 #include "Application.h"
 #include "m1Resources.h"
@@ -13,6 +12,8 @@
 #include "r1Shader.h"
 
 #include "Logger.h"
+
+#include "OpenGLHelper.h"
 
 #include "ExternalTools/ImGui/imgui.h"
 
@@ -30,14 +31,12 @@ void c1Mesh::Update()
 {
 	const r1Mesh* rmesh = ((is_engine_mesh) ? emesh : (r1Mesh*)App->resources->Get(mesh));
 	if (rmesh != nullptr) {
-		glBindVertexArray(rmesh->VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, rmesh->vertices.id);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rmesh->indices.id);
+		oglh::BindBuffers(rmesh->VAO, rmesh->vertices.id, rmesh->indices.id);
 
 		material->shader->SetMat4("model", object->transform->GetMatrix());
 
 		material->BindTex();
-		glDrawElements(GL_TRIANGLES, rmesh->indices.size, GL_UNSIGNED_INT, (void*)0);
+		oglh::DrawElements(rmesh->indices.size);
 		material->UnBindTex();
 	}
 	else

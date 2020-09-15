@@ -44,7 +44,7 @@ void p1Scene::Update()
 		ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImVec2(0, ImGui::GetCurrentWindow()->TitleBarHeight() + ImGui::GetCurrentWindow()->MenuBarHeight()));
 
 		ImVec2 window_size = ImGui::GetContentRegionAvail() + ImVec2(16, 16);
-		viewport->UpdateSize(window_size.x, window_size.y);
+		viewport->UpdateSize(window_size.x, window_size.y); // TODO: Extract to a viewport function
 		App->camera->frustum.verticalFov = DegToRad(60.f);
 		App->camera->frustum.horizontalFov = 2.f * atanf(tanf(App->camera->frustum.verticalFov * 0.5f) * (window_size.x / window_size.y));
 		viewport->Update();
@@ -56,39 +56,45 @@ void p1Scene::Update()
 		ImGui::PopClipRect();
 	}
 	else {
-		ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f - ImVec2(50, 10));
-		if (ImGui::Button("Create Map", ImVec2(100, 20))) {
-			ImGui::OpenPopup("Create Map");
-		}
-		ImGui::SetNextWindowSize(ImVec2(350, 250), ImGuiCond_Always);
-		ImGui::SetNextWindowPos(ImVec2((float)App->window->GetWidth() * 0.5f - 350.f * 0.5f, (float)App->window->GetHeight() * 0.5f - 250.f * 0.5f));
-		if (ImGui::BeginPopupModal("Create Map", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove)) {
-			static char name[30] = { ' ' };
-			ImGui::InputText("Name:", name, 30);
-
-			ImGui::Text("Size:");
-			static int size[2] = { 10, 10 };
-			ImGui::InputInt("Width", &size[0]);
-			ImGui::InputInt("Height", &size[1]);
-
-			ImGui::NewLine();
-
-			if (ImGui::Button("Save")) {
-				r1Map::CreateNewMap(size[0], size[1]);
-				
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel")) {
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndPopup();
-		}
+		ShowCreateMap();
 	}
+}
 
-	/*if (App->camera->frustum.type == FrustumType::PerspectiveFrustum) // TODO: extract all related with frustum to a viewport class in order to have more viewports with opengl objects
-		App->camera->frustum.horizontalFov = 2.f * atanf(tanf(App->camera->frustum.verticalFov * 0.5f) * window_size.x / window_size.y);*/
+void p1Scene::ShowCreateMap()
+{
+	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f - ImVec2(50, 10));
+	if (ImGui::Button("Create Map", ImVec2(100, 20))) {
+		ImGui::OpenPopup("Create Map");
+	}
+	ImGui::SetNextWindowSize(ImVec2(350, 250), ImGuiCond_Always);
+	ImGui::SetNextWindowPos(ImVec2((float)App->window->GetWidth() * 0.5f - 350.f * 0.5f, (float)App->window->GetHeight() * 0.5f - 250.f * 0.5f));
+	if (ImGui::BeginPopupModal("Create Map", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove)) {
+		PopUpCreateMap();
+		ImGui::EndPopup();
+	}
+}
+
+void p1Scene::PopUpCreateMap()
+{
+	static char name[30] = { ' ' };
+	ImGui::InputText("Name:", name, 30);
+
+	ImGui::Text("Size:");
+	static int size[2] = { 10, 10 };
+	ImGui::InputInt("Width", &size[0]);
+	ImGui::InputInt("Height", &size[1]);
+
+	ImGui::NewLine();
+
+	if (ImGui::Button("Save")) {
+		r1Map::CreateNewMap(size[0], size[1]);
+
+		ImGui::CloseCurrentPopup();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Cancel")) {
+		ImGui::CloseCurrentPopup();
+	}
 }
 
 void p1Scene::MenuBar()
