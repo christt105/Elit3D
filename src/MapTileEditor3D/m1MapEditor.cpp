@@ -62,15 +62,16 @@ UpdateStatus m1MapEditor::Update()
 		static auto shader = App->render->GetShader("tilemap");
 		shader->Use();
 
+		auto m = (r1Map*)App->resources->Get(map);
+
 		Layer::SelectBuffers();
 		oglh::ActiveTexture(0);
 		panel_tileset->SelectTex();
 		panel_tileset->SelectTransparentColor(shader);
 		shader->SetInt("tileAtlas", 0); // for now we only can draw a map with a single texture (TODO)
-		shader->SetInt2("ntilesMap", { 10, 10 });
+		shader->SetInt2("ntilesMap", m->size);
 		oglh::ActiveTexture(1);
 
-		auto m = (r1Map*)App->resources->Get(map);
 		for (auto layer : m->layers) {
 			layer->Prepare();
 			shader->SetInt("tilemap", 1);
@@ -137,6 +138,13 @@ void m1MapEditor::MousePicking(const float3& position)
 			}
 		}
 	}
+}
+
+void m1MapEditor::ResizeMap(int width, int height)
+{
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m)
+		m->Resize(width, height);
 }
 
 bool m1MapEditor::ValidMap() const

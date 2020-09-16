@@ -48,14 +48,8 @@ UpdateStatus m1Events::PreUpdate()
 			// delete all resources inside folder
 			break;
 
-		case Event::Type::MOUSE_PICKING:
-			App->map_editor->MousePicking(
-				float3(
-					((fTypeVar*)e->info["collisionX"])->value,
-					((fTypeVar*)e->info["collisionY"])->value,
-					((fTypeVar*)e->info["collisionZ"])->value
-				)
-			);
+		case Event::Type::RESIZE_MAP:
+			App->map_editor->ResizeMap(((iTypeVar*)e->info["width"])->value, ((iTypeVar*)e->info["height"])->value);
 			break;
 		case Event::Type::SAVE_MAP:
 			App->map_editor->SaveMap();

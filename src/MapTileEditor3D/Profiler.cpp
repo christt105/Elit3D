@@ -59,8 +59,8 @@ void Profiler::Insert(const Result& result)
 	output.flush();
 }
 
-ProfilerTimer::ProfilerTimer(const char* name)
-	:name(name), stopped(false)
+ProfilerTimer::ProfilerTimer(const char* name, bool log)
+	:name(name), stopped(false), log(log)
 {
 	start_timepoint = std::chrono::high_resolution_clock::now();
 }
@@ -80,6 +80,9 @@ void ProfilerTimer::Stop()
 
 	//uint32_t threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
 	Profiler::Get().Insert({ name, start, end });
+
+	if (log)
+		LOG("Profiling (%s) took %fms", name, (end - start) * 0.001f);
 
 	stopped = true;
 }

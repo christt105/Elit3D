@@ -8,6 +8,8 @@
 #include "ExternalTools/DevIL/il.h"
 #include "ExternalTools/DevIL/ilut.h"
 
+#include "Profiler.h"
+
 r1Map::r1Map(const uint64_t& _uid) : Resource(Resource::Type::Map, _uid)
 {
 }
@@ -68,6 +70,46 @@ void r1Map::Load()
 	}
 }
 
+void r1Map::Resize(int width, int height)
+{
+	PROFILE_AND_LOG("Map Resize");
+
+	unsigned char* new_data = new unsigned char[width * height * 3];
+	{
+		PROFILE_SECTION("Set new data");
+		for (int i = 0; i < width * height * 3; i += 3) {
+			new_data[i] = 0;
+			new_data[i + 1] = 255;
+			new_data[i + 2] = 0;
+		}
+	}
+
+	unsigned char* old_data = layers[0]->data;
+	{
+		PROFILE_SECTION("Copy data");
+		for (int i = 0; i < size.x * size.y; ++i) {
+			int2 colrow = int2(i % size.x, (int)(i / size.x));
+			int new_index = (colrow.x + width * colrow.y) * 3;
+			if (new_index < width * height * 3) {
+				int old_index = (colrow.x + size.x * colrow.y) * 3;
+				for (int j = 0; j < 3; ++j)
+					new_data[new_index + j] = old_data[old_index + j];
+			}
+		}
+	}
+
+	{
+		PROFILE_SECTION("Gen Texture");
+		layers[0]->data = new_data;
+		delete[] old_data;
+		layers[0]->size = { width, height };
+		size = layers[0]->size;
+
+		oglh::DeleteTexture(layers[0]->id_tex);
+		oglh::GenTextureData(layers[0]->id_tex, true, true, width, height, new_data); //TODO: research a faster way to do this
+	}
+}
+
 void r1Map::Edit(int layer, int row, int col, char r, char g, char b)
 {
 	//cpu
@@ -110,4 +152,19 @@ void r1Map::CreateNewMap(int width, int height)
 	map["layers"].push_back(data);
 
 	FileSystem::SaveJSONFile("./Assets/Maps/map.scene", map);
+}
+
+inline unsigned int r1Map::GetIndexOf2DArray(unsigned int column, unsigned int row, unsigned int width)
+{
+	return width * row + column;
+}
+
+inline unsigned int r1Map::GetIndexOf2DArray(const int2& colrow, unsigned int width)
+{
+	return width * colrow.y + colrow.x;
+}
+
+inline int2 r1Map::GetColRowOf2DArray(unsigned int index, unsigned int width)
+{
+	return int2(index % width, (int)(index / width));
 }

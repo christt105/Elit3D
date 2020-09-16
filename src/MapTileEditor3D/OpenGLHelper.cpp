@@ -100,6 +100,11 @@ void oglh::DeleteVAO(unsigned int& vao, unsigned int& vertex, unsigned int& elem
 	glDeleteBuffers(1, &elements);
 }
 
+void oglh::DeleteTexture(unsigned int& id)
+{
+	glDeleteTextures(1, &id);
+}
+
 void oglh::GenVAO(unsigned int& vao)
 {
 	glGenVertexArrays(1, &vao);

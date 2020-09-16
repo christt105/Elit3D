@@ -12,6 +12,7 @@
 
 #if USE_PROFILER
 #define PROFILE_SECTION(name) ProfilerTimer timer##__LINE__(name)
+#define PROFILE_AND_LOG(name) ProfilerTimer timer##__LINE__(name, true)
 #define PROFILE_FUNCTION() PROFILE_SECTION(__FUNCTION__)
 #else
 #define PROFILE_SECTION(name)
@@ -50,13 +51,14 @@ private:
 
 class ProfilerTimer {
 public:
-	ProfilerTimer(const char* name);
+	ProfilerTimer(const char* name, bool log = false);
 	~ProfilerTimer();
 
 	void Stop();
 
 private:
 	const char* name = nullptr;
+	bool log = false;
 	std::chrono::time_point<std::chrono::high_resolution_clock> start_timepoint;
 	bool stopped = false;
 };

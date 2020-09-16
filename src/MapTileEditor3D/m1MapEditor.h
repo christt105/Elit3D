@@ -26,6 +26,7 @@ public:
     void LoadMap(const uint64_t& id);
 
     void MousePicking(const float3& position);
+    void ResizeMap(int width, int height);
 
     bool ValidMap() const;
 

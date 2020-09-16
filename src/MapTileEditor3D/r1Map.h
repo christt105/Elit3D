@@ -18,9 +18,14 @@ public:
 
     void Save();
     void Load() override;
+    void Resize(int width, int height);
     void Edit(int layer, int row, int col, char r, char g, char b);
 
     static void CreateNewMap(int width, int height);
+
+    static inline unsigned int GetIndexOf2DArray(unsigned int column, unsigned int row, unsigned int width);
+    static inline unsigned int GetIndexOf2DArray(const int2& colrow, unsigned int width);
+    static inline int2 GetColRowOf2DArray(unsigned int index, unsigned int width);
 
 private:
     int2 size = { -1, -1 };

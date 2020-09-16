@@ -117,10 +117,21 @@ void m1GUI::MainMenuBar()
 	PROFILE_FUNCTION();
 	if (ImGui::BeginMenu("File")) {
 		if (ImGui::MenuItem("New Map")) {
-			r1Map::CreateNewMap(10, 10);
+			r1Map::CreateNewMap(2, 2);
 		}
 		if (ImGui::MenuItem("Save")) {
 			m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::SAVE_MAP);
+			App->events->AddEvent(e);
+		}
+
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("Edit")) {
+		if (ImGui::MenuItem("Resize Map")) {
+			m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::RESIZE_MAP);
+			e->info["width"] = new iTypeVar(2);
+			e->info["height"] = new iTypeVar(2);
 			App->events->AddEvent(e);
 		}
 

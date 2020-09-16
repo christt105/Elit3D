@@ -16,13 +16,15 @@ OpenGLBuffers Layer::tile = OpenGLBuffers();
 
 Layer::Layer()
 {
-	tile.InitData(size);
+	tile.InitData({ 1,1 });
 }
 
 Layer::~Layer()
 {
-	if (data)
+	if (data) {
 		delete[] data;
+		oglh::DeleteTexture(id_tex);
+	}
 }
 
 void Layer::Prepare()
@@ -35,7 +37,7 @@ void Layer::Update()
 	PROFILE_FUNCTION();
 
 	static auto shader = App->render->GetShader("tilemap");
-	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, height, 0.f), Quat::identity, float3::one)/* height of layer */);
+	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, height, 0.f), Quat::identity, float3(size.x, 1.f, size.y))/* height of layer */);
 	oglh::DrawElements(tile.indices.size);
 }
 

@@ -25,7 +25,7 @@ public:
             FOLDER_RENAMED,
             FOLDER_MOVED,
 
-            MOUSE_PICKING,
+            RESIZE_MAP,
 
             SAVE_MAP
         };

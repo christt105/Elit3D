@@ -18,6 +18,7 @@ public:
 	static void BindBuffers(unsigned int vao, unsigned int vertex, unsigned int elements);
 	static void DeleteBuffer(unsigned int& id);
 	static void DeleteVAO(unsigned int& vao, unsigned int& vertex, unsigned int& elements);
+	static void DeleteTexture(unsigned int& id);
 	static void GenVAO(unsigned int& id);
 	static void GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type_size, unsigned int element_size, const float* data);
 	static void GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type_size, unsigned int element_size, const float* data, unsigned int attrib_index, unsigned int attrib_size);
