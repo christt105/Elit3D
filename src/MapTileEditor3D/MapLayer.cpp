@@ -21,8 +21,8 @@ Layer::Layer()
 
 Layer::~Layer()
 {
-	if (data) {
-		delete[] data;
+	if (tile_data) {
+		delete[] tile_data;
 		oglh::DeleteTexture(id_tex);
 	}
 }

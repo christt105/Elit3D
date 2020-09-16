@@ -114,7 +114,7 @@ bool FileSystem::fDeleteFile(const char* path)
 bool FileSystem::CopyTo(const char* source, const char* dst)
 {
     std::error_code err;
-    fs::copy(source, dst, err);
+    fs::copy(source, dst, fs::copy_options::overwrite_existing, err);
     if (err.value() != 0)
         LOGE("Copying from %s to %s failed: %s", source, dst, err.message().c_str());
     return err.value() == 0;
@@ -235,7 +235,7 @@ void FileSystem::GetFiles(Folder& parent) {
             parent.folders.push_back(f);
         }
         else {
-            parent.files[entry.path().filename().string()] = LastTimeWrite(entry.path().filename().string().c_str());
+            parent.files[entry.path().filename().string()] = LastTimeWrite((parent.full_path + entry.path().filename().string()).c_str());
         }
     }
 }

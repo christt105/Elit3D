@@ -115,10 +115,12 @@ UpdateStatus m1GUI::PreUpdate()
 void m1GUI::MainMenuBar()
 {
 	PROFILE_FUNCTION();
+	static bool create_map = false;
 	if (ImGui::BeginMenu("File")) {
 		if (ImGui::MenuItem("New Map")) {
-			r1Map::CreateNewMap(2, 2);
+			create_map = true;
 		}
+		
 		if (ImGui::MenuItem("Save")) {
 			m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::SAVE_MAP);
 			App->events->AddEvent(e);
@@ -127,16 +129,43 @@ void m1GUI::MainMenuBar()
 		ImGui::EndMenu();
 	}
 
+	if(create_map)
+		if (ImGui::Begin("Create New Map", &create_map)) {
+			static int size[2] = { 10 , 10 };
+			ImGui::InputInt2("Size", size);
+
+			if (ImGui::Button("Create")) {
+				r1Map::CreateNewMap(size[0], size[1]);
+				create_map = false;
+			}
+
+			ImGui::End();
+		}
+
+	static bool resize_map = false;
 	if (ImGui::BeginMenu("Edit")) {
 		if (ImGui::MenuItem("Resize Map")) {
-			m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::RESIZE_MAP);
-			e->info["width"] = new iTypeVar(2);
-			e->info["height"] = new iTypeVar(2);
-			App->events->AddEvent(e);
+			resize_map = true;
 		}
 
 		ImGui::EndMenu();
 	}
+
+	if (resize_map)
+		if (ImGui::Begin("Resize Map", &resize_map)) {
+			static int size[2] = { 10 , 10 };
+			ImGui::InputInt2("New Size", size);
+
+			if (ImGui::Button("Resize")) {
+				m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::RESIZE_MAP);
+				e->info["width"] = new iTypeVar(size[0]);
+				e->info["height"] = new iTypeVar(size[1]);
+				App->events->AddEvent(e);
+				resize_map = false;
+			}
+
+			ImGui::End();
+		}
 
 	if (ImGui::BeginMenu("Panels")) {
 		for (auto i = panels.begin(); i != panels.end(); ++i) {

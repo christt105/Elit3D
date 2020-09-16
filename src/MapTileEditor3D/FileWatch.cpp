@@ -29,7 +29,6 @@ void FileWatch::StartWatching()
 {
 #if USE_FILEWATCHER
 	root = App->file_system->GetFilesRecursive(folder.c_str());
-	
 	fut = std::async(std::launch::async, &FileWatch::Watch, this);
 #endif
 }

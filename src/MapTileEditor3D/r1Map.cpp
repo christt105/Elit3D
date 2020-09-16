@@ -16,9 +16,7 @@ r1Map::r1Map(const uint64_t& _uid) : Resource(Resource::Type::Map, _uid)
 
 r1Map::~r1Map()
 {
-	for (auto l : layers) {
-		delete l;
-	}
+	Unload();
 }
 
 void r1Map::Save()
@@ -33,7 +31,7 @@ void r1Map::Save()
 			nlohmann::json lay = nlohmann::json::object();
 			//lay["id"] = l - layers.begin();
 			for (int i = 0; i < size.x * size.y * 3; ++i) {
-				lay["data"].push_back((*l)->data[i]);
+				lay["data"].push_back((*l)->tile_data[i]);
 			}
 			file["layers"].push_back(lay);
 		}
@@ -56,18 +54,26 @@ void r1Map::Load()
 		Layer* layer = new Layer();
 		layer->size = size;
 
-		layer->data = new unsigned char[size.x * size.y * 3];
+		layer->tile_data = new unsigned char[size.x * size.y * 3];
 		int i = 0;
 		for (auto it = (*l)["data"].begin();
 			it != (*l)["data"].end();
 			++it, ++i) {
-			layer->data[i] = *it;
+			layer->tile_data[i] = *it;
 		}
 
-		oglh::GenTextureData(layer->id_tex, true, true, size.x, size.y, layer->data);
+		oglh::GenTextureData(layer->id_tex, true, true, size.x, size.y, layer->tile_data);
 
 		layers.push_back(layer);
 	}
+}
+
+void r1Map::Unload()
+{
+	for (auto l : layers) {
+		delete l;
+	}
+	layers.clear();
 }
 
 void r1Map::Resize(int width, int height)
@@ -84,7 +90,7 @@ void r1Map::Resize(int width, int height)
 		}
 	}
 
-	unsigned char* old_data = layers[0]->data;
+	unsigned char* old_data = layers[0]->tile_data;
 	{
 		PROFILE_SECTION("Copy data");
 		for (int i = 0; i < size.x * size.y; ++i) {
@@ -92,15 +98,16 @@ void r1Map::Resize(int width, int height)
 			int new_index = (colrow.x + width * colrow.y) * 3;
 			if (new_index < width * height * 3) {
 				int old_index = (colrow.x + size.x * colrow.y) * 3;
-				for (int j = 0; j < 3; ++j)
+				for (int j = 0; j < 3; ++j) {
 					new_data[new_index + j] = old_data[old_index + j];
+				}
 			}
 		}
 	}
 
 	{
 		PROFILE_SECTION("Gen Texture");
-		layers[0]->data = new_data;
+		layers[0]->tile_data = new_data;
 		delete[] old_data;
 		layers[0]->size = { width, height };
 		size = layers[0]->size;
@@ -113,23 +120,23 @@ void r1Map::Resize(int width, int height)
 void r1Map::Edit(int layer, int row, int col, char r, char g, char b)
 {
 	//cpu
-	unsigned char* loc = layers[layer]->data;
-
+	unsigned char* loc = layers[layer]->tile_data;
+	if ((layers[layer]->size.x * row + col) * 3 >= size.x * size.y * 3)
+		LOGE("ASKJDKASFHJG");
 	loc[(layers[layer]->size.x * row + col) * 3] = r;
 	loc[(layers[layer]->size.x * row + col) * 3 + 1] = g;
 	loc[(layers[layer]->size.x * row + col) * 3 + 2] = b;
 
 	//gpu
-	glBindTexture(GL_TEXTURE_2D, layers[layer]->id_tex);
+	oglh::BindTexture(layers[layer]->id_tex);
 
 	unsigned char bits[3];
 	bits[0] = r;
 	bits[1] = g;
 	bits[2] = b;
-	glTexSubImage2D(GL_TEXTURE_2D, 0, col, row, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, bits);
-	oglh::HandleError();
+	oglh::TexSubImage2D(col, row, 1, 1, bits);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	oglh::UnBindTexture();
 }
 
 void r1Map::CreateNewMap(int width, int height)

@@ -82,7 +82,7 @@ void c1Material::SetTexture(const r1Texture* tex)
 
 void c1Material::SetTexture(const char* name_tex)
 {
-	tex = App->resources->Find(name_tex);
+	tex = App->resources->FindByName(name_tex);
 	App->resources->Get(tex)->Attach();
 }
 

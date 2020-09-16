@@ -35,5 +35,5 @@ public:
 
 protected:
     static OpenGLBuffers tile;
-    unsigned char* data = nullptr;
+    unsigned char* tile_data = nullptr;
 };

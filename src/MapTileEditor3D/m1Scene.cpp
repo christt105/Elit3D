@@ -61,7 +61,7 @@ bool m1Scene::Start()
 
 	panel_scene = App->gui->scene;
 
-	//((r1Model*)App->resources->Get(App->resources->Find("cubecat")))->CreateObject();
+	//((r1Model*)App->resources->Get(App->resources->FindByName("cubecat")))->CreateObject();
 
 	return true;
 }

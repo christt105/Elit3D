@@ -9,35 +9,39 @@ void oglh::GenTexture(unsigned int& id)
 	glGenTextures(1, &id);
 }
 
-void oglh::HandleError()
+void oglh::_HandleError(const char* func)
 {
 	GLenum err = glGetError();
-
-	switch (err)
-	{
-	case GL_INVALID_ENUM:
-		LOG("OpenGL error %i: GL_INVALID_ENUM", err);
-		break;
-	case GL_INVALID_VALUE:
-		LOG("OpenGL error %i: GL_INVALID_VALUE", err);
-		break;
-	case GL_INVALID_OPERATION:
-		LOG("OpenGL error %i: GL_INVALID_OPERATION", err);
-		break;
-	case GL_INVALID_FRAMEBUFFER_OPERATION:
-		LOG("OpenGL error %i: GL_INVALID_FRAMEBUFFER_OPERATION", err);
-		break;
-	case GL_OUT_OF_MEMORY:
-		LOG("OpenGL error %i: GL_OUT_OF_MEMORY", err);
-		break;
-	case GL_STACK_UNDERFLOW:
-		LOG("OpenGL error %i: GL_STACK_UNDERFLOW", err);
-		break;
-	case GL_STACK_OVERFLOW:
-		LOG("OpenGL error %i: GL_STACK_OVERFLOW", err);
-		break;
-	default:
-		break;
+	while (err != GL_NO_ERROR) {
+		std::string error_type;
+		switch (err)
+		{
+		case GL_INVALID_ENUM:
+			error_type.assign("GL_INVALID_ENUM");
+			break;
+		case GL_INVALID_VALUE:
+			error_type.assign("GL_INVALID_VALUE");
+			break;
+		case GL_INVALID_OPERATION:
+			error_type.assign("GL_INVALID_OPERATION");
+			break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION:
+			error_type.assign("GL_INVALID_FRAMEBUFFER_OPERATION");
+			break;
+		case GL_OUT_OF_MEMORY:
+			error_type.assign("GL_OUT_OF_MEMORY");
+			break;
+		case GL_STACK_UNDERFLOW:
+			error_type.assign("GL_STACK_UNDERFLOW");
+			break;
+		case GL_STACK_OVERFLOW:
+			error_type.assign("GL_STACK_OVERFLOW");
+			break;
+		default:
+			break;
+		}
+		LOGW("OpenGL error %i (%s) on %s", err, error_type.c_str(), func);
+		err = glGetError();
 	}
 }
 
@@ -49,6 +53,13 @@ void oglh::ActiveTexture(int val)
 void oglh::BindTexture(unsigned int id)
 {
 	glBindTexture(GL_TEXTURE_2D, id);
+	HANDLE_ERROR();
+}
+
+void oglh::TexSubImage2D(int x, int y, int width, int height, unsigned char* pixels)
+{
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	HANDLE_ERROR();
 }
 
 void oglh::UnBindTexture()
@@ -162,6 +173,8 @@ void oglh::GenTextureData(unsigned int& id, bool repeat, bool nearest, unsigned 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
+
+	HANDLE_ERROR();
 }
 
 void oglh::SetTextureProperties(unsigned int id, bool repeat, bool nearest)
@@ -189,4 +202,6 @@ void oglh::SetTextureProperties(unsigned int id, bool repeat, bool nearest)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
+
+	HANDLE_ERROR();
 }

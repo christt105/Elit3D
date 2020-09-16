@@ -61,7 +61,7 @@ void r1Model::GenerateFiles()
 				aiString path;
 				if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS) {
 					if (App->file_system->IsFileInFolderRecursive(App->file_system->GetNameFile(path.C_Str(), true).c_str(), "Assets/")) {
-						auto res = App->resources->Get(App->resources->Find(App->file_system->GetNameFile(path.C_Str(), false).c_str()));
+						auto res = App->resources->Get(App->resources->FindByName(App->file_system->GetNameFile(path.C_Str(), false).c_str()));
 						if (res != nullptr)
 							textures.push_back(res->GetUID());
 					}

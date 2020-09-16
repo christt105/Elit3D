@@ -43,9 +43,10 @@ public:
 	bool CleanUp() override;
 
 public:
-	Uint64 Find(const char* file);
+	Uint64 FindByName(const char* name);
+	Uint64 FindByPath(const char* assets_path);
 	Resource* Get(const Uint64& uid) const;
-	Resource* FindGet(const char* file);
+	Resource* FindGet(const char* file, bool by_name = true);
 	Resource* Get(EResourceType type) const;
 
 	const std::map<uint64_t, Resource*> GetResources() const;
@@ -57,6 +58,8 @@ public:
 	void SetResourceStrings(Resource* ret, const char* assets_path);
 
 	uint64_t GenerateMeta(const char* file);
+
+	void ReimportResource(const char* file);
 
 	std::vector<Resource*> GetVectorOf(Resource::Type type);
 

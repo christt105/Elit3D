@@ -3,6 +3,8 @@
 
 #include "Application.h"
 
+#include "m1Resources.h"
+
 #include "m1MapEditor.h"
 #include "ExternalTools/MathGeoLib/include/Math/float3.h"
 
@@ -36,6 +38,9 @@ UpdateStatus m1Events::PreUpdate()
 			break;
 		case Event::Type::FILE_RENAMED:
 			//Change metadata name file and resources assets path
+			break;
+		case Event::Type::FILE_MODIFIED:
+			App->resources->ReimportResource(((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FOLDER_CREATED:
 			//Check for resources inside

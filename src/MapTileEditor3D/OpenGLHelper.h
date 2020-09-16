@@ -2,14 +2,16 @@
 
 #include "ExternalTools/MathGeoLib/include/Math/float3.h"
 
+#define HANDLE_ERROR() oglh::_HandleError(__FUNCTION__)
+
 class oglh
 {
 public:
 	//TODO: add comments
 	static void GenTexture(unsigned int& id);
-	static void HandleError();
 	static void ActiveTexture(int val);
 	static void BindTexture(unsigned int id);
+	static void TexSubImage2D(int x, int y, int width, int height, unsigned char* pixels);
 	static void UnBindTexture();
 	static void UnBindBuffers();
 	static void DrawArrays(int n); //TODO: Allow other geometry
@@ -25,5 +27,7 @@ public:
 	static void GenElementBuffer(unsigned int& id, unsigned int size, unsigned int* data);
 	static void GenTextureData(unsigned int& id, bool repeat, bool nearest, unsigned int size_x, unsigned int size_y, unsigned char* data);
 	static void SetTextureProperties(unsigned int id, bool repeat, bool nearest);
+private:
+	static void _HandleError(const char* func);
 };
 

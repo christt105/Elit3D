@@ -82,7 +82,7 @@ void ProfilerTimer::Stop()
 	Profiler::Get().Insert({ name, start, end });
 
 	if (log)
-		LOG("Profiling (%s) took %fms", name, (end - start) * 0.001f);
+		LOG("Profiling (%s) took %fms", name, (end - start) * 0.001);
 
 	stopped = true;
 }

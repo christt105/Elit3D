@@ -18,6 +18,7 @@ public:
 
     void Save();
     void Load() override;
+    void Unload() override;
     void Resize(int width, int height);
     void Edit(int layer, int row, int col, char r, char g, char b);
 

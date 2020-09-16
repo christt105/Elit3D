@@ -53,7 +53,7 @@ UpdateStatus m1MapEditor::Update()
 	PROFILE_FUNCTION();
 
 	if (map == 0ULL) {
-		LoadMap(App->resources->Find("map"));
+		LoadMap(App->resources->FindByName("map"));
 	}
 	else {
 

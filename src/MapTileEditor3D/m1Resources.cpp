@@ -81,7 +81,7 @@ bool m1Resources::CleanUp()
 	return true;
 }
 
-Uint64 m1Resources::Find(const char* file)
+Uint64 m1Resources::FindByName(const char* file)
 {
 	PROFILE_FUNCTION();
 	for (auto i = resources.begin(); i != resources.end(); ++i) {
@@ -94,6 +94,19 @@ Uint64 m1Resources::Find(const char* file)
 	return 0ull;
 }
 
+Uint64 m1Resources::FindByPath(const char* assets_path)
+{
+	PROFILE_FUNCTION();
+	for (auto i = resources.begin(); i != resources.end(); ++i) {
+		if ((*i).second->assets_path.compare(assets_path) == 0)
+			return (*i).first;
+	}
+
+	LOGW("Resource %s not found", assets_path);
+
+	return 0ull;
+}
+
 Resource* m1Resources::Get(const Uint64& uid) const
 {
 	PROFILE_FUNCTION();
@@ -101,9 +114,14 @@ Resource* m1Resources::Get(const Uint64& uid) const
 	return (ret == resources.end()) ? nullptr : (*ret).second;
 }
 
-Resource* m1Resources::FindGet(const char* file)
+Resource* m1Resources::FindGet(const char* file, bool by_name)
 {
-	return Get(Find(file));
+	if (by_name) {
+		return Get(FindByName(file));
+	}
+	else {
+		return Get(FindByPath(file));
+	}
 }
 
 Resource* m1Resources::Get(EResourceType type) const
@@ -242,6 +260,20 @@ uint64_t m1Resources::GenerateMeta(const char* file)
 	App->file_system->SaveJSONFile((file + std::string(".meta")).c_str(), meta);
 
 	return uid;
+}
+
+void m1Resources::ReimportResource(const char* file)
+{
+	Resource* r = FindGet(file, false);
+	if (r) {
+		r->GenerateFiles();
+		r->GenerateFilesLibrary();
+		
+		if (r->references > 0) {
+			r->Unload();
+			r->Load();
+		}
+	}
 }
 
 std::vector<Resource*> m1Resources::GetVectorOf(Resource::Type type)
