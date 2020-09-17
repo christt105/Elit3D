@@ -158,6 +158,21 @@ Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_pa
 	return ret;
 }
 
+void m1Resources::DeleteResource(const uint64_t& uid)
+{
+	auto r = Get(uid);
+	if (r->references > 0)
+		r->Unload();
+
+	FileSystem::fDeleteFile(r->assets_path.c_str());
+	FileSystem::fDeleteFile((r->assets_path + ".meta").c_str());
+	FileSystem::fDeleteFile(r->library_path.c_str());
+
+	resources.erase(r->uid);
+
+	delete r;
+}
+
 void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 {
 	if (strcmp(assets_path, "") != 0) {

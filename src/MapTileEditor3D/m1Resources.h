@@ -55,6 +55,8 @@ public:
 	T* CreateResource(const char* assets_path, const uint64_t& force_uid = 0ULL, bool set_strings = true);
 	Resource* CreateResource(Resource::Type type, const char* assets_path, const uint64_t& force_uid = 0ULL);
 
+	void DeleteResource(const uint64_t& uid);
+
 	void SetResourceStrings(Resource* ret, const char* assets_path);
 
 	uint64_t GenerateMeta(const char* file);

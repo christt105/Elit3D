@@ -111,8 +111,9 @@ bool FileSystem::CreateFolder(const char* path)
 
 bool FileSystem::fDeleteFile(const char* path)
 {
-    if (fs::remove(path) != 0) {
-        LOGW("Could not delete %s", path);
+    std::error_code err;
+    if (fs::remove(path, err) != 0) {
+        LOGW("Could not delete %s, error: %s", path, err.message().c_str());
         return false;
     }
     

@@ -139,6 +139,12 @@ void p1Tileset::Update()
 					shader->Use();
 					shader->SetInt2("ntilesAtlas", { ((r1Tileset*)(*i))->columns, ((r1Tileset*)(*i))->ntiles / ((r1Tileset*)(*i))->columns });
 				}
+				ImGui::SameLine();
+				ImGui::PushID(*i);
+				if (ImGui::Button(ICON_FA_TRASH)) {
+					App->resources->DeleteResource((*i)->GetUID());
+				}
+				ImGui::PopID();
 			}
 
 			ImGui::End();
