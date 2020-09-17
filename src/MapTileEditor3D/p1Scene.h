@@ -7,7 +7,7 @@ class p1Scene :
 	public Panel
 {
 public:
-	p1Scene(bool start_enabled = true);
+	p1Scene(bool start_enabled = true, bool appear_mainmenubar = true, bool can_close = true);
 	~p1Scene();
 
 	void Start() override;

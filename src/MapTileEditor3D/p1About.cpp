@@ -2,7 +2,8 @@
 
 #include "Application.h"
 
-p1About::p1About(bool start_enabled) : Panel("About", start_enabled, ICON_FA_QUESTION_CIRCLE)
+p1About::p1About(bool start_enabled, bool appear_mainmenubar, bool can_close)
+	: Panel("About", start_enabled, appear_mainmenubar, can_close, ICON_FA_QUESTION_CIRCLE)
 {
 }
 

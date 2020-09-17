@@ -10,9 +10,10 @@
 #include "p1Scene.h"
 #include "Viewport.h"
 
-#include "GL/glew.h"
+#include "OpenGLHelper.h"
 
-p1Configuration::p1Configuration(bool start_enabled) : Panel("Configuration", start_enabled, ICON_FA_WRENCH)
+p1Configuration::p1Configuration(bool start_enabled, bool appear_mainmenubar, bool can_close)
+	: Panel("Configuration", start_enabled, appear_mainmenubar, can_close, ICON_FA_WRENCH)
 {
 }
 
@@ -22,23 +23,18 @@ p1Configuration::~p1Configuration()
 
 void p1Configuration::Update()
 {
-	if (ImGui::CollapsingHeader("Render")) {
+	if (ImGui::CollapsingHeader("Render", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::Text("FrameRate: "); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6470f, 0.f, 1.f), "%u", App->GetFrameRate());
 		ImGui::Checkbox("Draw Grid", &App->scene->draw_grid);
 		static bool wired = false;
-		if(ImGui::Checkbox("Wired Mode", &wired))
-			if (wired) {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			}
-			else
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
+		if (ImGui::Checkbox("Wired Mode", &wired))
+			oglh::PolygonMode(wired);
+
 		ImGui::ColorEdit3("Background Color", App->gui->scene->viewport->color);
 	}
 
-	if (ImGui::CollapsingHeader("Camera Control")) {
-		ImGui::Text("Camera Position: "); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6470f, 0.f, 1.f), "%s", App->camera->frustum.pos.ToString().c_str());
+	if (ImGui::CollapsingHeader("Camera Control", ImGuiTreeNodeFlags_DefaultOpen)) {
+		ImGui::Text("Camera Position: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", App->camera->frustum.pos.ToString().c_str());
 		ImGui::SliderFloat("Pan Speed", &App->camera->pan_speed, 0.1f, 2.f);
 		ImGui::SliderFloat("Orbit Speed", &App->camera->orbit_speed, 0.01f, 0.5f);
 		ImGui::SliderFloat("Zoom Speed", &App->camera->zoom_speed, 1.f, 100.f);
@@ -46,5 +42,12 @@ void p1Configuration::Update()
 		ImGui::SliderFloat("Turbo Speed", &App->camera->turbo_speed, 1.f, 50.f);
 		if (ImGui::SliderFloat("FOV", &App->camera->FOV, 30.f, 120.f))
 			App->camera->SetFov();
+	}
+
+	if (ImGui::CollapsingHeader("System Info", ImGuiTreeNodeFlags_DefaultOpen)) {
+		ImGui::Text("OS: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", App->sys_info.platform_fullname.c_str());
+		ImGui::Text("CPU: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", App->sys_info.cpu_name.c_str());
+		ImGui::Text("RAM: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%iMB", App->sys_info.ram_mb);
+		ImGui::Text("GPU: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s\n%s",App->sys_info.vendor.c_str(), App->sys_info.model.c_str());
 	}
 }

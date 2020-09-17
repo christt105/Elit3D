@@ -39,17 +39,17 @@ void Logger::Log(int i, const char file[], const char func[], int line, const ch
 
 	std::string strtype;
 	switch (i) {
-	case 3:
+	case 4:
 		strtype.append("[E]");
 	case 1:
 		strtype.append("[WARN]");
 		break;
-	case 4:
+	case 5:
 		strtype.append("[E]");
 	case 2:
 		strtype.append("[ERROR]");
 		break;
-	case 5:
+	case 3:
 		strtype.append("[E]");
 	default:
 		strtype.append("[INFO]");

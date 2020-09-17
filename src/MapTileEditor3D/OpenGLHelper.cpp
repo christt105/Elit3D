@@ -11,12 +11,12 @@ void oglh::GenTexture(unsigned int& id)
 
 std::string oglh::GetVendor()
 {
-	return std::string((char*)glGetString(GL_VENDOR));
+	return std::string((const char*)glGetString(GL_VENDOR));
 }
 
 std::string oglh::GetModel()
 {
-	return std::string((char*)glGetString(GL_RENDERER));
+	return std::string((const char*)glGetString(GL_RENDERER));
 }
 
 void oglh::_HandleError(const char* func)
@@ -214,6 +214,14 @@ void oglh::SetTextureProperties(unsigned int id, bool repeat, bool nearest)
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	HANDLE_ERROR();
+}
+
+void oglh::PolygonMode(bool line)
+{
+	if (line)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 std::string oglh::GetVersion()

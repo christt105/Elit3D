@@ -6,7 +6,7 @@ class p1Resources :
 	public Panel
 {
 public:
-	p1Resources(bool start_enabled = true);
+	p1Resources(bool start_enabled = true, bool appear_mainmenubar = true, bool can_close = true);
 	~p1Resources();
 
 	void Update() override;

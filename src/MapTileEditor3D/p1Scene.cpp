@@ -20,9 +20,13 @@
 //temp 
 #include "ExternalTools/MathGeoLib/include/Math/MathFunc.h"
 
-p1Scene::p1Scene(bool start_enabled): Panel("Scene", start_enabled, ICON_FA_CUBES)
+p1Scene::p1Scene(bool start_enabled, bool appear_mainmenubar, bool can_close)
+	: Panel("Scene", start_enabled, appear_mainmenubar, can_close, ICON_FA_CUBES)
 {
-	flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+	flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse 
+		| ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse 
+		| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove
+		| ImGuiWindowFlags_NoDecoration;
 }
 
 void p1Scene::Start()

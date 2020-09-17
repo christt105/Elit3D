@@ -5,7 +5,8 @@
 
 #include "Logger.h"
 
-p1Objects::p1Objects(bool start_active) : Panel("Objects", start_active, ICON_FA_SITEMAP)
+p1Objects::p1Objects(bool start_active, bool appear_mainmenubar, bool can_close)
+	: Panel("Objects", start_active, appear_mainmenubar, can_close, ICON_FA_SITEMAP)
 {
 }
 

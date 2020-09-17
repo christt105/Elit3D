@@ -13,7 +13,8 @@
 
 #include "Logger.h"
 
-p1Tileset::p1Tileset(bool start_enabled) : Panel("Tileset", start_enabled, ICON_FA_PALETTE)
+p1Tileset::p1Tileset(bool start_enabled, bool appear_mainmenubar, bool can_close)
+	: Panel("Tileset", start_enabled, appear_mainmenubar, can_close, ICON_FA_PALETTE)
 {
 }
 

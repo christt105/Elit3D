@@ -23,7 +23,7 @@ class p1Tileset :
 	public Panel
 {
 public:
-	p1Tileset(bool start_enabled = true);
+	p1Tileset(bool start_enabled = true, bool appear_mainmenubar = true, bool can_close = true);
 	~p1Tileset();
 
 	void Start() override;

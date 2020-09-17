@@ -9,16 +9,16 @@
 
 class Panel
 {
-public:
 	friend class m1GUI;
-	Panel(const char* name, bool start_active, const char* icon);
+public:
+	Panel(const char* name, bool start_active, bool appear_mainmenubar, bool can_close, const char* icon);
 	virtual ~Panel();
 
 	virtual void Start();
 	virtual void Update() = 0;
 
-	bool IsFocused();
-	bool IsOnHover();
+	bool IsFocused() const;
+	bool IsOnHover() const;
 
 	bool GetActive() const;
 	void SetActive(bool act);
@@ -39,5 +39,7 @@ private:
 	bool active = true;
 	bool focused = false;
 	bool hover = false;
+	bool appear_in_mainmenubar = true;
+	bool can_be_closed = true;
 };
 

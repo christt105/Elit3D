@@ -2,7 +2,8 @@
 #include "Application.h"
 #include "m1Resources.h"
 
-p1DebugResources::p1DebugResources() : Panel("Debug Resources", false, ICON_FA_FILE)
+p1DebugResources::p1DebugResources(bool start_enabled, bool appear_mainmenubar, bool can_close)
+	: Panel("Debug Resources", start_enabled, appear_mainmenubar, can_close, ICON_FA_FILE)
 {
 }
 

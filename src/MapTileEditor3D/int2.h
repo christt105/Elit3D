@@ -24,7 +24,7 @@ public:
 	int2 operator-(const int2& c) const;
 
 public:
-	int x;
-	int y;
+	int x = 0;
+	int y = 0;
 };
 

@@ -14,6 +14,8 @@ class p1DebugResources;
 
 struct ImFont;
 
+#define ORANGE ImVec4(1.f, 0.6470f, 0.f, 1.f)
+
 class m1GUI :
 	public Module
 {

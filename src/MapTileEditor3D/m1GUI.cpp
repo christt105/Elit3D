@@ -40,18 +40,18 @@ bool m1GUI::Init(const nlohmann::json& node)
 {
 	PROFILE_FUNCTION();
 	configuration = new p1Configuration();
-	about = new p1About(false);
+	about = new p1About(false, false);
 	objects = new p1Objects();
 	inspector = new p1Inspector();
 	console = new p1Console();
-	scene = new p1Scene();
+	scene = new p1Scene(true, false, false);
 	resources = new p1Resources();
 	tileset = new p1Tileset();
-	dbg_resources = new p1DebugResources();
+	dbg_resources = new p1DebugResources(false, false);
 
-	panels.push_back(configuration);
 	panels.push_back(objects);
 	panels.push_back(inspector);
+	panels.push_back(configuration);
 	panels.push_back(about);
 	panels.push_back(console);
 	panels.push_back(resources);
@@ -168,7 +168,7 @@ void m1GUI::MainMenuBar()
 
 	if (ImGui::BeginMenu("Panels")) {
 		for (auto i = panels.begin(); i != panels.end(); ++i) {
-			if (*i != about) {
+			if ((*i)->appear_in_mainmenubar) {
 				ImGui::PushID(*i);
 				if (ImGui::MenuItem((*i)->name.c_str(), "", (*i)->active)) {
 					(*i)->active = !(*i)->active;
@@ -211,7 +211,7 @@ UpdateStatus m1GUI::Update()
 	for (auto i = panels.begin(); i != panels.end(); ++i) {
 		ImGui::PushID(*i);
 		if ((*i)->active) {
-			if (ImGui::Begin(((*i)->icon + " " + (*i)->name).c_str(), &(*i)->active, (*i)->flags)) {
+			if (ImGui::Begin(((*i)->icon + " " + (*i)->name).c_str(), ((*i)->can_be_closed) ? &(*i)->active : 0, (*i)->flags)) {
 				(*i)->focused = ImGui::IsWindowFocused();
 				(*i)->hover = ImGui::IsWindowHovered();
 
