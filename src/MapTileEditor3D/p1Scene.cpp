@@ -44,7 +44,7 @@ void p1Scene::Update()
 		ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImVec2(0, ImGui::GetCurrentWindow()->TitleBarHeight() + ImGui::GetCurrentWindow()->MenuBarHeight()));
 
 		ImVec2 window_size = ImGui::GetContentRegionAvail() + ImVec2(16, 16);
-		viewport->UpdateSize(window_size.x, window_size.y); // TODO: Extract to a viewport function
+		viewport->UpdateSize((int)window_size.x, (int)window_size.y); // TODO: Extract to a viewport function
 		App->camera->frustum.verticalFov = DegToRad(60.f);
 		App->camera->frustum.horizontalFov = 2.f * atanf(tanf(App->camera->frustum.verticalFov * 0.5f) * (window_size.x / window_size.y));
 		viewport->Update();

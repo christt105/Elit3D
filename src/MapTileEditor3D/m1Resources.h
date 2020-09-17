@@ -94,7 +94,7 @@ private:
 template<class T>
 inline T* m1Resources::CreateResource(const char* assets_path, const uint64_t& force_uid, bool set_strings)
 {
-	T* ret = new T((force_uid == 0) ? App->random->RandomGUID() : force_uid);
+	T* ret = new T((force_uid == 0) ? Random::RandomGUID() : force_uid);
 
 	if (set_strings)
 		SetResourceStrings(ret, assets_path);

@@ -1852,7 +1852,7 @@ struct osn_context {
     int16_t* permGradIndex3D;
 };
 
-#define ARRAYSIZE(x) (sizeof((x)) / sizeof((x)[0]))
+#define PSARRAYSIZE(x) (sizeof((x)) / sizeof((x)[0]))
 
 /*
  * Gradients for 2D. They approximate the directions to the
@@ -1959,7 +1959,7 @@ static int par__simplex_noise(int64_t seed, struct osn_context** ctx)
             r += (i + 1);
         perm[i] = source[r];
         permGradIndex3D[i] =
-            (short)((perm[i] % (ARRAYSIZE(gradients3D) / 3)) * 3);
+            (short)((perm[i] % (PSARRAYSIZE(gradients3D) / 3)) * 3);
         source[r] = source[i];
     }
     return 0;

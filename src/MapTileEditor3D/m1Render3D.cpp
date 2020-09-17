@@ -146,7 +146,7 @@ void m1Render3D::loadShaders()
     }
 
     //link
-    std::string link = App->file_system->OpenTextFile("Configuration/Shader/shaders_link.txt");
+    std::string link = FileSystem::OpenTextFile("Configuration/Shader/shaders_link.txt");
 
     std::istringstream iss(link);
 

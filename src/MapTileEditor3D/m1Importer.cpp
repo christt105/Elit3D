@@ -17,7 +17,7 @@ m1Importer::~m1Importer()
 
 void m1Importer::Import(const char* path)
 {
-	std::string extension = App->file_system->GetFileExtension(path);
+	std::string extension = FileSystem::GetFileExtension(path);
 	if (extension.compare("fbx") == 0) {
 		model->Import(path);
 	}

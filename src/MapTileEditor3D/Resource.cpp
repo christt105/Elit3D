@@ -18,7 +18,7 @@ Uint64 Resource::GetUID() const
 
 void Resource::GenerateFiles()
 {
-	App->file_system->CopyTo(assets_path.c_str(), library_path.c_str());
+	FileSystem::CopyTo(assets_path.c_str(), library_path.c_str());
 }
 
 void Resource::Attach()

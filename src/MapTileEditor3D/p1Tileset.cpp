@@ -242,8 +242,8 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 	if (ImGui::Button("Create")) {
 		nlohmann::json jsontileset;
 
-		if (!App->file_system->Exists("Assets/Tilesets"))
-			App->file_system->CreateFolder("Assets/Tilesets/");
+		if (!FileSystem::Exists("Assets/Tilesets"))
+			FileSystem::CreateFolder("Assets/Tilesets/");
 
 		jsontileset["Image"] = data.imageUID;
 
@@ -266,7 +266,7 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 		jsontileset["transparent color"]["b"] = data.transparent_color[2];
 
 		std::string path("Assets/Tilesets/" + std::string(data.buf_name) + ".tileset");
-		App->file_system->SaveJSONFile(path.c_str(), jsontileset);
+		FileSystem::SaveJSONFile(path.c_str(), jsontileset);
 		uint64_t meta = App->resources->GenerateMeta(path.c_str());
 		r1Tileset* res = App->resources->CreateResource<r1Tileset>(path.c_str(), meta);
 		res->GenerateFiles();

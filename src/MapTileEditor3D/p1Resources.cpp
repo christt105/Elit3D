@@ -5,7 +5,7 @@
 
 p1Resources::p1Resources(bool start_enabled) : Panel("Resources", start_enabled, ICON_FA_FOLDER_OPEN)
 {
-	root = App->file_system->GetFilesRecursive("Assets/");
+	root = FileSystem::GetFilesRecursive("Assets/");
 }
 
 p1Resources::~p1Resources()

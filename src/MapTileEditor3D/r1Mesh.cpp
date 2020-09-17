@@ -22,7 +22,7 @@ r1Mesh::~r1Mesh()
 
 void r1Mesh::Load()
 {
-	auto file = App->file_system->OpenJSONFile(library_path.c_str());
+	auto file = FileSystem::OpenJSONFile(library_path.c_str());
 
 	vertices.size = file["nVertex"];
 	vertices.data = new float[vertices.size * 3];
@@ -82,7 +82,7 @@ void r1Mesh::GenerateFiles(const aiMesh* mesh)
 		}
 	}
 
-	App->file_system->SaveJSONFile(library_path.c_str(), file);
+	FileSystem::SaveJSONFile(library_path.c_str(), file);
 }
 
 void r1Mesh::GenerateBuffers()

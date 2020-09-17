@@ -37,23 +37,23 @@ bool m1Resources::Start()
 	PROFILE_FUNCTION();
 	ilInit();
 
-	if (!App->file_system->Exists(LIBRARY_PATH))
-		App->file_system->CreateFolder(LIBRARY_PATH);
+	if (!FileSystem::Exists(LIBRARY_PATH))
+		FileSystem::CreateFolder(LIBRARY_PATH);
 
-	if (!App->file_system->Exists(LIBRARY_TEXTURES_PATH))
-		App->file_system->CreateFolder(LIBRARY_TEXTURES_PATH);
+	if (!FileSystem::Exists(LIBRARY_TEXTURES_PATH))
+		FileSystem::CreateFolder(LIBRARY_TEXTURES_PATH);
 
-	if (!App->file_system->Exists(LIBRARY_MODELS_PATH))
-		App->file_system->CreateFolder(LIBRARY_MODELS_PATH);
+	if (!FileSystem::Exists(LIBRARY_MODELS_PATH))
+		FileSystem::CreateFolder(LIBRARY_MODELS_PATH);
 
-	if (!App->file_system->Exists(LIBRARY_MESHES_PATH))
-		App->file_system->CreateFolder(LIBRARY_MESHES_PATH);
+	if (!FileSystem::Exists(LIBRARY_MESHES_PATH))
+		FileSystem::CreateFolder(LIBRARY_MESHES_PATH);
 
-	if (!App->file_system->Exists(LIBRARY_TILESETS_PATH))
-		App->file_system->CreateFolder(LIBRARY_TILESETS_PATH);
+	if (!FileSystem::Exists(LIBRARY_TILESETS_PATH))
+		FileSystem::CreateFolder(LIBRARY_TILESETS_PATH);
 
-	if (!App->file_system->Exists(LIBRARY_MAPS_PATH))
-		App->file_system->CreateFolder(LIBRARY_MAPS_PATH);
+	if (!FileSystem::Exists(LIBRARY_MAPS_PATH))
+		FileSystem::CreateFolder(LIBRARY_MAPS_PATH);
 
 	GenerateLibrary();
 	GenerateEngineLibrary();
@@ -140,11 +140,11 @@ Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_pa
 
 	switch (type)
 	{
-	case Resource::Type::Mesh:		ret = new r1Mesh((force_uid == 0) ? App->random->RandomGUID() : force_uid);		break;
-	case Resource::Type::Model:		ret = new r1Model((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
-	case Resource::Type::Texture:	ret = new r1Texture((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
-	case Resource::Type::Tileset:	ret = new r1Tileset((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
-	case Resource::Type::Map:		ret = new r1Map((force_uid == 0) ? App->random->RandomGUID() : force_uid);	break;
+	case Resource::Type::Mesh:		ret = new r1Mesh((force_uid == 0) ? Random::RandomGUID() : force_uid);		break;
+	case Resource::Type::Model:		ret = new r1Model((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
+	case Resource::Type::Texture:	ret = new r1Texture((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
+	case Resource::Type::Tileset:	ret = new r1Tileset((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
+	case Resource::Type::Map:		ret = new r1Map((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
 	default:
 		LOGW("Resource %i from %s could not be created, resource not setted in switch", (int)type, assets_path);
 		break;
@@ -177,8 +177,8 @@ void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 {
 	if (strcmp(assets_path, "") != 0) {
 		ret->assets_path.assign(assets_path);
-		ret->name = App->file_system->GetNameFile(assets_path);
-		ret->extension.assign(App->file_system->GetFileExtension(assets_path));
+		ret->name = FileSystem::GetNameFile(assets_path);
+		ret->extension.assign(FileSystem::GetFileExtension(assets_path));
 	}
 	ret->library_path.assign(GetLibraryFromType(ret->GetType()) + std::to_string(ret->GetUID()) + GetLibraryExtensionFromType(ret->GetType()));
 }
@@ -186,13 +186,13 @@ void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 void m1Resources::GenerateLibrary()
 {
 	PROFILE_FUNCTION();
-	ImportFiles(App->file_system->GetFilesRecursive("Assets/"));
+	ImportFiles(FileSystem::GetFilesRecursive("Assets/"));
 }
 
 void m1Resources::GenerateEngineLibrary()
 {
 	PROFILE_FUNCTION();
-	auto models = App->file_system->GetFilesRecursive("Configuration/EngineResources/3DModels");
+	auto models = FileSystem::GetFilesRecursive("Configuration/EngineResources/3DModels");
 
 	for (auto i = models.files.begin(); i != models.files.end(); ++i) {
 		r1Mesh* m = new r1Mesh(0ULL);
@@ -217,12 +217,12 @@ void m1Resources::ImportFiles(const Folder& parent)
 	}
 	
 	for (auto file = parent.files.begin(); file != parent.files.end(); ++file) {
-		if (App->file_system->GetFileExtension((*file).first.c_str()).compare("meta") != 0) {
-			if (App->file_system->Exists((parent.full_path + (*file).first + ".meta").c_str())) {
-				nlohmann::json meta = App->file_system->OpenJSONFile((parent.full_path + (*file).first + ".meta").c_str());
+		if (FileSystem::GetFileExtension((*file).first.c_str()).compare("meta") != 0) {
+			if (FileSystem::Exists((parent.full_path + (*file).first + ".meta").c_str())) {
+				nlohmann::json meta = FileSystem::OpenJSONFile((parent.full_path + (*file).first + ".meta").c_str());
 				std::string extension = meta.value("extension", "none");
-				if (meta.value("timestamp", 0ULL) == App->file_system->LastTimeWrite((parent.full_path + (*file).first).c_str())) {
-					if (App->file_system->Exists((GetLibraryFromType(extension.c_str()) + std::to_string(meta.value("UID", 0ULL)) + GetLibraryExtension(extension.c_str())).c_str())) {
+				if (meta.value("timestamp", 0ULL) == FileSystem::LastTimeWrite((parent.full_path + (*file).first).c_str())) {
+					if (FileSystem::Exists((GetLibraryFromType(extension.c_str()) + std::to_string(meta.value("UID", 0ULL)) + GetLibraryExtension(extension.c_str())).c_str())) {
 						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
 						res->GenerateFilesLibrary();
 					}
@@ -236,8 +236,8 @@ void m1Resources::ImportFiles(const Folder& parent)
 				else {
 					DeleteFromLibrary(GetTypeFromStr(extension.c_str()), meta.value("UID", 0ULL));
 
-					meta["timestamp"] = App->file_system->LastTimeWrite((parent.full_path + (*file).first).c_str());
-					App->file_system->SaveJSONFile((parent.full_path + (*file).first + ".meta").c_str(), meta);
+					meta["timestamp"] = FileSystem::LastTimeWrite((parent.full_path + (*file).first).c_str());
+					FileSystem::SaveJSONFile((parent.full_path + (*file).first + ".meta").c_str(), meta);
 
 					Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
 					if (res != nullptr)
@@ -247,7 +247,7 @@ void m1Resources::ImportFiles(const Folder& parent)
 			else {
 				uint64_t meta = GenerateMeta((parent.full_path + (*file).first).c_str());
 
-				Resource* res = CreateResource(GetTypeFromStr(App->file_system->GetFileExtension((*file).first.c_str()).c_str()), (parent.full_path + (*file).first).c_str(), meta);
+				Resource* res = CreateResource(GetTypeFromStr(FileSystem::GetFileExtension((*file).first.c_str()).c_str()), (parent.full_path + (*file).first).c_str(), meta);
 				if (res != nullptr)
 					res->GenerateFiles();
 			}
@@ -267,12 +267,12 @@ uint64_t m1Resources::GenerateMeta(const char* file)
 {
 	nlohmann::json meta;
 
-	uint64_t uid = App->random->RandomGUID();
+	uint64_t uid = Random::RandomGUID();
 	meta["UID"] = uid;
-	meta["timestamp"] = App->file_system->LastTimeWrite(file);
-	meta["extension"] = App->file_system->GetFileExtension(file);
+	meta["timestamp"] = FileSystem::LastTimeWrite(file);
+	meta["extension"] = FileSystem::GetFileExtension(file);
 
-	App->file_system->SaveJSONFile((file + std::string(".meta")).c_str(), meta);
+	FileSystem::SaveJSONFile((file + std::string(".meta")).c_str(), meta);
 
 	return uid;
 }
@@ -396,10 +396,10 @@ void m1Resources::DeleteFromLibrary(Resource::Type type, const uint64_t& meta)
 	{
 	case Resource::Type::Model:
 		DeleteMeshes(meta);
-		App->file_system->fDeleteFile((LIBRARY_MODELS_PATH + std::to_string(meta) + ".model").c_str());
+		FileSystem::fDeleteFile((LIBRARY_MODELS_PATH + std::to_string(meta) + ".model").c_str());
 		break;
 	default:
-		App->file_system->fDeleteFile((GetLibraryFromType(type) + std::to_string(meta) + GetLibraryExtensionFromType(type)).c_str());
+		FileSystem::fDeleteFile((GetLibraryFromType(type) + std::to_string(meta) + GetLibraryExtensionFromType(type)).c_str());
 		//LOGW("Resource type %i could not be deleted, type not setted in switch", (int)type);
 		break;
 	}
@@ -407,7 +407,7 @@ void m1Resources::DeleteFromLibrary(Resource::Type type, const uint64_t& meta)
 
 void m1Resources::DeleteMeshes(const uint64_t& meta)
 {
-	auto model = App->file_system->OpenJSONFile((LIBRARY_MODELS_PATH + std::to_string(meta) + ".model").c_str());
+	auto model = FileSystem::OpenJSONFile((LIBRARY_MODELS_PATH + std::to_string(meta) + ".model").c_str());
 	for (auto i = model["Meshes"].begin(); i != model["Meshes"].end(); ++i)
-		App->file_system->fDeleteFile((LIBRARY_MESHES_PATH + std::to_string((uint64_t)*i) + ".mesh").c_str());
+		FileSystem::fDeleteFile((LIBRARY_MESHES_PATH + std::to_string((uint64_t)*i) + ".mesh").c_str());
 }

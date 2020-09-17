@@ -6,8 +6,6 @@
 #include "DebugVars.h"
 #include "SystemInfo.h"
 
-#include <SDL_stdinc.h>
-
 enum class UpdateStatus;
 
 class Module;
@@ -22,9 +20,6 @@ class m1Resources;
 class m1Importer;
 class m1Events;
 class m1MapEditor;
-
-class FileSystem;
-class Random;
 
 class Application
 {
@@ -52,9 +47,6 @@ public:
 	m1Events*		events = nullptr;
 	m1MapEditor*	map_editor = nullptr;
 
-	FileSystem* file_system = nullptr;
-	Random*		random = nullptr;
-
 	DebugVars debug;
 	SystemInfo sys_info;
 
@@ -80,13 +72,10 @@ private:
 	std::string version;
 
 	float dt = 0.f;
-	Uint64 time = 0ULL;
+	uint64_t time = 0ULL;
 	unsigned char framerate = 0u; //TODO: save this in a vector
-	Uint64 last_time = 0ULL;
+	uint64_t last_time = 0ULL;
 	unsigned int frame_count = 0U;
-
-private:
-	void FillSysInfo();
 };
 
 extern Application* App;

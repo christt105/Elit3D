@@ -18,9 +18,6 @@
 #include "m1MapEditor.h"
 
 #include "FileSystem.h"
-#include "Random.h"
-
-#include "OpenGLHelper.h"
 
 #include "Profiler.h"
 
@@ -66,11 +63,7 @@ bool Application::Init()
 	modules.push_back(gui);
 	modules.push_back(render);
 
-	//Create helpers
-	file_system = new FileSystem();
-	random = new Random();
-
-	nlohmann::json conf = file_system->OpenJSONFile("Configuration/Configuration.json")["App"];
+	nlohmann::json conf = FileSystem::OpenJSONFile("Configuration/Configuration.json")["App"];
 
 	if (conf.is_null())
 		LOGNE("Configuration.json not found");
@@ -83,7 +76,8 @@ bool Application::Init()
 		(*i)->Init(conf[(*i)->name]);
 	}
 
-	FillSysInfo();
+	sys_info.FillInfo();
+	sys_info.SaveInFile();
 
 	return true;
 }
@@ -165,9 +159,6 @@ bool Application::CleanUp()
 	PROFILE_FUNCTION();
 	bool ret = true;
 
-	delete file_system;
-	delete random;
-
 	for (auto i = modules.rbegin(); i != modules.rend(); ++i) {
 		LOGN("Cleaning Up module %s", (*i)->name.c_str());
 		ret = (*i)->CleanUp();
@@ -212,10 +203,4 @@ void Application::ExecuteURL(const char* url)
 {
 	// TODO: set it for linux and mac
 	ShellExecute(0, 0, url, 0, 0, SW_SHOW);
-}
-
-void Application::FillSysInfo()
-{
-	sys_info.FillInfo();
-	sys_info.SaveInFile();
 }

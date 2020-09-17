@@ -1,24 +1,9 @@
-#include <iostream>
-
-#include <stdio.h>
-#include <string>
-#include <list>
 #include <SDL.h>
 
 #include "Logger.h"
 #include "Application.h"
 #include "Profiler.h"
 #include "Module.h"
-
-//MathGeoLib--------------------------------------------------------
-#include "ExternalTools/MathGeoLib/include/MathGeoLib.h"
-
-#ifdef _DEBUG
-#pragma comment (lib, "ExternalTools/MathGeoLib/lib_x86/lDebug/MathGeoLib.lib")
-#else
-#pragma comment (lib, "ExternalTools/MathGeoLib/lib_x86/lRelease/MathGeoLib.lib")
-#endif
-//--------------------------------------------------------------------
 
 enum class MainState {
     EXIT_ERROR = -1,

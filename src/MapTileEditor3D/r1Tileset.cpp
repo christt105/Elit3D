@@ -16,7 +16,7 @@ r1Tileset::~r1Tileset()
 
 void r1Tileset::Load()
 {
-	auto json = App->file_system->OpenJSONFile(library_path.c_str());
+	auto json = FileSystem::OpenJSONFile(library_path.c_str());
 
 	texture_uid = json.value("Image", 0ULL);
 	r1Texture* res = (r1Texture*)App->resources->Get(texture_uid);

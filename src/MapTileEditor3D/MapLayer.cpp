@@ -37,7 +37,7 @@ void Layer::Update()
 	PROFILE_FUNCTION();
 
 	static auto shader = App->render->GetShader("tilemap");
-	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, height, 0.f), Quat::identity, float3(size.x, 1.f, size.y))/* height of layer */);
+	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, height, 0.f), Quat::identity, float3((float)size.x, 1.f, (float)size.y))/* height of layer */);
 	oglh::DrawElements(tile.indices.size);
 }
 
@@ -79,7 +79,7 @@ void OpenGLBuffers::InitData(const int2& size)
 
 	texture.size = 4;
 	texture.data = new float[texture.size * 2];
-	memset(texture.data, 0.f, texture.size * 2 * sizeof(float));
+	memset(texture.data, 0, texture.size * 2 * sizeof(float));
 
 	texture.data[0] = 0.f;		texture.data[1] = 0.f;
 	texture.data[2] = 1.f;		texture.data[3] = 0.f;

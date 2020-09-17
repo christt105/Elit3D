@@ -166,7 +166,7 @@ unsigned int r1Shader::Compile(const std::string& filepath)
 {
     std::string shaderSource;
     try {
-        shaderSource = App->file_system->OpenTextFile(filepath.c_str());
+        shaderSource = FileSystem::OpenTextFile(filepath.c_str());
     }
     catch (const char* fail) {
         LOGE("FAILED TO READ SHADER %s", fail);

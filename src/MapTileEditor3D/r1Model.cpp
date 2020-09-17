@@ -60,8 +60,8 @@ void r1Model::GenerateFiles()
 			for (unsigned int i = 0; i < n_tex; ++i) {
 				aiString path;
 				if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS) {
-					if (App->file_system->IsFileInFolderRecursive(App->file_system->GetNameFile(path.C_Str(), true).c_str(), "Assets/")) {
-						auto res = App->resources->Get(App->resources->FindByName(App->file_system->GetNameFile(path.C_Str(), false).c_str()));
+					if (FileSystem::IsFileInFolderRecursive(FileSystem::GetNameFile(path.C_Str(), true).c_str(), "Assets/")) {
+						auto res = App->resources->Get(App->resources->FindByName(FileSystem::GetNameFile(path.C_Str(), false).c_str()));
 						if (res != nullptr)
 							textures.push_back(res->GetUID());
 					}
@@ -93,13 +93,13 @@ void r1Model::GenerateFiles()
 
 		model["Hierarchy"] = object.Parse();
 
-		App->file_system->SaveJSONFile(library_path.c_str(), model);
+		FileSystem::SaveJSONFile(library_path.c_str(), model);
 	}
 }
 
 void r1Model::GenerateFilesLibrary()
 {
-	nlohmann::json model = App->file_system->OpenJSONFile(library_path.c_str());
+	nlohmann::json model = FileSystem::OpenJSONFile(library_path.c_str());
 
 	for (auto i = model["Meshes"].begin(); i != model["Meshes"].end(); ++i) {
 		App->resources->CreateResource<r1Mesh>("", *i);
@@ -111,7 +111,7 @@ Object* r1Model::CreateObject()
 	Object* obj = App->objects->CreateEmptyObject();
 	obj->SetName(name.c_str());
 
-	nlohmann::json jobj = App->file_system->OpenJSONFile(library_path.c_str());
+	nlohmann::json jobj = FileSystem::OpenJSONFile(library_path.c_str());
 
 	CreateChildren(jobj["Hierarchy"], obj);
 	
@@ -145,7 +145,7 @@ void r1Model::CreateChildren(nlohmann::json& jobj, Object* parent)
 
 void r1Model::Load()
 {
-	nlohmann::json model = App->file_system->OpenJSONFile(library_path.c_str());
+	nlohmann::json model = FileSystem::OpenJSONFile(library_path.c_str());
 
 	
 }
