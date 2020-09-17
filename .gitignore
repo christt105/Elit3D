@@ -351,3 +351,4 @@ MigrationBackup/
 .ionide/
 src/Build/Log.txt
 src/Build/profile.json
+src/Build/SystemInfo.txt

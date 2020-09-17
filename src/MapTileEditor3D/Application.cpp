@@ -19,6 +19,7 @@
 
 #include "FileSystem.h"
 #include "Random.h"
+#include "OpenGLHelper.h"
 
 #include "Profiler.h"
 
@@ -80,6 +81,8 @@ bool Application::Init()
 		LOGN("Initializing module %s", (*i)->name.c_str());
 		(*i)->Init(conf[(*i)->name]);
 	}
+
+	FillSysInfo();
 
 	return true;
 }
@@ -208,4 +211,28 @@ void Application::ExecuteURL(const char* url)
 {
 	// TODO: set it for linux and mac
 	ShellExecute(0, 0, url, 0, 0, SW_SHOW);
+}
+
+void Application::FillSysInfo()
+{
+	sys_info.platform.assign(SDL_GetPlatform());
+	sys_info.cpu_cores = SDL_GetCPUCount();
+	sys_info.ram_mb = SDL_GetSystemRAM();
+
+	sys_info.ogl_version = oglh::GetVersion();
+	sys_info.vendor = oglh::GetVendor();
+	sys_info.model = oglh::GetModel();
+
+	std::string file = {
+		"Platform: " + sys_info.platform + 
+		"\nCPU:\n" +
+		"\tModel: \n"
+		"\tNumber Cores: " + std::to_string(sys_info.cpu_cores) + 
+		"\nRAM: " + std::to_string(sys_info.ram_mb) + "mb\n" +
+		"GPU:\n" + 
+		"\tOpenGL version: " + sys_info.ogl_version + 
+		"\n\tGraphics Card:\n\t\tVendor: " + sys_info.vendor + "\n\t\tModel: " + sys_info.model
+	};
+
+	FileSystem::SaveTextFile("SystemInfo.txt", file.c_str());
 }

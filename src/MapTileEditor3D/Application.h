@@ -55,6 +55,7 @@ public:
 	Random*		random = nullptr;
 
 	DebugVars debug;
+	SystemInfo sys_info;
 
 public:
 	const char* GetName();
@@ -82,6 +83,9 @@ private:
 	unsigned char framerate = 0u; //TODO: save this in a vector
 	Uint64 last_time = 0ULL;
 	unsigned int frame_count = 0U;
+
+private:
+	void FillSysInfo();
 };
 
 extern Application* App;

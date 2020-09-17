@@ -27,6 +27,9 @@ public:
 	static void GenElementBuffer(unsigned int& id, unsigned int size, unsigned int* data);
 	static void GenTextureData(unsigned int& id, bool repeat, bool nearest, unsigned int size_x, unsigned int size_y, unsigned char* data);
 	static void SetTextureProperties(unsigned int id, bool repeat, bool nearest);
+	static std::string GetVersion();
+	static std::string GetVendor();
+	static std::string GetModel();
 private:
 	static void _HandleError(const char* func);
 };

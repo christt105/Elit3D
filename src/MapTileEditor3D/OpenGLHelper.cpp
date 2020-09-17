@@ -9,6 +9,16 @@ void oglh::GenTexture(unsigned int& id)
 	glGenTextures(1, &id);
 }
 
+std::string oglh::GetVendor()
+{
+	return std::string((char*)glGetString(GL_VENDOR));
+}
+
+std::string oglh::GetModel()
+{
+	return std::string((char*)glGetString(GL_RENDERER));
+}
+
 void oglh::_HandleError(const char* func)
 {
 	GLenum err = glGetError();
@@ -204,4 +214,9 @@ void oglh::SetTextureProperties(unsigned int id, bool repeat, bool nearest)
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	HANDLE_ERROR();
+}
+
+std::string oglh::GetVersion()
+{
+	return std::string((char*)glGetString(GL_VERSION));
 }

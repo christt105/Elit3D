@@ -64,6 +64,14 @@ std::string FileSystem::OpenTextFile(const char* path)
     }
 }
 
+void FileSystem::SaveTextFile(const char* path, const char* file)
+{
+    std::ofstream f;
+    f.open(path);
+    f << file;
+    f.close();
+}
+
 bool FileSystem::Exists(const char* path)
 {
     return fs::exists(path);

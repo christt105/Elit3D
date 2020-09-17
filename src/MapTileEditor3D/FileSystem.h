@@ -24,6 +24,7 @@ public:
 	static nlohmann::json	OpenJSONFile(const char* path);
 	static void				SaveJSONFile(const char* path, const nlohmann::json& file);
 	std::string				OpenTextFile(const char* path);
+	static void				SaveTextFile(const char* path, const char* file);;
 
 	static bool Exists(const char* path);
 
