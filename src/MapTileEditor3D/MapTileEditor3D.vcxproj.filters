@@ -1226,6 +1226,9 @@
     <ClInclude Include="OpenGLHelper.h">
       <Filter>Tools</Filter>
     </ClInclude>
+    <ClInclude Include="DebugVars.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\MathGeoLib\include\Geometry\KDTree.inl">

@@ -71,13 +71,13 @@ bool Application::Init()
 	nlohmann::json conf = file_system->OpenJSONFile("Configuration/Configuration.json")["App"];
 
 	if (conf.is_null())
-		LOGE("Configuration.json not found");
+		LOGNE("Configuration.json not found");
 
 	name.assign(conf.value("name", "PROGRAM"));
 	version.assign(conf.value("version", "0.1"));
 
 	for (auto i = modules.begin(); i != modules.end(); ++i) {
-		LOG("Initializing module %s", (*i)->name.c_str());
+		LOGN("Initializing module %s", (*i)->name.c_str());
 		(*i)->Init(conf[(*i)->name]);
 	}
 
@@ -87,12 +87,12 @@ bool Application::Init()
 bool Application::Start()
 {
 	PROFILE_FUNCTION();
+
 	for (auto i = modules.begin(); i != modules.end(); ++i) {
-		LOG("Starting module %s", (*i)->name.c_str());
+		LOGN("Starting module %s", (*i)->name.c_str());
 		(*i)->Start();
 	}
 
-	Logger::console_log = true;
 
 	return true;
 }
@@ -119,7 +119,7 @@ UpdateStatus Application::Update()
 		for (auto i = modules.begin(); i != modules.end(); ++i) {
 			ret = (*i)->PreUpdate();
 			if (ret != UpdateStatus::UPDATE_CONTINUE) {
-				LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
+				LOGN("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
 				return ret;
 			}
 		}
@@ -130,7 +130,7 @@ UpdateStatus Application::Update()
 		for (auto i = modules.begin(); i != modules.end(); ++i) {
 			ret = (*i)->Update();
 			if (ret != UpdateStatus::UPDATE_CONTINUE) {
-				LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
+				LOGN("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
 				return ret;
 			}
 		}
@@ -141,7 +141,7 @@ UpdateStatus Application::Update()
 		for (auto i = modules.begin(); i != modules.end(); ++i) {
 			ret = (*i)->PostUpdate();
 			if (ret != UpdateStatus::UPDATE_CONTINUE) {
-				LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
+				LOGN("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
 				return ret;
 			}
 		}
@@ -161,15 +161,14 @@ bool Application::CleanUp()
 	PROFILE_FUNCTION();
 	bool ret = true;
 
-	Logger::console_log = false;
-
 	delete file_system;
 	delete random;
 
 	for (auto i = modules.rbegin(); i != modules.rend(); ++i) {
-		LOG("Cleaning Up module %s", (*i)->name.c_str());
+		LOGN("Cleaning Up module %s", (*i)->name.c_str());
 		ret = (*i)->CleanUp();
 		delete* i;
+		*i = nullptr;
 	}
 
 	return ret;

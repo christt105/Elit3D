@@ -248,6 +248,7 @@
     <ClInclude Include="c1Material.h" />
     <ClInclude Include="c1Mesh.h" />
     <ClInclude Include="c1Transform.h" />
+    <ClInclude Include="DebugVars.h" />
     <ClInclude Include="MapLayer.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ExternalTools\Assimp\include\aabb.h" />

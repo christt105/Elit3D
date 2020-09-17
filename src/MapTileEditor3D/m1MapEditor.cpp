@@ -129,8 +129,8 @@ void m1MapEditor::MousePicking(const float3& position)
 		if (m) {
 			int col = (int)floor(position.z);
 			int row = (int)floor(-position.x);
-			if (col < m->size.x && row < m->size.y && (col > -1 && row > -1)) {
-				if (m->layers[0]->tile_data[(m->size.x * col + row) * 3] != tile.x ||
+			if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
+				if (m->layers[0]->tile_data[(m->size.x * col + row) * 3	   ] != tile.x ||
 					m->layers[0]->tile_data[(m->size.x * col + row) * 3 + 1] != A ||
 					m->layers[0]->tile_data[(m->size.x * col + row) * 3 + 2] != B)
 				{

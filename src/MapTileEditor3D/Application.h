@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
+#include "DebugVars.h"
+
 #include <SDL_stdinc.h>
 
 enum class UpdateStatus;
@@ -51,6 +53,8 @@ public:
 
 	FileSystem* file_system = nullptr;
 	Random*		random = nullptr;
+
+	DebugVars debug;
 
 public:
 	const char* GetName();

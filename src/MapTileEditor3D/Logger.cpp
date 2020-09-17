@@ -14,11 +14,9 @@
 #pragma warning(disable : 4996) //_CRT_SECURE_NO_WARNINGS
 
 ImGuiTextBuffer Logger::txt;
-bool Logger::console_log;
 
-Logger::Logger()
+Logger::Logger() 
 {
-	console_log = false;
 }
 
 Logger::~Logger()
@@ -41,18 +39,24 @@ void Logger::Log(int i, const char file[], const char func[], int line, const ch
 
 	std::string strtype;
 	switch (i) {
+	case 3:
+		strtype.append("[E]");
 	case 1:
-		strtype.assign("[WARN]");
+		strtype.append("[WARN]");
 		break;
+	case 4:
+		strtype.append("[E]");
 	case 2:
-		strtype.assign("[ERROR]");
+		strtype.append("[ERROR]");
 		break;
+	case 5:
+		strtype.append("[E]");
 	default:
-		strtype.assign("[INFO]");
+		strtype.append("[INFO]");
 		break;
 	}
 
-	if (console_log && App && App->gui && App->gui->console) {
+	if (i < 3 && App && App->gui && App->gui->console) {
 		LineLog* log = new LineLog(Logger::LogType::INFO, tmp_string, time);
 
 		switch (i) {

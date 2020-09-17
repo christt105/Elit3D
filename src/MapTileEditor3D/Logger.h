@@ -7,9 +7,13 @@
 
 #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
 
-#define LOG(format, ...)  Logger::Log(0, __FILENAME__, __FUNCTION__, __LINE__, format, __VA_ARGS__);
-#define LOGW(format, ...) Logger::Log(1, __FILENAME__, __FUNCTION__, __LINE__, format, __VA_ARGS__);
-#define LOGE(format, ...) Logger::Log(2, __FILENAME__, __FUNCTION__, __LINE__, format, __VA_ARGS__);
+#define LOG(format,   ...) Logger::Log(0, __FILENAME__, __FUNCTION__, __LINE__, format, __VA_ARGS__);
+#define LOGW(format,  ...) Logger::Log(1, __FILENAME__, __FUNCTION__, __LINE__, format, __VA_ARGS__);
+#define LOGE(format,  ...) Logger::Log(2, __FILENAME__, __FUNCTION__, __LINE__, format, __VA_ARGS__);
+
+#define LOGN(format,  ...) Logger::Log(3, __FILENAME__, __FUNCTION__, __LINE__, format, __VA_ARGS__);
+#define LOGNW(format, ...) Logger::Log(4, __FILENAME__, __FUNCTION__, __LINE__, format, __VA_ARGS__);
+#define LOGNE(format, ...) Logger::Log(5, __FILENAME__, __FUNCTION__, __LINE__, format, __VA_ARGS__);
 
 struct LineLog;
 
@@ -28,8 +32,6 @@ public:
 	static void ExportLog();
 
 	static const char* GetLog();
-
-	static bool console_log;
 
 private:
 	static ImGuiTextBuffer txt;

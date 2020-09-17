@@ -106,7 +106,9 @@ UpdateStatus m1Scene::Update()
 		}
 	}
 
-	oglh::OldDrawLines(xd0, xd1);
+	if (App->debug.draw_mouse_pick_line) {
+		oglh::OldDrawLines(xd0, xd1);
+	}
 
 	App->gui->scene->viewport->End();
 	

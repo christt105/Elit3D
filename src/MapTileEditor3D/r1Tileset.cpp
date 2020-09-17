@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "m1Resources.h"
 #include "FileSystem.h"
+#include "r1Texture.h"
 
 #include "Logger.h"
 
@@ -18,7 +19,7 @@ void r1Tileset::Load()
 	auto json = App->file_system->OpenJSONFile(library_path.c_str());
 
 	texture_uid = json.value("Image", 0ULL);
-	Resource* res = App->resources->Get(texture_uid);
+	r1Texture* res = (r1Texture*)App->resources->Get(texture_uid);
 	if (res != nullptr)
 		res->Attach();
 	else
@@ -26,6 +27,11 @@ void r1Tileset::Load()
 
 	ntiles = json.value("ntiles", 0);
 	columns = json.value("columns", 0);
+	if (res->GetWidth() != columns || res->GetHeight() != ntiles / columns) {
+		LOGW("TileSet changed ncolumns or rows, may change the result of map");
+		columns = res->GetWidth() / 32;
+		ntiles = columns * res->GetHeight() / 32;
+	}
 
 	width = json["tile"].value("width", 32);
 	height = json["tile"].value("hright", 32);

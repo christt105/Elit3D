@@ -68,7 +68,7 @@ bool m1GUI::Start()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
-	LOG("ImGui initialized with version %s", ImGui::GetVersion());
+	LOGN("ImGui initialized with version %s", ImGui::GetVersion());
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.Fonts->AddFontDefault();
@@ -122,8 +122,7 @@ void m1GUI::MainMenuBar()
 		}
 		
 		if (ImGui::MenuItem("Save")) {
-			m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::SAVE_MAP);
-			App->events->AddEvent(e);
+			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::SAVE_MAP));
 		}
 
 		ImGui::EndMenu();
@@ -181,6 +180,10 @@ void m1GUI::MainMenuBar()
 	}
 
 	if (ImGui::BeginMenu("Debugging")) {
+		if (ImGui::MenuItem("Show Mouse Pick Line", "", App->debug.draw_mouse_pick_line)) {
+			App->debug.draw_mouse_pick_line = !App->debug.draw_mouse_pick_line;
+		}
+
 		if (ImGui::MenuItem("Resources", "", dbg_resources->GetActive())) {
 			dbg_resources->SetActive(!dbg_resources->GetActive());
 		}

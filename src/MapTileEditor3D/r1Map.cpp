@@ -10,6 +10,8 @@
 
 #include "Profiler.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 r1Map::r1Map(const uint64_t& _uid) : Resource(Resource::Type::Map, _uid)
 {
 }
