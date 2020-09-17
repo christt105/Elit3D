@@ -19,6 +19,7 @@
 
 #include "FileSystem.h"
 #include "Random.h"
+
 #include "OpenGLHelper.h"
 
 #include "Profiler.h"
@@ -107,7 +108,7 @@ void Application::PrepareUpdate()
 	++frame_count;
 
 	dt = (float)((time - last_time) / (double)SDL_GetPerformanceFrequency());
-	framerate = 1 / dt;
+	framerate = (unsigned char)(1.f / dt);
 }
 
 UpdateStatus Application::Update()
@@ -215,24 +216,6 @@ void Application::ExecuteURL(const char* url)
 
 void Application::FillSysInfo()
 {
-	sys_info.platform.assign(SDL_GetPlatform());
-	sys_info.cpu_cores = SDL_GetCPUCount();
-	sys_info.ram_mb = SDL_GetSystemRAM();
-
-	sys_info.ogl_version = oglh::GetVersion();
-	sys_info.vendor = oglh::GetVendor();
-	sys_info.model = oglh::GetModel();
-
-	std::string file = {
-		"Platform: " + sys_info.platform + 
-		"\nCPU:\n" +
-		"\tModel: \n"
-		"\tNumber Cores: " + std::to_string(sys_info.cpu_cores) + 
-		"\nRAM: " + std::to_string(sys_info.ram_mb) + "mb\n" +
-		"GPU:\n" + 
-		"\tOpenGL version: " + sys_info.ogl_version + 
-		"\n\tGraphics Card:\n\t\tVendor: " + sys_info.vendor + "\n\t\tModel: " + sys_info.model
-	};
-
-	FileSystem::SaveTextFile("SystemInfo.txt", file.c_str());
+	sys_info.FillInfo();
+	sys_info.SaveInFile();
 }

@@ -88,6 +88,12 @@
     <Filter Include="Tools\Math">
       <UniqueIdentifier>{21deb4c4-8478-4ad6-b09c-58974fd6aba3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External Libraries\infoware">
+      <UniqueIdentifier>{e375f570-5dbb-48c7-a320-152fd7d13456}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\infoware\detail">
+      <UniqueIdentifier>{8dcb4005-ad03-4577-9737-ad3c6f7ebb1e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Logger.cpp">
@@ -349,6 +355,9 @@
       <Filter>Resources</Filter>
     </ClCompile>
     <ClCompile Include="OpenGLHelper.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemInfo.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1227,6 +1236,45 @@
       <Filter>Tools</Filter>
     </ClInclude>
     <ClInclude Include="DebugVars.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\infoware.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\linkage.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\pci.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\system.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\version.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\cpu.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\gpu.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\scope.hpp">
+      <Filter>External Libraries\infoware\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\sysctl.hpp">
+      <Filter>External Libraries\infoware\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\winstring.hpp">
+      <Filter>External Libraries\infoware\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\cpuid.hpp">
+      <Filter>External Libraries\infoware\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\memory.hpp">
+      <Filter>External Libraries\infoware\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemInfo.h">
       <Filter>Tools</Filter>
     </ClInclude>
   </ItemGroup>

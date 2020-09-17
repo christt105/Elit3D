@@ -96,7 +96,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -134,7 +134,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -240,6 +240,7 @@
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="r1Shader.cpp" />
+    <ClCompile Include="SystemInfo.cpp" />
     <ClCompile Include="Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -249,6 +250,18 @@
     <ClInclude Include="c1Mesh.h" />
     <ClInclude Include="c1Transform.h" />
     <ClInclude Include="DebugVars.h" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\cpu.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\cpuid.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\memory.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\scope.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\sysctl.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\winstring.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\gpu.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\infoware.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\linkage.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\pci.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\system.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\version.hpp" />
     <ClInclude Include="MapLayer.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ExternalTools\Assimp\include\aabb.h" />
@@ -533,6 +546,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="r1Shader.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="SystemInfo.h" />
     <ClInclude Include="TypeVar.h" />
     <ClInclude Include="Viewport.h" />
   </ItemGroup>

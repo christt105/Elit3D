@@ -4,6 +4,7 @@
 #include <string>
 
 #include "DebugVars.h"
+#include "SystemInfo.h"
 
 #include <SDL_stdinc.h>
 
