@@ -1,17 +1,10 @@
 #include "m1Objects.h"
 #include "Object.h"
-#include "c1Mesh.h"
-#include "c1Material.h"
 #include "Application.h"
 #include "m1Render3D.h"
 
 #include "r1Shader.h"
 
-#include "ExternalTools/par_shapes/par_shapes.h"
-
-//TEMP
-#include "m1GUI.h"
-#include "p1Scene.h"
 #include "Viewport.h"
 
 #include "Profiler.h"
@@ -45,7 +38,8 @@ bool m1Objects::Start()
 UpdateStatus m1Objects::Update()
 {
 	PROFILE_FUNCTION();
-	App->gui->scene->viewport->Begin();
+
+	App->render->GetViewport("scene")->Begin();
 
 	auto shader = App->render->GetShader("default");
 	shader->Use();
@@ -56,7 +50,7 @@ UpdateStatus m1Objects::Update()
 
 	shader->SetMat4("model", float4x4::identity);
 
-	App->gui->scene->viewport->End();
+	App->render->GetViewport("scene")->End();
 
 	return UpdateStatus::UPDATE_CONTINUE;
 }

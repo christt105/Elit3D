@@ -13,28 +13,7 @@
 #include "p1Scene.h"
 #include "Viewport.h"
 
-#include "m1Resources.h"
-#include "r1Mesh.h"
-
 #include "m1MapEditor.h"
-
-// TEMP ====================================
-#include "Object.h"
-#include "c1Transform.h"
-#include "c1Mesh.h"
-#include "c1Material.h"
-
-#include "r1Model.h"
-
-#include "m1Window.h"
-
-#include "ExternalTools/MathGeoLib/include/Geometry/Plane.h"
-
-#include "m1Events.h"
-//==========================================
-
-#include "ExternalTools/MathGeoLib/include/Geometry/Ray.h"
-#include "ExternalTools/MathGeoLib/include/Geometry/LineSegment.h"
 
 #include "Logger.h"
 
@@ -72,7 +51,7 @@ UpdateStatus m1Scene::Update()
 	if (App->input->IsKeyDown(SDL_SCANCODE_ESCAPE))
 		return UpdateStatus::UPDATE_STOP;
 
-	App->gui->scene->viewport->Begin();
+	App->render->GetViewport("scene")->Begin();
 
 	if (draw_grid) {
 		static auto shader1 = App->render->GetShader("grid");
@@ -110,7 +89,7 @@ UpdateStatus m1Scene::Update()
 		oglh::OldDrawLines(xd0, xd1);
 	}
 
-	App->gui->scene->viewport->End();
+	App->render->GetViewport("scene")->End();
 	
 	return UpdateStatus::UPDATE_CONTINUE;
 }

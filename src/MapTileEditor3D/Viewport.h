@@ -5,19 +5,20 @@
 class Viewport
 {
 	friend class m1Render3D;
+	friend class p1Scene;
 private:
 	Viewport();
 	~Viewport();
 
 	void Clear();
 
-public:
 	void Update();
 	void UpdateSize(int x, int y);
 	void Blit() const;
 
 	unsigned int GetTexture() const;
 
+public:
 	void Begin() const;
 	void End() const;
 

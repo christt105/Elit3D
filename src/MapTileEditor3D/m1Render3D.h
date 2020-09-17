@@ -26,7 +26,8 @@ public:
 
 	bool CleanUp() override;
 
-	Viewport* CreateViewport();
+	Viewport* CreateViewport(const char* name);
+	Viewport* GetViewport(const char* name);
 
 	r1Shader* GetShader(const char* name);
 
@@ -36,7 +37,7 @@ private:
 private:
 	SDL_GLContext context = nullptr;
 
-	std::vector<Viewport*> viewports;
+	std::map<std::string, Viewport*> viewports;
 
 	std::map<std::string, unsigned int> shaders;
 	std::map<std::string, r1Shader*> programs;

@@ -31,7 +31,7 @@ p1Scene::p1Scene(bool start_enabled, bool appear_mainmenubar, bool can_close)
 
 void p1Scene::Start()
 {
-	viewport = App->render->CreateViewport();
+	viewport = App->render->CreateViewport("scene");
 }
 
 p1Scene::~p1Scene()

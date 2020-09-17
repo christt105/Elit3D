@@ -2,21 +2,15 @@
 
 #include "Application.h"
 #include "m1GUI.h"
-#include "p1Scene.h"
 #include "p1Tileset.h"
 #include "Viewport.h"
 
 #include "m1Render3D.h"
 #include "r1Shader.h"
 
-#include "Object.h"
-
 #include "MapLayer.h"
 
-#include "c1Mesh.h"
-#include "c1Transform.h"
-#include "c1Material.h"
-#include "r1Mesh.h"
+#include "m1Resources.h"
 #include "r1Texture.h"
 #include "r1Map.h"
 
@@ -42,7 +36,6 @@ bool m1MapEditor::Start()
 {
 	PROFILE_FUNCTION();
 	
-	panel_scene = App->gui->scene;
 	panel_tileset = App->gui->tileset;
 
 	return true;
@@ -56,8 +49,7 @@ UpdateStatus m1MapEditor::Update()
 		LoadMap(App->resources->FindByName("map"));
 	}
 	else {
-
-		panel_scene->viewport->Begin();
+		App->render->GetViewport("scene")->Begin();
 
 		static auto shader = App->render->GetShader("tilemap");
 		shader->Use();
@@ -85,7 +77,7 @@ UpdateStatus m1MapEditor::Update()
 
 		oglh::ActiveTexture(0);
 
-		panel_scene->viewport->End();
+		App->render->GetViewport("scene")->End();
 	}
 
 	return UpdateStatus::UPDATE_CONTINUE;

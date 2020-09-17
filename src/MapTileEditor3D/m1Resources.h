@@ -1,11 +1,7 @@
 #pragma once
 #include "Module.h"
-#include "Application.h"
-#include "Random.h"
 #include "Resource.h"
-#include <SDL_stdinc.h>
-#include <future>
-//#include <winnt.h>
+#include "Random.h"
 
 struct Folder;
 class FileWatch;

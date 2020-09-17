@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Module.h"
-#include "int2.h"
-#include "Buffer.h"
 
 #include "ExternalTools/MathGeoLib/include/Math/float3.h"
 
@@ -33,7 +31,6 @@ public:
 private:
     uint64_t map = 0ULL;
     
-    p1Scene* panel_scene = nullptr;
     p1Tileset* panel_tileset = nullptr;
 };
 

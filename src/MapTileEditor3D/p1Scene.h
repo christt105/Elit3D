@@ -6,6 +6,7 @@ class Viewport;
 class p1Scene :
 	public Panel
 {
+	friend class p1Configuration;
 public:
 	p1Scene(bool start_enabled = true, bool appear_mainmenubar = true, bool can_close = true);
 	~p1Scene();
@@ -19,5 +20,6 @@ public:
 
 	void MenuBar();
 
+private:
 	Viewport* viewport = nullptr;
 };
