@@ -5,6 +5,7 @@
 
 #include "DebugVars.h"
 #include "SystemInfo.h"
+#include "Timer.h"
 
 enum class UpdateStatus;
 
@@ -59,8 +60,8 @@ public:
 
 	float GetDt() const;
 	unsigned int GetFrames() const;
-	inline unsigned char GetFrameRate() const {
-		return framerate;
+	inline unsigned int GetFrameRateLS() const {
+		return framerate_last_second;
 	}
 
 	void ExecuteURL(const char* url);
@@ -73,9 +74,11 @@ private:
 
 	float dt = 0.f;
 	uint64_t time = 0ULL;
-	unsigned char framerate = 0u; //TODO: save this in a vector
+	unsigned int framerate = 0u; //TODO: save this in a vector
+	unsigned int framerate_last_second = 0u;
 	uint64_t last_time = 0ULL;
 	unsigned int frame_count = 0U;
+	Timer framerate_last_second_timer;
 };
 
 extern Application* App;

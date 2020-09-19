@@ -34,6 +34,9 @@ Application::~Application()
 bool Application::Init()
 {
 	PROFILE_FUNCTION();
+
+	framerate_last_second_timer.Start();
+
 	//Create instances of modules
 	input = new m1Input();
 	window = new m1Window();
@@ -90,8 +93,6 @@ bool Application::Start()
 		LOGN("Starting module %s", (*i)->name.c_str());
 		(*i)->Start();
 	}
-
-
 	return true;
 }
 
@@ -101,8 +102,12 @@ void Application::PrepareUpdate()
 	time = SDL_GetPerformanceCounter();
 	++frame_count;
 
-	dt = (float)((time - last_time) / (double)SDL_GetPerformanceFrequency());
+	dt = (float)((double)(time - last_time) / (double)SDL_GetPerformanceFrequency());
 	framerate = (unsigned char)(1.f / dt);
+	if (framerate_last_second_timer.ElapsedMilliseconds() >= 1000) {
+		framerate_last_second = framerate;
+		framerate_last_second_timer.Start();
+	}
 }
 
 UpdateStatus Application::Update()

@@ -24,7 +24,7 @@ p1Configuration::~p1Configuration()
 void p1Configuration::Update()
 {
 	if (ImGui::CollapsingHeader("Render", ImGuiTreeNodeFlags_DefaultOpen)) {
-		ImGui::Text("FrameRate: "); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6470f, 0.f, 1.f), "%u", App->GetFrameRate());
+		ImGui::Text("FrameRate: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%u", App->GetFrameRateLS());
 		ImGui::Checkbox("Draw Grid", &App->scene->draw_grid);
 		static bool wired = false;
 		if (ImGui::Checkbox("Wired Mode", &wired))

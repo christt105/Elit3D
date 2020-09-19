@@ -247,6 +247,7 @@
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="r1Shader.cpp" />
     <ClCompile Include="SystemInfo.cpp" />
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -553,6 +554,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="r1Shader.h" />
     <ClInclude Include="SystemInfo.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="TypeVar.h" />
     <ClInclude Include="Viewport.h" />
   </ItemGroup>

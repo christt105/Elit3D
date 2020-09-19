@@ -369,6 +369,9 @@
     <ClCompile Include="Logger.cpp">
       <Filter>Tools\System</Filter>
     </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1285,6 +1288,9 @@
     </ClInclude>
     <ClInclude Include="ExternalTools\ImGui\IconsFontAwesome5\IconsFontAwesome5Brands.h">
       <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
