@@ -1283,6 +1283,9 @@
     <ClInclude Include="Logger.h">
       <Filter>Tools\System</Filter>
     </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\IconsFontAwesome5\IconsFontAwesome5Brands.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\MathGeoLib\include\Geometry\KDTree.inl">

@@ -140,6 +140,14 @@ void m1MapEditor::ResizeMap(int width, int height)
 		m->Resize(width, height);
 }
 
+int2 m1MapEditor::GetMapSize() const
+{
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m)
+		return m->size;
+	return int2(-1, -1);
+}
+
 bool m1MapEditor::ValidMap() const
 {
 	return map != 0ULL;

@@ -8,6 +8,7 @@
 #include "m1Window.h"
 #include "m1Render3D.h"
 #include "m1Events.h"
+#include "m1MapEditor.h"
 #include "r1Map.h"
 
 #include "p1Configuration.h"
@@ -21,6 +22,7 @@
 #include "p1DebugResources.h"
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
+#include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5Brands.h"
 
 #include "Logger.h"
 
@@ -82,6 +84,8 @@ bool m1GUI::Start()
 	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
 	io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 12.0f, &icons_config, icons_ranges);
+	static const ImWchar icons_ranges2[] = { ICON_MIN_FAB, ICON_MAX_FAB , 0 };
+	io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAB, 16.0f, &icons_config, icons_ranges2);
 	// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 	
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->render->context);
@@ -142,9 +146,12 @@ void m1GUI::MainMenuBar()
 		}
 
 	static bool resize_map = false;
+	static int map_resize[2] = { 10 , 10 };
 	if (ImGui::BeginMenu("Edit")) {
 		if (ImGui::MenuItem("Resize Map")) {
 			resize_map = true;
+			int2 m = App->map_editor->GetMapSize();
+			map_resize[0] = m.x; map_resize[1] = m.y;
 		}
 
 		ImGui::EndMenu();
@@ -152,13 +159,12 @@ void m1GUI::MainMenuBar()
 
 	if (resize_map)
 		if (ImGui::Begin("Resize Map", &resize_map)) {
-			static int size[2] = { 10 , 10 };
-			ImGui::InputInt2("New Size", size);
+			ImGui::InputInt2("New Size", map_resize);
 
 			if (ImGui::Button("Resize")) {
 				m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::RESIZE_MAP);
-				e->info["width"] = new iTypeVar(size[0]);
-				e->info["height"] = new iTypeVar(size[1]);
+				e->info["width"] = new iTypeVar(map_resize[0]);
+				e->info["height"] = new iTypeVar(map_resize[1]);
 				App->events->AddEvent(e);
 				resize_map = false;
 			}

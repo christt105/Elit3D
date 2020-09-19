@@ -1,17 +1,25 @@
 #include "SystemInfo.h"
 
-#ifdef _DEBUG
-#pragma comment(lib, "ExternalTools/infoware/libx86/_Debug/infowared.lib")
-#else
-#pragma comment(lib, "ExternalTools/infoware/libx86/_Release/infoware.lib")
-#endif
-
 #include <SDL_cpuinfo.h>
 
 #include "OpenGLHelper.h"
 #include "FileSystem.h"
 
 #include <iostream>
+
+#if defined(_WIN64)
+#ifdef _DEBUG
+#pragma comment(lib, "ExternalTools/infoware/libx64/_Debug/infowared.lib")
+#else
+#pragma comment(lib, "ExternalTools/infoware/libx64/_Release/infoware.lib")
+#endif
+#else
+#ifdef _DEBUG
+#pragma comment(lib, "ExternalTools/infoware/libx86/_Debug/infowared.lib")
+#else
+#pragma comment(lib, "ExternalTools/infoware/libx86/_Release/infoware.lib")
+#endif
+#endif
 
 void SystemInfo::FillInfo()
 {

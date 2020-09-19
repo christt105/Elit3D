@@ -2,6 +2,7 @@
 
 #include "Module.h"
 
+#include "int2.h"
 #include "ExternalTools/MathGeoLib/include/Math/float3.h"
 
 class Object;
@@ -25,6 +26,7 @@ public:
 
     void MousePicking(const float3& position);
     void ResizeMap(int width, int height);
+    int2 GetMapSize() const;
 
     bool ValidMap() const;
 

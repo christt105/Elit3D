@@ -1,5 +1,7 @@
 #pragma once
 #include "Panel.h"
+#include <vector>
+
 class p1About :
 	public Panel
 {
@@ -8,5 +10,8 @@ public:
 	~p1About();
 
 	void Update() override;
+
+private:
+	std::vector<std::string> file_data;
 };
 

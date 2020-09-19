@@ -2,7 +2,7 @@
 
 pcg_extras::seed_seq_from<std::random_device> Random::seed_source;
 pcg32 Random::rng = pcg32(seed_source);
-std::uniform_real_distribution<double> Random::guid = std::uniform_real_distribution<double>(1ULL, UINT64_MAX);
+std::uniform_real_distribution<double> Random::guid = std::uniform_real_distribution<double>(1.0, UINT64_MAX);
 
 float Random::Randomf(float min, float max)
 {

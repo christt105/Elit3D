@@ -6,6 +6,7 @@
 
 #include "ExternalTools/ImGui/imgui.h"
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
+#include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5Brands.h"
 
 class Panel
 {
