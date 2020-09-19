@@ -25,18 +25,19 @@ void r1Tileset::Load()
 	else
 		LOGW("Texture with id %s not found in tileset %s(%s)", std::to_string(texture_uid).c_str(), name.c_str(), std::to_string(uid).c_str());
 
-	ntiles = json.value("ntiles", 0);
-	columns = json.value("columns", 0);
-	if (res->GetWidth() != columns || res->GetHeight() != ntiles / columns) {
-		LOGW("TileSet changed ncolumns or rows, may change the result of map");
-		columns = res->GetWidth() / 32;
-		ntiles = columns * res->GetHeight() / 32;
-	}
-
 	width = json["tile"].value("width", 32);
 	height = json["tile"].value("hright", 32);
 	margin = json["tile"].value("margin", 0);
 	spacing = json["tile"].value("spacing", 0);
+
+
+	ntiles = json.value("ntiles", 0);
+	columns = json.value("columns", 0);
+	if (res->GetWidth() / width != columns || res->GetHeight() / height != ntiles / columns) {
+		LOGW("TileSet changed ncolumns or rows, may change the result of map");
+		columns = res->GetWidth() / width;
+		ntiles = columns * res->GetHeight() / height;
+	}
 
 	use_transparent = json.value("use transparent", false);
 	transparent_color[0] = json["transparent color"].value("r", -1.f);

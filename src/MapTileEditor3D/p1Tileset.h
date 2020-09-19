@@ -2,6 +2,8 @@
 #include "Panel.h"
 
 class r1Shader;
+class r1Texture;
+class r1Tileset;
 
 struct TileSetData {
 	char buf_name[25];
@@ -28,6 +30,10 @@ public:
 
 	void Start() override;
 	void Update() override;
+
+	void DisplayImage(r1Texture* texture, r1Tileset* tile);
+
+	void TileSetInfo(r1Tileset* tile);
 
 	void SelectTex();
 	void DeselectTex();

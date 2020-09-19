@@ -1,5 +1,6 @@
 #include "OpenGLHelper.h"
 
+#include <Windows.h>
 #include <GL/glew.h>
 
 #include "Logger.h"
@@ -7,6 +8,7 @@
 void oglh::GenTexture(unsigned int& id)
 {
 	glGenTextures(1, &id);
+	HANDLE_ERROR();
 }
 
 std::string oglh::GetVendor()
@@ -21,6 +23,8 @@ std::string oglh::GetModel()
 
 void oglh::_HandleError(const char* func)
 {
+	if (wglGetCurrentContext() == NULL)
+		return;
 	GLenum err = glGetError();
 	while (err != GL_NO_ERROR) {
 		std::string error_type;
@@ -50,7 +54,7 @@ void oglh::_HandleError(const char* func)
 		default:
 			break;
 		}
-		LOGW("OpenGL error %i (%s) on %s", err, error_type.c_str(), func);
+		LOGNW("OpenGL error %i (%s) on %s", err, error_type.c_str(), func);
 		err = glGetError();
 	}
 }
@@ -58,6 +62,7 @@ void oglh::_HandleError(const char* func)
 void oglh::ActiveTexture(int val)
 {
 	glActiveTexture(GL_TEXTURE0 + val);
+	HANDLE_ERROR();
 }
 
 void oglh::BindTexture(unsigned int id)
@@ -75,6 +80,7 @@ void oglh::TexSubImage2D(int x, int y, int width, int height, unsigned char* pix
 void oglh::UnBindTexture()
 {
 	glBindTexture(GL_TEXTURE_2D, 0u);
+	HANDLE_ERROR();
 }
 
 void oglh::UnBindBuffers()
@@ -82,16 +88,19 @@ void oglh::UnBindBuffers()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	HANDLE_ERROR();
 }
 
 void oglh::DrawArrays(int n)
 {
 	glDrawArrays(GL_TRIANGLES, 0, n);
+	HANDLE_ERROR();
 }
 
 void oglh::DrawElements(int size)
 {
 	glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, (void*)0);
+	HANDLE_ERROR();
 }
 
 void oglh::OldDrawLines(const float3& begin, const float3& end)
@@ -100,6 +109,7 @@ void oglh::OldDrawLines(const float3& begin, const float3& end)
 	glVertex3f(begin.x, begin.y, begin.z);
 	glVertex3f(end.x, end.y, end.z);
 	glEnd();
+	HANDLE_ERROR();
 }
 
 void oglh::BindBuffers(unsigned int vao, unsigned int vertex, unsigned int elements)
@@ -107,11 +117,13 @@ void oglh::BindBuffers(unsigned int vao, unsigned int vertex, unsigned int eleme
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements);
+	HANDLE_ERROR();
 }
 
 void oglh::DeleteBuffer(unsigned int& id)
 {
 	glDeleteBuffers(1, &id);
+	HANDLE_ERROR();
 }
 
 void oglh::DeleteVAO(unsigned int& vao, unsigned int& vertex, unsigned int& elements)
@@ -119,17 +131,20 @@ void oglh::DeleteVAO(unsigned int& vao, unsigned int& vertex, unsigned int& elem
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(1, &vertex);
 	glDeleteBuffers(1, &elements);
+	HANDLE_ERROR();
 }
 
 void oglh::DeleteTexture(unsigned int& id)
 {
 	glDeleteTextures(1, &id);
+	HANDLE_ERROR();
 }
 
 void oglh::GenVAO(unsigned int& vao)
 {
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
+	HANDLE_ERROR();
 }
 
 void oglh::GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type_size, unsigned int element_size, const float* data)
@@ -137,6 +152,7 @@ void oglh::GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type
 	glGenBuffers(1, &id);
 	glBindBuffer(GL_ARRAY_BUFFER, id);
 	glBufferData(GL_ARRAY_BUFFER, type_size * size * element_size, data, GL_STATIC_DRAW);
+	HANDLE_ERROR();
 }
 
 void oglh::GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type_size, unsigned int element_size, const float* data, unsigned int attrib_index, unsigned int attrib_size)
@@ -146,6 +162,7 @@ void oglh::GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type
 	glBufferData(GL_ARRAY_BUFFER, type_size * size * element_size, data, GL_STATIC_DRAW);
 	glVertexAttribPointer(attrib_index, attrib_size, GL_FLOAT, GL_FALSE, 0, (void*)0); // TODO: allow other than GL_FLOAT
 	glEnableVertexAttribArray(attrib_index);
+	HANDLE_ERROR();
 }
 
 void oglh::GenElementBuffer(unsigned int& id, unsigned int size, unsigned int* data)
@@ -153,12 +170,15 @@ void oglh::GenElementBuffer(unsigned int& id, unsigned int size, unsigned int* d
 	glGenBuffers(1, &id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * size, data, GL_STATIC_DRAW);
+	HANDLE_ERROR();
 }
 
-void oglh::GenTextureData(unsigned int& id, bool repeat, bool nearest, unsigned int size_x, unsigned int size_y, unsigned char* data)
+void oglh::GenTextureData(unsigned int& id, bool repeat, bool nearest, unsigned int size_x, unsigned int size_y, const unsigned char* data)
 {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
+
+	HANDLE_ERROR();
 	
 	if (repeat) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -177,6 +197,7 @@ void oglh::GenTextureData(unsigned int& id, bool repeat, bool nearest, unsigned 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
+	HANDLE_ERROR();
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, size_x, size_y, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
@@ -222,9 +243,10 @@ void oglh::PolygonMode(bool line)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	HANDLE_ERROR();
 }
 
 std::string oglh::GetVersion()
 {
-	return std::string((char*)glGetString(GL_VERSION));
+	return std::string((const char*)glGetString(GL_VERSION));
 }

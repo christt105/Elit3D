@@ -10,7 +10,7 @@
 #include "m1Window.h"
 
 #include "Logger.h"
-
+#include "OpenGLHelper.h"
 #include "FileSystem.h"
 
 #include "Viewport.h"
@@ -49,6 +49,8 @@ bool m1Render3D::Init(const nlohmann::json& node)
     if (SDL_GL_SetSwapInterval(1) < 0) {
         LOG("Warning: Unable to set VSync! SDL Error: %s", SDL_GetError());
     }
+
+    HANDLE_ERROR();
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -71,9 +73,12 @@ bool m1Render3D::Init(const nlohmann::json& node)
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
 
+    HANDLE_ERROR();
+
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
     loadShaders();
+    HANDLE_ERROR();
 
 	return ret;
 }

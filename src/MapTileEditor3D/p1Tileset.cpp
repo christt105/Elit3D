@@ -26,12 +26,14 @@ void p1Tileset::Start()
 {
 	//TEMP Auto select default tileset
 	select_tileset = false;
-	auto res = App->resources->FindGet("tileset1");
-	tileset = res->GetUID();
-	res->Attach();
-	auto shader = App->render->GetShader("tilemap");
-	shader->Use();
-	shader->SetInt2("ntilesAtlas", { ((r1Tileset*)res)->columns, ((r1Tileset*)res)->ntiles / ((r1Tileset*)res)->columns });
+	auto res = App->resources->FindGet("test"); //TODO: if not load before map initialization it will display bad (?)
+	if (res) {
+		tileset = res->GetUID();
+		res->Attach();
+		auto shader = App->render->GetShader("tilemap");
+		shader->Use();
+		shader->SetInt2("ntilesAtlas", { ((r1Tileset*)res)->columns, ((r1Tileset*)res)->ntiles / ((r1Tileset*)res)->columns });
+	}
 }
 
 void p1Tileset::Update()
@@ -54,58 +56,14 @@ void p1Tileset::Update()
 		ImGui::Separator();
 
 		r1Tileset* tile = (r1Tileset*)App->resources->Get(tileset);
-		ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), tile->name.c_str());
-		ImGui::Spacing();
-		ImGui::Text("Tile width:  ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->width);
-		ImGui::SameLine();
-		ImGui::Text("\tMargin: ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->margin);
-		ImGui::Text("Tile height: "); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->height);
-		ImGui::SameLine();
-		ImGui::Text("\tSpacin: ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->spacing);
-
-		ImGui::Text("Columns:\t");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->columns);
-		ImGui::Text("Rows:\t"); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->ntiles / tile->columns);
-
-		ImGui::Separator();
-
 		if (tile != nullptr) {
+			TileSetInfo(tile);
+
+			ImGui::Separator();
+
 			r1Texture* texture = (r1Texture*)App->resources->Get(tile->GetTextureUID());
 			if (texture != nullptr) {
-				if (ImGui::BeginChild("##tileset")) {
-					ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2((float)texture->GetWidth(), (float)texture->GetHeight()), ImVec2(0, 0), ImVec2(1, -1));
-					if (ImGui::IsItemHovered()) {
-						ImVec2 mouse = ImGui::GetMousePos() - ImGui::GetItemRectMin();
-						ImVec2 tile_mouse = ImVec2(floor(mouse.x / tile->width), floor(mouse.y / tile->height));
-
-						ImGui::BeginTooltip();
-						ImGui::Text("Tile: %i, %i", (int)tile_mouse.x, (int)tile_mouse.y);
-						ImGui::EndTooltip();
-
-						ImVec2 min = ImGui::GetItemRectMin() + ImVec2(tile_mouse.x * tile->width, tile_mouse.y * tile->height);
-						ImVec2 max = min + ImVec2((float)tile->width, (float)tile->height);
-
-						auto draw_list = ImGui::GetCurrentWindow()->DrawList;
-
-						draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.6f)));
-						draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(0.141f, 0.701f, 1.f, 1.f)));
-
-						if (ImGui::IsItemClicked()) {
-							tile_selected[0] = (int)tile_mouse.x;
-							tile_selected[1] = (int)tile_mouse.y;
-						}
-
-					}
-					if (tile_selected[0] != -1) {
-						auto draw_list = ImGui::GetCurrentWindow()->DrawList;
-
-						ImVec2 min = ImGui::GetItemRectMin() + ImVec2((float)(tile_selected[0] * tile->width), (float)(tile_selected[1] * tile->height));
-						ImVec2 max = min + ImVec2((float)tile->width, (float)tile->height);
-
-						draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.3f)));
-						draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 0.654f, 0.141f, 1.f)));
-					}
-					ImGui::EndChild();
-				}
+				DisplayImage(texture, tile);
 			}
 		}
 	}
@@ -139,6 +97,7 @@ void p1Tileset::Update()
 					auto shader = App->render->GetShader("tilemap");
 					shader->Use();
 					shader->SetInt2("ntilesAtlas", { ((r1Tileset*)(*i))->columns, ((r1Tileset*)(*i))->ntiles / ((r1Tileset*)(*i))->columns });
+					shader->SetBool("loaded", true);
 				}
 				ImGui::SameLine();
 				ImGui::PushID(*i);
@@ -151,6 +110,60 @@ void p1Tileset::Update()
 			ImGui::End();
 		}
 	}
+}
+
+void p1Tileset::DisplayImage(r1Texture* texture, r1Tileset* tile)
+{
+	if (ImGui::BeginChild("##tileset")) {
+		ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2((float)texture->GetWidth(), (float)texture->GetHeight()), ImVec2(0, 0), ImVec2(1, -1));
+		if (ImGui::IsItemHovered()) {
+			ImVec2 mouse = ImGui::GetMousePos() - ImGui::GetItemRectMin();
+			ImVec2 tile_mouse = ImVec2(floor(mouse.x / tile->width), floor(mouse.y / tile->height));
+
+			ImGui::BeginTooltip();
+			ImGui::Text("Tile: %i, %i", (int)tile_mouse.x, (int)tile_mouse.y);
+			ImGui::EndTooltip();
+
+			ImVec2 min = ImGui::GetItemRectMin() + ImVec2(tile_mouse.x * tile->width, tile_mouse.y * tile->height);
+			ImVec2 max = min + ImVec2((float)tile->width, (float)tile->height);
+
+			auto draw_list = ImGui::GetCurrentWindow()->DrawList;
+
+			draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.6f)));
+			draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(0.141f, 0.701f, 1.f, 1.f)));
+
+			if (ImGui::IsItemClicked()) {
+				tile_selected[0] = (int)tile_mouse.x;
+				tile_selected[1] = (int)tile_mouse.y;
+			}
+
+		}
+		if (tile_selected[0] != -1) {
+			auto draw_list = ImGui::GetCurrentWindow()->DrawList;
+
+			ImVec2 min = ImGui::GetItemRectMin() + ImVec2((float)(tile_selected[0] * tile->width), (float)(tile_selected[1] * tile->height));
+			ImVec2 max = min + ImVec2((float)tile->width, (float)tile->height);
+
+			draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.3f)));
+			draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 0.654f, 0.141f, 1.f)));
+		}
+		ImGui::EndChild();
+	}
+}
+
+void p1Tileset::TileSetInfo(r1Tileset* tile)
+{
+	ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), tile->name.c_str());
+	ImGui::Spacing();
+	ImGui::Text("Tile width:  ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->width);
+	ImGui::SameLine();
+	ImGui::Text("\tMargin: ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->margin);
+	ImGui::Text("Tile height: "); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->height);
+	ImGui::SameLine();
+	ImGui::Text("\tSpacin: ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->spacing);
+
+	ImGui::Text("Columns:\t");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->columns);
+	ImGui::Text("Rows:\t"); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->ntiles / tile->columns);
 }
 
 void p1Tileset::SelectTex()

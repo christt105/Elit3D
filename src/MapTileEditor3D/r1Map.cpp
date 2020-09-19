@@ -123,8 +123,6 @@ void r1Map::Edit(int layer, int row, int col, char r, char g, char b)
 {
 	//cpu
 	unsigned char* loc = layers[layer]->tile_data;
-	if ((layers[layer]->size.x * row + col) * 3 >= size.x * size.y * 3)
-		LOGE("ASKJDKASFHJG");
 	loc[(layers[layer]->size.x * row + col) * 3] = r;
 	loc[(layers[layer]->size.x * row + col) * 3 + 1] = g;
 	loc[(layers[layer]->size.x * row + col) * 3 + 2] = b;
@@ -161,19 +159,4 @@ void r1Map::CreateNewMap(int width, int height)
 	map["layers"].push_back(data);
 
 	FileSystem::SaveJSONFile("./Assets/Maps/map.scene", map);
-}
-
-inline unsigned int r1Map::GetIndexOf2DArray(unsigned int column, unsigned int row, unsigned int width)
-{
-	return width * row + column;
-}
-
-inline unsigned int r1Map::GetIndexOf2DArray(const int2& colrow, unsigned int width)
-{
-	return width * colrow.y + colrow.x;
-}
-
-inline int2 r1Map::GetColRowOf2DArray(unsigned int index, unsigned int width)
-{
-	return int2(index % width, (int)(index / width));
 }
