@@ -17,6 +17,7 @@ public:
     ~r1Map();
 
     void Save();
+    void SaveInImage();
     void Load() override;
     void Unload() override;
     void Resize(int width, int height);

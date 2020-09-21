@@ -27,12 +27,12 @@ Layer::~Layer()
 	}
 }
 
-void Layer::Prepare()
+void Layer::Prepare() const
 {
 	oglh::BindTexture(id_tex);
 }
 
-void Layer::Update()
+void Layer::Update() const
 {
 	PROFILE_FUNCTION();
 
@@ -44,6 +44,13 @@ void Layer::Update()
 void Layer::SelectBuffers()
 {
 	oglh::BindBuffers(tile.VAO, tile.vertices.id, tile.indices.id);
+}
+
+void Layer::DrawTile(const int2& size)
+{
+	static auto shader = App->render->GetShader("tilemap");
+	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, 0.f, 0.f), Quat::identity, float3((float)size.x, 1.f, (float)size.y))/* height of layer */);
+	oglh::DrawElements(tile.indices.size);
 }
 
 OpenGLBuffers::OpenGLBuffers()

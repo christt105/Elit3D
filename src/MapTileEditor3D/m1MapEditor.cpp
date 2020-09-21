@@ -24,10 +24,6 @@
 
 #include "Profiler.h"
 
-#include "ExternalTools/DevIL/il.h"
-#include "ExternalTools/DevIL/ilu.h"
-#include "ExternalTools/DevIL/ilut.h"
-
 m1MapEditor::m1MapEditor() : Module("MapEditor", true)
 {
 }
@@ -45,24 +41,12 @@ bool m1MapEditor::Start()
 	return true;
 }
 
-#include "r1Tileset.h"
 UpdateStatus m1MapEditor::Update()
 {
 	PROFILE_FUNCTION();
 
 	if (map == 0ULL) {
-		
 		LoadMap(App->resources->FindByName("map"));
-		{
-			auto res = (r1Tileset*)App->resources->Get(14610671625611851776ull); //TODO: if not load before map initialization it will display bad (?)
-			if (res) {
-				panel_tileset->tileset = res->GetUID();
-				res->Attach();
-			}
-		}
-				auto shader = App->render->GetShader("tilemap");
-				shader->Use();
-				shader->SetInt2("ntilesAtlas", { 8, 62 });
 	}
 	else {
 		App->render->GetViewport("scene")->Begin();
@@ -75,6 +59,7 @@ UpdateStatus m1MapEditor::Update()
 		Layer::SelectBuffers();
 		oglh::ActiveTexture(0);
 		if (panel_tileset->SelectTex()) {
+			shader->SetBool("tilemap_selected", true);
 			panel_tileset->SelectTransparentColor(shader);
 			shader->SetInt("tileAtlas", 0); // for now we only can draw a map with a single texture (TODO)
 			shader->SetInt2("ntilesMap", m->size);
@@ -90,6 +75,10 @@ UpdateStatus m1MapEditor::Update()
 				oglh::ActiveTexture(i);
 				oglh::UnBindTexture();
 			}
+		}
+		else {
+			shader->SetBool("tilemap_selected", false);
+			Layer::DrawTile(m->size);
 		}
 
 		oglh::ActiveTexture(0);
@@ -110,16 +99,14 @@ bool m1MapEditor::CleanUp()
 	return true;
 }
 
-void m1MapEditor::SaveMap()
+void m1MapEditor::SaveMap() const
 {
 	((r1Map*)App->resources->Get(map))->Save();
 }
 
-void m1MapEditor::SaveImageMap()
+void m1MapEditor::SaveImageMap() const
 {
-	auto m = (r1Map*)App->resources->Get(map);
-	ilEnable(IL_FILE_OVERWRITE);
-	ilutGLSaveImage((char*)"MAP_LAYER0.png", m->layers[0]->id_tex);
+	((r1Map*)App->resources->Get(map))->SaveInImage();
 }
 
 void m1MapEditor::LoadMap(const uint64_t& id)

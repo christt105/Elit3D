@@ -46,7 +46,7 @@ private:
 	void ModalCreateTileset(bool& modal);
 	void ModalSelectImageTileset();
 
-public: //TEMP TODO PRIVATE
+private:
 	uint64_t tileset = 0ULL;
 
 	TileSetData data;

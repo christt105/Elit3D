@@ -45,6 +45,12 @@ void r1Map::Save()
 	}
 }
 
+void r1Map::SaveInImage()
+{
+	ilEnable(IL_FILE_OVERWRITE);
+	ilutGLSaveImage((char*)"MAP_IMAGE_LAYER0.png", layers[0]->id_tex);
+}
+
 void r1Map::Load()
 {
 	auto file = FileSystem::OpenJSONFile(assets_path.c_str()); // TODO: OWN FILEFORMAT

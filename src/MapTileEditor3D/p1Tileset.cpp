@@ -24,16 +24,6 @@ p1Tileset::~p1Tileset()
 
 void p1Tileset::Start()
 {
-	//TEMP Auto select default tileset
-	select_tileset = false;
-	auto res = (r1Tileset*)App->resources->FindGet("tesst"); //TODO: if not load before map initialization it will display bad (?)
-	if (res) {
-		tileset = res->GetUID();
-		res->Attach();
-		auto shader = App->render->GetShader("tilemap");
-		shader->Use();
-		shader->SetInt2("ntilesAtlas", { res->columns, res->ntiles / res->columns });
-	}
 }
 
 void p1Tileset::Update()

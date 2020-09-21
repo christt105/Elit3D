@@ -11,10 +11,13 @@ uniform ivec2 ntilesAtlas;
 uniform bool useTransparent = false;
 uniform vec3 transparentColor;
 
+uniform bool tilemap_selected = false;
+
 out vec4 FragColor;
 
 void main()
 {   
+    if(tilemap_selected){
     //Get the pixel information from the texture of the map that indicates de column and the row of the tileset
     vec4 colRow = texture(tilemap, TexCoord) * 255.0; // * 255 because it returns a normalized value [0, 1]
 
@@ -58,5 +61,9 @@ void main()
     }
     else {
         FragColor = texture(tileAtlas, atlasPos);
+    }
+    }
+    else{
+        FragColor = vec4(0.9, 0.9,0.9, 1.0);
     }
 }

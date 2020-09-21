@@ -29,9 +29,10 @@ public:
 
     unsigned int id_tex = 0u;
 
-    void Prepare();
-    void Update();
+    void Prepare() const;
+    void Update() const;
     static void SelectBuffers();
+    static void DrawTile(const int2& size);
 
 protected:
     static OpenGLBuffers tile;
