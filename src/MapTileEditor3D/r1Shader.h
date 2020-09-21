@@ -20,19 +20,19 @@ public:
 	void Use();
 	unsigned int GetID() const;
 
-	void SetBool(const char* name, bool value);
-	void SetInt(const char* name, int value);
+	void SetBool (const char* name, bool value);
+	void SetInt  (const char* name, int value);
 	void SetFloat(const char* name, float value);
-	void SetInt2(const char* name, const int2& value);
-	void SetVec3(const char* name, const float3& value);
-	void SetMat4(const char* name, const float4x4& value);
+	void SetInt2 (const char* name, const int2& value);
+	void SetVec3 (const char* name, const float3& value);
+	void SetMat4 (const char* name, const float4x4& value);
 
 	void Link(unsigned int vertex, unsigned int fragment);
 
 protected:
 	unsigned int id;
 
-	std::string name;
+	std::string identifier;
 
 	void SetName(const char* nname);
 

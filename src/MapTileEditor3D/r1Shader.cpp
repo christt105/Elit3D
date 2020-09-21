@@ -38,7 +38,7 @@ void r1Shader::SetBool(const char* name, bool value)
             glUniform1i(loc, value);
         }
         else
-            LOGW("Variable %s not found in %i shader", name, id);
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
     }
 }
 
@@ -54,7 +54,7 @@ void r1Shader::SetInt(const char* name, int value)
             glUniform1i(loc, value);
         }
         else
-            LOGW("Variable %s not found in %i shader", name, id);
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
     }
 }
 
@@ -70,7 +70,7 @@ void r1Shader::SetFloat(const char* name, float value)
             glUniform1f(loc, value);
         }
         else
-            LOGW("Variable %s not found in %i shader", name, id);
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
     }
 }
 
@@ -86,7 +86,7 @@ void r1Shader::SetInt2(const char* name, const int2& value)
             glUniform2iv(loc, 1, value.ptr());
         }
         else
-            LOGW("Variable %s not found in %i shader", name, id);
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
     }
 }
 
@@ -102,7 +102,7 @@ void r1Shader::SetVec3(const char* name, const float3& value)
             glUniform3fv(loc, 1, value.ptr());
         }
         else
-            LOGW("Variable %s not found in %i shader", name, id);
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
     }
 }
 
@@ -118,7 +118,7 @@ void r1Shader::SetMat4(const char* name, const float4x4& value)
             glUniformMatrix4fv(loc, 1, GL_TRUE, value.ptr());
         }
         else
-            LOGW("Variable %s not found in %i shader", name, id);
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
     }
 }
 
@@ -133,7 +133,7 @@ void r1Shader::Link(unsigned int vertex, unsigned int fragment)
 
 void r1Shader::SetName(const char* nname)
 {
-    name.assign(nname);
+    identifier.assign(nname);
 }
 
 void r1Shader::CheckCompileErrors(unsigned int shader, Type type)
@@ -175,13 +175,13 @@ unsigned int r1Shader::Compile(const std::string& filepath)
     const char* code = shaderSource.c_str();
     unsigned int ret = 0;
 
-    if (filepath.find(".vertex.glsl") != filepath.npos) {
+    if (filepath.find(".vertex.glsl") != std::string::npos) {
         ret = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(ret, 1, &code, NULL);
         glCompileShader(ret);
         CheckCompileErrors(ret, Type::VERTEX);
     }
-    else if (filepath.find(".fragment.glsl") != filepath.npos) {
+    else if (filepath.find(".fragment.glsl") != std::string::npos) {
         ret = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(ret, 1, &code, NULL);
         glCompileShader(ret);

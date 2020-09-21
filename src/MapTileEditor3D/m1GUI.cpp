@@ -197,6 +197,11 @@ void m1GUI::MainMenuBar()
 		if (ImGui::MenuItem("ImGui Demo Window", "", demo)) {
 			demo = !demo;
 		}
+
+		if (ImGui::MenuItem("Save Map in image")) {
+			App->map_editor->SaveImageMap();
+		}
+
 		ImGui::EndMenu();
 	}
 

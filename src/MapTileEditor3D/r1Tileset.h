@@ -12,7 +12,7 @@ public:
 	
 	uint64_t GetTextureUID();
 
-private:
+public: //TEMP TODO PRIVATE
 	uint64_t texture_uid = 0ULL;
 
 	int width = 0;

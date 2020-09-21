@@ -26,13 +26,13 @@ void p1Tileset::Start()
 {
 	//TEMP Auto select default tileset
 	select_tileset = false;
-	auto res = App->resources->FindGet("test"); //TODO: if not load before map initialization it will display bad (?)
+	auto res = (r1Tileset*)App->resources->FindGet("tesst"); //TODO: if not load before map initialization it will display bad (?)
 	if (res) {
 		tileset = res->GetUID();
 		res->Attach();
 		auto shader = App->render->GetShader("tilemap");
 		shader->Use();
-		shader->SetInt2("ntilesAtlas", { ((r1Tileset*)res)->columns, ((r1Tileset*)res)->ntiles / ((r1Tileset*)res)->columns });
+		shader->SetInt2("ntilesAtlas", { res->columns, res->ntiles / res->columns });
 	}
 }
 
@@ -97,7 +97,6 @@ void p1Tileset::Update()
 					auto shader = App->render->GetShader("tilemap");
 					shader->Use();
 					shader->SetInt2("ntilesAtlas", { ((r1Tileset*)(*i))->columns, ((r1Tileset*)(*i))->ntiles / ((r1Tileset*)(*i))->columns });
-					shader->SetBool("loaded", true);
 				}
 				ImGui::SameLine();
 				ImGui::PushID(*i);
@@ -166,7 +165,7 @@ void p1Tileset::TileSetInfo(r1Tileset* tile)
 	ImGui::Text("Rows:\t"); ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->ntiles / tile->columns);
 }
 
-void p1Tileset::SelectTex()
+bool p1Tileset::SelectTex()
 {
 	if (tileset != 0) {
 		auto res = (r1Tileset*)App->resources->Get(tileset);
@@ -174,9 +173,11 @@ void p1Tileset::SelectTex()
 			auto tex = (r1Texture*)App->resources->Get(res->GetTextureUID());
 			if (tex) {
 				tex->Bind();
+				return true;
 			}
 		}
 	}
+	return false;
 }
 
 void p1Tileset::DeselectTex()

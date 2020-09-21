@@ -63,9 +63,9 @@ void r1Map::Load()
 			++it, ++i) {
 			layer->tile_data[i] = *it;
 		}
-
+		glEnable(GL_TEXTURE_2D);
 		oglh::GenTextureData(layer->id_tex, true, true, size.x, size.y, layer->tile_data);
-
+		oglh::UnBindTexture();
 		layers.push_back(layer);
 	}
 }

@@ -35,7 +35,7 @@ public:
 
 	void TileSetInfo(r1Tileset* tile);
 
-	void SelectTex();
+	bool SelectTex();
 	void DeselectTex();
 
 	void SelectTransparentColor(r1Shader*& shader);
@@ -46,7 +46,7 @@ private:
 	void ModalCreateTileset(bool& modal);
 	void ModalSelectImageTileset();
 
-private:
+public: //TEMP TODO PRIVATE
 	uint64_t tileset = 0ULL;
 
 	TileSetData data;

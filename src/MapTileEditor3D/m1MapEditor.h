@@ -22,6 +22,7 @@ public:
     bool CleanUp() override;
 
     void SaveMap();
+    void SaveImageMap();
     void LoadMap(const uint64_t& id);
 
     void MousePicking(const float3& position);

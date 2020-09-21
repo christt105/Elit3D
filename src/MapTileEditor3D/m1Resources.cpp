@@ -37,6 +37,9 @@ bool m1Resources::Start()
 	PROFILE_FUNCTION();
 	ilInit();
 
+	glEnable(GL_TEXTURE_2D);
+	ilutRenderer(ILUT_OPENGL);
+
 	if (!FileSystem::Exists(LIBRARY_PATH))
 		FileSystem::CreateFolder(LIBRARY_PATH);
 
