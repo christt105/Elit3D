@@ -139,6 +139,7 @@ void m1GUI::MainMenuBar()
 
 			if (ImGui::Button("Create")) {
 				r1Map::CreateNewMap(size[0], size[1]);
+				App->map_editor->ReLoadMap();
 				create_map = false;
 			}
 

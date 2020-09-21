@@ -24,6 +24,8 @@
 
 #include "Profiler.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 m1MapEditor::m1MapEditor() : Module("MapEditor", true)
 {
 }
@@ -93,9 +95,6 @@ bool m1MapEditor::CleanUp()
 {
 	PROFILE_FUNCTION();
 
-	/*for (auto i = layers.begin(); i != layers.end(); ++i)
-		delete* i;*/
-
 	return true;
 }
 
@@ -114,6 +113,12 @@ void m1MapEditor::LoadMap(const uint64_t& id)
 	map = id;
 	auto m = (r1Map*)App->resources->Get(id);
 	m->Attach();
+}
+
+void m1MapEditor::ReLoadMap()
+{
+	auto m = (r1Map*)App->resources->Get(map);
+	App->resources->ReimportResource(m->assets_path.c_str());
 }
 
 void m1MapEditor::MousePicking(const float3& position)

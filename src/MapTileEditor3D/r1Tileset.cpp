@@ -6,6 +6,8 @@
 
 #include "Logger.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 r1Tileset::r1Tileset(const uint64_t& _uid) : Resource(Resource::Type::Tileset, _uid)
 {
 }

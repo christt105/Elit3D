@@ -24,6 +24,7 @@ public:
     void SaveMap() const;
     void SaveImageMap() const;
     void LoadMap(const uint64_t& id);
+    void ReLoadMap();
 
     void MousePicking(const float3& position);
     void ResizeMap(int width, int height);

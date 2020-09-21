@@ -98,7 +98,9 @@ void SystemInfo::SaveInFile() const
 		"\nDisplays:\n" + display
 	};
 
-	FileSystem::SaveTextFile("SystemInfo.txt", file.c_str());
+	if (!FileSystem::Exists("Export/"))
+		FileSystem::CreateFolder("Export/");
+	FileSystem::SaveTextFile("Export/SystemInfo.txt", file.c_str());
 }
 
 const char* SystemInfo::GetIwareVersion() const

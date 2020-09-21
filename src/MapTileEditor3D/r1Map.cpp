@@ -47,8 +47,13 @@ void r1Map::Save()
 
 void r1Map::SaveInImage()
 {
+	if (!FileSystem::Exists("Export/"))
+		FileSystem::CreateFolder("Export/");
+	if (!FileSystem::Exists("Export/Debug/"))
+		FileSystem::CreateFolder("Export/Debug/");
+
 	ilEnable(IL_FILE_OVERWRITE);
-	ilutGLSaveImage((char*)"MAP_IMAGE_LAYER0.png", layers[0]->id_tex);
+	ilutGLSaveImage((char*)"Export/Debug/MAP_IMAGE_LAYER0.png", layers[0]->id_tex);
 }
 
 void r1Map::Load()

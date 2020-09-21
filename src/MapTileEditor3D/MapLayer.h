@@ -9,7 +9,7 @@ public:
     OpenGLBuffers();
     ~OpenGLBuffers();
 
-    void InitData(const int2& size);
+    void InitData();
 
     unsigned int VAO = 0u;
 

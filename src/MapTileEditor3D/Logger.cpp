@@ -1,15 +1,15 @@
 #include "Logger.h"
 
 #include <Windows.h>
-
-#include "Application.h"
-#include "m1GUI.h"
-#include "p1Console.h"
-
 #include <ctime>
 
 #include <iostream>
 #include <fstream>
+
+#include "Application.h"
+#include "m1GUI.h"
+#include "p1Console.h"
+#include "FileSystem.h"
 
 #pragma warning(disable : 4996) //_CRT_SECURE_NO_WARNINGS
 
@@ -90,7 +90,9 @@ void Logger::Log(int i, const char file[], const char func[], int line, const ch
 void Logger::ExportLog()
 {
 	std::ofstream file;
-	file.open("Log.txt");
+	if (!FileSystem::Exists("Export/"))
+		FileSystem::CreateFolder("Export/");
+	file.open("Export/Log.txt");
 	
 	file << txt.c_str();
 

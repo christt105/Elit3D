@@ -10,13 +10,16 @@
 
 #include "Profiler.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 //#include "Logger.h"
 
 OpenGLBuffers Layer::tile = OpenGLBuffers();
 
 Layer::Layer()
 {
-	tile.InitData({ 1,1 });
+	if (tile.vertices.size == 0u)
+		tile.InitData();
 }
 
 Layer::~Layer()
@@ -68,15 +71,15 @@ OpenGLBuffers::~OpenGLBuffers()
 	delete[] texture.data;
 }
 
-void OpenGLBuffers::InitData(const int2& size)
+void OpenGLBuffers::InitData()
 {
 	vertices.size = 4;
 	vertices.data = new float[vertices.size * 3];
 
-	vertices.data[0] = 0.f;		vertices.data[1] = 0.f;		vertices.data[2] = 0.f;
-	vertices.data[3] = (float)size.x;	vertices.data[4] = 0.f;		vertices.data[5] = 0.f;
-	vertices.data[6] = (float)size.x;	vertices.data[7] = 0.f;		vertices.data[8] = (float)size.y;
-	vertices.data[9] = 0.f;		vertices.data[10] = 0.f;	vertices.data[11] = (float)size.y;
+	vertices.data[0] = 0.f;		vertices.data[1 ] = 0.f;		vertices.data[2 ] = 0.f;
+	vertices.data[3] = 1.f; 	vertices.data[4 ] = 0.f;		vertices.data[5 ] = 0.f;
+	vertices.data[6] = 1.f; 	vertices.data[7 ] = 0.f;		vertices.data[8 ] = 1.f;
+	vertices.data[9] = 0.f;		vertices.data[10] = 0.f;		vertices.data[11] = 1.f;
 
 	indices.size = 6;
 	indices.data = new unsigned int[indices.size];

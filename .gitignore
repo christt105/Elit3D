@@ -3,6 +3,8 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+src/Build/Export/
+
 # User-specific files
 *.rsuser
 *.suo
@@ -70,7 +72,6 @@ StyleCopReport.xml
 *_p.c
 *_h.h
 *.ilk
-*.meta
 *.obj
 *.iobj
 *.pch
@@ -349,6 +350,3 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-src/Build/Log.txt
-src/Build/profile.json
-src/Build/SystemInfo.txt
