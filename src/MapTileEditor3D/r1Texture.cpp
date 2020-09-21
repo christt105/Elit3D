@@ -1,16 +1,14 @@
 #include "r1Texture.h"
 
-#include <GL/glew.h>
-
 #include "Application.h"
 #include "FileSystem.h"
 
 #include "m1Resources.h"
 
-#include "ExternalTools/Assimp/include/texture.h"
-
 #include "ExternalTools/DevIL/il.h"
 #include "ExternalTools/DevIL/ilut.h"
+
+#include "OpenGLHelper.h"
 
 #include "Logger.h"
 
@@ -26,26 +24,19 @@ r1Texture::~r1Texture()
 
 void r1Texture::Load()
 {
-	ILuint image_id = 0;
 	glEnable(GL_TEXTURE_2D);
-	glGenTextures(1, &image_id);
-	glBindTexture(GL_TEXTURE_2D, image_id);
+	ILuint image_id = ilGenImage();
+	ilBindImage(image_id);
 
 	ilutRenderer(ILUT_OPENGL);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	if (ilLoad(IL_PNG, library_path.c_str())) { // TODO: load for different types
 		width = ilGetInteger(IL_IMAGE_WIDTH);
 		height = ilGetInteger(IL_IMAGE_HEIGHT);
+
 		id = ilutGLBindTexImage();
-
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-		glGenerateMipmap(GL_TEXTURE_2D);
+		
+		oglh::SetTextureProperties(id, true, true);
 	}
 	else {
 		--references;
@@ -84,4 +75,29 @@ unsigned int r1Texture::GetHeight()
 void r1Texture::GenerateFiles(const aiTexture* texture)
 {
 	
+}
+
+void r1Texture::Bind()
+{
+	glBindTexture(GL_TEXTURE_2D, id);
+}
+
+void r1Texture::Unbind()
+{
+	glBindTexture(GL_TEXTURE_2D, NULL);
+}
+
+void r1Texture::Edit(int row, int col, int r, int g, int b)
+{
+	Bind();
+	unsigned char bits[3];
+	bits[0] = r;
+	bits[1] = g;
+	bits[2] = b;
+	glTexSubImage2D(GL_TEXTURE_2D, 0, col, row, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, bits);
+	ilEnable(IL_FILE_OVERWRITE);
+	if (!ilutGLSaveImage((char*)"./Assets/Maps/testtilemap.png", id)) {
+		LOGE("Failed to load texture %s, error: %s", name.c_str(), ilGetString(ilGetError()));
+	}
+	Unbind();
 }

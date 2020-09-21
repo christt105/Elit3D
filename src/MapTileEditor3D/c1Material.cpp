@@ -1,11 +1,11 @@
 #include "c1Material.h"
 
-#include <GL/glew.h>
-
 #include "Application.h"
 #include "m1Render3D.h"
 #include "m1Resources.h"
 #include "r1Texture.h"
+
+#include "OpenGLHelper.h"
 
 #include "ExternalTools/ImGui/imgui.h"
 
@@ -13,11 +13,7 @@
 
 c1Material::c1Material(Object* obj) : Component(obj, Type::Material)
 {
-	shader = App->render->bShader;
-
-	tex = App->resources->Find("cat");
-	auto r = App->resources->Get(tex);
-	r->Attach();
+	shader = App->render->GetShader("default");
 }
 
 c1Material::~c1Material()
@@ -28,12 +24,12 @@ void c1Material::BindTex()
 {
 	auto t = (r1Texture*)App->resources->Get(tex);
 	if (t != nullptr)
-		glBindTexture(GL_TEXTURE_2D, t->GetBufferID());
+		oglh::BindTexture(t->GetBufferID());
 }
 
 void c1Material::UnBindTex()
 {
-	glBindTexture(GL_TEXTURE_2D, NULL);
+	oglh::UnBindTexture();
 }
 
 void c1Material::OnInspector()
@@ -70,6 +66,24 @@ void c1Material::OnInspector()
 			}
 		}
 	}
+}
+
+void c1Material::SetTexture(const uint64_t& id)
+{
+	tex = id;
+	App->resources->Get(tex)->Attach();
+}
+
+void c1Material::SetTexture(const r1Texture* tex)
+{
+	this->tex = tex->uid;
+	App->resources->Get(this->tex)->Attach();
+}
+
+void c1Material::SetTexture(const char* name_tex)
+{
+	tex = App->resources->FindByName(name_tex);
+	App->resources->Get(tex)->Attach();
 }
 
 void c1Material::ChooseTextureWindow(bool& choose_texture)

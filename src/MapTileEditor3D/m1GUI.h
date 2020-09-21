@@ -10,14 +10,18 @@ class p1Console;
 class p1Scene;
 class p1Resources;
 class p1Tileset;
+class p1DebugResources;
 
 struct ImFont;
+
+#define ORANGE ImVec4(1.f, 0.6470f, 0.f, 1.f)
 
 class m1GUI :
 	public Module
 {
 	friend class Logger;
 	friend class m1Camera3D;
+	friend class m1Scene; // TODO: Remove this and forward declaration
 public:
 	m1GUI(bool start_enabled = true);
 	~m1GUI();
@@ -31,7 +35,7 @@ public:
 	UpdateStatus PostUpdate() override;
 	bool CleanUp() override;
 
-private:
+public: //TODO private
 	std::vector<Panel*> panels;
 
 	p1Configuration* configuration = nullptr;
@@ -42,6 +46,8 @@ private:
 	p1Scene* scene = nullptr;
 	p1Resources* resources = nullptr;
 	p1Tileset* tileset = nullptr;
+	
+	p1DebugResources* dbg_resources = nullptr;
 
 	bool demo = false;
 };

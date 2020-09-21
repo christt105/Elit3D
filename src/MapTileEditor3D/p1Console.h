@@ -10,7 +10,7 @@ class p1Console :
 {
 	friend class Logger;
 public:
-	p1Console(bool start_enabled = true);
+	p1Console(bool start_enabled = true, bool appear_mainmenubar = true, bool can_close = true);
 	~p1Console();
 
 	void Update() override;

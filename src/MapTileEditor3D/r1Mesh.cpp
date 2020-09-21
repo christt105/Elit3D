@@ -1,9 +1,9 @@
 #include "r1Mesh.h"
 
-#include <GL/glew.h>
-
 #include "Application.h"
 #include "FileSystem.h"
+
+#include "OpenGLHelper.h"
 
 #include "ExternalTools/Assimp/include/scene.h"
 
@@ -22,7 +22,7 @@ r1Mesh::~r1Mesh()
 
 void r1Mesh::Load()
 {
-	auto file = App->file_system->OpenJSONFile(library_path.c_str());
+	auto file = FileSystem::OpenJSONFile(library_path.c_str());
 
 	vertices.size = file["nVertex"];
 	vertices.data = new float[vertices.size * 3];
@@ -47,15 +47,12 @@ void r1Mesh::Load()
 
 void r1Mesh::Unload()
 {
-	glDeleteVertexArrays(1, &VAO);
-
-	glDeleteBuffers(1, &vertices.id);
-	glDeleteBuffers(1, &indices.id);
+	oglh::DeleteVAO(VAO, vertices.id, indices.id);
 
 	delete[] vertices.data;
 	delete[] indices.data;
 	if (texture.data != nullptr) {
-		glDeleteBuffers(1, &texture.id);
+		oglh::DeleteBuffer(texture.id);
 		delete[] texture.data;
 	}
 }
@@ -85,36 +82,22 @@ void r1Mesh::GenerateFiles(const aiMesh* mesh)
 		}
 	}
 
-	App->file_system->SaveJSONFile(library_path.c_str(), file);
+	FileSystem::SaveJSONFile(library_path.c_str(), file);
 }
 
 void r1Mesh::GenerateBuffers()
 {
 	// VERTEX ARRAY OBJECT
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	oglh::GenVAO(VAO);
 
 	// VERTICES BUFFER
-	glGenBuffers(1, &vertices.id);
-	glBindBuffer(GL_ARRAY_BUFFER, vertices.id);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size * 3, vertices.data, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(0);
+	oglh::GenArrayBuffer(vertices.id, vertices.size, sizeof(float), 3, vertices.data, 0, 3);
 
 	// TEXTURE COORDS BUFFER
-	if (texture.data != nullptr) {
-		glGenBuffers(1, &texture.id);
-		glBindBuffer(GL_ARRAY_BUFFER, texture.id);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * texture.size, texture.data, GL_STATIC_DRAW);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-		glEnableVertexAttribArray(1);
-	}
+	oglh::GenArrayBuffer(texture.id, texture.size, sizeof(float), 2, texture.data, 1, 2);
 
 	// INDICES BUFFER
-	glGenBuffers(1, &indices.id);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.id);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size, indices.data, GL_STATIC_DRAW);
+	oglh::GenElementBuffer(indices.id, indices.size, indices.data);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	oglh::UnBindBuffers();
 }

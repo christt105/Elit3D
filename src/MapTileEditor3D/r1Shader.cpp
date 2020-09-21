@@ -1,45 +1,15 @@
 #include "r1Shader.h"
 #include <GL/glew.h>
+#include <string>
 #include "Application.h"
 #include "FileSystem.h"
-#include <string>
+#include "int2.h"
 #include "Logger.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-r1Shader::r1Shader(const char* vertexPath, const char* fragmentPath)
+r1Shader::r1Shader()
 {
-    std::string vertexShaderSource;
-    std::string fragmentShaderSource;
-    try {
-        vertexShaderSource = App->file_system->OpenTextFile(vertexPath);
-        fragmentShaderSource = App->file_system->OpenTextFile(fragmentPath);
-    }
-    catch (const char* fail) {
-        LOGE("FAILED TO READ SHADER %s", fail);
-    }
-
-    const char* vertexCode = vertexShaderSource.c_str();
-    const char* fragmentCode = fragmentShaderSource.c_str();
-
-    unsigned int vertex = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex, 1, &vertexCode, NULL);
-    glCompileShader(vertex);
-    CheckCompileErrors(vertex, VERTEX);
-
-    unsigned int fragment = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment, 1, &fragmentCode, NULL);
-    glCompileShader(fragment);
-    CheckCompileErrors(fragment, FRAGMENT);
-
-    id = glCreateProgram();
-    glAttachShader(id, vertex);
-    glAttachShader(id, fragment);
-    glLinkProgram(id);
-    CheckCompileErrors(id, PROGRAM);
-
-    glDeleteShader(vertex);
-    glDeleteShader(fragment);
 }
 
 r1Shader::~r1Shader()
@@ -56,37 +26,114 @@ unsigned int r1Shader::GetID() const
     return id;
 }
 
-void r1Shader::SetBool(const char* name, bool value) const
+void r1Shader::SetBool(const char* name, bool value)
 {
-    glUniform1i(glGetUniformLocation(id, name), value);
+    auto it = uniform_cache.find(name);
+    if (it != uniform_cache.end())
+        glUniform1i((*it).second, value);
+    else {
+        int loc = glGetUniformLocation(id, name);
+        if (loc != -1) {
+            uniform_cache[name] = loc;
+            glUniform1i(loc, value);
+        }
+        else
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
+    }
 }
 
-void r1Shader::SetInt(const char* name, int value) const
+void r1Shader::SetInt(const char* name, int value)
 {
-    glUniform1i(glGetUniformLocation(id, name), value);
+    auto it = uniform_cache.find(name);
+    if (it != uniform_cache.end())
+        glUniform1i((*it).second, value);
+    else {
+        int loc = glGetUniformLocation(id, name);
+        if (loc != -1) {
+            uniform_cache[name] = loc;
+            glUniform1i(loc, value);
+        }
+        else
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
+    }
 }
 
-void r1Shader::SetFloat(const char* name, float value) const
+void r1Shader::SetFloat(const char* name, float value)
 {
-    glUniform1f(glGetUniformLocation(id, name), value);
+    auto it = uniform_cache.find(name);
+    if (it != uniform_cache.end())
+        glUniform1f((*it).second, value);
+    else {
+        int loc = glGetUniformLocation(id, name);
+        if (loc != -1) {
+            uniform_cache[name] = loc;
+            glUniform1f(loc, value);
+        }
+        else
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
+    }
 }
 
-void r1Shader::SetVec3(const char* name, const float3& value) const
+void r1Shader::SetInt2(const char* name, const int2& value)
 {
-    int loc = glGetUniformLocation(id, name);
-    if (loc != -1)
-        glUniform3fv(loc, 1, value.ptr());
-    else
-        LOGW("Variable %s not found in %i shader", name, id);
+    auto it = uniform_cache.find(name);
+    if (it != uniform_cache.end())
+        glUniform2iv((*it).second, 1, value.ptr());
+    else {
+        int loc = glGetUniformLocation(id, name);
+        if (loc != -1) {
+            uniform_cache[name] = loc;
+            glUniform2iv(loc, 1, value.ptr());
+        }
+        else
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
+    }
 }
 
-void r1Shader::SetMat4(const char* name, const float4x4& value) const
+void r1Shader::SetVec3(const char* name, const float3& value)
 {
-    int loc = glGetUniformLocation(id, name);
-    if (loc != -1)
-        glUniformMatrix4fv(loc, 1, GL_TRUE, value.ptr());
-    else
-        LOGW("Variable %s not found in %i shader", name, id);
+    auto it = uniform_cache.find(name);
+    if(it != uniform_cache.end())
+        glUniform3fv((*it).second, 1, value.ptr());
+    else {
+        int loc = glGetUniformLocation(id, name);
+        if (loc != -1) {
+            uniform_cache[name] = loc;
+            glUniform3fv(loc, 1, value.ptr());
+        }
+        else
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
+    }
+}
+
+void r1Shader::SetMat4(const char* name, const float4x4& value)
+{
+    auto it = uniform_cache.find(name);
+    if (it != uniform_cache.end())
+        glUniformMatrix4fv((*it).second, 1, GL_TRUE, value.ptr());
+    else {
+        int loc = glGetUniformLocation(id, name);
+        if (loc != -1) {
+            uniform_cache[name] = loc;
+            glUniformMatrix4fv(loc, 1, GL_TRUE, value.ptr());
+        }
+        else
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
+    }
+}
+
+void r1Shader::Link(unsigned int vertex, unsigned int fragment)
+{
+    id = glCreateProgram();
+    glAttachShader(id, vertex);
+    glAttachShader(id, fragment);
+    glLinkProgram(id);
+    CheckCompileErrors(id, Type::PROGRAM);
+}
+
+void r1Shader::SetName(const char* nname)
+{
+    identifier.assign(nname);
 }
 
 void r1Shader::CheckCompileErrors(unsigned int shader, Type type)
@@ -94,7 +141,7 @@ void r1Shader::CheckCompileErrors(unsigned int shader, Type type)
     int success = 0;
     static char infoLog[1024];
 
-    if (type == PROGRAM) {
+    if (type == Type::PROGRAM) {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
         if (!success)
         {
@@ -106,11 +153,43 @@ void r1Shader::CheckCompileErrors(unsigned int shader, Type type)
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-            if (type == VERTEX) {
+            if (type == Type::VERTEX) {
                 LOGE("SHADER::VERTEX::COMPILATION_FAILED : %s", infoLog);
             }
             else
                 LOGE("SHADER::FRAGMENT::COMPILATION_FAILED : %s", infoLog);
         }
     }
+}
+
+unsigned int r1Shader::Compile(const std::string& filepath)
+{
+    std::string shaderSource;
+    try {
+        shaderSource = FileSystem::OpenTextFile(filepath.c_str());
+    }
+    catch (const char* fail) {
+        LOGE("FAILED TO READ SHADER %s", fail);
+    }
+
+    const char* code = shaderSource.c_str();
+    unsigned int ret = 0;
+
+    if (filepath.find(".vertex.glsl") != std::string::npos) {
+        ret = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(ret, 1, &code, NULL);
+        glCompileShader(ret);
+        CheckCompileErrors(ret, Type::VERTEX);
+    }
+    else if (filepath.find(".fragment.glsl") != std::string::npos) {
+        ret = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(ret, 1, &code, NULL);
+        glCompileShader(ret);
+        CheckCompileErrors(ret, Type::FRAGMENT);
+    }
+    else {
+        LOG("Syntaxi of shader %s not allowed", filepath.c_str());
+    }
+    
+    return ret;
 }

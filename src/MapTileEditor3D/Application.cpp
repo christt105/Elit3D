@@ -15,22 +15,28 @@
 #include "m1Resources.h"
 #include "m1Importer.h"
 #include "m1Events.h"
+#include "m1MapEditor.h"
 
 #include "FileSystem.h"
-#include "Random.h"
+
+#include "Profiler.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-Application::Application() {
-
+Application::Application() 
+{
 }
 
-Application::~Application()	{
-
+Application::~Application()	
+{
 }
 
 bool Application::Init()
 {
+	PROFILE_FUNCTION();
+
+	framerate_last_second_timer.Start();
+
 	//Create instances of modules
 	input = new m1Input();
 	window = new m1Window();
@@ -42,6 +48,7 @@ bool Application::Init()
 	resources = new m1Resources();
 	importer = new m1Importer();
 	events = new m1Events();
+	map_editor = new m1MapEditor();
 
 	//Assign order of execution to modules NOTE: Inverse order to CleanUp()
 	modules.push_back(events);
@@ -53,41 +60,39 @@ bool Application::Init()
 
 	modules.push_back(camera);
 	modules.push_back(scene);
+	modules.push_back(map_editor);
 	modules.push_back(objects);
 
 	modules.push_back(gui);
 	modules.push_back(render);
 
-	//Create helpers
-	file_system = new FileSystem();
-	random = new Random();
-
-	nlohmann::json conf = file_system->OpenJSONFile("Configuration/Configuration.json")["App"];
+	nlohmann::json conf = FileSystem::OpenJSONFile("Configuration/Configuration.json")["App"];
 
 	if (conf.is_null())
-		LOGE("Configuration.json not found");
+		LOGNE("Configuration.json not found");
 
 	name.assign(conf.value("name", "PROGRAM"));
 	version.assign(conf.value("version", "0.1"));
 
 	for (auto i = modules.begin(); i != modules.end(); ++i) {
-		LOG("Initializing module %s", (*i)->name.c_str());
+		LOGN("Initializing module %s", (*i)->name.c_str());
 		(*i)->Init(conf[(*i)->name]);
 	}
-	
+
+	sys_info.FillInfo();
+	sys_info.SaveInFile();
 
 	return true;
 }
 
 bool Application::Start()
 {
+	PROFILE_FUNCTION();
+
 	for (auto i = modules.begin(); i != modules.end(); ++i) {
-		LOG("Starting module %s", (*i)->name.c_str());
+		LOGN("Starting module %s", (*i)->name.c_str());
 		(*i)->Start();
 	}
-
-	Logger::console_log = true;
-
 	return true;
 }
 
@@ -97,36 +102,51 @@ void Application::PrepareUpdate()
 	time = SDL_GetPerformanceCounter();
 	++frame_count;
 
-	dt = (float)((time - last_time) / (double)SDL_GetPerformanceFrequency());
+	dt = (float)((double)(time - last_time) / (double)SDL_GetPerformanceFrequency());
+	framerate = (unsigned char)(1.f / dt);
+	if (framerate_last_second_timer.ElapsedMilliseconds() >= 1000) {
+		framerate_last_second = framerate;
+		framerate_last_second_timer.Start();
+	}
 }
 
 UpdateStatus Application::Update()
 {
+	PROFILE_FUNCTION();
 	UpdateStatus ret = UpdateStatus::UPDATE_CONTINUE;
 
 	PrepareUpdate();
 	
-	for (auto i = modules.begin(); i != modules.end(); ++i) {
-		ret = (*i)->PreUpdate();
-		if (ret != UpdateStatus::UPDATE_CONTINUE) {
-			LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
-			return ret;
+	{
+		PROFILE_SECTION("Application::PreUpdate");
+		for (auto i = modules.begin(); i != modules.end(); ++i) {
+			ret = (*i)->PreUpdate();
+			if (ret != UpdateStatus::UPDATE_CONTINUE) {
+				LOGN("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
+				return ret;
+			}
 		}
 	}
 	
-	for (auto i = modules.begin(); i != modules.end(); ++i) {
-		ret = (*i)->Update();
-		if (ret != UpdateStatus::UPDATE_CONTINUE) {
-			LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
-			return ret;
+	{
+		PROFILE_SECTION("Application::Update");
+		for (auto i = modules.begin(); i != modules.end(); ++i) {
+			ret = (*i)->Update();
+			if (ret != UpdateStatus::UPDATE_CONTINUE) {
+				LOGN("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
+				return ret;
+			}
 		}
 	}
 	
-	for (auto i = modules.begin(); i != modules.end(); ++i) {
-		ret = (*i)->PostUpdate();
-		if (ret != UpdateStatus::UPDATE_CONTINUE) {
-			LOG("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
-			return ret;
+	{
+		PROFILE_SECTION("Application::PostUpdate");
+		for (auto i = modules.begin(); i != modules.end(); ++i) {
+			ret = (*i)->PostUpdate();
+			if (ret != UpdateStatus::UPDATE_CONTINUE) {
+				LOGN("Module %s returned %s on PreUpdate()", (*i)->name.c_str(), Module::UpdateStatusToString(ret).c_str());
+				return ret;
+			}
 		}
 	}
 
@@ -141,17 +161,14 @@ void Application::FinishUpdate()
 
 bool Application::CleanUp()
 {
+	PROFILE_FUNCTION();
 	bool ret = true;
 
-	Logger::console_log = false;
-
-	delete file_system;
-	delete random;
-
 	for (auto i = modules.rbegin(); i != modules.rend(); ++i) {
-		LOG("Cleaning Up module %s", (*i)->name.c_str());
+		LOGN("Cleaning Up module %s", (*i)->name.c_str());
 		ret = (*i)->CleanUp();
 		delete* i;
+		*i = nullptr;
 	}
 
 	return ret;

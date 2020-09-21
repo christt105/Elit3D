@@ -1,11 +1,19 @@
 #include "m1Events.h"
 #include "Logger.h"
 
+#include "Application.h"
+
+#include "m1Resources.h"
+
+#include "m1MapEditor.h"
+#include "ExternalTools/MathGeoLib/include/Math/float3.h"
+
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 m1Events::m1Events() : Module("Events", true)
 {
-	events.push(new Event(Event::Type::FILE_REMOVED, "XD LOLLLLLL"));
 }
 
 m1Events::~m1Events()
@@ -14,6 +22,7 @@ m1Events::~m1Events()
 
 UpdateStatus m1Events::PreUpdate()
 {
+	PROFILE_FUNCTION();
 	while (!events.empty()) {
 		auto e = events.top();
 		switch (e->type)
@@ -30,6 +39,9 @@ UpdateStatus m1Events::PreUpdate()
 		case Event::Type::FILE_RENAMED:
 			//Change metadata name file and resources assets path
 			break;
+		case Event::Type::FILE_MODIFIED:
+			App->resources->ReimportResource(((sTypeVar*)e->info["basic_info"])->value.c_str());
+			break;
 		case Event::Type::FOLDER_CREATED:
 			//Check for resources inside
 			break;
@@ -39,6 +51,13 @@ UpdateStatus m1Events::PreUpdate()
 			break;
 		case Event::Type::FOLDER_REMOVED:
 			// delete all resources inside folder
+			break;
+
+		case Event::Type::RESIZE_MAP:
+			App->map_editor->ResizeMap(((iTypeVar*)e->info["width"])->value, ((iTypeVar*)e->info["height"])->value);
+			break;
+		case Event::Type::SAVE_MAP:
+			App->map_editor->SaveMap();
 			break;
 		default:
 			break;

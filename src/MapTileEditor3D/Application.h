@@ -3,7 +3,9 @@
 #include <vector>
 #include <string>
 
-#include <SDL_stdinc.h>
+#include "DebugVars.h"
+#include "SystemInfo.h"
+#include "Timer.h"
 
 enum class UpdateStatus;
 
@@ -18,9 +20,7 @@ class m1Camera3D;
 class m1Resources;
 class m1Importer;
 class m1Events;
-
-class FileSystem;
-class Random;
+class m1MapEditor;
 
 class Application
 {
@@ -46,9 +46,10 @@ public:
 	m1Resources*	resources = nullptr;
 	m1Importer*		importer = nullptr;
 	m1Events*		events = nullptr;
+	m1MapEditor*	map_editor = nullptr;
 
-	FileSystem* file_system = nullptr;
-	Random*		random = nullptr;
+	DebugVars debug;
+	SystemInfo sys_info;
 
 public:
 	const char* GetName();
@@ -59,6 +60,9 @@ public:
 
 	float GetDt() const;
 	unsigned int GetFrames() const;
+	inline unsigned int GetFrameRateLS() const {
+		return framerate_last_second;
+	}
 
 	void ExecuteURL(const char* url);
 
@@ -69,9 +73,12 @@ private:
 	std::string version;
 
 	float dt = 0.f;
-	Uint64 time = 0ULL;
-	Uint64 last_time = 0ULL;
+	uint64_t time = 0ULL;
+	unsigned int framerate = 0u; //TODO: save this in a vector
+	unsigned int framerate_last_second = 0u;
+	uint64_t last_time = 0ULL;
 	unsigned int frame_count = 0U;
+	Timer framerate_last_second_timer;
 };
 
 extern Application* App;

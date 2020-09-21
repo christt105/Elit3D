@@ -1,23 +1,25 @@
 #pragma once
 #include "Panel.h"
+
+class Viewport;
+
 class p1Scene :
 	public Panel
 {
+	friend class p1Configuration;
 public:
-	p1Scene(bool start_enabled = true);
-	void InitFrameBuffer();
+	p1Scene(bool start_enabled = true, bool appear_mainmenubar = true, bool can_close = true);
 	~p1Scene();
 
+	void Start() override;
 	void Update() override;
 
-	void SelectFrameBuffer();
-	void DeselectFrameBuffer();
+	void ShowCreateMap();
+
+	void PopUpCreateMap();
+
+	void MenuBar();
 
 private:
-	unsigned int tex_buf = 0u;
-	unsigned int fbo = 0u;
-	unsigned int rbo = 0u;
-
-	ImVec2 window_size;
+	Viewport* viewport = nullptr;
 };
-

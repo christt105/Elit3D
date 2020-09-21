@@ -7,6 +7,8 @@
 
 #include "Logger.h"
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 m1Window::m1Window(bool start_enabled) : Module("Window", start_enabled)
@@ -19,6 +21,7 @@ m1Window::~m1Window()
 
 bool m1Window::Init(const nlohmann::json& node)
 {
+    PROFILE_FUNCTION();
     bool ret = true;
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -80,15 +83,12 @@ bool m1Window::Init(const nlohmann::json& node)
 
 bool m1Window::Start()
 {
-    bool ret = true;
-
-        
-
-    return ret;
+    return true;
 }
 
 bool m1Window::CleanUp()
 {
+    PROFILE_FUNCTION();
     SDL_DestroyWindow(window);
     SDL_Quit();
 

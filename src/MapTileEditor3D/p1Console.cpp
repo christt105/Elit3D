@@ -4,7 +4,8 @@
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 
-p1Console::p1Console(bool start_enabled) : Panel("Console", start_enabled, ICON_FA_ALIGN_LEFT)
+p1Console::p1Console(bool start_enabled, bool appear_mainmenubar, bool can_close)
+	: Panel("Console", start_enabled, appear_mainmenubar, can_close, ICON_FA_ALIGN_LEFT)
 {
 	flags = ImGuiWindowFlags_MenuBar;
 }

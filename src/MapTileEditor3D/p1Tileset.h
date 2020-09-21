@@ -1,6 +1,10 @@
 #pragma once
 #include "Panel.h"
 
+class r1Shader;
+class r1Texture;
+class r1Tileset;
+
 struct TileSetData {
 	char buf_name[25];
 	bool transparent = false;
@@ -21,10 +25,22 @@ class p1Tileset :
 	public Panel
 {
 public:
-	p1Tileset(bool start_enabled = true);
+	p1Tileset(bool start_enabled = true, bool appear_mainmenubar = true, bool can_close = true);
 	~p1Tileset();
 
+	void Start() override;
 	void Update() override;
+
+	void DisplayImage(r1Texture* texture, r1Tileset* tile);
+
+	void TileSetInfo(r1Tileset* tile);
+
+	bool SelectTex();
+	void DeselectTex();
+
+	void SelectTransparentColor(r1Shader*& shader);
+
+	int2 GetTileSelected() const;
 
 private:
 	void ModalCreateTileset(bool& modal);

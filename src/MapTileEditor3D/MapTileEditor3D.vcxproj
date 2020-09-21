@@ -42,14 +42,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -85,7 +85,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -96,7 +96,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -105,9 +105,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -130,7 +134,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -141,12 +145,18 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -154,6 +164,7 @@
     <ClCompile Include="c1Material.cpp" />
     <ClCompile Include="c1Mesh.cpp" />
     <ClCompile Include="c1Transform.cpp" />
+    <ClCompile Include="MapLayer.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ExternalTools\ImGui\imgui.cpp" />
     <ClCompile Include="ExternalTools\ImGui\imgui_demo.cpp" />
@@ -199,12 +210,14 @@
     <ClCompile Include="i1Model.cpp" />
     <ClCompile Include="i1Tileset.cpp" />
     <ClCompile Include="Importer.cpp" />
+    <ClCompile Include="int2.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="m1Camera3D.cpp" />
     <ClCompile Include="m1Events.cpp" />
     <ClCompile Include="m1GUI.cpp" />
     <ClCompile Include="m1Importer.cpp" />
     <ClCompile Include="m1Input.cpp" />
+    <ClCompile Include="m1MapEditor.cpp" />
     <ClCompile Include="m1Render3D.cpp" />
     <ClCompile Include="m1Resources.cpp" />
     <ClCompile Include="m1Scene.cpp" />
@@ -213,15 +226,19 @@
     <ClCompile Include="Module.cpp" />
     <ClCompile Include="m1Objects.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="OpenGLHelper.cpp" />
     <ClCompile Include="p1About.cpp" />
     <ClCompile Include="p1Configuration.cpp" />
     <ClCompile Include="p1Console.cpp" />
+    <ClCompile Include="p1DebugResources.cpp" />
     <ClCompile Include="p1Inspector.cpp" />
     <ClCompile Include="p1Objects.cpp" />
     <ClCompile Include="p1Resources.cpp" />
     <ClCompile Include="p1Scene.cpp" />
     <ClCompile Include="p1Tileset.cpp" />
     <ClCompile Include="Panel.cpp" />
+    <ClCompile Include="Profiler.cpp" />
+    <ClCompile Include="r1Map.cpp" />
     <ClCompile Include="r1Mesh.cpp" />
     <ClCompile Include="r1Model.cpp" />
     <ClCompile Include="r1Texture.cpp" />
@@ -229,6 +246,9 @@
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="r1Shader.cpp" />
+    <ClCompile Include="SystemInfo.cpp" />
+    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -236,6 +256,21 @@
     <ClInclude Include="c1Material.h" />
     <ClInclude Include="c1Mesh.h" />
     <ClInclude Include="c1Transform.h" />
+    <ClInclude Include="DebugVars.h" />
+    <ClInclude Include="ExternalTools\ImGui\IconsFontAwesome5\IconsFontAwesome5Brands.h" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\cpu.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\cpuid.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\memory.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\scope.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\sysctl.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\winstring.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\gpu.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\infoware.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\linkage.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\pci.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\system.hpp" />
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\version.hpp" />
+    <ClInclude Include="MapLayer.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ExternalTools\Assimp\include\aabb.h" />
     <ClInclude Include="ExternalTools\Assimp\include\ai_assert.h" />
@@ -287,7 +322,7 @@
     <ClInclude Include="ExternalTools\Assimp\include\ParsingUtils.h" />
     <ClInclude Include="ExternalTools\Assimp\include\pbrmaterial.h" />
     <ClInclude Include="ExternalTools\Assimp\include\postprocess.h" />
-    <ClInclude Include="ExternalTools\Assimp\include\Profiler.h" />
+    <ClInclude Include="ExternalTools\Assimp\include\AssimpProfiler.h" />
     <ClInclude Include="ExternalTools\Assimp\include\ProgressHandler.hpp" />
     <ClInclude Include="ExternalTools\Assimp\include\qnan.h" />
     <ClInclude Include="ExternalTools\Assimp\include\quaternion.h" />
@@ -483,12 +518,14 @@
     <ClInclude Include="i1Tileset.h" />
     <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="Importer.h" />
+    <ClInclude Include="int2.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="m1Camera3D.h" />
     <ClInclude Include="m1Events.h" />
     <ClInclude Include="m1GUI.h" />
     <ClInclude Include="m1Importer.h" />
     <ClInclude Include="m1Input.h" />
+    <ClInclude Include="m1MapEditor.h" />
     <ClInclude Include="m1Render3D.h" />
     <ClInclude Include="m1Resources.h" />
     <ClInclude Include="m1Scene.h" />
@@ -496,15 +533,19 @@
     <ClInclude Include="Module.h" />
     <ClInclude Include="m1Objects.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="OpenGLHelper.h" />
     <ClInclude Include="p1About.h" />
     <ClInclude Include="p1Configuration.h" />
     <ClInclude Include="p1Console.h" />
+    <ClInclude Include="p1DebugResources.h" />
     <ClInclude Include="p1Inspector.h" />
     <ClInclude Include="p1Objects.h" />
     <ClInclude Include="p1Resources.h" />
     <ClInclude Include="p1Scene.h" />
     <ClInclude Include="p1Tileset.h" />
     <ClInclude Include="Panel.h" />
+    <ClInclude Include="Profiler.h" />
+    <ClInclude Include="r1Map.h" />
     <ClInclude Include="r1Mesh.h" />
     <ClInclude Include="r1Model.h" />
     <ClInclude Include="r1Texture.h" />
@@ -512,8 +553,10 @@
     <ClInclude Include="Random.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="r1Shader.h" />
-    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="SystemInfo.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="TypeVar.h" />
+    <ClInclude Include="Viewport.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\Assimp\include\color4.inl" />

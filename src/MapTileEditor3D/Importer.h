@@ -3,7 +3,7 @@ class Importer
 {
 public:
 	Importer();
-	~Importer();
+	virtual ~Importer();
 
 	virtual void Import(const char* path) = 0;
 };

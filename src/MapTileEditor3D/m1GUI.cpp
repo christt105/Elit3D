@@ -7,6 +7,9 @@
 #include "Application.h"
 #include "m1Window.h"
 #include "m1Render3D.h"
+#include "m1Events.h"
+#include "m1MapEditor.h"
+#include "r1Map.h"
 
 #include "p1Configuration.h"
 #include "p1About.h"
@@ -16,10 +19,14 @@
 #include "p1Scene.h"
 #include "p1Resources.h"
 #include "p1Tileset.h"
+#include "p1DebugResources.h"
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
+#include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5Brands.h"
 
 #include "Logger.h"
+
+#include "Profiler.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
@@ -33,33 +40,37 @@ m1GUI::~m1GUI()
 
 bool m1GUI::Init(const nlohmann::json& node)
 {
+	PROFILE_FUNCTION();
 	configuration = new p1Configuration();
-	about = new p1About(false);
+	about = new p1About(false, false);
 	objects = new p1Objects();
 	inspector = new p1Inspector();
 	console = new p1Console();
-	scene = new p1Scene();
+	scene = new p1Scene(true, false, false);
 	resources = new p1Resources();
 	tileset = new p1Tileset();
+	dbg_resources = new p1DebugResources(false, false);
 
-	panels.push_back(configuration);
 	panels.push_back(objects);
 	panels.push_back(inspector);
+	panels.push_back(configuration);
 	panels.push_back(about);
 	panels.push_back(console);
 	panels.push_back(resources);
 	panels.push_back(scene);
 	panels.push_back(tileset);
+	panels.push_back(dbg_resources);
 
 	return true;
 }
 
 bool m1GUI::Start()
 {
+	PROFILE_FUNCTION();
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
-	LOG("ImGui initialized with version %s", ImGui::GetVersion());
+	LOGN("ImGui initialized with version %s", ImGui::GetVersion());
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.Fonts->AddFontDefault();
@@ -73,18 +84,23 @@ bool m1GUI::Start()
 	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
 	io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 12.0f, &icons_config, icons_ranges);
+	static const ImWchar icons_ranges2[] = { ICON_MIN_FAB, ICON_MAX_FAB , 0 };
+	io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAB, 16.0f, &icons_config, icons_ranges2);
 	// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 	
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->render->context);
 	ImGui_ImplOpenGL3_Init("#version 330");
 	
-	scene->InitFrameBuffer();
+	for (auto i = panels.begin(); i != panels.end(); ++i) {
+		(*i)->Start();
+	}
 
 	return true;
 }
 
 UpdateStatus m1GUI::PreUpdate()
 {
+	PROFILE_FUNCTION();
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(App->window->window);
 	ImGui::NewFrame();
@@ -96,21 +112,70 @@ UpdateStatus m1GUI::PreUpdate()
 	}
 
 	DockSpace();
-	
-	scene->SelectFrameBuffer();
 
 	return UpdateStatus::UPDATE_CONTINUE;
 }
 
 void m1GUI::MainMenuBar()
 {
+	PROFILE_FUNCTION();
+	static bool create_map = false;
 	if (ImGui::BeginMenu("File")) {
+		if (ImGui::MenuItem("New Map")) {
+			create_map = true;
+		}
+		
+		if (ImGui::MenuItem("Save")) {
+			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::SAVE_MAP));
+		}
+
 		ImGui::EndMenu();
 	}
 
+	if(create_map)
+		if (ImGui::Begin("Create New Map", &create_map)) {
+			static int size[2] = { 10 , 10 };
+			ImGui::InputInt2("Size", size);
+
+			if (ImGui::Button("Create")) {
+				r1Map::CreateNewMap(size[0], size[1]);
+				App->map_editor->ReLoadMap();
+				create_map = false;
+			}
+
+			ImGui::End();
+		}
+
+	static bool resize_map = false;
+	static int map_resize[2] = { 10 , 10 };
+	if (ImGui::BeginMenu("Edit")) {
+		if (ImGui::MenuItem("Resize Map")) {
+			resize_map = true;
+			int2 m = App->map_editor->GetMapSize();
+			map_resize[0] = m.x; map_resize[1] = m.y;
+		}
+
+		ImGui::EndMenu();
+	}
+
+	if (resize_map)
+		if (ImGui::Begin("Resize Map", &resize_map)) {
+			ImGui::InputInt2("New Size", map_resize);
+
+			if (ImGui::Button("Resize")) {
+				m1Events::Event* e = new m1Events::Event(m1Events::Event::Type::RESIZE_MAP);
+				e->info["width"] = new iTypeVar(map_resize[0]);
+				e->info["height"] = new iTypeVar(map_resize[1]);
+				App->events->AddEvent(e);
+				resize_map = false;
+			}
+
+			ImGui::End();
+		}
+
 	if (ImGui::BeginMenu("Panels")) {
 		for (auto i = panels.begin(); i != panels.end(); ++i) {
-			if (*i != about) {
+			if ((*i)->appear_in_mainmenubar) {
 				ImGui::PushID(*i);
 				if (ImGui::MenuItem((*i)->name.c_str(), "", (*i)->active)) {
 					(*i)->active = !(*i)->active;
@@ -122,9 +187,22 @@ void m1GUI::MainMenuBar()
 	}
 
 	if (ImGui::BeginMenu("Debugging")) {
+		if (ImGui::MenuItem("Show Mouse Pick Line", "", App->debug.draw_mouse_pick_line)) {
+			App->debug.draw_mouse_pick_line = !App->debug.draw_mouse_pick_line;
+		}
+
+		if (ImGui::MenuItem("Resources", "", dbg_resources->GetActive())) {
+			dbg_resources->SetActive(!dbg_resources->GetActive());
+		}
+
 		if (ImGui::MenuItem("ImGui Demo Window", "", demo)) {
 			demo = !demo;
 		}
+
+		if (ImGui::MenuItem("Save Map in image")) {
+			App->map_editor->SaveImageMap();
+		}
+
 		ImGui::EndMenu();
 	}
 
@@ -138,17 +216,19 @@ void m1GUI::MainMenuBar()
 
 UpdateStatus m1GUI::Update()
 {
+	PROFILE_FUNCTION();
 	if (demo)
 		ImGui::ShowDemoWindow(&demo);
-
-	scene->DeselectFrameBuffer();
 
 	for (auto i = panels.begin(); i != panels.end(); ++i) {
 		ImGui::PushID(*i);
 		if ((*i)->active) {
-			if (ImGui::Begin(((*i)->icon + " " + (*i)->name).c_str(), &(*i)->active, (*i)->flags)) {
+			if (ImGui::Begin(((*i)->icon + " " + (*i)->name).c_str(), ((*i)->can_be_closed) ? &(*i)->active : 0, (*i)->flags)) {
 				(*i)->focused = ImGui::IsWindowFocused();
 				(*i)->hover = ImGui::IsWindowHovered();
+
+				(*i)->position.Set(ImGui::GetWindowPos());
+				(*i)->size.Set(ImGui::GetWindowSize());
 
 				(*i)->Update();
 			}
@@ -162,6 +242,7 @@ UpdateStatus m1GUI::Update()
 
 UpdateStatus m1GUI::PostUpdate()
 {
+	PROFILE_FUNCTION();
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -170,6 +251,7 @@ UpdateStatus m1GUI::PostUpdate()
 
 bool m1GUI::CleanUp()
 {
+	PROFILE_FUNCTION();
 	for (auto i = panels.begin(); i != panels.end(); ++i) {
 		delete* i;
 	}

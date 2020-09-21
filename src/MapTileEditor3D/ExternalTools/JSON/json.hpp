@@ -81,6 +81,9 @@ SOFTWARE.
 
 #include <cstddef> // size_t
 
+
+#include "../../Logger.h" // LOG()
+
 namespace nlohmann
 {
 namespace detail

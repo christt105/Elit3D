@@ -33,5 +33,6 @@ private:
 	float orbit_speed = 0.1f;
 	float zoom_speed = 15.f;
 	float mov_speed = 15.f;
+	float turbo_speed = 2.f;
 };
 

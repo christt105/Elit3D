@@ -82,11 +82,29 @@
     <Filter Include="External Libraries\Assimp\Compiler">
       <UniqueIdentifier>{6d061906-6aa4-41e6-8a01-bcca51bdfde3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Objects\Components\Engine">
+      <UniqueIdentifier>{aaec9e15-2eef-4bc0-9109-2325ef7e78e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\Math">
+      <UniqueIdentifier>{21deb4c4-8478-4ad6-b09c-58974fd6aba3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\infoware">
+      <UniqueIdentifier>{e375f570-5dbb-48c7-a320-152fd7d13456}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\infoware\detail">
+      <UniqueIdentifier>{8dcb4005-ad03-4577-9737-ad3c6f7ebb1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\OpenGL">
+      <UniqueIdentifier>{f1a69d3f-4a22-4b00-b15c-371ccef3e91b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\Map">
+      <UniqueIdentifier>{ef822655-90b5-42c0-a5b0-bc5ae13c5e17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\System">
+      <UniqueIdentifier>{0ee56091-7e71-4d72-b9b8-6363e7ecf223}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Logger.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -267,9 +285,6 @@
     <ClCompile Include="r1Shader.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
-    <ClCompile Include="Random.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
     <ClCompile Include="m1Importer.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
@@ -320,6 +335,42 @@
     </ClCompile>
     <ClCompile Include="ExternalTools\mmgr\mmgr.cpp">
       <Filter>External Libraries\mmgr</Filter>
+    </ClCompile>
+    <ClCompile Include="p1DebugResources.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="int2.cpp">
+      <Filter>Tools\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="m1MapEditor.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="r1Map.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGLHelper.cpp">
+      <Filter>Tools\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewport.cpp">
+      <Filter>Tools\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Random.cpp">
+      <Filter>Tools\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="MapLayer.cpp">
+      <Filter>Tools\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiler.cpp">
+      <Filter>Tools\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemInfo.cpp">
+      <Filter>Tools\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>Tools\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -587,9 +638,6 @@
     <ClInclude Include="ExternalTools\GLEW\include\GL\wglew.h">
       <Filter>External Libraries\GLEW</Filter>
     </ClInclude>
-    <ClInclude Include="Logger.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
     <ClInclude Include="Application.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -839,9 +887,6 @@
     <ClInclude Include="ExternalTools\ImGui\imgui_impl_sdl.h">
       <Filter>External Libraries\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>External Libraries</Filter>
-    </ClInclude>
     <ClInclude Include="c1Mesh.h">
       <Filter>Objects\Components</Filter>
     </ClInclude>
@@ -875,9 +920,6 @@
     <ClInclude Include="ExternalTools\PCG\pcg_extras.hpp">
       <Filter>External Libraries\PCG</Filter>
     </ClInclude>
-    <ClInclude Include="Random.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
     <ClInclude Include="m1Importer.h">
       <Filter>Modules</Filter>
     </ClInclude>
@@ -889,9 +931,6 @@
     </ClInclude>
     <ClInclude Include="r1Mesh.h">
       <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Buffer.h">
-      <Filter>Tools</Filter>
     </ClInclude>
     <ClInclude Include="i1Model.h">
       <Filter>Tools\Importers</Filter>
@@ -1026,9 +1065,6 @@
       <Filter>External Libraries\Assimp</Filter>
     </ClInclude>
     <ClInclude Include="ExternalTools\Assimp\include\postprocess.h">
-      <Filter>External Libraries\Assimp</Filter>
-    </ClInclude>
-    <ClInclude Include="ExternalTools\Assimp\include\Profiler.h">
       <Filter>External Libraries\Assimp</Filter>
     </ClInclude>
     <ClInclude Include="ExternalTools\Assimp\include\ProgressHandler.hpp">
@@ -1171,6 +1207,90 @@
     </ClInclude>
     <ClInclude Include="ExternalTools\mmgr\nommgr.h">
       <Filter>External Libraries\mmgr</Filter>
+    </ClInclude>
+    <ClInclude Include="p1DebugResources.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="int2.h">
+      <Filter>Tools\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="m1MapEditor.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\Assimp\include\AssimpProfiler.h">
+      <Filter>External Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="r1Map.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugVars.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\infoware.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\linkage.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\pci.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\system.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\version.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\cpu.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\gpu.hpp">
+      <Filter>External Libraries\infoware</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\scope.hpp">
+      <Filter>External Libraries\infoware\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\sysctl.hpp">
+      <Filter>External Libraries\infoware\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\winstring.hpp">
+      <Filter>External Libraries\infoware\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\cpuid.hpp">
+      <Filter>External Libraries\infoware\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\memory.hpp">
+      <Filter>External Libraries\infoware\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Tools\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGLHelper.h">
+      <Filter>Tools\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewport.h">
+      <Filter>Tools\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>Tools\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="MapLayer.h">
+      <Filter>Tools\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemInfo.h">
+      <Filter>Tools\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Profiler.h">
+      <Filter>Tools\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Tools\System</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\ImGui\IconsFontAwesome5\IconsFontAwesome5Brands.h">
+      <Filter>External Libraries\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

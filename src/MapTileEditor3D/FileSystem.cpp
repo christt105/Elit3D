@@ -5,6 +5,8 @@
 
 #include "Logger.h"
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 namespace fs = std::filesystem;
@@ -19,6 +21,7 @@ FileSystem::~FileSystem()
 
 nlohmann::json FileSystem::OpenJSONFile(const char* path)
 {
+    PROFILE_FUNCTION();
 	std::ifstream f(path);
 	if (f.good()) {
 		nlohmann::json j;
@@ -33,12 +36,14 @@ nlohmann::json FileSystem::OpenJSONFile(const char* path)
 
 void FileSystem::SaveJSONFile(const char* path, const nlohmann::json& file)
 {
+    PROFILE_FUNCTION();
     std::ofstream o(path);
     o << std::setw(4) << file << std::endl;
 }
 
 std::string FileSystem::OpenTextFile(const char* path)
 {
+    PROFILE_FUNCTION();
     try {
         std::ifstream in(path, std::ios::in | std::ios::binary);
         if (in)
@@ -57,6 +62,14 @@ std::string FileSystem::OpenTextFile(const char* path)
         LOGE("Cannot open file with path %s", path);
         throw path;
     }
+}
+
+void FileSystem::SaveTextFile(const char* path, const char* file)
+{
+    std::ofstream f;
+    f.open(path);
+    f << file;
+    f.close();
 }
 
 bool FileSystem::Exists(const char* path)
@@ -98,8 +111,9 @@ bool FileSystem::CreateFolder(const char* path)
 
 bool FileSystem::fDeleteFile(const char* path)
 {
-    if (fs::remove(path) != 0) {
-        LOGW("Could not delete %s", path);
+    std::error_code err;
+    if (fs::remove(path, err) != 0) {
+        LOGW("Could not delete %s, error: %s", path, err.message().c_str());
         return false;
     }
     
@@ -109,7 +123,7 @@ bool FileSystem::fDeleteFile(const char* path)
 bool FileSystem::CopyTo(const char* source, const char* dst)
 {
     std::error_code err;
-    fs::copy(source, dst, err);
+    fs::copy(source, dst, fs::copy_options::overwrite_existing, err);
     if (err.value() != 0)
         LOGE("Copying from %s to %s failed: %s", source, dst, err.message().c_str());
     return err.value() == 0;
@@ -230,7 +244,7 @@ void FileSystem::GetFiles(Folder& parent) {
             parent.folders.push_back(f);
         }
         else {
-            parent.files[entry.path().filename().string()] = LastTimeWrite(entry.path().filename().string().c_str());
+            parent.files[entry.path().filename().string()] = LastTimeWrite((parent.full_path + entry.path().filename().string()).c_str());
         }
     }
 }

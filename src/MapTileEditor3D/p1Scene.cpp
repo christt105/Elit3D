@@ -1,40 +1,37 @@
 #include "p1Scene.h"
 
-#include <GL/glew.h>
-
 #include "Application.h"
 #include "m1Window.h"
 #include "m1Camera3D.h"
+#include "m1Render3D.h"
+#include "m1MapEditor.h"
+
+#include "r1Map.h"
+
+#include "Viewport.h"
+
+#include "Logger.h"
 
 #include "ExternalTools/ImGui/imgui_internal.h"
 
-p1Scene::p1Scene(bool start_enabled): Panel("Scene", start_enabled, ICON_FA_CUBES)
+
+
+
+//temp 
+#include "ExternalTools/MathGeoLib/include/Math/MathFunc.h"
+
+p1Scene::p1Scene(bool start_enabled, bool appear_mainmenubar, bool can_close)
+	: Panel("Scene", start_enabled, appear_mainmenubar, can_close, ICON_FA_CUBES)
 {
-	flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+	flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse 
+		| ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse 
+		| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove
+		| ImGuiWindowFlags_NoDecoration;
 }
 
-void p1Scene::InitFrameBuffer()
+void p1Scene::Start()
 {
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-	// generate texture
-	glGenTextures(1, &tex_buf);
-	glBindTexture(GL_TEXTURE_2D, tex_buf);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, App->window->GetWidth(), App->window->GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// attach it to currently bound framebuffer object
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex_buf, 0);
-
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, App->window->GetWidth(), App->window->GetHeight());
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+	viewport = App->render->CreateViewport("scene");
 }
 
 p1Scene::~p1Scene()
@@ -43,14 +40,77 @@ p1Scene::~p1Scene()
 
 void p1Scene::Update()
 {
+	MenuBar();
+
+	if (App->map_editor->ValidMap()) {
+
+		ImGui::PushClipRect(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), false);
+		ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImVec2(0, ImGui::GetCurrentWindow()->TitleBarHeight() + ImGui::GetCurrentWindow()->MenuBarHeight()));
+
+		ImVec2 window_size = ImGui::GetContentRegionAvail() + ImVec2(16, 16);
+		viewport->UpdateSize((int)window_size.x, (int)window_size.y); // TODO: Extract to a viewport function
+		App->camera->frustum.verticalFov = DegToRad(60.f);
+		App->camera->frustum.horizontalFov = 2.f * atanf(tanf(App->camera->frustum.verticalFov * 0.5f) * (window_size.x / window_size.y));
+		viewport->Update();
+
+		viewport->Blit();
+
+		ImGui::Image((ImTextureID)viewport->GetTexture(), window_size, ImVec2(0, 0), ImVec2(1, -1));
+
+		ImGui::PopClipRect();
+	}
+	else {
+		ShowCreateMap();
+	}
+}
+
+void p1Scene::ShowCreateMap()
+{
+	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f - ImVec2(50, 10));
+	if (ImGui::Button("Create Map", ImVec2(100, 20))) {
+		ImGui::OpenPopup("Create Map");
+	}
+	ImGui::SetNextWindowSize(ImVec2(350, 250), ImGuiCond_Always);
+	ImGui::SetNextWindowPos(ImVec2((float)App->window->GetWidth() * 0.5f - 350.f * 0.5f, (float)App->window->GetHeight() * 0.5f - 250.f * 0.5f));
+	if (ImGui::BeginPopupModal("Create Map", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove)) {
+		PopUpCreateMap();
+		ImGui::EndPopup();
+	}
+}
+
+void p1Scene::PopUpCreateMap()
+{
+	static char name[30] = { ' ' };
+	ImGui::InputText("Name:", name, 30);
+
+	ImGui::Text("Size:");
+	static int size[2] = { 10, 10 };
+	ImGui::InputInt("Width", &size[0]);
+	ImGui::InputInt("Height", &size[1]);
+
+	ImGui::NewLine();
+
+	if (ImGui::Button("Save")) {
+		r1Map::CreateNewMap(size[0], size[1]);
+
+		ImGui::CloseCurrentPopup();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Cancel")) {
+		ImGui::CloseCurrentPopup();
+	}
+}
+
+void p1Scene::MenuBar()
+{
 	if (ImGui::BeginMenuBar()) {
 		if (App->camera->frustum.type == FrustumType::PerspectiveFrustum) {
 			if (ImGui::Button("2D")) {
 				App->camera->frustum.front = -float3::unitY;
 				App->camera->frustum.up = float3::unitX;
 				App->camera->frustum.type = FrustumType::OrthographicFrustum;
-				App->camera->frustum.orthographicWidth = window_size.x/25;
-				App->camera->frustum.orthographicHeight = window_size.y/25;
+				App->camera->frustum.orthographicHeight = 10;
+				App->camera->frustum.orthographicWidth = 20 / App->camera->frustum.AspectRatio();
 			}
 		}
 		else {
@@ -62,28 +122,4 @@ void p1Scene::Update()
 
 		ImGui::EndMenuBar();
 	}
-
-	ImGui::PushClipRect(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), false);
-	window_size = ImGui::GetContentRegionAvail() + ImVec2(16, 16);
-	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImVec2(0, ImGui::GetCurrentWindow()->TitleBarHeight() + ImGui::GetCurrentWindow()->MenuBarHeight()));
-	ImGui::Image((ImTextureID)tex_buf, window_size, ImVec2(0,0), ImVec2(1,-1));
-	ImGui::PopClipRect();
-
-	if (App->camera->frustum.type == FrustumType::PerspectiveFrustum) // TODO: extract all related with frustum to a viewport class in order to have more viewports with opengl objects
-		App->camera->frustum.horizontalFov = 2.f * atanf(tanf(App->camera->frustum.verticalFov * 0.5f) * window_size.x / window_size.y);
-}
-
-void p1Scene::SelectFrameBuffer()
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-}
-
-void p1Scene::DeselectFrameBuffer()
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
-	glClearColor(.1f, .1f, .1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
 }

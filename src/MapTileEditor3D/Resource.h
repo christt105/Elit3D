@@ -14,6 +14,7 @@ public:
 		Model, 
 		Texture,
 		Tileset,
+		Map,
 
 		MAX
 	};
@@ -32,6 +33,7 @@ public:
 	virtual void GenerateFilesLibrary() {}
 
 	Resource::Type GetType();
+	std::string GetStrType();
 	
 public:
 	std::string name;

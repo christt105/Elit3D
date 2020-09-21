@@ -522,7 +522,7 @@ extern DECLSPEC int SDLCALL SDL_ConvertAudio(SDL_AudioCVT * cvt);
 
 /* SDL_AudioStream is a new audio conversion interface.
    The benefits vs SDL_AudioCVT:
-    - it can handle resampling data in chunks without generating
+    - it can handle resampling data in layers without generating
       artifacts, when it doesn't have the complete buffer available.
     - it can handle incoming data in any variable size.
     - You push data as you have it, and pull it when you need it

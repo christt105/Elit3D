@@ -23,7 +23,11 @@ public:
             FOLDER_MODIFIED,
             FOLDER_REMOVED,
             FOLDER_RENAMED,
-            FOLDER_MOVED
+            FOLDER_MOVED,
+
+            RESIZE_MAP,
+
+            SAVE_MAP
         };
         Event();
         Event(Type t, const char* basic_info = NULL);

@@ -21,5 +21,8 @@ private:
 	int spacing = 0;
 	int ntiles = 0;
 	int columns = 0;
+
+	bool use_transparent = false;
+	float transparent_color[3];
 };
 

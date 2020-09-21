@@ -223,6 +223,7 @@ struct ImVec2
     float& operator[] (size_t idx)          { IM_ASSERT(idx <= 1); return (&x)[idx]; }    // We very rarely use this [] operator, the assert overhead is fine.
     ImVec2 operator + (const ImVec2& vec)     { return ImVec2(x + vec.x, y + vec.y); }
     ImVec2 operator - (const ImVec2& vec)     { return ImVec2(x - vec.x, y - vec.y); }
+    ImVec2 operator * (float val)     { return ImVec2(x * val, y * val); }
 #ifdef IM_VEC2_CLASS_EXTRA
     IM_VEC2_CLASS_EXTRA     // Define additional constructors and implicit cast operators in imconfig.h to convert back and forth between your math types and ImVec2.
 #endif
@@ -430,7 +431,7 @@ namespace ImGui
     IMGUI_API ImGuiID       GetID(const void* ptr_id);
 
     // Widgets: Text
-    IMGUI_API void          TextUnformatted(const char* text, const char* text_end = NULL); // raw text without formatting. Roughly equivalent to Text("%s", text) but: A) doesn't require null terminated string if 'text_end' is specified, B) it's faster, no memory copy is done, no buffer size limits, recommended for long chunks of text.
+    IMGUI_API void          TextUnformatted(const char* text, const char* text_end = NULL); // raw text without formatting. Roughly equivalent to Text("%s", text) but: A) doesn't require null terminated string if 'text_end' is specified, B) it's faster, no memory copy is done, no buffer size limits, recommended for long layers of text.
     IMGUI_API void          Text(const char* fmt, ...)                                      IM_FMTARGS(1); // formatted text
     IMGUI_API void          TextV(const char* fmt, va_list args)                            IM_FMTLIST(1);
     IMGUI_API void          TextColored(const ImVec4& col, const char* fmt, ...)            IM_FMTARGS(2); // shortcut for PushStyleColor(ImGuiCol_Text, col); Text(fmt, ...); PopStyleColor();
@@ -1327,7 +1328,10 @@ enum ImGuiMouseCursor_
     ImGuiMouseCursor_ResizeNESW,        // When hovering over the bottom-left corner of a window
     ImGuiMouseCursor_ResizeNWSE,        // When hovering over the bottom-right corner of a window
     ImGuiMouseCursor_Hand,              // (Unused by Dear ImGui functions. Use for e.g. hyperlinks)
-    ImGuiMouseCursor_NotAllowed,        // When hovering something with disallowed interaction. Usually a crossed circle.
+    ImGuiMouseCursor_NotAllowed,        // When hovering something with disallowed interaction. Usually a crossed circle.   
+    ImGuiMouseCursor_Wait,        
+    ImGuiMouseCursor_Cross,     
+    ImGuiMouseCursor_WaitArrow,        
     ImGuiMouseCursor_COUNT
 
     // Obsolete names (will be removed)

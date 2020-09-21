@@ -24,7 +24,9 @@ public:
 	virtual void OnInspector() {}
 
 public:
-	Type type = Type::NONE;
 	Object* object = nullptr;
+
+private:
+	Type type = Type::NONE;
 };
 

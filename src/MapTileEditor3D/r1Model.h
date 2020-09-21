@@ -13,9 +13,9 @@ class r1Model :
 		std::string name;
 		std::vector<Node> children;
 
-		float pos[3];
-		float scale[3];
-		float rot[4];
+		float pos[3] = { 0.f, 0.f, 0.f };
+		float scale[3] = { 1.f, 1.f, 1.f };
+		float rot[4] = { 1.f, 0.f, 0.f, 0.f };
 		uint64_t mesh = 0ull;
 		uint64_t texture = 0ull;
 

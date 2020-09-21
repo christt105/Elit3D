@@ -1,5 +1,4 @@
 #include "c1Mesh.h"
-#include <GL/glew.h>
 
 #include "Application.h"
 #include "m1Resources.h"
@@ -13,6 +12,8 @@
 #include "r1Shader.h"
 
 #include "Logger.h"
+
+#include "OpenGLHelper.h"
 
 #include "ExternalTools/ImGui/imgui.h"
 
@@ -28,17 +29,14 @@ c1Mesh::~c1Mesh()
 
 void c1Mesh::Update()
 {
-	const r1Mesh* rmesh = (r1Mesh*)App->resources->Get(mesh);
+	const r1Mesh* rmesh = ((is_engine_mesh) ? emesh : (r1Mesh*)App->resources->Get(mesh));
 	if (rmesh != nullptr) {
-		glBindVertexArray(rmesh->VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, rmesh->vertices.id);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rmesh->indices.id);
+		oglh::BindBuffers(rmesh->VAO, rmesh->vertices.id, rmesh->indices.id);
 
-		material->shader->SetVec3("color", float3::one);
-		material->shader->SetMat4("model", object->transform->mat);
+		material->shader->SetMat4("model", object->transform->GetMatrix());
 
 		material->BindTex();
-		glDrawElements(GL_TRIANGLES, rmesh->indices.size, GL_UNSIGNED_INT, (void*)0);
+		oglh::DrawElements(rmesh->indices.size);
 		material->UnBindTex();
 	}
 	else
@@ -50,6 +48,13 @@ void c1Mesh::SetMesh(const uint64_t& id)
 	mesh = id;
 	Resource* res = App->resources->Get(mesh);
 	res->Attach();
+}
+
+void c1Mesh::SetEMesh(m1Resources::EResourceType res)
+{
+	is_engine_mesh = true;
+	emesh = (r1Mesh*)App->resources->Get(res);
+	emesh->Attach();
 }
 
 void c1Mesh::OnInspector()

@@ -5,6 +5,7 @@
 #include <SDL_video.h>
 
 class r1Shader;
+class Viewport;
 
 class m1Render3D :
 	public Module
@@ -25,10 +26,20 @@ public:
 
 	bool CleanUp() override;
 
-	r1Shader* bShader = nullptr;
+	Viewport* CreateViewport(const char* name);
+	Viewport* GetViewport(const char* name);
+
+	r1Shader* GetShader(const char* name);
+
+private:
+	void loadShaders();
+
 private:
 	SDL_GLContext context = nullptr;
 
-	float background_color[4] = { 0.f, 0.f, 0.f, 1.f };
+	std::map<std::string, Viewport*> viewports;
+
+	std::map<std::string, unsigned int> shaders;
+	std::map<std::string, r1Shader*> programs;
 };
 

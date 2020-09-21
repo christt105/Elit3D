@@ -4117,7 +4117,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         // Scroll
         if (render_cursor && state->CursorFollow)
         {
-            // Horizontal scroll in chunks of quarter width
+            // Horizontal scroll in layers of quarter width
             if (!(flags & ImGuiInputTextFlags_NoHorizontalScroll))
             {
                 const float scroll_increment_x = inner_size.x * 0.25f;

@@ -1,6 +1,7 @@
 #include "Panel.h"
 
-Panel::Panel(const char* name, bool start_active, const char* icon) : name(name), active(start_active), icon(icon)
+Panel::Panel(const char* name, bool start_active, bool appear_mainmenubar, bool can_close, const char* icon)
+	: name(name), active(start_active), appear_in_mainmenubar(appear_mainmenubar), can_be_closed(can_close), icon(icon)
 {
 }
 
@@ -8,12 +9,36 @@ Panel::~Panel()
 {
 }
 
-bool Panel::IsFocused()
+void Panel::Start()
+{
+}
+
+bool Panel::IsFocused() const
 {
 	return focused;
 }
 
-bool Panel::IsOnHover()
+bool Panel::IsOnHover() const
 {
 	return hover;
+}
+
+bool Panel::GetActive() const
+{
+	return active;
+}
+
+void Panel::SetActive(bool act)
+{
+	active = act;
+}
+
+int2 Panel::GetPosition() const
+{
+	return position;
+}
+
+int2 Panel::GetSize() const
+{
+	return size;
 }
