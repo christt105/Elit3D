@@ -250,8 +250,8 @@ static		unsigned int	sourceLine             = 0;
 static		bool		staticDeinitTime       = false;
 static		sAllocUnit	**reservoirBuffer      = NULL;
 static		unsigned int	reservoirBufferSize    = 0;
-static const	char		*memoryLogFile         = "memory.log";
-static const	char		*memoryLeakLogFile     = "memleaks.log";
+static const	char		*memoryLogFile         = "Export/memory.log";
+static const	char		*memoryLeakLogFile     = "Export/memleaks.log";
 static		void		doCleanupLogOnFirstRun();
 
 // ---------------------------------------------------------------------------------------------------------------------------------
