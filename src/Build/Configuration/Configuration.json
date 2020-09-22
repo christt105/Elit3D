@@ -1,7 +1,7 @@
 {
     "App": {
         "name": "Tile Map Editor 3D",
-        "version": "0.0",
+        "version": "0.1.0",
         "Window": {
             "x": -1,
             "y": -1,

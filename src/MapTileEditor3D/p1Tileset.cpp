@@ -192,7 +192,8 @@ int2 p1Tileset::GetTileSelected() const
 {
 	int2 ret = { tile_selected[0], tile_selected[1] };
 	auto tile = (r1Tileset*)App->resources->Get(tileset);
-	ret.y = tile->ntiles / tile->columns - ret.y - 1;
+	if (tile)
+		ret.y = tile->ntiles / tile->columns - ret.y - 1;
 	return ret;
 }
 
