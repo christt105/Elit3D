@@ -130,27 +130,27 @@ void m1MapEditor::ReLoadMap()
 
 void m1MapEditor::MousePicking(const Ray& ray)
 {
-	float t = 0.f;
-	if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), 0.f, ray.pos, ray.dir, t) && t > 0.f) {
-		float3 position = ray.GetPoint(t);
-		int2 tile = panel_tileset->GetTileSelected();
-		if (tile.x != -1 && tile.y != -1) {
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m) {
+		int index = panel_layers->GetSelected();
+		if (index < m->layers.size() && index > -1) {
+			float t = 0.f;
+			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[index]->height, ray.pos, ray.dir, t) && t > 0.f) {
+				float3 position = ray.GetPoint(t);
+				int2 tile = panel_tileset->GetTileSelected();
+				if (tile.x != -1 && tile.y != -1) {
 
-			// tile.y = A * 256 + B
-			char A = 0;
-			char B = 0;
+					// tile.y = A * 256 + B
+					char A = 0;
+					char B = 0;
 
-			A = tile.y / 256;
-			B = tile.y % 256;
+					A = tile.y / 256;
+					B = tile.y % 256;
 
-			auto m = (r1Map*)App->resources->Get(map);
-			if (m) {
-				int col = (int)floor(position.z);
-				int row = (int)floor(-position.x);
+					int col = (int)floor(position.z);
+					int row = (int)floor(-position.x);
 
-				if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
-					int index = panel_layers->GetSelected();
-					if (index < m->layers.size() && index > -1) {
+					if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
 						if (m->layers[index]->tile_data[(m->size.x * col + row) * 3] != tile.x ||
 							m->layers[index]->tile_data[(m->size.x * col + row) * 3 + 1] != A ||
 							m->layers[index]->tile_data[(m->size.x * col + row) * 3 + 2] != B)
