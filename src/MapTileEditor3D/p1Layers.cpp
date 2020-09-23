@@ -27,14 +27,19 @@ void p1Layers::Update()
 			App->map_editor->AddLayer();
 		}
 		ImGui::SameLine();
+		bool disabled = false;
 		if (selected == -1 || selected > layers.size()) {
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+			disabled = true;
 		}
 		if (ImGui::Button(ICON_FA_TRASH_ALT)) {
 				App->map_editor->EraseLayer(selected);
+				App->map_editor->GetLayers(layers);
+				selected = -1;
+				App->gui->inspector->SetSelected(nullptr, p1Inspector::SelectedType::NONE);
 		}
-		if (selected == -1 || selected > layers.size()) {
+		if (disabled) {
 			ImGui::PopItemFlag();
 			ImGui::PopStyleVar();
 		}

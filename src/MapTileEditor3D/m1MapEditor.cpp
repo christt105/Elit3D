@@ -196,7 +196,7 @@ void m1MapEditor::EraseLayer(int index)
 	auto m = (r1Map*)App->resources->Get(map);
 	if (m) {
 		auto it = m->layers.begin() + index;
-		//delete* it;
+		delete* it;
 		m->layers.erase(it);
 	}
 }
