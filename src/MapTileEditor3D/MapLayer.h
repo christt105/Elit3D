@@ -6,7 +6,7 @@
 #include "Buffer.h"
 
 class r1Mesh;
-class TypeVar;
+struct TypeVar;
 
 class OpenGLBuffers {
 public:

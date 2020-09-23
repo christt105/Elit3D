@@ -28,7 +28,7 @@ void p1Layers::Update()
 		}
 		ImGui::SameLine();
 		bool disabled = false;
-		if (selected == -1 || selected > layers.size()) {
+		if (selected == -1 || selected > (int)layers.size()) {
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
 			disabled = true;

@@ -133,7 +133,7 @@ void m1MapEditor::MousePicking(const Ray& ray)
 	auto m = (r1Map*)App->resources->Get(map);
 	if (m) {
 		int index = panel_layers->GetSelected();
-		if (index < m->layers.size() && index > -1) {
+		if (index < (int)m->layers.size() && index > -1) {
 			if (m->layers[index]->locked)
 				return;
 			float t = 0.f;
