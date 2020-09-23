@@ -30,6 +30,9 @@ public:
     void ResizeMap(int width, int height);
     int2 GetMapSize() const;
 
+    void AddLayer();
+    void EraseLayer(int index);
+
     bool ValidMap() const;
     bool GetLayers(std::vector<Layer*>& vec) const;
 

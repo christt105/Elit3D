@@ -70,7 +70,7 @@ UpdateStatus m1MapEditor::Update()
 			for (auto layer : m->layers) {
 				layer->Prepare();
 				shader->SetInt("tilemap", 1);
-				layer->Update();
+				layer->Update(m->size);
 			}
 
 			for (int i = 0; i < 2; ++i) {
@@ -162,6 +162,24 @@ int2 m1MapEditor::GetMapSize() const
 	if (m)
 		return m->size;
 	return int2(-1, -1);
+}
+
+void m1MapEditor::AddLayer()
+{
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m) {
+		Layer* layer = new Layer();
+		layer->Reset(m->size);
+		m->layers.push_back(layer);
+	}
+}
+
+void m1MapEditor::EraseLayer(int index)
+{
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m) {
+		m->layers.erase(m->layers.begin() + index);
+	}
 }
 
 bool m1MapEditor::ValidMap() const

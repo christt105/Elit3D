@@ -24,13 +24,14 @@ class Layer {
 public:
     Layer();
     ~Layer();
-    int2 size = int2(10, 10);
+
     float height = 0.f;
 
     unsigned int id_tex = 0u;
 
     void Prepare() const;
-    void Update() const;
+    void Update(const int2& size) const;
+    void Reset(const int2& size);
     static void SelectBuffers();
     static void DrawTile(const int2& size);
 

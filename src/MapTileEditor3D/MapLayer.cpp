@@ -33,13 +33,26 @@ void Layer::Prepare() const
 	oglh::BindTexture(id_tex);
 }
 
-void Layer::Update() const
+void Layer::Update(const int2& size) const
 {
 	PROFILE_FUNCTION();
 
 	static auto shader = App->render->GetShader("tilemap");
-	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, height, 0.f), Quat::identity, float3((float)size.x, 1.f, (float)size.y))/* height of layer */);
+	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, height, 0.f), Quat::identity, float3((float)size.x, 1.f, (float)size.y))); // TODO: don't create a mat4x4 for every layer
 	oglh::DrawElements(tile.indices.size);
+}
+
+void Layer::Reset(const int2& size)
+{
+	tile_data = new unsigned char[size.x * size.y * 3];
+
+	unsigned char rgb[3] = { 0,255,0 };
+
+	for (int i = 0; i < size.x * size.y; ++i) {
+		tile_data[i*3    ] = rgb[0];
+		tile_data[i*3 + 1] = rgb[1];
+		tile_data[i*3 + 2] = rgb[2];
+	}
 }
 
 void Layer::SelectBuffers()

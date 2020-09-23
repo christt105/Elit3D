@@ -72,7 +72,6 @@ void r1Map::Load()
 
 	for (auto l = file["layers"].begin(); l != file["layers"].end(); ++l) {
 		Layer* layer = new Layer();
-		layer->size = size;
 		layer->name = (*l).value("name", "Layer");
 
 		layer->tile_data = new unsigned char[size.x * size.y * 3];
@@ -130,8 +129,7 @@ void r1Map::Resize(int width, int height)
 		PROFILE_SECTION("Gen Texture");
 		layers[0]->tile_data = new_data;
 		delete[] old_data;
-		layers[0]->size = { width, height };
-		size = layers[0]->size;
+		size = { width, height };
 
 		oglh::DeleteTexture(layers[0]->id_tex);
 		oglh::GenTextureData(layers[0]->id_tex, true, true, width, height, new_data); //TODO: research a faster way to do this
@@ -142,9 +140,9 @@ void r1Map::Edit(int layer, int row, int col, char r, char g, char b)
 {
 	//cpu
 	unsigned char* loc = layers[layer]->tile_data;
-	loc[(layers[layer]->size.x * row + col) * 3] = r;
-	loc[(layers[layer]->size.x * row + col) * 3 + 1] = g;
-	loc[(layers[layer]->size.x * row + col) * 3 + 2] = b;
+	loc[(size.x * row + col) * 3] = r;
+	loc[(size.x * row + col) * 3 + 1] = g;
+	loc[(size.x * row + col) * 3 + 2] = b;
 
 	//gpu
 	oglh::BindTexture(layers[layer]->id_tex);
