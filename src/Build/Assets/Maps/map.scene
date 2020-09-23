@@ -303,7 +303,11 @@
                 0,
                 59
             ],
-            "name": "Layer0"
+            "height": 0.0,
+            "locked": false,
+            "name": "Layer0",
+            "opacity": 1.0,
+            "visible": true
         },
         {
             "data": [
@@ -608,7 +612,11 @@
                 255,
                 0
             ],
-            "name": "Layer"
+            "height": 1.0,
+            "locked": false,
+            "name": "Layer1",
+            "opacity": 0.5019999742507935,
+            "visible": true
         }
     ],
     "properties": {},

@@ -40,6 +40,11 @@ void r1Map::Save(const uint64_t& tileset)
 				lay["data"].push_back((*l)->tile_data[i]);
 			}
 			lay["name"] = (*l)->GetName();
+			lay["height"] = (*l)->height;
+			lay["opacity"] = (*l)->opacity;
+			lay["visible"] = (*l)->visible;
+			lay["locked"] = (*l)->locked;
+
 			file["layers"].push_back(lay);
 		}
 
@@ -72,7 +77,11 @@ void r1Map::Load()
 
 	for (auto l = file["layers"].begin(); l != file["layers"].end(); ++l) {
 		Layer* layer = new Layer();
-		layer->name = (*l).value("name", "Layer");
+		layer->SetName((*l).value("name", "Layer").c_str());
+		layer->height = (*l).value("height", 0.f);
+		layer->opacity = (*l).value("opacity", 1.f);
+		layer->visible = (*l).value("visible", true);
+		layer->locked = (*l).value("locked", false);
 
 		layer->tile_data = new unsigned char[size.x * size.y * 3];
 		int i = 0;
