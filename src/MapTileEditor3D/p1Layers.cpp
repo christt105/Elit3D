@@ -3,6 +3,9 @@
 #include "Application.h"
 #include "m1MapEditor.h"
 
+#include "m1GUI.h"
+#include "p1Inspector.h"
+
 #include "MapLayer.h"
 
 #include "ExternalTools/ImGui/imgui_internal.h"
@@ -38,14 +41,16 @@ void p1Layers::Update()
 
 		ImGui::Separator();
 
-		for (auto l = layers.begin(); l != layers.end(); ++l) {
-			bool l_selected = ((l - layers.begin()) == selected);
+		for (auto l = layers.rbegin(); l != layers.rend(); ++l) {
+			bool l_selected = ((l - layers.rbegin()) == selected);
 			if (ImGui::Selectable((*l)->GetName(), l_selected)) {
 				if (l_selected) {
 					selected = -1;
+					App->gui->inspector->SetSelected(nullptr, p1Inspector::SelectedType::NONE);
 				}
 				else {
-					selected = l - layers.begin();
+					selected = l - layers.rbegin();
+					App->gui->inspector->SetSelected(*l, p1Inspector::SelectedType::LAYER);
 				}
 			}
 		}

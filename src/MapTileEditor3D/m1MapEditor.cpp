@@ -66,11 +66,16 @@ UpdateStatus m1MapEditor::Update()
 			shader->SetInt("tileAtlas", 0); // for now we only can draw a map with a single texture (TODO)
 			shader->SetInt2("ntilesMap", m->size);
 			oglh::ActiveTexture(1);
+			shader->SetInt("tilemap", 1);
 
-			for (auto layer : m->layers) {
-				layer->Prepare();
-				shader->SetInt("tilemap", 1);
-				layer->Update(m->size);
+			auto layers = m->layers;
+			std::sort(layers.begin(), layers.end(), Layer::HeightOrder); //TODO not every frame
+
+			for (auto layer : layers) {
+				if (layer->visible) {
+					layer->Prepare();
+					layer->Update(m->size);
+				}
 			}
 
 			for (int i = 0; i < 2; ++i) {
@@ -178,7 +183,9 @@ void m1MapEditor::EraseLayer(int index)
 {
 	auto m = (r1Map*)App->resources->Get(map);
 	if (m) {
-		m->layers.erase(m->layers.begin() + index);
+		auto it = m->layers.begin() + index;
+		//delete* it;
+		m->layers.erase(it);
 	}
 }
 

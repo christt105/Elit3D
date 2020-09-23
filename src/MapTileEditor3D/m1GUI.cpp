@@ -54,8 +54,8 @@ bool m1GUI::Init(const nlohmann::json& node)
 	dbg_resources = new p1DebugResources(false, false);
 
 	panels.push_back(objects);
-	panels.push_back(inspector);
 	panels.push_back(configuration);
+	panels.push_back(inspector);
 	panels.push_back(about);
 	panels.push_back(console);
 	panels.push_back(resources);

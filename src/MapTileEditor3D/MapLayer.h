@@ -32,8 +32,12 @@ public:
     void Prepare() const;
     void Update(const int2& size) const;
     void Reset(const int2& size);
+
     static void SelectBuffers();
     static void DrawTile(const int2& size);
+    static bool HeightOrder(const Layer* l1, const Layer* l2);
+
+    void OnInspector();
 
     const char* GetName() const;
     void SetName(const char* n);
@@ -44,4 +48,7 @@ private:
     unsigned char* tile_data = nullptr;
 
     std::string name = "Layer";
+    bool visible = true;
+    bool locked = false;
+    float opacity = 1.f;
 };

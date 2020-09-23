@@ -39,6 +39,7 @@ void Layer::Update(const int2& size) const
 
 	static auto shader = App->render->GetShader("tilemap");
 	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, height, 0.f), Quat::identity, float3((float)size.x, 1.f, (float)size.y))); // TODO: don't create a mat4x4 for every layer
+	shader->SetFloat("alpha", opacity);
 	oglh::DrawElements(tile.indices.size);
 }
 
@@ -46,13 +47,13 @@ void Layer::Reset(const int2& size)
 {
 	tile_data = new unsigned char[size.x * size.y * 3];
 
-	unsigned char rgb[3] = { 0,255,0 };
-
 	for (int i = 0; i < size.x * size.y; ++i) {
-		tile_data[i*3    ] = rgb[0];
-		tile_data[i*3 + 1] = rgb[1];
-		tile_data[i*3 + 2] = rgb[2];
+		tile_data[i*3    ] = 0;
+		tile_data[i*3 + 1] = 255;
+		tile_data[i*3 + 2] = 0;
 	}
+
+	oglh::GenTextureData(id_tex, true, true, size.x, size.y, tile_data);
 }
 
 void Layer::SelectBuffers()
@@ -65,6 +66,20 @@ void Layer::DrawTile(const int2& size)
 	static auto shader = App->render->GetShader("tilemap");
 	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, 0.f, 0.f), Quat::identity, float3((float)size.x, 1.f, (float)size.y))/* height of layer */);
 	oglh::DrawElements(tile.indices.size);
+}
+
+bool Layer::HeightOrder(const Layer* l1, const Layer* l2)
+{
+	return l1->height < l2->height;
+}
+
+void Layer::OnInspector()
+{
+	ImGui::Text(name.c_str());
+	ImGui::Checkbox("Visible", &visible);
+	ImGui::Checkbox("Lock", &locked);
+	ImGui::DragFloat("Height", &height, 0.1f);
+	ImGui::SliderFloat("Opacity", &opacity, 0.f, 1.f);
 }
 
 const char* Layer::GetName() const
