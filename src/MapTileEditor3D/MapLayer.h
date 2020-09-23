@@ -48,6 +48,7 @@ private:
     unsigned char* tile_data = nullptr;
 
     std::string name = "Layer";
+    char buf[30];
     bool visible = true;
     bool locked = false;
     float opacity = 1.f;

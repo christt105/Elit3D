@@ -8,6 +8,7 @@
 class Object;
 class p1Scene;
 class p1Tileset;
+class p1Layers;
 class Layer;
 
 class m1MapEditor :
@@ -26,7 +27,7 @@ public:
     void LoadMap(const uint64_t& id);
     void ReLoadMap();
 
-    void MousePicking(const float3& position);
+    void MousePicking(const Ray& ray);
     void ResizeMap(int width, int height);
     int2 GetMapSize() const;
 
@@ -40,5 +41,6 @@ private:
     uint64_t map = 0ULL;
     
     p1Tileset* panel_tileset = nullptr;
+    p1Layers* panel_layers = nullptr;
 };
 

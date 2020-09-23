@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "m1GUI.h"
 #include "p1Tileset.h"
+#include "p1Layers.h"
 #include "Viewport.h"
 
 #include "m1Render3D.h"
@@ -39,6 +40,7 @@ bool m1MapEditor::Start()
 	PROFILE_FUNCTION();
 	
 	panel_tileset = App->gui->tileset;
+	panel_layers = App->gui->layers;
 
 	return true;
 }
@@ -126,28 +128,36 @@ void m1MapEditor::ReLoadMap()
 	App->resources->ReimportResource(m->assets_path.c_str());
 }
 
-void m1MapEditor::MousePicking(const float3& position)
+void m1MapEditor::MousePicking(const Ray& ray)
 {
-	int2 tile = panel_tileset->GetTileSelected();
-	if (tile.x != -1 && tile.y != -1) {
+	float t = 0.f;
+	if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), 0.f, ray.pos, ray.dir, t) && t > 0.f) {
+		float3 position = ray.GetPoint(t);
+		int2 tile = panel_tileset->GetTileSelected();
+		if (tile.x != -1 && tile.y != -1) {
 
-		// tile.y = A * 256 + B
-		char A = 0;
-		char B = 0;
+			// tile.y = A * 256 + B
+			char A = 0;
+			char B = 0;
 
-		A = tile.y / 256;
-		B = tile.y % 256;
+			A = tile.y / 256;
+			B = tile.y % 256;
 
-		auto m = (r1Map*)App->resources->Get(map);
-		if (m) {
-			int col = (int)floor(position.z);
-			int row = (int)floor(-position.x);
-			if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
-				if (m->layers[0]->tile_data[(m->size.x * col + row) * 3	   ] != tile.x ||
-					m->layers[0]->tile_data[(m->size.x * col + row) * 3 + 1] != A ||
-					m->layers[0]->tile_data[(m->size.x * col + row) * 3 + 2] != B)
-				{
-					m->Edit(0, col, row, tile.x, A, B);
+			auto m = (r1Map*)App->resources->Get(map);
+			if (m) {
+				int col = (int)floor(position.z);
+				int row = (int)floor(-position.x);
+
+				if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
+					int index = panel_layers->GetSelected();
+					if (index < m->layers.size() && index > -1) {
+						if (m->layers[index]->tile_data[(m->size.x * col + row) * 3] != tile.x ||
+							m->layers[index]->tile_data[(m->size.x * col + row) * 3 + 1] != A ||
+							m->layers[index]->tile_data[(m->size.x * col + row) * 3 + 2] != B)
+						{
+							m->Edit(index, col, row, tile.x, A, B);
+						}
+					}
 				}
 			}
 		}

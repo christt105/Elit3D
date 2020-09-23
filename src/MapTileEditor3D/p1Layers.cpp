@@ -42,17 +42,22 @@ void p1Layers::Update()
 		ImGui::Separator();
 
 		for (auto l = layers.rbegin(); l != layers.rend(); ++l) {
-			bool l_selected = ((l - layers.rbegin()) == selected);
+			bool l_selected = ((layers.size() - 1 - (l - layers.rbegin())) == selected);
 			if (ImGui::Selectable((*l)->GetName(), l_selected)) {
 				if (l_selected) {
 					selected = -1;
 					App->gui->inspector->SetSelected(nullptr, p1Inspector::SelectedType::NONE);
 				}
 				else {
-					selected = l - layers.rbegin();
+					selected = layers.size() - (l - layers.rbegin()) - 1;
 					App->gui->inspector->SetSelected(*l, p1Inspector::SelectedType::LAYER);
 				}
 			}
 		}
 	}
+}
+
+int p1Layers::GetSelected() const
+{
+	return selected;
 }

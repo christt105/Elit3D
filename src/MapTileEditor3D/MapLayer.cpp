@@ -18,6 +18,7 @@ Layer::Layer()
 {
 	if (tile.vertices.size == 0u)
 		tile.InitData();
+	strcpy_s(buf, 30, name.c_str());
 }
 
 Layer::~Layer()
@@ -75,7 +76,8 @@ bool Layer::HeightOrder(const Layer* l1, const Layer* l2)
 
 void Layer::OnInspector()
 {
-	ImGui::Text(name.c_str());
+	if (ImGui::InputText("Name", buf, 30))
+		name.assign(buf);
 	ImGui::Checkbox("Visible", &visible);
 	ImGui::Checkbox("Lock", &locked);
 	ImGui::DragFloat("Height", &height, 0.1f);
@@ -90,6 +92,7 @@ const char* Layer::GetName() const
 void Layer::SetName(const char* n)
 {
 	name.assign(n);
+	strcpy_s(buf, 30, n);
 }
 
 OpenGLBuffers::OpenGLBuffers()

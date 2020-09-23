@@ -40,8 +40,6 @@ bool m1Scene::Start()
 
 	panel_scene = App->gui->scene;
 
-	//((r1Model*)App->resources->Get(App->resources->FindByName("cubecat")))->CreateObject();
-
 	return true;
 }
 
@@ -75,13 +73,9 @@ UpdateStatus m1Scene::Update()
 
 			auto ray = App->camera->frustum.UnProject(mouse_perc.x, mouse_perc.y);
 
+			App->map_editor->MousePicking(ray);
 			xd0 = ray.pos;
 			xd1 = ray.pos + ray.dir * 50.f;
-
-			float t = 0.f;
-			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), 0.f, ray.pos, ray.dir, t) && t > 0.f) {
-				App->map_editor->MousePicking(ray.GetPoint(t));
-			}
 		}
 	}
 

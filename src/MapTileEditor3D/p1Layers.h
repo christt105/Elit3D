@@ -9,6 +9,8 @@ public:
 
     void Update() override;
 
+    int GetSelected() const;
+
 private:
     int selected = -1;
 };
