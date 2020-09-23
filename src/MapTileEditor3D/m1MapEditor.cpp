@@ -134,6 +134,8 @@ void m1MapEditor::MousePicking(const Ray& ray)
 	if (m) {
 		int index = panel_layers->GetSelected();
 		if (index < m->layers.size() && index > -1) {
+			if (m->layers[index]->locked)
+				return;
 			float t = 0.f;
 			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[index]->height, ray.pos, ray.dir, t) && t > 0.f) {
 				float3 position = ray.GetPoint(t);

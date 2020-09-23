@@ -39,6 +39,32 @@ void r1Map::Save(const uint64_t& tileset)
 			for (int i = 0; i < size.x * size.y * 3; ++i) {
 				lay["data"].push_back((*l)->tile_data[i]);
 			}
+
+			for (auto p = (*l)->properties.begin(); p != (*l)->properties.end(); ++p) {
+				nlohmann::json prop = nlohmann::json::object();
+				prop["name"] = (*p).first;
+				prop["type"] = (*p).second->type;
+				switch ((*p).second->type)
+				{
+				case TypeVar::Type::Int:
+					prop["value"] = static_cast<iTypeVar*>((*p).second)->value;
+					break;
+				case TypeVar::Type::String:
+					prop["value"] = static_cast<sTypeVar*>((*p).second)->value;
+					break;
+				case TypeVar::Type::Float:
+					prop["value"] = static_cast<fTypeVar*>((*p).second)->value;
+					break;
+				case TypeVar::Type::Bool:
+					prop["value"] = static_cast<bTypeVar*>((*p).second)->value;
+					break;
+				default:
+					break;
+				}
+
+				lay["properties"].push_back(prop);
+			}
+
 			lay["name"] = (*l)->GetName();
 			lay["height"] = (*l)->height;
 			lay["opacity"] = (*l)->opacity;
@@ -83,6 +109,26 @@ void r1Map::Load()
 		layer->visible = (*l).value("visible", true);
 		layer->locked = (*l).value("locked", false);
 
+		for (auto p = (*l)["properties"].begin(); p != (*l)["properties"].end(); ++p) {
+			switch ((TypeVar::Type)(*p).value("type", 0))
+			{
+			case TypeVar::Type::Int:
+				layer->properties[(*p).value("name", "UNKNOWN")] = new iTypeVar((*p).value("value", 0));
+				break;
+			case TypeVar::Type::Float:
+				layer->properties[(*p).value("name", "UNKNOWN")] = new fTypeVar((*p).value("value", 0.f));
+				break;
+			case TypeVar::Type::Bool:
+				layer->properties[(*p).value("name", "UNKNOWN")] = new bTypeVar((*p).value("value", false));
+				break;
+			case TypeVar::Type::String:
+				layer->properties[(*p).value("name", "UNKNOWN")] = new sTypeVar((*p).value("value", std::string()));
+				break;
+			default:
+				break;
+			}
+		}
+
 		layer->tile_data = new unsigned char[size.x * size.y * 3];
 		int i = 0;
 		for (auto it = (*l)["data"].begin();
@@ -93,6 +139,8 @@ void r1Map::Load()
 		glEnable(GL_TEXTURE_2D);
 		oglh::GenTextureData(layer->id_tex, true, true, size.x, size.y, layer->tile_data);
 		oglh::UnBindTexture();
+
+
 		layers.push_back(layer);
 	}
 }
@@ -103,6 +151,11 @@ void r1Map::Unload()
 		delete l;
 	}
 	layers.clear();
+
+	for (auto p : properties) {
+		delete p.second;
+	}
+	properties.clear();
 }
 
 void r1Map::Resize(int width, int height)
@@ -113,7 +166,7 @@ void r1Map::Resize(int width, int height)
 	{
 		PROFILE_SECTION("Set new data");
 		for (int i = 0; i < width * height * 3; i += 3) {
-			new_data[i] = 0;
+			new_data[i    ] = 0;
 			new_data[i + 1] = 255;
 			new_data[i + 2] = 0;
 		}

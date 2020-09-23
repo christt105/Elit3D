@@ -6,8 +6,10 @@
 
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
-#include "OpenGLHelper.h"
+#include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 
+#include "OpenGLHelper.h"
+#include "TypeVar.h"
 #include "Profiler.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
@@ -27,6 +29,11 @@ Layer::~Layer()
 		delete[] tile_data;
 		oglh::DeleteTexture(id_tex);
 	}
+
+	for (auto p : properties) {
+		delete p.second;
+	}
+	properties.clear();
 }
 
 void Layer::Prepare() const
@@ -82,6 +89,85 @@ void Layer::OnInspector()
 	ImGui::Checkbox("Lock", &locked);
 	ImGui::DragFloat("Height", &height, 0.1f);
 	ImGui::SliderFloat("Opacity", &opacity, 0.f, 1.f);
+
+	ImGui::Separator();
+
+	if (ImGui::CollapsingHeader("Custom Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
+		CreateProperty();
+		ImGui::Separator();
+		DisplayProperties();
+	}
+}
+
+void Layer::DisplayProperties()
+{
+	if (ImGui::BeginChild("##properties")) {
+		for (auto i = properties.begin(); i != properties.end(); ++i) {
+			switch ((*i).second->type)
+			{
+			case TypeVar::Type::String:
+				char b[30];
+				strcpy_s(b, 30, static_cast<sTypeVar*>((*i).second)->value.c_str());
+				if (ImGui::InputText((*i).first.c_str(), b, 30))
+					static_cast<sTypeVar*>((*i).second)->value.assign(b);
+				break;
+			case TypeVar::Type::Int:
+				ImGui::InputInt((*i).first.c_str(), &static_cast<iTypeVar*>((*i).second)->value);
+				break;
+			case TypeVar::Type::Float:
+				ImGui::InputFloat((*i).first.c_str(), &static_cast<fTypeVar*>((*i).second)->value);
+				break;
+			case TypeVar::Type::Bool:
+				ImGui::Checkbox((*i).first.c_str(), &static_cast<bTypeVar*>((*i).second)->value);
+				break;
+			default:
+				break;
+			}
+		}
+		ImGui::EndChild();
+	}
+}
+
+void Layer::CreateProperty()
+{
+	static char buffer[30] = { "" };
+	static const char* types[4] = { "Int", "String", "Float", "Bool" };
+	static int selected = 0;
+	ImGui::PushID("##properties name");
+	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.5f);
+	ImGui::InputText("Name", buffer, 30);
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.25f);
+	if (ImGui::BeginCombo("Type", types[selected])) {
+		for (int i = 0; i < 4; ++i)
+			if (ImGui::Selectable(types[i], i == selected))
+				selected = i;
+		ImGui::EndCombo();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button(ICON_FA_PLUS)) {
+		if (properties.find(buffer) == properties.end()) {
+			switch (selected)
+			{
+			case 0:
+				properties[buffer] = new iTypeVar(0);
+				break;
+			case 1:
+				properties[buffer] = new sTypeVar();
+				break;
+			case 2:
+				properties[buffer] = new fTypeVar(0.f);
+				break;
+			case 3:
+				properties[buffer] = new bTypeVar(false);
+				break;
+			default:
+				break;
+			}
+		}
+		strcpy_s(buffer, 30, "");
+	}
+	ImGui::PopID();
 }
 
 const char* Layer::GetName() const

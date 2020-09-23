@@ -5,7 +5,8 @@ struct TypeVar {
         NONE = -1,
         Float,
         Int,
-        String
+        String,
+        Bool
     };
     Type type = Type::NONE;
 
@@ -26,7 +27,17 @@ struct iTypeVar : public TypeVar {
     int value = 0;
 };
 
+struct bTypeVar : public TypeVar {
+    bTypeVar(bool n) :value(n) {
+        type = Type::Bool;
+    }
+    bool value = false;
+};
+
 struct sTypeVar : public TypeVar {
+    sTypeVar() {
+        type = Type::String;
+    }
     sTypeVar(const char* n) :value(n) {
         type = Type::String;
     }

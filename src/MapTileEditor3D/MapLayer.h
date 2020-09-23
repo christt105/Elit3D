@@ -1,8 +1,12 @@
 #pragma once
+
+#include <unordered_map>
+
 #include "int2.h"
 #include "Buffer.h"
 
 class r1Mesh;
+class TypeVar;
 
 class OpenGLBuffers {
 public:
@@ -43,9 +47,15 @@ public:
     void SetName(const char* n);
 
 private:
+    void CreateProperty();
+    void DisplayProperties();
+
+private:
     static OpenGLBuffers tile;
 
     unsigned char* tile_data = nullptr;
+
+    std::unordered_map<std::string, TypeVar*> properties;
 
     std::string name = "Layer";
     char buf[30];

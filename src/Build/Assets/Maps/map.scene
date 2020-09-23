@@ -307,6 +307,38 @@
             "locked": false,
             "name": "Layer0",
             "opacity": 1.0,
+            "properties": [
+                {
+                    "name": "int",
+                    "type": 1,
+                    "value": 10
+                },
+                {
+                    "name": "i am a string",
+                    "type": 2,
+                    "value": "ssssstring"
+                },
+                {
+                    "name": "isja",
+                    "type": 0,
+                    "value": 54.11119842529297
+                },
+                {
+                    "name": "j",
+                    "type": 0,
+                    "value": -4545.0
+                },
+                {
+                    "name": "true",
+                    "type": 3,
+                    "value": true
+                },
+                {
+                    "name": "boooolean",
+                    "type": 3,
+                    "value": false
+                }
+            ],
             "visible": true
         },
         {
@@ -612,10 +644,17 @@
                 255,
                 0
             ],
-            "height": 1.0,
+            "height": -1.0,
             "locked": false,
             "name": "Layer1",
-            "opacity": 0.5019999742507935,
+            "opacity": 1.0,
+            "properties": [
+                {
+                    "name": "layer1",
+                    "type": 3,
+                    "value": true
+                }
+            ],
             "visible": true
         }
     ],
