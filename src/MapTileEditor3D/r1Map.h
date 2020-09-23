@@ -16,7 +16,7 @@ public:
     r1Map(const uint64_t& _uid);
     ~r1Map();
 
-    void Save();
+    void Save(const uint64_t& tileset);
     void SaveInImage();
     void Load() override;
     void Unload() override;

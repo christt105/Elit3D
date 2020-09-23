@@ -12,8 +12,6 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-//#include "Logger.h"
-
 OpenGLBuffers Layer::tile = OpenGLBuffers();
 
 Layer::Layer()
@@ -54,6 +52,16 @@ void Layer::DrawTile(const int2& size)
 	static auto shader = App->render->GetShader("tilemap");
 	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, 0.f, 0.f), Quat::identity, float3((float)size.x, 1.f, (float)size.y))/* height of layer */);
 	oglh::DrawElements(tile.indices.size);
+}
+
+const char* Layer::GetName() const
+{
+	return name.c_str();
+}
+
+void Layer::SetName(const char* n)
+{
+	name.assign(n);
 }
 
 OpenGLBuffers::OpenGLBuffers()

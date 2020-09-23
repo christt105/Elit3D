@@ -5,6 +5,10 @@
 
 #include "OpenGLHelper.h"
 
+#include "Application.h"
+#include "m1GUI.h"
+#include "p1Tileset.h"
+
 #include "ExternalTools/DevIL/il.h"
 #include "ExternalTools/DevIL/ilut.h"
 
@@ -21,20 +25,21 @@ r1Map::~r1Map()
 	Unload();
 }
 
-void r1Map::Save()
+void r1Map::Save(const uint64_t& tileset)
 {
 	if (references > 0) {
 		nlohmann::json file;
-
+		
 		file["properties"] = nlohmann::json::object();
 		file["size"] = { size.x, size.y };
+		file["tileset"] = tileset;
 
 		for (auto l = layers.begin(); l != layers.end(); ++l) {
 			nlohmann::json lay = nlohmann::json::object();
-			//lay["id"] = l - layers.begin();
 			for (int i = 0; i < size.x * size.y * 3; ++i) {
 				lay["data"].push_back((*l)->tile_data[i]);
 			}
+			lay["name"] = (*l)->GetName();
 			file["layers"].push_back(lay);
 		}
 
@@ -63,9 +68,12 @@ void r1Map::Load()
 	size.x = file["size"][0];
 	size.y = file["size"][1];
 
+	App->gui->tileset->SelectTileset(file.value("tileset", 0ULL));
+
 	for (auto l = file["layers"].begin(); l != file["layers"].end(); ++l) {
 		Layer* layer = new Layer();
 		layer->size = size;
+		layer->name = (*l).value("name", "Layer");
 
 		layer->tile_data = new unsigned char[size.x * size.y * 3];
 		int i = 0;
@@ -107,7 +115,7 @@ void r1Map::Resize(int width, int height)
 	{
 		PROFILE_SECTION("Copy data");
 		for (int i = 0; i < size.x * size.y; ++i) {
-			int2 colrow = int2(i % size.x, (int)(i / size.x));
+			int2 colrow = int2(i % size.x, (i / size.x));
 			int new_index = (colrow.x + width * colrow.y) * 3;
 			if (new_index < width * height * 3) {
 				int old_index = (colrow.x + size.x * colrow.y) * 3;

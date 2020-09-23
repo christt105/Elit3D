@@ -31,6 +31,7 @@ public:
     int2 GetMapSize() const;
 
     bool ValidMap() const;
+    bool GetLayers(std::vector<Layer*>& vec) const;
 
 private:
     uint64_t map = 0ULL;

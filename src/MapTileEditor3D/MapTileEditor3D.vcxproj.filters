@@ -372,6 +372,9 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
+    <ClCompile Include="p1Layers.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1291,6 +1294,9 @@
     </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Layers.h">
+      <Filter>Panels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

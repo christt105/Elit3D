@@ -100,7 +100,7 @@ bool m1MapEditor::CleanUp()
 
 void m1MapEditor::SaveMap() const
 {
-	((r1Map*)App->resources->Get(map))->Save();
+	((r1Map*)App->resources->Get(map))->Save(panel_tileset->GetTileset());
 }
 
 void m1MapEditor::SaveImageMap() const
@@ -127,8 +127,8 @@ void m1MapEditor::MousePicking(const float3& position)
 	if (tile.x != -1 && tile.y != -1) {
 
 		// tile.y = A * 256 + B
-		int A = 0;
-		int B = 0;
+		char A = 0;
+		char B = 0;
 
 		A = tile.y / 256;
 		B = tile.y % 256;
@@ -167,4 +167,15 @@ int2 m1MapEditor::GetMapSize() const
 bool m1MapEditor::ValidMap() const
 {
 	return map != 0ULL;
+}
+
+bool m1MapEditor::GetLayers(std::vector<Layer*>& vec) const
+{
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m == nullptr)
+		return false;
+
+	vec = m->layers;
+
+	return true;
 }

@@ -34,7 +34,13 @@ public:
     static void SelectBuffers();
     static void DrawTile(const int2& size);
 
-protected:
+    const char* GetName() const;
+    void SetName(const char* n);
+
+private:
     static OpenGLBuffers tile;
+
     unsigned char* tile_data = nullptr;
+
+    std::string name = "Layer";
 };

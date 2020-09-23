@@ -37,10 +37,13 @@ public:
 
 	bool SelectTex();
 	void DeselectTex();
+	void SelectTileset(const uint64_t& uid);
 
 	void SelectTransparentColor(r1Shader*& shader);
 
 	int2 GetTileSelected() const;
+
+	const uint64_t& GetTileset() const;
 
 private:
 	void ModalCreateTileset(bool& modal);
