@@ -26,7 +26,12 @@ public:
 	enum class EResourceType {
 		NONE = -1,
 
+		//3D models
 		TILE,
+
+		//Textures
+		FOLDER_BACK,
+		FOLDER,
 
 		MAX
 	};
@@ -43,7 +48,7 @@ public:
 	Uint64 FindByPath(const char* assets_path);
 	Resource* Get(const Uint64& uid) const;
 	Resource* FindGet(const char* file, bool by_name = true);
-	Resource* Get(EResourceType type) const;
+	Resource* EGet(EResourceType type) const;
 
 	const std::map<uint64_t, Resource*> GetResources() const;
 

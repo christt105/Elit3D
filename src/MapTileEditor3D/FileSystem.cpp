@@ -160,6 +160,15 @@ Folder FileSystem::GetFilesRecursive(const char* path)
     return parent;
 }
 
+Folder* FileSystem::_GetFilesRecursive(const char* path)
+{
+    Folder* parent = new Folder(path, nullptr);
+
+    GetFiles(parent);
+
+    return parent;
+}
+
 std::string FileSystem::GetFileExtension(const char* file, bool with_dot)
 {
     std::string f(file);
@@ -249,7 +258,21 @@ void FileSystem::GetFiles(Folder& parent) {
     }
 }
 
-Folder::Folder(const char* n) :full_path(n)
+void FileSystem::GetFiles(Folder* parent)
+{
+    for (const auto& entry : fs::directory_iterator(parent->full_path)) {
+        if (entry.is_directory()) {
+            Folder* f = new Folder((entry.path().u8string() + '/').c_str(), parent);
+            GetFiles(f);
+            parent->_folders.push_back(f);
+        }
+        else {
+            parent->files[entry.path().filename().string()] = LastTimeWrite((parent->full_path + entry.path().filename().string()).c_str());
+        }
+    }
+}
+
+Folder::Folder(const char* n, Folder* parent) :full_path(n), parent(parent)
 {
     for (auto i = full_path.rbegin(); i != full_path.rend(); ++i) {
         if (i != full_path.rbegin()) {

@@ -127,7 +127,7 @@ Resource* m1Resources::FindGet(const char* file, bool by_name)
 	}
 }
 
-Resource* m1Resources::Get(EResourceType type) const
+Resource* m1Resources::EGet(EResourceType type) const
 {
 	return ((engine_resources.find(type) == engine_resources.end()) ? nullptr : engine_resources.at(type));
 }
@@ -195,6 +195,7 @@ void m1Resources::GenerateLibrary()
 void m1Resources::GenerateEngineLibrary()
 {
 	PROFILE_FUNCTION();
+
 	auto models = FileSystem::GetFilesRecursive("Configuration/EngineResources/3DModels");
 
 	for (auto i = models.files.begin(); i != models.files.end(); ++i) {
@@ -207,6 +208,24 @@ void m1Resources::GenerateEngineLibrary()
 		
 		if (m->name.compare("Tile.mesh") == 0) {
 			engine_resources[m1Resources::EResourceType::TILE] = m;
+		}
+	}
+
+	auto textures = FileSystem::GetFilesRecursive("Configuration/EngineResources/Textures");
+
+	for (auto i = textures.files.begin(); i != textures.files.end(); ++i) {
+		r1Texture* t = new r1Texture(0ULL);
+
+		t->assets_path.assign(textures.full_path + "/" + (*i).first);
+		t->name = (*i).first;
+		t->extension = "png";
+		t->library_path = t->assets_path;
+
+		if (t->name.compare("FolderBack.png") == 0) {
+			engine_resources[m1Resources::EResourceType::FOLDER_BACK] = t; // TODO: std::map<std::string, Resource*> is better?
+		}
+		else if (t->name.compare("Folder.png") == 0) {
+			engine_resources[m1Resources::EResourceType::FOLDER] = t;
 		}
 	}
 	

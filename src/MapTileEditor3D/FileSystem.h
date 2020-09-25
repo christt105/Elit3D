@@ -4,11 +4,17 @@
 
 struct Folder {
 	Folder() {}
-	Folder(const char* n);
+	Folder(const char* n, Folder* parent = nullptr);
+	~Folder() {
+		for (auto i = _folders.begin(); i != _folders.end(); ++i)
+			delete* i;
+	}
 	std::unordered_map<std::string, uint64_t> files; // <filename, last_time_write>
 	std::vector<Folder> folders;
+	std::vector<Folder*> _folders;
 	std::string full_path;
 	std::string name;
+	Folder* parent = nullptr;
 
 	bool operator==(std::string path) {
 		return full_path.compare(path) == 0;
@@ -39,6 +45,7 @@ public:
 	static bool IsFileInFolderRecursive(const char* file, const char* folder);
 
 	static Folder GetFilesRecursive(const char* path);
+	static Folder* _GetFilesRecursive(const char* path);
 	static std::string GetFileExtension(const char* file, bool with_dot = false);
 	static std::string GetNameFile(const char* file, bool with_extension = false);
 
@@ -46,5 +53,6 @@ public:
 
 private:
 	static void GetFiles(Folder& parent);
+	static void GetFiles(Folder* parent);
 	static bool IsFileInFolder(const char* file, const Folder& folder);
 };
