@@ -9,6 +9,8 @@
 #include "m1GUI.h"
 #include "p1Tileset.h"
 
+#include "MapLayer.h"
+
 #include "ExternalTools/DevIL/il.h"
 #include "ExternalTools/DevIL/ilut.h"
 
@@ -167,40 +169,43 @@ void r1Map::Resize(int width, int height)
 {
 	PROFILE_AND_LOG("Map Resize");
 
-	unsigned char* new_data = new unsigned char[width * height * 3];
-	{
-		PROFILE_SECTION("Set new data");
-		for (int i = 0; i < width * height * 3; i += 3) {
-			new_data[i    ] = 0;
-			new_data[i + 1] = 255;
-			new_data[i + 2] = 0;
-		}
+	unsigned char* empty = new unsigned char[width * height * 3];
+	for (int i = 0; i < width * height * 3; i += 3) {
+		empty[i] = 0;
+		empty[i + 1] = 255;
+		empty[i + 2] = 0;
 	}
 
-	unsigned char* old_data = layers[0]->tile_data;
-	{
-		PROFILE_SECTION("Copy data");
-		for (int i = 0; i < size.x * size.y; ++i) {
-			int2 colrow = int2(i % size.x, (i / size.x));
-			int new_index = (colrow.x + width * colrow.y) * 3;
-			if (new_index < width * height * 3) {
-				int old_index = (colrow.x + size.x * colrow.y) * 3;
-				for (int j = 0; j < 3; ++j) {
-					new_data[new_index + j] = old_data[old_index + j];
+
+	for (auto l = layers.begin(); l != layers.end(); ++l) {
+		unsigned char* new_data = new unsigned char[width * height * 3];
+		memcpy(new_data, empty, width * height * 3);
+
+		{
+			PROFILE_SECTION("Copy data");
+			for (int i = 0; i < size.x * size.y; ++i) {
+				int2 colrow = int2(i % size.x, (i / size.x));
+				int new_index = (colrow.x + width * colrow.y) * 3;
+				if (new_index < width * height * 3) {
+					int old_index = (colrow.x + size.x * colrow.y) * 3;
+					for (int j = 0; j < 3; ++j) {
+						new_data[new_index + j] = (*l)->tile_data[old_index + j];
+					}
 				}
 			}
 		}
-	}
 
-	{
-		PROFILE_SECTION("Gen Texture");
-		layers[0]->tile_data = new_data;
-		delete[] old_data;
-		size = { width, height };
+		{
+			PROFILE_SECTION("Gen Texture");
+			delete[](*l)->tile_data;
+			(*l)->tile_data = new_data;
 
-		oglh::DeleteTexture(layers[0]->id_tex);
-		oglh::GenTextureData(layers[0]->id_tex, true, true, width, height, new_data); //TODO: research a faster way to do this
+			oglh::DeleteTexture((*l)->id_tex);
+			oglh::GenTextureData((*l)->id_tex, true, true, width, height, (*l)->tile_data); //TODO: research a faster way to do this
+		}
 	}
+	size = { width, height };
+	delete[] empty;
 }
 
 void r1Map::Edit(int layer, int row, int col, char r, char g, char b)
