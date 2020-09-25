@@ -1,7 +1,7 @@
 {
-    "Image": 2522089613740305408,
-    "columns": 2,
-    "ntiles": 4,
+    "Image": 13430090981542463507,
+    "columns": 8,
+    "ntiles": 5000,
     "tile": {
         "height": 32,
         "margin": 0,
@@ -13,5 +13,5 @@
         "g": 1.0,
         "r": 1.0
     },
-    "use transparent": false
+    "use transparent": true
 }

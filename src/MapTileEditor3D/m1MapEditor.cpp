@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "m1GUI.h"
 #include "p1Tileset.h"
+#include "p1Layers.h"
 #include "Viewport.h"
 
 #include "m1Render3D.h"
@@ -39,6 +40,7 @@ bool m1MapEditor::Start()
 	PROFILE_FUNCTION();
 	
 	panel_tileset = App->gui->tileset;
+	panel_layers = App->gui->layers;
 
 	return true;
 }
@@ -66,11 +68,16 @@ UpdateStatus m1MapEditor::Update()
 			shader->SetInt("tileAtlas", 0); // for now we only can draw a map with a single texture (TODO)
 			shader->SetInt2("ntilesMap", m->size);
 			oglh::ActiveTexture(1);
+			shader->SetInt("tilemap", 1);
 
-			for (auto layer : m->layers) {
-				layer->Prepare();
-				shader->SetInt("tilemap", 1);
-				layer->Update();
+			auto layers = m->layers;
+			std::sort(layers.begin(), layers.end(), Layer::HeightOrder); //TODO not every frame
+
+			for (auto layer : layers) {
+				if (layer->visible) {
+					layer->Prepare();
+					layer->Update(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
+				}
 			}
 
 			for (int i = 0; i < 2; ++i) {
@@ -100,7 +107,7 @@ bool m1MapEditor::CleanUp()
 
 void m1MapEditor::SaveMap() const
 {
-	((r1Map*)App->resources->Get(map))->Save();
+	((r1Map*)App->resources->Get(map))->Save(panel_tileset->GetTileset());
 }
 
 void m1MapEditor::SaveImageMap() const
@@ -121,28 +128,38 @@ void m1MapEditor::ReLoadMap()
 	App->resources->ReimportResource(m->assets_path.c_str());
 }
 
-void m1MapEditor::MousePicking(const float3& position)
+void m1MapEditor::MousePicking(const Ray& ray)
 {
-	int2 tile = panel_tileset->GetTileSelected();
-	if (tile.x != -1 && tile.y != -1) {
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m) {
+		int index = panel_layers->GetSelected();
+		if (index < (int)m->layers.size() && index > -1) {
+			if (m->layers[index]->locked)
+				return;
+			float t = 0.f;
+			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[index]->height, ray.pos, ray.dir, t) && t > 0.f) {
+				float3 position = ray.GetPoint(t);
+				int2 tile = panel_tileset->GetTileSelected();
+				if (tile.x != -1 && tile.y != -1) {
 
-		// tile.y = A * 256 + B
-		int A = 0;
-		int B = 0;
+					// tile.y = A * 256 + B
+					char A = 0;
+					char B = 0;
 
-		A = tile.y / 256;
-		B = tile.y % 256;
+					A = tile.y / 256;
+					B = tile.y % 256;
 
-		auto m = (r1Map*)App->resources->Get(map);
-		if (m) {
-			int col = (int)floor(position.z);
-			int row = (int)floor(-position.x);
-			if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
-				if (m->layers[0]->tile_data[(m->size.x * col + row) * 3	   ] != tile.x ||
-					m->layers[0]->tile_data[(m->size.x * col + row) * 3 + 1] != A ||
-					m->layers[0]->tile_data[(m->size.x * col + row) * 3 + 2] != B)
-				{
-					m->Edit(0, col, row, tile.x, A, B);
+					int col = (int)floor(position.z);
+					int row = (int)floor(-position.x);
+
+					if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
+						if (m->layers[index]->tile_data[(m->size.x * col + row) * 3] != tile.x ||
+							m->layers[index]->tile_data[(m->size.x * col + row) * 3 + 1] != A ||
+							m->layers[index]->tile_data[(m->size.x * col + row) * 3 + 2] != B)
+						{
+							m->Edit(index, col, row, tile.x, A, B);
+						}
+					}
 				}
 			}
 		}
@@ -164,7 +181,38 @@ int2 m1MapEditor::GetMapSize() const
 	return int2(-1, -1);
 }
 
+void m1MapEditor::AddLayer()
+{
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m) {
+		Layer* layer = new Layer();
+		layer->Reset(m->size);
+		m->layers.push_back(layer);
+	}
+}
+
+void m1MapEditor::EraseLayer(int index)
+{
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m) {
+		auto it = m->layers.begin() + index;
+		delete* it;
+		m->layers.erase(it);
+	}
+}
+
 bool m1MapEditor::ValidMap() const
 {
 	return map != 0ULL;
+}
+
+bool m1MapEditor::GetLayers(std::vector<Layer*>* &vec) const
+{
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m == nullptr)
+		return false;
+
+	vec = &m->layers;
+
+	return true;
 }

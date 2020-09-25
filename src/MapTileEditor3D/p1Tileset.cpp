@@ -81,12 +81,7 @@ void p1Tileset::Update()
 			for (auto i = vector.begin(); i != vector.end(); ++i) {
 				if (ImGui::Button((*i)->name.c_str())) {
 					select_tileset = false;
-					tileset = (*i)->GetUID();
-					(*i)->Attach();
-
-					auto shader = App->render->GetShader("tilemap");
-					shader->Use();
-					shader->SetInt2("ntilesAtlas", { ((r1Tileset*)(*i))->columns, ((r1Tileset*)(*i))->ntiles / ((r1Tileset*)(*i))->columns });
+					SelectTileset((*i)->GetUID());
 				}
 				ImGui::SameLine();
 				ImGui::PushID(*i);
@@ -175,6 +170,19 @@ void p1Tileset::DeselectTex()
 	
 }
 
+void p1Tileset::SelectTileset(const uint64_t& uid)
+{
+	tileset = uid;
+	auto t = (r1Tileset*)App->resources->Get(tileset);
+	if (t != nullptr) {
+		t->Attach();
+
+		auto shader = App->render->GetShader("tilemap");
+		shader->Use();
+		shader->SetInt2("ntilesAtlas", { t->columns, t->ntiles / t->columns });
+	}
+}
+
 void p1Tileset::SelectTransparentColor(r1Shader*& shader)
 {
 	if (tileset != 0) {
@@ -195,6 +203,29 @@ int2 p1Tileset::GetTileSelected() const
 	if (tile)
 		ret.y = tile->ntiles / tile->columns - ret.y - 1;
 	return ret;
+}
+
+int p1Tileset::GetTileWidth() const
+{
+	auto t = (r1Tileset*)App->resources->Get(tileset);
+	if (t) {
+		return t->width;
+	}
+	return 0;
+}
+
+int p1Tileset::GetTileHeight() const
+{
+	auto t = (r1Tileset*)App->resources->Get(tileset);
+	if (t) {
+		return t->height;
+	}
+	return 0;
+}
+
+const uint64_t& p1Tileset::GetTileset() const
+{
+	return tileset;
 }
 
 void p1Tileset::ModalCreateTileset(bool& modal)

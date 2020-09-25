@@ -6,13 +6,13 @@
 
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
-#include "OpenGLHelper.h"
+#include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 
+#include "OpenGLHelper.h"
+#include "TypeVar.h"
 #include "Profiler.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
-
-//#include "Logger.h"
 
 OpenGLBuffers Layer::tile = OpenGLBuffers();
 
@@ -20,6 +20,7 @@ Layer::Layer()
 {
 	if (tile.vertices.size == 0u)
 		tile.InitData();
+	strcpy_s(buf, 30, name.c_str());
 }
 
 Layer::~Layer()
@@ -28,6 +29,11 @@ Layer::~Layer()
 		delete[] tile_data;
 		oglh::DeleteTexture(id_tex);
 	}
+
+	for (auto p : properties) {
+		delete p.second;
+	}
+	properties.clear();
 }
 
 void Layer::Prepare() const
@@ -35,13 +41,27 @@ void Layer::Prepare() const
 	oglh::BindTexture(id_tex);
 }
 
-void Layer::Update() const
+void Layer::Update(const int2& size, int tile_width, int tile_height) const
 {
 	PROFILE_FUNCTION();
-
+	
 	static auto shader = App->render->GetShader("tilemap");
-	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, height, 0.f), Quat::identity, float3((float)size.x, 1.f, (float)size.y))/* height of layer */);
+	shader->SetMat4("model", float4x4::FromTRS(float3((float)displacement[0] / (float)tile_width, height, (float)displacement[1] / (float)tile_height), Quat::identity, float3((float)size.x, 1.f, (float)size.y))); // TODO: don't create a mat4x4 for every layer
+	shader->SetFloat("alpha", opacity);
 	oglh::DrawElements(tile.indices.size);
+}
+
+void Layer::Reset(const int2& size)
+{
+	tile_data = new unsigned char[size.x * size.y * 3];
+
+	for (int i = 0; i < size.x * size.y; ++i) {
+		tile_data[i*3    ] = 0;
+		tile_data[i*3 + 1] = 255;
+		tile_data[i*3 + 2] = 0;
+	}
+
+	oglh::GenTextureData(id_tex, true, true, size.x, size.y, tile_data);
 }
 
 void Layer::SelectBuffers()
@@ -54,6 +74,121 @@ void Layer::DrawTile(const int2& size)
 	static auto shader = App->render->GetShader("tilemap");
 	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, 0.f, 0.f), Quat::identity, float3((float)size.x, 1.f, (float)size.y))/* height of layer */);
 	oglh::DrawElements(tile.indices.size);
+}
+
+bool Layer::HeightOrder(const Layer* l1, const Layer* l2)
+{
+	return l1->height < l2->height;
+}
+
+void Layer::OnInspector()
+{
+	if (ImGui::InputText("Name", buf, 30))
+		name.assign(buf);
+	ImGui::Checkbox("Visible", &visible);
+	ImGui::Checkbox("Lock", &locked);
+	ImGui::DragFloat("Height", &height, 0.1f);
+	ImGui::SliderFloat("Opacity", &opacity, 0.f, 1.f);
+	ImGui::DragInt2("Displacement", displacement);
+
+	ImGui::Separator();
+
+	if (ImGui::CollapsingHeader("Custom Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
+		CreateProperty();
+		ImGui::Separator();
+		DisplayProperties();
+	}
+}
+
+void Layer::DisplayProperties()
+{
+	if (ImGui::BeginChild("##properties")) {
+		for (auto i = properties.begin(); i != properties.end(); ++i) {
+			ImGui::PushID((*i).second);
+			if (ImGui::Button(ICON_FA_TRASH_ALT)) {
+				delete (*i).second;
+				properties.erase(i);
+				ImGui::PopID();
+				break;
+			}
+			ImGui::SameLine();
+			switch ((*i).second->type)
+			{
+			case TypeVar::Type::String:
+				char b[30];
+				strcpy_s(b, 30, static_cast<sTypeVar*>((*i).second)->value.c_str());
+				if (ImGui::InputText((*i).first.c_str(), b, 30))
+					static_cast<sTypeVar*>((*i).second)->value.assign(b);
+				break;
+			case TypeVar::Type::Int:
+				ImGui::InputInt((*i).first.c_str(), &static_cast<iTypeVar*>((*i).second)->value);
+				break;
+			case TypeVar::Type::Float:
+				ImGui::InputFloat((*i).first.c_str(), &static_cast<fTypeVar*>((*i).second)->value);
+				break;
+			case TypeVar::Type::Bool:
+				ImGui::Checkbox((*i).first.c_str(), &static_cast<bTypeVar*>((*i).second)->value);
+				break;
+			default:
+				break;
+			}
+			ImGui::PopID();
+		}
+		ImGui::EndChild();
+	}
+}
+
+void Layer::CreateProperty()
+{
+	static char buffer[30] = { "" };
+	static const char* types[4] = { "Int", "String", "Float", "Bool" };
+	static int selected = 0;
+	ImGui::PushID("##properties name");
+	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.5f);
+	ImGui::InputText("Name", buffer, 30);
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.25f);
+	if (ImGui::BeginCombo("Type", types[selected])) {
+		for (int i = 0; i < 4; ++i)
+			if (ImGui::Selectable(types[i], i == selected))
+				selected = i;
+		ImGui::EndCombo();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button(ICON_FA_PLUS)) {
+		if (properties.find(buffer) == properties.end()) {
+			switch (selected)
+			{
+			case 0:
+				properties[buffer] = new iTypeVar(0);
+				break;
+			case 1:
+				properties[buffer] = new sTypeVar();
+				break;
+			case 2:
+				properties[buffer] = new fTypeVar(0.f);
+				break;
+			case 3:
+				properties[buffer] = new bTypeVar(false);
+				break;
+			default:
+				break;
+			}
+		}
+		strcpy_s(buffer, 30, "");
+	}
+	ImGui::PopID();
+}
+
+const char* Layer::GetName() const
+{
+	return name.c_str();
+}
+
+void Layer::SetName(const char* n)
+{
+	name.assign(n);
+	strcpy_s(buf, 30, n);
 }
 
 OpenGLBuffers::OpenGLBuffers()

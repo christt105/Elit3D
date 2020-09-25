@@ -14,6 +14,6 @@ private:
 	static pcg_extras::seed_seq_from<std::random_device> seed_source;
 	static pcg32 rng;
 
-	static std::uniform_real_distribution<double> guid;
+	static std::uniform_int_distribution<unsigned long long> guid;
 };
 

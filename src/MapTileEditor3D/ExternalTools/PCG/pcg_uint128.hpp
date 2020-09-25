@@ -142,14 +142,14 @@ inline bitcount_t flog2(uint32_t v)
 {
     unsigned long i;
     _BitScanReverse(&i, v);
-    return i;
+    return (bitcount_t)i;
 }
 
 inline bitcount_t trailingzeros(uint32_t v)
 {
     unsigned long i;
     _BitScanForward(&i, v);
-    return i;
+    return (bitcount_t)i;
 }
 
 inline bitcount_t flog2(uint64_t v)

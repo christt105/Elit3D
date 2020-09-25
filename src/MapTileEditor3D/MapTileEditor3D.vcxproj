@@ -232,6 +232,7 @@
     <ClCompile Include="p1Console.cpp" />
     <ClCompile Include="p1DebugResources.cpp" />
     <ClCompile Include="p1Inspector.cpp" />
+    <ClCompile Include="p1Layers.cpp" />
     <ClCompile Include="p1Objects.cpp" />
     <ClCompile Include="p1Resources.cpp" />
     <ClCompile Include="p1Scene.cpp" />
@@ -539,6 +540,7 @@
     <ClInclude Include="p1Console.h" />
     <ClInclude Include="p1DebugResources.h" />
     <ClInclude Include="p1Inspector.h" />
+    <ClInclude Include="p1Layers.h" />
     <ClInclude Include="p1Objects.h" />
     <ClInclude Include="p1Resources.h" />
     <ClInclude Include="p1Scene.h" />

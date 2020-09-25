@@ -54,7 +54,7 @@ void p1About::Update()
 	ImGui::TextWrapped("%s v.%s\n\n", App->GetName(), App->GetVersion()); 
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Made by "); ImGui::SameLine();
-	if (ImGui::Button(ICON_FA_GITHUB" christt105", ImVec2(0.f, 25.f))) {
+	if (ImGui::Button(ICON_FA_GITHUB" christt105")) {
 		App->ExecuteURL("https://github.com/christt105");
 	}
 	

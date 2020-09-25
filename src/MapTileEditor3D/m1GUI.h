@@ -11,6 +11,7 @@ class p1Scene;
 class p1Resources;
 class p1Tileset;
 class p1DebugResources;
+class p1Layers;
 
 struct ImFont;
 
@@ -38,14 +39,15 @@ public:
 public: //TODO private
 	std::vector<Panel*> panels;
 
-	p1Configuration* configuration = nullptr;
-	p1About* about = nullptr;
-	p1Objects* objects = nullptr;
-	p1Inspector* inspector = nullptr;
-	p1Console* console = nullptr;
-	p1Scene* scene = nullptr;
-	p1Resources* resources = nullptr;
-	p1Tileset* tileset = nullptr;
+	p1Configuration*	configuration = nullptr;
+	p1About*			about = nullptr;
+	p1Objects*			objects = nullptr;
+	p1Inspector*		inspector = nullptr;
+	p1Console*			console = nullptr;
+	p1Scene*			scene = nullptr;
+	p1Resources*		resources = nullptr;
+	p1Tileset*			tileset = nullptr;
+	p1Layers*			layers = nullptr;
 	
 	p1DebugResources* dbg_resources = nullptr;
 

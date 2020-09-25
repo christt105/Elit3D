@@ -1,8 +1,12 @@
 #pragma once
+
+#include <unordered_map>
+
 #include "int2.h"
 #include "Buffer.h"
 
 class r1Mesh;
+struct TypeVar;
 
 class OpenGLBuffers {
 public:
@@ -21,20 +25,43 @@ public:
 class Layer {
     friend class r1Map;
     friend class m1MapEditor;
+    friend class p1Layers;
 public:
     Layer();
     ~Layer();
-    int2 size = int2(10, 10);
+
     float height = 0.f;
 
     unsigned int id_tex = 0u;
 
     void Prepare() const;
-    void Update() const;
+    void Update(const int2& size, int tile_width, int tile_height) const;
+    void Reset(const int2& size);
+
     static void SelectBuffers();
     static void DrawTile(const int2& size);
+    static bool HeightOrder(const Layer* l1, const Layer* l2);
 
-protected:
+    void OnInspector();
+
+    const char* GetName() const;
+    void SetName(const char* n);
+
+private:
+    void CreateProperty();
+    void DisplayProperties();
+
+private:
     static OpenGLBuffers tile;
+
     unsigned char* tile_data = nullptr;
+
+    std::unordered_map<std::string, TypeVar*> properties;
+
+    std::string name = "Layer";
+    char buf[30];
+    bool visible = true;
+    bool locked = false;
+    float opacity = 1.f;
+    int displacement[2] = { 0,0 };
 };

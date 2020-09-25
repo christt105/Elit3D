@@ -1,7 +1,7 @@
 #pragma once
 #include "Resource.h"
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "int2.h"
@@ -16,7 +16,7 @@ public:
     r1Map(const uint64_t& _uid);
     ~r1Map();
 
-    void Save();
+    void Save(const uint64_t& tileset);
     void SaveInImage();
     void Load() override;
     void Unload() override;
@@ -28,7 +28,7 @@ public:
 private:
     int2 size = { -1, -1 };
 
-    std::map<std::string, TypeVar*> properties;
+    std::unordered_map<std::string, TypeVar*> properties;
 
     std::vector<Layer*> layers;
 };
