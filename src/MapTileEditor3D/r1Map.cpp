@@ -70,6 +70,7 @@ void r1Map::Save(const uint64_t& tileset)
 			lay["opacity"] = (*l)->opacity;
 			lay["visible"] = (*l)->visible;
 			lay["locked"] = (*l)->locked;
+			lay["displacement"] = { (*l)->displacement[0], (*l)->displacement[1] };
 
 			file["layers"].push_back(lay);
 		}
@@ -108,6 +109,10 @@ void r1Map::Load()
 		layer->opacity = (*l).value("opacity", 1.f);
 		layer->visible = (*l).value("visible", true);
 		layer->locked = (*l).value("locked", false);
+		if ((*l).find("displacement") != (*l).end()) {
+			layer->displacement[0] = (*l)["displacement"][0];
+			layer->displacement[1] = (*l)["displacement"][1];
+		}
 
 		for (auto p = (*l)["properties"].begin(); p != (*l)["properties"].end(); ++p) {
 			switch ((TypeVar::Type)(*p).value("type", 0))

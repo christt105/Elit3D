@@ -205,6 +205,24 @@ int2 p1Tileset::GetTileSelected() const
 	return ret;
 }
 
+int p1Tileset::GetTileWidth() const
+{
+	auto t = (r1Tileset*)App->resources->Get(tileset);
+	if (t) {
+		return t->width;
+	}
+	return 0;
+}
+
+int p1Tileset::GetTileHeight() const
+{
+	auto t = (r1Tileset*)App->resources->Get(tileset);
+	if (t) {
+		return t->height;
+	}
+	return 0;
+}
+
 const uint64_t& p1Tileset::GetTileset() const
 {
 	return tileset;

@@ -303,20 +303,24 @@
                 0,
                 59
             ],
+            "displacement": [
+                0,
+                0
+            ],
             "height": 0.0,
             "locked": false,
             "name": "Layer0",
             "opacity": 1.0,
             "properties": [
                 {
-                    "name": "i am a string",
-                    "type": 2,
-                    "value": "ssssstring"
-                },
-                {
                     "name": "int",
                     "type": 1,
                     "value": 10
+                },
+                {
+                    "name": "i am a string",
+                    "type": 2,
+                    "value": "ssssstring"
                 },
                 {
                     "name": "isja",
@@ -324,14 +328,14 @@
                     "value": 54.11119842529297
                 },
                 {
-                    "name": "true",
-                    "type": 3,
-                    "value": true
-                },
-                {
                     "name": "j",
                     "type": 0,
                     "value": -4545.0
+                },
+                {
+                    "name": "true",
+                    "type": 3,
+                    "value": true
                 },
                 {
                     "name": "boooolean",
@@ -643,6 +647,10 @@
                 3,
                 0,
                 24
+            ],
+            "displacement": [
+                10,
+                15
             ],
             "height": 0.10000000149011612,
             "locked": false,
@@ -959,6 +967,10 @@
                 7,
                 0,
                 45
+            ],
+            "displacement": [
+                0,
+                0
             ],
             "height": 0.009999999776482582,
             "locked": false,
