@@ -206,13 +206,13 @@ bool m1MapEditor::ValidMap() const
 	return map != 0ULL;
 }
 
-bool m1MapEditor::GetLayers(std::vector<Layer*>& vec) const
+bool m1MapEditor::GetLayers(std::vector<Layer*>* &vec) const
 {
 	auto m = (r1Map*)App->resources->Get(map);
 	if (m == nullptr)
 		return false;
 
-	vec = m->layers;
+	vec = &m->layers;
 
 	return true;
 }

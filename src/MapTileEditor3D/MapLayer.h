@@ -25,6 +25,7 @@ public:
 class Layer {
     friend class r1Map;
     friend class m1MapEditor;
+    friend class p1Layers;
 public:
     Layer();
     ~Layer();

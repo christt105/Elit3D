@@ -1,0 +1,17 @@
+{
+    "Image": 13430090981542463507,
+    "columns": 8,
+    "ntiles": 5000,
+    "tile": {
+        "height": 32,
+        "margin": 0,
+        "spacing": 0,
+        "width": 32
+    },
+    "transparent color": {
+        "b": 1.0,
+        "g": 1.0,
+        "r": 1.0
+    },
+    "use transparent": true
+}

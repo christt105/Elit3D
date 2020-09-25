@@ -59,7 +59,7 @@ void Viewport::Clear()
 	glBindFramebuffer(GL_FRAMEBUFFER, ID[FBO_MS]);
 	glClearColor(color[0], color[1], color[2], 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 	HANDLE_ERROR();
 }
 

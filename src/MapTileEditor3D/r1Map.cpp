@@ -142,7 +142,7 @@ void r1Map::Load()
 			layer->tile_data[i] = *it;
 		}
 		glEnable(GL_TEXTURE_2D);
-		oglh::GenTextureData(layer->id_tex, true, true, size.x, size.y, layer->tile_data);
+		oglh::GenTextureData(layer->id_tex, false, true, size.x, size.y, layer->tile_data);
 		oglh::UnBindTexture();
 
 
