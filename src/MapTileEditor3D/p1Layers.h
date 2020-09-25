@@ -1,5 +1,10 @@
 #pragma once
 #include "Panel.h"
+
+#include <vector>
+
+class Layer;
+
 class p1Layers :
     public Panel
 {
@@ -10,6 +15,10 @@ public:
     void Update() override;
 
     int GetSelected() const;
+
+private:
+    void DisplayLayers(std::vector<Layer*>* layers);
+    void Buttons(std::vector<Layer*>*& layers);
 
 private:
     int selected = -1;

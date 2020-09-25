@@ -104,6 +104,14 @@ void Layer::DisplayProperties()
 {
 	if (ImGui::BeginChild("##properties")) {
 		for (auto i = properties.begin(); i != properties.end(); ++i) {
+			ImGui::PushID((*i).second);
+			if (ImGui::Button(ICON_FA_TRASH_ALT)) {
+				delete (*i).second;
+				properties.erase(i);
+				ImGui::PopID();
+				break;
+			}
+			ImGui::SameLine();
 			switch ((*i).second->type)
 			{
 			case TypeVar::Type::String:
@@ -124,6 +132,7 @@ void Layer::DisplayProperties()
 			default:
 				break;
 			}
+			ImGui::PopID();
 		}
 		ImGui::EndChild();
 	}
