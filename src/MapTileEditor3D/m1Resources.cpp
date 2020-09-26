@@ -227,6 +227,25 @@ void m1Resources::GenerateEngineLibrary()
 		else if (t->name.compare("Folder.png") == 0) {
 			engine_resources[m1Resources::EResourceType::FOLDER] = t;
 		}
+		else if (t->name.compare("PNG.png") == 0) {
+			engine_resources[m1Resources::EResourceType::PNG] = t;
+		}
+		else if (t->name.compare("Unknown.png") == 0) {
+			engine_resources[m1Resources::EResourceType::UNKNOWN] = t;
+		}
+		else if (t->name.compare("FBX.png") == 0) {
+			engine_resources[m1Resources::EResourceType::FBX] = t;
+		}
+		else if (t->name.compare("Map.png") == 0) {
+			engine_resources[m1Resources::EResourceType::MAP] = t;
+		}
+		else if (t->name.compare("Tileset.png") == 0) {
+			engine_resources[m1Resources::EResourceType::TILESET] = t;
+		}
+		else {
+			LOGW("Asset %s not set on engine resource", t->assets_path.c_str());
+			delete t;
+		}
 	}
 	
 }

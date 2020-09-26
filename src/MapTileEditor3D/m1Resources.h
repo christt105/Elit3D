@@ -32,6 +32,11 @@ public:
 		//Textures
 		FOLDER_BACK,
 		FOLDER,
+		PNG,
+		FBX,
+		MAP,
+		TILESET,
+		UNKNOWN,
 
 		MAX
 	};
