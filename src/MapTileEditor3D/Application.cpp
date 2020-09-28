@@ -29,6 +29,7 @@ Application::Application()
 
 Application::~Application()	
 {
+	FileSystem::DeleteRoot();
 }
 
 bool Application::Init()

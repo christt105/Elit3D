@@ -6,6 +6,7 @@
 class Resource
 {
 	friend class m1Resources;
+	friend class p1Inspector;
 public:
 	enum class Type {
 		NONE = -1,
@@ -31,6 +32,8 @@ public:
 	void Detach();
 
 	virtual void GenerateFilesLibrary() {}
+
+	virtual void OnInspector() {} //TODO: 
 
 	Resource::Type GetType();
 	std::string GetStrType();

@@ -3,6 +3,8 @@
 #include <Windows.h>
 #include <GL/glew.h>
 
+#include "Profiler.h"
+
 #include "Logger.h"
 
 void oglh::GenTexture(unsigned int& id)
@@ -23,8 +25,12 @@ std::string oglh::GetModel()
 
 void oglh::_HandleError(const char* func)
 {
-	if (wglGetCurrentContext() == NULL)
-		return;
+	PROFILE_FUNCTION();
+	{
+		PROFILE_SECTION("wglGetCurrentContext");
+		if (wglGetCurrentContext() == NULL)
+			return;
+	}
 	GLenum err = glGetError();
 	while (err != GL_NO_ERROR) {
 		std::string error_type;

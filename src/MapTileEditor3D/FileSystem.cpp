@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <filesystem>
+#include <stack>
 
 #include "Logger.h"
 
@@ -10,6 +11,8 @@
 #include "ExternalTools/mmgr/mmgr.h"
 
 namespace fs = std::filesystem;
+
+Folder* FileSystem::root = FileSystem::_GetFilesRecursive("./");
 
 FileSystem::FileSystem() 
 {
@@ -129,35 +132,13 @@ bool FileSystem::CopyTo(const char* source, const char* dst)
     return err.value() == 0;
 }
 
-bool FileSystem::IsFileInFolderRecursive(const char* file, const char* folder)
+bool FileSystem::IsFileInFolder(const char* file, const char* folder, bool recursive)
 {
-    Folder parent = GetFilesRecursive(folder);
-
-    return IsFileInFolder(file, parent);
-}
-
-bool FileSystem::IsFileInFolder(const char* file, const Folder& folder)
-{
-    for (auto i = folder.files.begin(); i != folder.files.end(); ++i) {
+    auto f = GetPtrFolder(folder);
+    for (auto i = f->files.begin(); i != f->files.end(); ++i)
         if ((*i).first.compare(file) == 0)
             return true;
-    }
-    
-    for (auto i = folder.folders.begin(); i != folder.folders.end(); ++i) {
-        if (IsFileInFolder(file, *i))
-            return true;
-    }
-
     return false;
-}
-
-Folder FileSystem::GetFilesRecursive(const char* path)
-{
-    Folder parent(path);
-    
-    GetFiles(parent);
-    
-    return parent;
 }
 
 Folder* FileSystem::_GetFilesRecursive(const char* path)
@@ -245,17 +226,39 @@ std::string FileSystem::GetFolder(const char* path)
     return ret;
 }
 
-void FileSystem::GetFiles(Folder& parent) {
-    for (const auto& entry : fs::directory_iterator(parent.full_path)) {
-        if (entry.is_directory()) {
-            Folder f((entry.path().u8string() + '/').c_str());
-            GetFiles(f);
-            parent.folders.push_back(f);
-        }
-        else {
-            parent.files[entry.path().filename().string()] = LastTimeWrite((parent.full_path + entry.path().filename().string()).c_str());
+Folder* FileSystem::GetPtrFolder(const char* folder)
+{
+    if (root->full_path.compare(folder) == 0)
+        return root;
+
+    std::stack<Folder*> s;
+    s.push(root);
+
+    while (s.empty() == false) {
+        /*
+        TODO: find by aproximation if want "Assets/Maps/" don't look on "Configuration/"
+        */
+        auto f = s.top();
+        s.pop();
+        for (auto i = f->folders.begin(); i != f->folders.end(); ++i) {
+            if ((*i)->full_path.compare(std::string("./") + folder) == 0)
+                return *i;
+            //if ((std::string("./") + folder).findfirstof(f))
+            s.push(*i);
         }
     }
+    LOGW("Folder %s not found", folder);
+    return nullptr;
+}
+
+Folder* FileSystem::GetRootFolder()
+{
+    return root;
+}
+
+void FileSystem::DeleteRoot()
+{
+    delete root;
 }
 
 void FileSystem::GetFiles(Folder* parent)
@@ -264,7 +267,7 @@ void FileSystem::GetFiles(Folder* parent)
         if (entry.is_directory()) {
             Folder* f = new Folder((entry.path().u8string() + '/').c_str(), parent);
             GetFiles(f);
-            parent->_folders.push_back(f);
+            parent->folders.push_back(f);
         }
         else {
             parent->files[entry.path().filename().string()] = LastTimeWrite((parent->full_path + entry.path().filename().string()).c_str());

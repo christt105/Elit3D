@@ -3,15 +3,18 @@
 #include "ExternalTools/JSON/json.hpp"
 
 struct Folder {
+	friend class FileSystem;
+	friend class FileWatch;
+private:
 	Folder() {}
 	Folder(const char* n, Folder* parent = nullptr);
+public:
 	~Folder() {
-		for (auto i = _folders.begin(); i != _folders.end(); ++i)
+		for (auto i = folders.begin(); i != folders.end(); ++i)
 			delete* i;
 	}
 	std::unordered_map<std::string, uint64_t> files; // <filename, last_time_write>
-	std::vector<Folder> folders;
-	std::vector<Folder*> _folders;
+	std::vector<Folder*> folders;
 	std::string full_path;
 	std::string name;
 	Folder* parent = nullptr;
@@ -42,17 +45,22 @@ public:
 	static bool fDeleteFile(const char* path);
 	static bool CopyTo(const char* source, const char* dst);
 
-	static bool IsFileInFolderRecursive(const char* file, const char* folder);
+	static bool IsFileInFolder(const char* file, const char* folder, bool recursive = false);
 
-	static Folder GetFilesRecursive(const char* path);
-	static Folder* _GetFilesRecursive(const char* path);
 	static std::string GetFileExtension(const char* file, bool with_dot = false);
 	static std::string GetNameFile(const char* file, bool with_extension = false);
-
 	static std::string GetFolder(const char* path);
 
+	static Folder* GetPtrFolder(const char* folder);
+	static Folder* GetRootFolder();
+
+	static void DeleteRoot();
+
 private:
-	static void GetFiles(Folder& parent);
+	static Folder* _GetFilesRecursive(const char* path);
+
+private:
 	static void GetFiles(Folder* parent);
-	static bool IsFileInFolder(const char* file, const Folder& folder);
+
+	static Folder* root;
 };

@@ -74,7 +74,7 @@ public:
 private:
 	void GenerateLibrary();
 	void GenerateEngineLibrary();
-	void ImportFiles(const Folder& parent);
+	void ImportFiles(const Folder* parent);
 
 	void StartFileWatcher();
 

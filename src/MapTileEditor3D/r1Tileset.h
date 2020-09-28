@@ -12,6 +12,8 @@ public:
 	
 	uint64_t GetTextureUID();
 
+	void OnInspector() override;
+
 private:
 	uint64_t texture_uid = 0ULL;
 
@@ -23,6 +25,6 @@ private:
 	int columns = 0;
 
 	bool use_transparent = false;
-	float transparent_color[3];
+	float transparent_color[3] = { 0.f, 0.f, 0.f };
 };
 

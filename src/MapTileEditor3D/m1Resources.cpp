@@ -58,10 +58,10 @@ bool m1Resources::Start()
 	if (!FileSystem::Exists(LIBRARY_MAPS_PATH))
 		FileSystem::CreateFolder(LIBRARY_MAPS_PATH);
 
+	StartFileWatcher();
+
 	GenerateLibrary();
 	GenerateEngineLibrary();
-
-	StartFileWatcher();
 
 	return true;
 }
@@ -189,19 +189,19 @@ void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 void m1Resources::GenerateLibrary()
 {
 	PROFILE_FUNCTION();
-	ImportFiles(FileSystem::GetFilesRecursive("Assets/"));
+	ImportFiles(FileSystem::GetPtrFolder("Assets/"));
 }
 
 void m1Resources::GenerateEngineLibrary()
 {
 	PROFILE_FUNCTION();
 
-	auto models = FileSystem::GetFilesRecursive("Configuration/EngineResources/3DModels");
+	auto models = FileSystem::GetPtrFolder("Configuration/EngineResources/3DModels/");
 
-	for (auto i = models.files.begin(); i != models.files.end(); ++i) {
+	for (auto i = models->files.begin(); i != models->files.end(); ++i) {
 		r1Mesh* m = new r1Mesh(0ULL);
 
-		m->assets_path.assign(models.full_path + "/" + (*i).first);
+		m->assets_path.assign(models->full_path + "/" + (*i).first);
 		m->name = (*i).first;
 		m->extension = "mesh";
 		m->library_path = m->assets_path;
@@ -209,14 +209,17 @@ void m1Resources::GenerateEngineLibrary()
 		if (m->name.compare("Tile.mesh") == 0) {
 			engine_resources[m1Resources::EResourceType::TILE] = m;
 		}
+		else {
+			delete m;
+		}
 	}
 
-	auto textures = FileSystem::GetFilesRecursive("Configuration/EngineResources/Textures");
+	auto textures = FileSystem::GetPtrFolder("Configuration/EngineResources/Textures/");
 
-	for (auto i = textures.files.begin(); i != textures.files.end(); ++i) {
+	for (auto i = textures->files.begin(); i != textures->files.end(); ++i) {
 		r1Texture* t = new r1Texture(0ULL);
 
-		t->assets_path.assign(textures.full_path + "/" + (*i).first);
+		t->assets_path.assign(textures->full_path + "/" + (*i).first);
 		t->name = (*i).first;
 		t->extension = "png";
 		t->library_path = t->assets_path;
@@ -250,25 +253,25 @@ void m1Resources::GenerateEngineLibrary()
 	
 }
 
-void m1Resources::ImportFiles(const Folder& parent)
+void m1Resources::ImportFiles(const Folder* parent)
 {
 	PROFILE_FUNCTION();
-	for (auto dir = parent.folders.begin(); dir != parent.folders.end(); ++dir) { //TODO: DO IT ITERATIVE
+	for (auto dir = parent->folders.begin(); dir != parent->folders.end(); ++dir) { //TODO: DO IT ITERATIVE
 		ImportFiles(*dir);
 	}
 	
-	for (auto file = parent.files.begin(); file != parent.files.end(); ++file) {
+	for (auto file = parent->files.begin(); file != parent->files.end(); ++file) {
 		if (FileSystem::GetFileExtension((*file).first.c_str()).compare("meta") != 0) {
-			if (FileSystem::Exists((parent.full_path + (*file).first + ".meta").c_str())) {
-				nlohmann::json meta = FileSystem::OpenJSONFile((parent.full_path + (*file).first + ".meta").c_str());
+			if (FileSystem::Exists((parent->full_path + (*file).first + ".meta").c_str())) {
+				nlohmann::json meta = FileSystem::OpenJSONFile((parent->full_path + (*file).first + ".meta").c_str());
 				std::string extension = meta.value("extension", "none");
-				if (meta.value("timestamp", 0ULL) == FileSystem::LastTimeWrite((parent.full_path + (*file).first).c_str())) {
+				if (meta.value("timestamp", 0ULL) == FileSystem::LastTimeWrite((parent->full_path + (*file).first).c_str())) {
 					if (FileSystem::Exists((GetLibraryFromType(extension.c_str()) + std::to_string(meta.value("UID", 0ULL)) + GetLibraryExtension(extension.c_str())).c_str())) {
-						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
+						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent->full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
 						res->GenerateFilesLibrary();
 					}
 					else {
-						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
+						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent->full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
 
 						if (res != nullptr)
 							res->GenerateFiles();
@@ -277,18 +280,18 @@ void m1Resources::ImportFiles(const Folder& parent)
 				else {
 					DeleteFromLibrary(GetTypeFromStr(extension.c_str()), meta.value("UID", 0ULL));
 
-					meta["timestamp"] = FileSystem::LastTimeWrite((parent.full_path + (*file).first).c_str());
-					FileSystem::SaveJSONFile((parent.full_path + (*file).first + ".meta").c_str(), meta);
+					meta["timestamp"] = FileSystem::LastTimeWrite((parent->full_path + (*file).first).c_str());
+					FileSystem::SaveJSONFile((parent->full_path + (*file).first + ".meta").c_str(), meta);
 
-					Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent.full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
+					Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent->full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
 					if (res != nullptr)
 						res->GenerateFiles();
 				}
 			}
 			else {
-				uint64_t meta = GenerateMeta((parent.full_path + (*file).first).c_str());
+				uint64_t meta = GenerateMeta((parent->full_path + (*file).first).c_str());
 
-				Resource* res = CreateResource(GetTypeFromStr(FileSystem::GetFileExtension((*file).first.c_str()).c_str()), (parent.full_path + (*file).first).c_str(), meta);
+				Resource* res = CreateResource(GetTypeFromStr(FileSystem::GetFileExtension((*file).first.c_str()).c_str()), (parent->full_path + (*file).first).c_str(), meta);
 				if (res != nullptr)
 					res->GenerateFiles();
 			}
