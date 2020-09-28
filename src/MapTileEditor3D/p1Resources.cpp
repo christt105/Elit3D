@@ -35,7 +35,29 @@ void p1Resources::Update()
 	ImGui::SetColumnWidth(0, 200.f);
 	SideTreeFolder(root);
 	ImGui::NextColumn();
-	if (selected != root) {
+	Folder* p = selected;
+	std::vector<Folder*> folders;
+	while (p->parent != nullptr) {
+		folders.push_back(p);
+		p = p->parent;
+	}
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+	for (auto i = folders.rbegin(); i != folders.rend(); ++i) {
+		ImGui::PushID(*i);
+		if (ImGui::Button((*i)->name.c_str())) {
+			selected = *i;
+		}
+		if ((i + 1) != folders.rend()) {
+			ImGui::SameLine();
+			ImGui::Text(ICON_FA_CHEVRON_RIGHT);
+			ImGui::SameLine();
+		}
+		ImGui::PopID();
+	}
+	ImGui::PopStyleColor();
+
+	// Back Button
+	/*if (selected != root) {
 		ImGui::BeginGroup();
 		if (ImGui::ImageButton((ImTextureID)((r1Texture*)App->resources->EGet(m1Resources::EResourceType::FOLDER_BACK))->GetBufferID(),
 			ImVec2(40.f, 50.f), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f), 2)) {
@@ -46,7 +68,7 @@ void p1Resources::Update()
 		ImGui::Text("Back");
 		ImGui::EndGroup();
 		ImGui::SameLine();
-	}
+	}*/
 	for (auto i = selected->folders.begin(); i != selected->folders.end(); ++i) {
 		ImGui::PushID(*i);
 		ImGui::BeginGroup();
