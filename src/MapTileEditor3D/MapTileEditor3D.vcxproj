@@ -561,6 +561,7 @@
     <ClInclude Include="Viewport.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="ExternalTools\Assimp\include\color4.inl" />
     <None Include="ExternalTools\Assimp\include\material.inl" />
     <None Include="ExternalTools\Assimp\include\matrix3x3.inl" />

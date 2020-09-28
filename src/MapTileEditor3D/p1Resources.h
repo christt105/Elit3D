@@ -25,5 +25,9 @@ private:
 private:
 	Folder* root = nullptr;
 	Folder* selected = nullptr;
+
+	std::map<m1Resources::EResourceType, unsigned int> ids;
+
+	float size = 0.5f;
 };
 

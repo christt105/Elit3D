@@ -30,6 +30,7 @@ public:
 		TILE,
 
 		//Textures
+		RESOURCE_MIN,
 		FOLDER_BACK,
 		FOLDER,
 		PNG,
@@ -37,6 +38,7 @@ public:
 		MAP,
 		TILESET,
 		UNKNOWN,
+		RESOURCE_MAX,
 
 		MAX
 	};

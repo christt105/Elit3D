@@ -1342,5 +1342,6 @@
     <None Include="ExternalTools\Assimp\include\vector3.inl">
       <Filter>External Libraries\Assimp</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>
