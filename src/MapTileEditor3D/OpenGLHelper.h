@@ -2,7 +2,11 @@
 
 #include "ExternalTools/MathGeoLib/include/Math/float3.h"
 
+#ifdef _DEBUG
 #define HANDLE_ERROR() oglh::_HandleError(__FUNCTION__)
+#else
+#define HANDLE_ERROR()
+#endif
 
 class oglh
 {

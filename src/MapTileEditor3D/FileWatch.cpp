@@ -27,8 +27,8 @@ void FileWatch::Subscribe(const char* folder, bool recursive)
 
 void FileWatch::StartWatching()
 {
+	root = FileSystem::GetPtrFolder(folder.c_str());
 #if USE_FILEWATCHER
-	root = FileSystem::GetFilesRecursive(folder.c_str());
 	fut = std::async(std::launch::async, &FileWatch::Watch, this);
 #endif
 }
@@ -43,51 +43,58 @@ void FileWatch::Watch()
 	}
 }
 
-void FileWatch::CheckFolder(Folder& f, std::list<m1Events::Event*>& ev)
+void FileWatch::CheckFolder(Folder* f, std::list<m1Events::Event*>& ev)
 {
-	auto i = f.files.begin();
-	while (i != f.files.end()) {
-		if (!FileSystem::Exists((f.full_path + (*i).first).c_str())) {
-			ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_REMOVED, (f.full_path + (*i).first).c_str()));
-			i = f.files.erase(i);
+	auto i = f->files.begin();
+	while (i != f->files.end()) {
+		if (!FileSystem::Exists((f->full_path + (*i).first).c_str())) {
+			ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_REMOVED, (f->full_path + (*i).first).c_str()));
+			i = f->files.erase(i);
 		}
 		else
 			++i;
 	}
 
-	auto j = f.folders.begin();
-	while (j != f.folders.end()) {
-		if (!FileSystem::Exists((*j).full_path.c_str())) {
-			ev.push_back(new m1Events::Event(m1Events::Event::Type::FOLDER_REMOVED, (*j).full_path.c_str()));
-			j = f.folders.erase(j);
+	auto j = f->folders.begin();
+	while (j != f->folders.end()) {
+		if (!FileSystem::Exists((*j)->full_path.c_str())) {
+			ev.push_back(new m1Events::Event(m1Events::Event::Type::FOLDER_REMOVED, (*j)->full_path.c_str()));
+			j = f->folders.erase(j);
 		}
 		else
 			++j;
 	}
 
-	for (const auto& entry : fs::directory_iterator(f.full_path)) {
+	for (const auto& entry : fs::directory_iterator(f->full_path)) {
 		if (entry.is_directory()) {
-			auto it = std::find(f.folders.begin(), f.folders.end(), FileSystem::NormalizePath(entry.path().u8string().c_str()) + "/");
-			if (it != f.folders.end()) {
+			//auto it = std::find(f->folders.begin(), f->folders.end(), FileSystem::NormalizePath(entry.path().u8string().c_str()) + "/");
+			std::vector<Folder*>::iterator it = f->folders.end();
+			std::string s = FileSystem::NormalizePath(entry.path().u8string().c_str()) + "/";
+			for (auto i = f->folders.begin(); i != f->folders.end(); ++i)
+				if (f->full_path.compare(s) == 0) {
+					it = i;
+					break;
+				}
+			if (it != f->folders.end()) {
 				CheckFolder(*it, ev);
 			}
 			else {
-				ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_CREATED, (*j).full_path.c_str()));
-				f.folders.push_back(Folder((FileSystem::NormalizePath(entry.path().u8string().c_str()) + "/").c_str()));
+				ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_CREATED, (*j)->full_path.c_str()));
+				f->folders.push_back(new Folder((FileSystem::NormalizePath(entry.path().u8string().c_str()) + "/").c_str(), f));
 			}
 		}
 		else {
 			uint64_t time = FileSystem::LastTimeWrite(entry.path().u8string().c_str());
-			auto file = f.files.find(entry.path().filename().string());
-			if (file != f.files.end()) {
+			auto file = f->files.find(entry.path().filename().string());
+			if (file != f->files.end()) {
 				if ((*file).second != time) {
-					App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::FILE_MODIFIED, (f.full_path + (*file).first).c_str()));
-					f.files[entry.path().filename().string()] = time;
+					App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::FILE_MODIFIED, (f->full_path + (*file).first).c_str()));
+					f->files[entry.path().filename().string()] = time;
 				}
 			}
 			else {
 				ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_CREATED, entry.path().u8string().c_str()));
-				f.files[entry.path().filename().string()] = time;
+				f->files[entry.path().filename().string()] = time;
 			}
 		}
 	}

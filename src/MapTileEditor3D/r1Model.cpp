@@ -60,7 +60,7 @@ void r1Model::GenerateFiles()
 			for (unsigned int i = 0; i < n_tex; ++i) {
 				aiString path;
 				if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS) {
-					if (FileSystem::IsFileInFolderRecursive(FileSystem::GetNameFile(path.C_Str(), true).c_str(), "Assets/")) {
+					if (FileSystem::IsFileInFolder(FileSystem::GetNameFile(path.C_Str(), true).c_str(), "Assets/", true)) {
 						auto res = App->resources->Get(App->resources->FindByName(FileSystem::GetNameFile(path.C_Str(), false).c_str()));
 						if (res != nullptr)
 							textures.push_back(res->GetUID());

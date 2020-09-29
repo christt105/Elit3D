@@ -26,6 +26,8 @@ public:
 	void SetWindowSize(const int& w, const int& h);
 	void UpdateWindowSize();
 
+	void Save(nlohmann::json& node) override;
+
 private:
 	SDL_Window* window = nullptr;
 

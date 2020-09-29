@@ -2,6 +2,8 @@
 
 #include "Panel.h"
 
+#define COMPARE(selected, new_selected) if (((std::string*)selected)->compare(((std::string*)new_selected)) == 0) {
+
 class p1Inspector :
 	public Panel
 {
@@ -11,6 +13,11 @@ public:
 
 		OBJECT,
 		LAYER,
+
+		PNG,
+		FBX,
+		TILESET,
+		MAP,
 
 		MAX
 	};
@@ -25,5 +32,7 @@ public:
 private:
 	void* selected = nullptr;
 	SelectedType type = SelectedType::NONE;
+
+	bool loaded = false;
 };
 

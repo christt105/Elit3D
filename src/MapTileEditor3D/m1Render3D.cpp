@@ -93,12 +93,9 @@ bool m1Render3D::Start()
 UpdateStatus m1Render3D::PreUpdate()
 {
     PROFILE_FUNCTION();
+
     for (auto i = viewports.begin(); i != viewports.end(); ++i)
         (*i).second->Clear();
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(.1f, .1f, .1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -127,6 +124,12 @@ bool m1Render3D::CleanUp()
     return true;
 }
 
+void m1Render3D::Save(nlohmann::json& node)
+{
+    node["minor_version"] = 3;
+    node["major_version"] = 3;
+}
+
 Viewport* m1Render3D::CreateViewport(const char* name)
 {
     Viewport* v = new Viewport();
@@ -148,10 +151,10 @@ r1Shader* m1Render3D::GetShader(const char* name)
 void m1Render3D::loadShaders()
 {
     //load all shaders
-    Folder fshaders = FileSystem::GetFilesRecursive("Configuration/Shader/Shaders/");
+    Folder* fshaders = FileSystem::GetPtrFolder("Configuration/Shader/Shaders/");
 
-    for (auto shader : fshaders.files) {
-        shaders[shader.first] = r1Shader::Compile(fshaders.full_path + shader.first);
+    for (auto shader : fshaders->files) {
+        shaders[shader.first] = r1Shader::Compile(fshaders->full_path + shader.first);
     }
 
     //link
