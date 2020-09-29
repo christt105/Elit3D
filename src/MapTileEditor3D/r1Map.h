@@ -23,7 +23,7 @@ public:
     void Resize(int width, int height);
     void Edit(int layer, int row, int col, char r, char g, char b);
 
-    static void CreateNewMap(int width, int height);
+    static void CreateNewMap(int width, int height, const char* path);
 
 private:
     int2 size = { -1, -1 };

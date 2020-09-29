@@ -49,10 +49,7 @@ UpdateStatus m1MapEditor::Update()
 {
 	PROFILE_FUNCTION();
 
-	if (map == 0ULL) {
-		LoadMap(App->resources->FindByName("map"));
-	}
-	else {
+	if (map != 0ULL) {
 		App->render->GetViewport("scene")->Begin();
 
 		static auto shader = App->render->GetShader("tilemap");

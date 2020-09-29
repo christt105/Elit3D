@@ -228,7 +228,7 @@ void r1Map::Edit(int layer, int row, int col, char r, char g, char b)
 	oglh::UnBindTexture();
 }
 
-void r1Map::CreateNewMap(int width, int height)
+void r1Map::CreateNewMap(int width, int height, const char* file)
 {
 	nlohmann::json map;
 
@@ -247,5 +247,5 @@ void r1Map::CreateNewMap(int width, int height)
 
 	map["layers"].push_back(data);
 
-	FileSystem::SaveJSONFile("./Assets/Maps/map.scene", map);
+	FileSystem::SaveJSONFile(file, map);
 }
