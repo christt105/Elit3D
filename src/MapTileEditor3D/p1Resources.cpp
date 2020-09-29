@@ -70,35 +70,68 @@ void p1Resources::Update()
 		ImGui::EndGroup();
 		ImGui::SameLine();
 	}*/
-	for (auto i = selected->folders.begin(); i != selected->folders.end(); ++i) {
-		ImGui::PushID(*i);
-		ImGui::BeginGroup();
-		if (ImGui::ImageButtonGL((ImTextureID)ids[m1Resources::EResourceType::FOLDER], ImVec2(size * 120.f, size * 100.f), 2)) {
-			selected = *i;
-			ImGui::EndGroup();
+	if (size == 0.25f) {
+		for (auto i = selected->folders.begin(); i != selected->folders.end(); ++i) {
+			ImGui::PushID(*i);
+			ImGui::AlignTextToFramePadding();
+			if(ImGui::Selectable("##folders"))
+				selected = *i;
+			ImGui::SameLine();
+			ImGui::Image((ImTextureID)ids[m1Resources::EResourceType::FOLDER], ImVec2(0.15f * 120.f, 0.15f * 100.f), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
+			ImGui::SameLine();
+			ImGui::Text((*i)->name.c_str());
 			ImGui::PopID();
-			return;
 		}
-		ImGui::Text((*i)->name.c_str());
-		ImGui::EndGroup();
-		ImGui::SameLine();
-		ImGui::PopID();
-	}
 
-	for (auto i = selected->files.begin(); i != selected->files.end(); ++i) {
-		std::string extension = FileSystem::GetFileExtension((*i).first.c_str());
-		if (extension.compare("meta") != 0) {
-			ImGui::PushID(&(*i).second);
-			ImGui::BeginGroup();
-			if (ImGui::ImageButtonGL((ImTextureID)ids[GetEType(extension)], ImVec2(size * 80.f, size * 100.6f), 2)) {
-				static std::string path;
-				path = selected->full_path + (*i).first;
-				App->gui->inspector->SetSelected((void*)&(path), GetInspectorType(extension));
+		for (auto i = selected->files.begin(); i != selected->files.end(); ++i) {
+			std::string extension = FileSystem::GetFileExtension((*i).first.c_str());
+			if (extension.compare("meta") != 0) {
+				ImGui::PushID(&(*i).second);
+				ImGui::AlignTextToFramePadding();
+				if (ImGui::Selectable("##files")) { //TODO: make it bigger
+					static std::string path;
+					path = selected->full_path + (*i).first;
+					App->gui->inspector->SetSelected((void*)&(path), GetInspectorType(extension));
+				}
+				ImGui::SameLine();
+				ImGui::Image((ImTextureID)ids[GetEType(extension)], ImVec2(0.15f * 80.f, 0.15f * 100.6f), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
+				ImGui::SameLine();
+				ImGui::Text(FileSystem::GetNameFile((*i).first.c_str()).c_str());
+				ImGui::PopID();
 			}
-			ImGui::Text(FileSystem::GetNameFile((*i).first.c_str()).c_str());
+		}
+	}
+	else {
+		for (auto i = selected->folders.begin(); i != selected->folders.end(); ++i) {
+			ImGui::PushID(*i);
+			ImGui::BeginGroup();
+			if (ImGui::ImageButtonGL((ImTextureID)ids[m1Resources::EResourceType::FOLDER], ImVec2(size * 120.f, size * 100.f), 2)) {
+				selected = *i;
+				ImGui::EndGroup();
+				ImGui::PopID();
+				return;
+			}
+			ImGui::Text((*i)->name.c_str());
 			ImGui::EndGroup();
 			ImGui::SameLine();
 			ImGui::PopID();
+		}
+
+		for (auto i = selected->files.begin(); i != selected->files.end(); ++i) {
+			std::string extension = FileSystem::GetFileExtension((*i).first.c_str());
+			if (extension.compare("meta") != 0) {
+				ImGui::PushID(&(*i).second);
+				ImGui::BeginGroup();
+				if (ImGui::ImageButtonGL((ImTextureID)ids[GetEType(extension)], ImVec2(size * 80.f, size * 100.6f), 2)) {
+					static std::string path;
+					path = selected->full_path + (*i).first;
+					App->gui->inspector->SetSelected((void*)&(path), GetInspectorType(extension));
+				}
+				ImGui::Text(FileSystem::GetNameFile((*i).first.c_str()).c_str());
+				ImGui::EndGroup();
+				ImGui::SameLine();
+				ImGui::PopID();
+			}
 		}
 	}
 }
