@@ -25,6 +25,10 @@ public:
             FOLDER_RENAMED,
             FOLDER_MOVED,
 
+            SAVE_CONFIGURATION,
+            LOAD_CONFIGURATION,
+            LOAD_DEFAULT_CONFIGURATION,
+
             RESIZE_MAP,
 
             SAVE_MAP

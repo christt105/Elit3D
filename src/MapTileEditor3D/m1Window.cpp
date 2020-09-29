@@ -121,3 +121,23 @@ void m1Window::UpdateWindowSize()
     SDL_SetWindowSize(window, width, height);
     App->camera->SetFov();
 }
+
+void m1Window::Save(nlohmann::json& node)
+{
+    int x, y;
+    SDL_GetWindowPosition(window, &x, &y);
+    node["x"] = x;
+    node["y"] = y;
+
+    SDL_GetWindowSize(window, &x, &y);
+    node["width"] = x;
+    node["height"] = y;
+
+    Uint32 flags = SDL_GetWindowFlags(window);
+    node["flags"]["fullscreen"]         = (bool)(flags & SDL_WINDOW_FULLSCREEN);
+    node["flags"]["fullscreen_desktop"] = (bool)(flags & SDL_WINDOW_FULLSCREEN_DESKTOP);
+    node["flags"]["borderless"]         = (bool)(flags & SDL_WINDOW_BORDERLESS);
+    node["flags"]["resizable"]          = true;
+    node["flags"]["minimized"]          = (bool)(flags & SDL_WINDOW_MINIMIZED);
+    node["flags"]["maximized"]          = (bool)(flags & SDL_WINDOW_MAXIMIZED);
+}

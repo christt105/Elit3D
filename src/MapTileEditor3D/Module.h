@@ -20,6 +20,9 @@ public:
 	virtual UpdateStatus PostUpdate();
 	virtual bool CleanUp();
 
+	virtual void Save(nlohmann::json& node) {}
+	virtual void Load(const nlohmann::json& node) {}
+
 	static std::string UpdateStatusToString(UpdateStatus us);
 
 public:

@@ -26,17 +26,28 @@ m1Camera3D::~m1Camera3D()
 {
 }
 
-bool m1Camera3D::Start()
+bool m1Camera3D::Init(const nlohmann::json& node)
 {
-	PROFILE_FUNCTION();
-	bool ret = true;
-
 	frustum.type = FrustumType::PerspectiveFrustum;
 	frustum.pos = { 0, 15, 0 };
 	frustum.front = -float3::unitY;
 	frustum.up = float3::unitZ;
 
-	SetFov(60.f);
+	SetFov(node.value("FOV", 60.f));
+
+	mov_speed = node.value("mov_speed", 15.0f);
+	orbit_speed = node.value("orbit_speed", 0.1f);
+	pan_speed = node.value("pan_speed", 0.5f);
+	turbo_speed = node.value("turbo_speed", 2.f);
+	zoom_speed = node.value("zoom_speed", 15.0f);
+
+	return false;
+}
+
+bool m1Camera3D::Start()
+{
+	PROFILE_FUNCTION();
+	bool ret = true;
 	
 	frustum.nearPlaneDistance = 0.1f;
 	frustum.farPlaneDistance = 1000.f;
@@ -52,7 +63,7 @@ void m1Camera3D::SetFov(float vertical_angle)
 
 void m1Camera3D::SetFov()
 {
-	frustum.verticalFov = DegToRad(60.f);
+	frustum.verticalFov = DegToRad(FOV);
 	frustum.horizontalFov = 2.f * atanf(tanf(frustum.verticalFov * 0.5f) * App->window->GetWidth() / App->window->GetHeight());
 }
 
@@ -158,4 +169,25 @@ void m1Camera3D::CameraMovement()
 			}
 		}
 	}
+}
+
+void m1Camera3D::Save(nlohmann::json& node)
+{
+	node["FOV"] = FOV;
+	node["pan_speed"] = pan_speed;
+	node["orbit_speed"] = orbit_speed;
+	node["zoom_speed"] = zoom_speed;
+	node["mov_speed"] = mov_speed;
+	node["turbo_speed"] = turbo_speed;
+}
+
+void m1Camera3D::Load(const nlohmann::json& node)
+{
+	FOV = node["FOV"];
+	SetFov(FOV);
+	pan_speed = node["pan_speed"];
+	orbit_speed = node["orbit_speed"];
+	zoom_speed = node["zoom_speed"];
+	mov_speed = node["mov_speed"];
+	turbo_speed = node["turbo_speed"];
 }

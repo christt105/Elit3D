@@ -124,6 +124,12 @@ bool m1Render3D::CleanUp()
     return true;
 }
 
+void m1Render3D::Save(nlohmann::json& node)
+{
+    node["minor_version"] = 3;
+    node["major_version"] = 3;
+}
+
 Viewport* m1Render3D::CreateViewport(const char* name)
 {
     Viewport* v = new Viewport();
