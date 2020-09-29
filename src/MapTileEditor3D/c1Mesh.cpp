@@ -53,7 +53,7 @@ void c1Mesh::SetMesh(const uint64_t& id)
 void c1Mesh::SetEMesh(m1Resources::EResourceType res)
 {
 	is_engine_mesh = true;
-	emesh = (r1Mesh*)App->resources->Get(res);
+	emesh = (r1Mesh*)App->resources->EGet(res);
 	emesh->Attach();
 }
 

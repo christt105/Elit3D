@@ -26,6 +26,8 @@ public:
 
 	bool CleanUp() override;
 
+	void Save(nlohmann::json& node) override;
+
 	Viewport* CreateViewport(const char* name);
 	Viewport* GetViewport(const char* name);
 

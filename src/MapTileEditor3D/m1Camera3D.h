@@ -11,6 +11,7 @@ public:
 	m1Camera3D(bool start_enabled = true);
 	~m1Camera3D();
 
+	bool Init(const nlohmann::json& node) override;
 	bool Start() override;
 
 	void SetFov(float vertical_angle);
@@ -22,6 +23,9 @@ public:
 	void CameraMovement();
 
 	Frustum frustum;
+
+	void Save(nlohmann::json& node) override;
+	void Load(const nlohmann::json& node) override;
 
 private:
 	float2 lastRight;

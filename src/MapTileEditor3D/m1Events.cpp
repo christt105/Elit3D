@@ -59,6 +59,16 @@ UpdateStatus m1Events::PreUpdate()
 		case Event::Type::SAVE_MAP:
 			App->map_editor->SaveMap();
 			break;
+
+		case Event::Type::SAVE_CONFIGURATION:
+			App->SaveConfiguration();
+			break;
+		case Event::Type::LOAD_CONFIGURATION:
+			App->LoadConfiduration("Configuration/Configuration.json");
+			break;
+		case Event::Type::LOAD_DEFAULT_CONFIGURATION:
+			App->LoadConfiduration("Configuration/Configuration_default.json");
+			break;
 		default:
 			break;
 		}

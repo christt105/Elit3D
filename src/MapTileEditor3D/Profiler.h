@@ -17,6 +17,7 @@
 #else
 #define PROFILE_SECTION(name)
 #define PROFILE_FUNCTION()
+#define PROFILE_AND_LOG(name)
 #endif
 
 

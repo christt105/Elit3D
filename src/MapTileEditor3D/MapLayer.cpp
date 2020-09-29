@@ -156,26 +156,28 @@ void Layer::CreateProperty()
 	}
 	ImGui::SameLine();
 	if (ImGui::Button(ICON_FA_PLUS)) {
-		if (properties.find(buffer) == properties.end()) {
-			switch (selected)
-			{
-			case 0:
-				properties[buffer] = new iTypeVar(0);
-				break;
-			case 1:
-				properties[buffer] = new sTypeVar();
-				break;
-			case 2:
-				properties[buffer] = new fTypeVar(0.f);
-				break;
-			case 3:
-				properties[buffer] = new bTypeVar(false);
-				break;
-			default:
-				break;
+		if (!std::string(buffer).empty()) {
+			if (properties.find(buffer) == properties.end()) {
+				switch (selected)
+				{
+				case 0:
+					properties[buffer] = new iTypeVar(0);
+					break;
+				case 1:
+					properties[buffer] = new sTypeVar();
+					break;
+				case 2:
+					properties[buffer] = new fTypeVar(0.f);
+					break;
+				case 3:
+					properties[buffer] = new bTypeVar(false);
+					break;
+				default:
+					break;
+				}
 			}
+			strcpy_s(buffer, 30, "");
 		}
-		strcpy_s(buffer, 30, "");
 	}
 	ImGui::PopID();
 }

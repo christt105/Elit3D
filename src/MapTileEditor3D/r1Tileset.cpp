@@ -51,3 +51,9 @@ uint64_t r1Tileset::GetTextureUID()
 {
 	return texture_uid;
 }
+
+void r1Tileset::OnInspector()
+{
+	ImGui::Text(name.c_str());
+	ImGui::InputInt("Width", &width);
+}

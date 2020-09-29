@@ -66,6 +66,9 @@ public:
 
 	void ExecuteURL(const char* url);
 
+	void SaveConfiguration();
+	void LoadConfiduration(const char* file);
+
 private:
 	std::vector<Module*> modules;
 

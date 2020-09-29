@@ -36,6 +36,8 @@ public:
 	UpdateStatus PostUpdate() override;
 	bool CleanUp() override;
 
+	void Save(nlohmann::json& node) override;
+
 public: //TODO private
 	std::vector<Panel*> panels;
 

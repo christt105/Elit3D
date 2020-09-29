@@ -1027,6 +1027,11 @@ bool ImGui::ImageButton(ImTextureID user_texture_id, const ImVec2& size, const I
     return pressed;
 }
 
+bool ImGui::ImageButtonGL(ImTextureID user_texture_id, const ImVec2& size, int frame_padding, const ImVec4& bg_col, const ImVec4& tint_col)
+{
+    return ImageButton(user_texture_id, size, ImVec2(0.f, 1.f), ImVec2(1.f, 0.f), frame_padding, bg_col, tint_col);
+}
+
 bool ImGui::Checkbox(const char* label, bool* v)
 {
     ImGuiWindow* window = GetCurrentWindow();

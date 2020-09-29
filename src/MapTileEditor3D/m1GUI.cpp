@@ -275,6 +275,13 @@ bool m1GUI::CleanUp()
 	return true;
 }
 
+void m1GUI::Save(nlohmann::json& node)
+{
+	/*for (auto i = panels.begin(); i != panels.end(); ++i) {
+		(*i)->Save(node[(*i)->name]);
+	}*/
+}
+
 void m1GUI::DockSpace()
 {
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();

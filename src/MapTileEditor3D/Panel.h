@@ -8,6 +8,8 @@
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5Brands.h"
 
+#include "ExternalTools/JSON/json.hpp"
+
 class Panel
 {
 	friend class m1GUI;
@@ -26,6 +28,8 @@ public:
 
 	int2 GetPosition() const;
 	int2 GetSize() const;
+
+	virtual void Save(nlohmann::json& node) {}
 
 public:
 	ImGuiWindowFlags flags = ImGuiWindowFlags_None;

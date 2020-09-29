@@ -29,6 +29,7 @@ Application::Application()
 
 Application::~Application()	
 {
+	FileSystem::DeleteRoot();
 }
 
 bool Application::Init()
@@ -66,13 +67,13 @@ bool Application::Init()
 	modules.push_back(gui);
 	modules.push_back(render);
 
-	nlohmann::json conf = FileSystem::OpenJSONFile("Configuration/Configuration.json")["App"];
+	nlohmann::json conf = FileSystem::OpenJSONFile("Configuration/Configuration.json");
 
 	if (conf.is_null())
 		LOGNE("Configuration.json not found");
 
-	name.assign(conf.value("name", "PROGRAM"));
-	version.assign(conf.value("version", "0.1"));
+	name.assign(conf["App"].value("name", "PROGRAM"));
+	version.assign(conf["App"].value("version", "0.1"));
 
 	for (auto i = modules.begin(); i != modules.end(); ++i) {
 		LOGN("Initializing module %s", (*i)->name.c_str());
@@ -208,4 +209,30 @@ void Application::ExecuteURL(const char* url)
 {
 	// TODO: set it for linux and mac
 	ShellExecute(0, 0, url, 0, 0, SW_SHOW);
+}
+
+void Application::SaveConfiguration()
+{
+	nlohmann::json conf;
+
+	conf["App"]["name"] = GetName();
+	conf["App"]["version"] = GetVersion();
+
+	for (auto m = modules.begin(); m != modules.end(); ++m) {
+		(*m)->Save(conf[(*m)->name]);
+	}
+
+	FileSystem::SaveJSONFile("Configuration/Configuration.json", conf);
+}
+
+void Application::LoadConfiduration(const char* file)
+{
+	nlohmann::json conf = FileSystem::OpenJSONFile(file);
+
+	name.assign(conf["App"]["name"]);
+	version.assign(conf["App"]["version"]);
+
+	for (auto m = modules.begin(); m != modules.end(); ++m) {
+		(*m)->Load(conf[(*m)->name]);
+	}
 }
