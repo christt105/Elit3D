@@ -1,7 +1,6 @@
 #include "r1Map.h"
 
 #include "FileSystem.h"
-#include "ExternalTools/JSON/json.hpp"
 
 #include "OpenGLHelper.h"
 
@@ -104,6 +103,11 @@ void r1Map::Load()
 
 	App->gui->tileset->SelectTileset(file.value("tileset", 0ULL));
 
+	LoadLayers(file);
+}
+
+void r1Map::LoadLayers(nlohmann::json& file)
+{
 	for (auto l = file["layers"].begin(); l != file["layers"].end(); ++l) {
 		Layer* layer = new Layer();
 		layer->SetName((*l).value("name", "Layer").c_str());
@@ -116,25 +120,7 @@ void r1Map::Load()
 			layer->displacement[1] = (*l)["displacement"][1];
 		}
 
-		for (auto p = (*l)["properties"].begin(); p != (*l)["properties"].end(); ++p) {
-			switch ((TypeVar::Type)(*p).value("type", 0))
-			{
-			case TypeVar::Type::Int:
-				layer->properties[(*p).value("name", "UNKNOWN")] = new iTypeVar((*p).value("value", 0));
-				break;
-			case TypeVar::Type::Float:
-				layer->properties[(*p).value("name", "UNKNOWN")] = new fTypeVar((*p).value("value", 0.f));
-				break;
-			case TypeVar::Type::Bool:
-				layer->properties[(*p).value("name", "UNKNOWN")] = new bTypeVar((*p).value("value", false));
-				break;
-			case TypeVar::Type::String:
-				layer->properties[(*p).value("name", "UNKNOWN")] = new sTypeVar((*p).value("value", std::string()));
-				break;
-			default:
-				break;
-			}
-		}
+		LoadProperties(l, layer);
 
 		layer->tile_data = new unsigned char[size.x * size.y * 3];
 		int i = 0;
@@ -149,6 +135,29 @@ void r1Map::Load()
 
 
 		layers.push_back(layer);
+	}
+}
+
+void r1Map::LoadProperties(const nlohmann::detail::iter_impl<nlohmann::json>& l, Layer* layer)
+{
+	for (auto p = (*l)["properties"].begin(); p != (*l)["properties"].end(); ++p) {
+		switch ((TypeVar::Type)(*p).value("type", 0))
+		{
+		case TypeVar::Type::Int:
+			layer->properties[(*p).value("name", "UNKNOWN")] = new iTypeVar((*p).value("value", 0));
+			break;
+		case TypeVar::Type::Float:
+			layer->properties[(*p).value("name", "UNKNOWN")] = new fTypeVar((*p).value("value", 0.f));
+			break;
+		case TypeVar::Type::Bool:
+			layer->properties[(*p).value("name", "UNKNOWN")] = new bTypeVar((*p).value("value", false));
+			break;
+		case TypeVar::Type::String:
+			layer->properties[(*p).value("name", "UNKNOWN")] = new sTypeVar((*p).value("value", std::string()));
+			break;
+		default:
+			break;
+		}
 	}
 }
 

@@ -4,6 +4,7 @@
 #include "FileSystem.h"
 #include "r1Texture.h"
 #include "m1GUI.h"
+#include "m1MapEditor.h"
 
 #include "Profiler.h"
 
@@ -70,7 +71,7 @@ void p1Resources::Update()
 		ImGui::EndGroup();
 		ImGui::SameLine();
 	}*/
-	if (size == 0.25f) {
+	if (size == 0.25f) { //List
 		for (auto i = selected->folders.begin(); i != selected->folders.end(); ++i) {
 			ImGui::PushID(*i);
 			ImGui::AlignTextToFramePadding();
@@ -101,7 +102,7 @@ void p1Resources::Update()
 			}
 		}
 	}
-	else {
+	else { //Grid
 		for (auto i = selected->folders.begin(); i != selected->folders.end(); ++i) {
 			ImGui::PushID(*i);
 			ImGui::BeginGroup();
@@ -126,6 +127,9 @@ void p1Resources::Update()
 					static std::string path;
 					path = selected->full_path + (*i).first;
 					App->gui->inspector->SetSelected((void*)&(path), GetInspectorType(extension));
+				}
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
+					App->map_editor->LoadMap(App->resources->FindByPath((selected->full_path + (*i).first).c_str()));
 				}
 				ImGui::Text(FileSystem::GetNameFile((*i).first.c_str()).c_str());
 				ImGui::EndGroup();
