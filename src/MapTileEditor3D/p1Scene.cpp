@@ -67,24 +67,30 @@ void p1Scene::Update()
 
 void p1Scene::ShowCreateMap()
 {
+	static bool popup_create = false;
+	static bool popup_load = false;
 	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f);
 	if (ImGui::Button("Create Map", ImVec2(100.f, 20.f))) {
 		ImGui::OpenPopup("Create Map");
+		popup_create = true;
 	}
 	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f + ImVec2(45.f, 25.f));
 	ImGui::Text("or");
 	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f + ImVec2(0.f, 40.f));
 	if (ImGui::Button("Load Map", ImVec2(100.f, 20.f))) {
 		ImGui::OpenPopup("Load Map");
+		popup_load = true;
 	}
 	ImGui::SetNextWindowSize(ImVec2(350.f, 250.f), ImGuiCond_Always);
 	ImGui::SetNextWindowPos(ImVec2((float)App->window->GetWidth() * 0.5f - 350.f * 0.5f, (float)App->window->GetHeight() * 0.5f - 250.f * 0.5f));
-	if (ImGui::BeginPopupModal("Create Map", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove)) {
+	if (ImGui::BeginPopupModal("Create Map", &popup_create, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove)) {
 		PopUpCreateMap();
 		ImGui::EndPopup();
 	}
 
-	if (ImGui::BeginPopupModal("Load Map", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove)) {
+	ImGui::SetNextWindowSize(ImVec2(350.f, 250.f), ImGuiCond_Always);
+	ImGui::SetNextWindowPos(ImVec2((float)App->window->GetWidth() * 0.5f - 350.f * 0.5f, (float)App->window->GetHeight() * 0.5f - 250.f * 0.5f));
+	if (ImGui::BeginPopupModal("Load Map", &popup_load)) {
 		PopUpLoadMap();
 		ImGui::EndPopup();
 	}

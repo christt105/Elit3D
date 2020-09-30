@@ -124,17 +124,25 @@ void m1GUI::MainMenuBar()
 {
 	PROFILE_FUNCTION();
 	static bool create_map = false;
+	static bool load_map = false;
+
 	if (ImGui::BeginMenu("File")) {
 		if (ImGui::MenuItem("New Map")) {
 			create_map = true;
 		}
+
+		ImGui::Separator();
 		
 		if (ImGui::MenuItem("Save")) {
 			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::SAVE_MAP));
 		}
 
-		if (ImGui::MenuItem("Load")) {
+		if (ImGui::MenuItem("Save as... (not implemented)")) {
 			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::SAVE_MAP));
+		}
+
+		if (ImGui::MenuItem("Load")) {
+			load_map = true;
 		}
 
 		ImGui::EndMenu();
@@ -162,6 +170,20 @@ void m1GUI::MainMenuBar()
 					App->map_editor->LoadMap(m->GetUID());
 					memset(buf, 0, 50);
 					create_map = false;
+				}
+			}
+
+			ImGui::End();
+		}
+
+	if(load_map)
+		if (ImGui::Begin("Load Map", &load_map)) {
+			auto maps = App->resources->GetVectorOf(Resource::Type::Map);
+
+			for (auto i = maps.begin(); i != maps.end(); ++i) {
+				if (ImGui::Button((*i)->name.c_str())) {
+					App->map_editor->LoadMap((*i)->GetUID());
+					load_map = false;
 				}
 			}
 
