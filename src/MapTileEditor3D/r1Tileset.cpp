@@ -47,6 +47,13 @@ void r1Tileset::Load()
 	transparent_color[2] = json["transparent color"].value("b", -1.f);
 }
 
+void r1Tileset::Unload()
+{
+	r1Texture* res = (r1Texture*)App->resources->Get(texture_uid);
+	if (res != nullptr)
+		res->Detach();
+}
+
 uint64_t r1Tileset::GetTextureUID()
 {
 	return texture_uid;

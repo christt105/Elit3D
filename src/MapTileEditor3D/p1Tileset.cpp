@@ -172,14 +172,21 @@ void p1Tileset::DeselectTex()
 
 void p1Tileset::SelectTileset(const uint64_t& uid)
 {
-	tileset = uid;
-	auto t = (r1Tileset*)App->resources->Get(tileset);
-	if (t != nullptr) {
-		t->Attach();
+	if (tileset != uid) {
+		if (tileset != 0ULL) {
+			auto t = (r1Tileset*)App->resources->Get(tileset);
+			if (t != nullptr)
+				t->Detach();
+		}
+		tileset = uid;
+		auto t = (r1Tileset*)App->resources->Get(tileset);
+		if (t != nullptr) {
+			t->Attach();
 
-		auto shader = App->render->GetShader("tilemap");
-		shader->Use();
-		shader->SetInt2("ntilesAtlas", { t->columns, t->ntiles / t->columns });
+			auto shader = App->render->GetShader("tilemap");
+			shader->Use();
+			shader->SetInt2("ntilesAtlas", { t->columns, t->ntiles / t->columns });
+		}
 	}
 }
 
