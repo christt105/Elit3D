@@ -103,10 +103,20 @@ void p1Scene::PopUpCreateMap()
 	ImGui::NewLine();
 
 	if (ImGui::Button("Save")) {
-		r1Map::CreateNewMap(size[0], size[1], ("./Assets/Maps/" + std::string(name) + ".scene").c_str());
-		auto m = App->resources->CreateResource<r1Map>(("./Assets/Maps/" + std::string(name) + ".scene").c_str());
-		App->map_editor->LoadMap(m->GetUID());
-		ImGui::CloseCurrentPopup();
+		if (!std::string(name).empty()) {
+			std::string path = ("./Assets/Maps/" + std::string(name) + ".scene");
+			if (App->resources->FindByPath(path.c_str()) != 0ULL) {
+				int repeat = 0;
+				while (App->resources->FindByPath(path.c_str()) != 0ULL) {
+					path = "./Assets/Maps/" + std::string(name) + "(" + std::to_string(repeat++) + ")" + ".scene";
+				}
+			}
+			r1Map::CreateNewMap(size[0], size[1], path.c_str());
+			auto m = App->resources->CreateResource<r1Map>(path.c_str());
+			App->resources->GenerateMeta(path.c_str());
+			App->map_editor->LoadMap(m->GetUID());
+			ImGui::CloseCurrentPopup();
+		}
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Cancel")) {

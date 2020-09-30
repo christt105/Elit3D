@@ -148,11 +148,21 @@ void m1GUI::MainMenuBar()
 			ImGui::InputInt2("Size", size);
 
 			if (ImGui::Button("Create")) {
-				auto m = App->resources->CreateResource<r1Map>(("./Assets/Maps/" + std::string(buf) + ".scene").c_str());
-				r1Map::CreateNewMap(size[0], size[1], m->assets_path.c_str());
-				App->resources->GenerateMeta(m->assets_path.c_str());
-				memset(buf, 0, 50);
-				create_map = false;
+				if (!std::string(buf).empty()) {
+					std::string path = ("./Assets/Maps/" + std::string(buf) + ".scene");
+					if (App->resources->FindByPath(path.c_str()) != 0ULL) {
+						int repeat = 0;
+						while (App->resources->FindByPath(path.c_str()) != 0ULL) {
+							path = "./Assets/Maps/" + std::string(buf) + "(" + std::to_string(repeat++) + ")" + ".scene";
+						}
+					}
+					r1Map::CreateNewMap(size[0], size[1], path.c_str());
+					auto m = App->resources->CreateResource<r1Map>(path.c_str());
+					App->resources->GenerateMeta(path.c_str());
+					App->map_editor->LoadMap(m->GetUID());
+					memset(buf, 0, 50);
+					create_map = false;
+				}
 			}
 
 			ImGui::End();

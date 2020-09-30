@@ -11,7 +11,7 @@ public:
 	void Load() override;
 	void Unload() override;
 	
-	uint64_t GetTextureUID();
+	uint64_t GetTextureUID() const;
 
 	void OnInspector() override;
 

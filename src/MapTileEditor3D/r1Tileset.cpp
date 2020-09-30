@@ -54,7 +54,7 @@ void r1Tileset::Unload()
 		res->Detach();
 }
 
-uint64_t r1Tileset::GetTextureUID()
+uint64_t r1Tileset::GetTextureUID() const
 {
 	return texture_uid;
 }
