@@ -1,6 +1,5 @@
-#define USE_MMGR 0
-#define MMGR_ASSERT 0
-#define USE_FILEWATCHER 0
+#define USE_MMGR 1
+#define USE_FILEWATCHER 1
 
 //MathGeoLib--------------------------------------------------------
 #include "ExternalTools/MathGeoLib/include/MathGeoLib.h"
