@@ -42,6 +42,12 @@ bool m1MapEditor::Start()
 	panel_tileset = App->gui->tileset;
 	panel_layers = App->gui->layers;
 
+	nlohmann::json locals = FileSystem::OpenJSONFile("Configuration/locals.json");
+	if (locals.find("last_map_used") != locals.end()) {
+		if (locals.value("last_map_used", 0ULL) != 0ULL)
+			LoadMap(locals.value("last_map_used", 0ULL));
+	}
+
 	return true;
 }
 
@@ -115,13 +121,22 @@ void m1MapEditor::SaveImageMap() const
 void m1MapEditor::LoadMap(const uint64_t& id)
 {
 	if (map != id) {
-		if (map != 0ULL) {
-			auto m = (r1Map*)App->resources->Get(map);
-			m->Detach();
-		}
-		map = id;
 		auto m = (r1Map*)App->resources->Get(id);
-		m->Attach();
+		if (m != nullptr) {
+			if (map != 0ULL) {
+				auto m = (r1Map*)App->resources->Get(map);
+				m->Detach();
+			}
+			map = id;
+			m->Attach();
+
+			nlohmann::json locals;
+			locals["last_map_used"] = id;
+			FileSystem::SaveJSONFile("Configuration/locals.json", locals);
+		}
+		else {
+			LOGW("map with id %" PRIu64 " could not be loaded, not in resources", id);
+		}
 	}
 }
 
