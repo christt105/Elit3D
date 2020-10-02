@@ -27,5 +27,7 @@ private:
 	std::future<void> fut;
 	bool watch = true;
 	Folder* root = nullptr;
+
+	std::mutex mtx;
 };
 

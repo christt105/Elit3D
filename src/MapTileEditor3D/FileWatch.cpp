@@ -5,6 +5,8 @@
 
 #include <filesystem>
 
+#include "Profiler.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 namespace fs = std::filesystem;
@@ -45,33 +47,37 @@ void FileWatch::Watch()
 
 void FileWatch::CheckFolder(Folder* f, std::list<m1Events::Event*>& ev)
 {
-	auto i = f->files.begin();
-	while (i != f->files.end()) {
-		if (!FileSystem::Exists((f->full_path + (*i).first).c_str())) {
-			ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_REMOVED, (f->full_path + (*i).first).c_str()));
-			i = f->files.erase(i);
+	{
+		auto i = f->files.begin();
+		while (i != f->files.end()) {
+			if (!FileSystem::Exists((f->full_path + (*i).first).c_str())) {
+				ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_REMOVED, (f->full_path + (*i).first).c_str()));
+				i = f->files.erase(i);
+			}
+			else
+				++i;
 		}
-		else
-			++i;
 	}
 
-	auto j = f->folders.begin();
-	while (j != f->folders.end()) {
-		if (!FileSystem::Exists((*j)->full_path.c_str())) {
-			ev.push_back(new m1Events::Event(m1Events::Event::Type::FOLDER_REMOVED, (*j)->full_path.c_str()));
-			j = f->folders.erase(j);
+	{
+		auto j = f->folders.begin();
+		while (j != f->folders.end()) {
+			if (!FileSystem::Exists((*j)->full_path.c_str())) {
+				ev.push_back(new m1Events::Event(m1Events::Event::Type::FOLDER_REMOVED, (*j)->full_path.c_str()));
+				delete* j;
+				j = f->folders.erase(j);
+			}
+			else
+				++j;
 		}
-		else
-			++j;
 	}
 
 	for (const auto& entry : fs::directory_iterator(f->full_path)) {
 		if (entry.is_directory()) {
-			//auto it = std::find(f->folders.begin(), f->folders.end(), FileSystem::NormalizePath(entry.path().u8string().c_str()) + "/");
 			std::vector<Folder*>::iterator it = f->folders.end();
 			std::string s = FileSystem::NormalizePath(entry.path().u8string().c_str()) + "/";
 			for (auto i = f->folders.begin(); i != f->folders.end(); ++i)
-				if (f->full_path.compare(s) == 0) {
+				if ((*i)->full_path.compare(s) == 0) {
 					it = i;
 					break;
 				}
@@ -79,7 +85,7 @@ void FileWatch::CheckFolder(Folder* f, std::list<m1Events::Event*>& ev)
 				CheckFolder(*it, ev);
 			}
 			else {
-				ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_CREATED, (*j)->full_path.c_str()));
+				ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_CREATED, f->full_path.c_str()));
 				f->folders.push_back(new Folder((FileSystem::NormalizePath(entry.path().u8string().c_str()) + "/").c_str(), f));
 			}
 		}
