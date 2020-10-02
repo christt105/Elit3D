@@ -47,6 +47,7 @@ void FileWatch::Watch()
 
 void FileWatch::CheckFolder(Folder* f, std::list<m1Events::Event*>& ev)
 {
+	PROFILE_FUNCTION();
 	{
 		auto i = f->files.begin();
 		while (i != f->files.end()) {

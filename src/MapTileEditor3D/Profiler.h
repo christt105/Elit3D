@@ -6,6 +6,8 @@
 #include <chrono>
 #include <fstream>
 
+#include <mutex>
+
 #include "ExternalTools/JSON/json.hpp"
 
 #define USE_PROFILER 1
@@ -31,6 +33,7 @@ public:
 	struct Result {
 		std::string name;
 		long long start, end;
+		uint32_t ThreadID;
 	};
 
 	void Begin();
@@ -48,6 +51,7 @@ public:
 private:
 	std::ofstream output;
 	int profileCount = 0;
+	std::mutex mtx;
 };
 
 class ProfilerTimer {
