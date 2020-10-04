@@ -40,28 +40,10 @@ bool m1Resources::Start()
 	glEnable(GL_TEXTURE_2D);
 	ilutRenderer(ILUT_OPENGL);
 
-	if (!FileSystem::Exists(LIBRARY_PATH))
-		FileSystem::CreateFolder(LIBRARY_PATH);
-
-	if (!FileSystem::Exists(LIBRARY_TEXTURES_PATH))
-		FileSystem::CreateFolder(LIBRARY_TEXTURES_PATH);
-
-	if (!FileSystem::Exists(LIBRARY_MODELS_PATH))
-		FileSystem::CreateFolder(LIBRARY_MODELS_PATH);
-
-	if (!FileSystem::Exists(LIBRARY_MESHES_PATH))
-		FileSystem::CreateFolder(LIBRARY_MESHES_PATH);
-
-	if (!FileSystem::Exists(LIBRARY_TILESETS_PATH))
-		FileSystem::CreateFolder(LIBRARY_TILESETS_PATH);
-
-	if (!FileSystem::Exists(LIBRARY_MAPS_PATH))
-		FileSystem::CreateFolder(LIBRARY_MAPS_PATH);
-
 	StartFileWatcher();
 
 	GenerateLibrary();
-	GenerateEngineLibrary();
+	LoadEngineResources();
 
 	return true;
 }
@@ -101,7 +83,7 @@ Uint64 m1Resources::FindByPath(const char* assets_path)
 {
 	PROFILE_FUNCTION();
 	for (auto i = resources.begin(); i != resources.end(); ++i) {
-		if ((*i).second->assets_path.compare(assets_path) == 0)
+		if ((*i).second->path.compare(assets_path) == 0)
 			return (*i).first;
 	}
 
@@ -167,9 +149,8 @@ void m1Resources::DeleteResource(const uint64_t& uid)
 	if (r->references > 0)
 		r->Unload();
 
-	FileSystem::fDeleteFile(r->assets_path.c_str());
-	FileSystem::fDeleteFile((r->assets_path + ".meta").c_str());
-	FileSystem::fDeleteFile(r->library_path.c_str());
+	FileSystem::fDeleteFile(r->path.c_str());
+	FileSystem::fDeleteFile((r->path + ".meta").c_str());
 
 	resources.erase(r->uid);
 
@@ -179,11 +160,10 @@ void m1Resources::DeleteResource(const uint64_t& uid)
 void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 {
 	if (strcmp(assets_path, "") != 0) {
-		ret->assets_path.assign(assets_path);
+		ret->path.assign(assets_path);
 		ret->name = FileSystem::GetNameFile(assets_path);
 		ret->extension.assign(FileSystem::GetFileExtension(assets_path));
 	}
-	ret->library_path.assign(GetLibraryFromType(ret->GetType()) + std::to_string(ret->GetUID()) + GetLibraryExtensionFromType(ret->GetType()));
 }
 
 void m1Resources::GenerateLibrary()
@@ -192,7 +172,7 @@ void m1Resources::GenerateLibrary()
 	ImportFiles(FileSystem::GetPtrFolder("Assets/"));
 }
 
-void m1Resources::GenerateEngineLibrary()
+void m1Resources::LoadEngineResources()
 {
 	PROFILE_FUNCTION();
 
@@ -201,10 +181,9 @@ void m1Resources::GenerateEngineLibrary()
 	for (auto i = models->files.begin(); i != models->files.end(); ++i) {
 		r1Mesh* m = new r1Mesh(0ULL);
 
-		m->assets_path.assign(models->full_path + "/" + (*i).first);
+		m->path.assign(models->full_path + "/" + (*i).first);
 		m->name = (*i).first;
 		m->extension = "mesh";
-		m->library_path = m->assets_path;
 		
 		if (m->name.compare("Tile.mesh") == 0) {
 			engine_resources[m1Resources::EResourceType::TILE] = m;
@@ -219,10 +198,9 @@ void m1Resources::GenerateEngineLibrary()
 	for (auto i = textures->files.begin(); i != textures->files.end(); ++i) {
 		r1Texture* t = new r1Texture(0ULL);
 
-		t->assets_path.assign(textures->full_path + "/" + (*i).first);
+		t->path.assign(textures->full_path + "/" + (*i).first);
 		t->name = (*i).first;
 		t->extension = "png";
-		t->library_path = t->assets_path;
 
 		if (t->name.compare("FolderBack.png") == 0) {
 			engine_resources[m1Resources::EResourceType::FOLDER_BACK] = t; // TODO: std::map<std::string, Resource*> is better?
@@ -246,7 +224,7 @@ void m1Resources::GenerateEngineLibrary()
 			engine_resources[m1Resources::EResourceType::TILESET] = t;
 		}
 		else {
-			LOGW("Asset %s not set on engine resource", t->assets_path.c_str());
+			LOGW("Asset %s not set on engine resource", t->path.c_str());
 			delete t;
 		}
 	}
@@ -259,41 +237,29 @@ void m1Resources::ImportFiles(const Folder* parent)
 	for (auto dir = parent->folders.begin(); dir != parent->folders.end(); ++dir) { //TODO: DO IT ITERATIVE
 		ImportFiles(*dir);
 	}
-	
+
 	for (auto file = parent->files.begin(); file != parent->files.end(); ++file) {
 		if (FileSystem::GetFileExtension((*file).first.c_str()).compare("meta") != 0) {
 			if (FileSystem::Exists((parent->full_path + (*file).first + ".meta").c_str())) {
 				nlohmann::json meta = FileSystem::OpenJSONFile((parent->full_path + (*file).first + ".meta").c_str());
+				uint64_t timestamp = FileSystem::LastTimeWrite((parent->full_path + (*file).first).c_str());
 				std::string extension = meta.value("extension", "none");
-				if (meta.value("timestamp", 0ULL) == FileSystem::LastTimeWrite((parent->full_path + (*file).first).c_str())) {
-					if (FileSystem::Exists((GetLibraryFromType(extension.c_str()) + std::to_string(meta.value("UID", 0ULL)) + GetLibraryExtension(extension.c_str())).c_str())) {
-						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent->full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
-						res->GenerateFilesLibrary();
-					}
-					else {
-						Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent->full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
-
-						if (res != nullptr)
-							res->GenerateFiles();
-					}
-				}
-				else {
-					DeleteFromLibrary(GetTypeFromStr(extension.c_str()), meta.value("UID", 0ULL));
-
-					meta["timestamp"] = FileSystem::LastTimeWrite((parent->full_path + (*file).first).c_str());
+				if (meta.value("timestamp", 0ULL) != timestamp) {
+					meta["timestamp"] = timestamp;
 					FileSystem::SaveJSONFile((parent->full_path + (*file).first + ".meta").c_str(), meta);
-
-					Resource* res = CreateResource(GetTypeFromStr(extension.c_str()), (parent->full_path + (*file).first).c_str(), meta.value("UID", 0ULL));
-					if (res != nullptr)
-						res->GenerateFiles();
 				}
+				CreateResource(
+					GetTypeFromStr(extension.c_str()), 
+					(parent->full_path + (*file).first).c_str(), 
+					meta.value("UID", 0ULL)
+				);
 			}
 			else {
-				uint64_t meta = GenerateMeta((parent->full_path + (*file).first).c_str());
-
-				Resource* res = CreateResource(GetTypeFromStr(FileSystem::GetFileExtension((*file).first.c_str()).c_str()), (parent->full_path + (*file).first).c_str(), meta);
-				if (res != nullptr)
-					res->GenerateFiles();
+				CreateResource(
+					GetTypeFromStr(FileSystem::GetFileExtension((*file).first.c_str()).c_str()), //type
+					(parent->full_path + (*file).first).c_str(),								 //path
+					GenerateMeta((parent->full_path + (*file).first).c_str())					 //meta
+				);
 			}
 		}
 	}
@@ -325,9 +291,6 @@ void m1Resources::ReimportResource(const char* file)
 {
 	Resource* r = FindGet(file, false);
 	if (r) {
-		r->GenerateFiles();
-		r->GenerateFilesLibrary();
-		
 		if (r->references > 0) {
 			r->Unload();
 			r->Load();
@@ -346,79 +309,7 @@ std::vector<Resource*> m1Resources::GetVectorOf(Resource::Type type)
 	return ret;
 }
 
-const char* m1Resources::GetLibraryFromType(const char* type)
-{
-	if(strcmp(type, "fbx") == 0)
-		return LIBRARY_MODELS_PATH;
-	else if(strcmp(type, "jpg") == 0 || strcmp(type, "png") == 0)
-		return LIBRARY_TEXTURES_PATH;
-	else if (strcmp(type, "tileset") == 0)
-		return LIBRARY_TILESETS_PATH;
-	else if (strcmp(type, "scene") == 0)
-		return LIBRARY_MAPS_PATH;
-
-	LOGW("No library path found to type %i", (int)type);
-
-	return "";
-}
-
-const char* m1Resources::GetLibraryFromType(Resource::Type type)
-{
-	switch (type)
-	{
-	case Resource::Type::Mesh:
-		return LIBRARY_MESHES_PATH;
-	case Resource::Type::Model:
-		return LIBRARY_MODELS_PATH;
-	case Resource::Type::Texture:
-		return LIBRARY_TEXTURES_PATH;
-	case Resource::Type::Tileset:
-		return LIBRARY_TILESETS_PATH;
-	case Resource::Type::Map:
-		return LIBRARY_MAPS_PATH;
-	default:
-		break;
-	}
-
-	LOGW("No library path found to type %i", (int)type);
-
-	return "";
-}
-
-std::string m1Resources::GetLibraryExtension(const char* type)
-{
-	if (strcmp(type, "fbx") == 0)
-		return ".model";
-	else if (strcmp(type, "jpg") == 0 || strcmp(type, "png") == 0)
-		return ".texture";
-
-	return std::string(std::string(".") + type);
-}
-
-std::string m1Resources::GetLibraryExtensionFromType(Resource::Type type)
-{
-	switch (type)
-	{
-	case Resource::Type::Mesh:
-		return ".mesh";
-	case Resource::Type::Model:
-		return ".model";
-	case Resource::Type::Texture:
-		return ".texture";
-	case Resource::Type::Tileset:
-		return ".tileset";
-	case Resource::Type::Map:
-		return ".scene";
-	default:
-		break;
-	}
-
-	LOGW("No library path found to type %i", (int)type);
-
-	return "";
-}
-
-Resource::Type m1Resources::GetTypeFromStr(const char* type)
+Resource::Type m1Resources::GetTypeFromStr(const char* type) const
 {
 	if (strcmp(type, "fbx") == 0)
 		return Resource::Type::Model;
@@ -432,26 +323,4 @@ Resource::Type m1Resources::GetTypeFromStr(const char* type)
 	LOGW("No library path found to type %i", (int)type);
 
 	return Resource::Type::NONE;
-}
-
-void m1Resources::DeleteFromLibrary(Resource::Type type, const uint64_t& meta)
-{
-	switch (type)
-	{
-	case Resource::Type::Model:
-		DeleteMeshes(meta);
-		FileSystem::fDeleteFile((LIBRARY_MODELS_PATH + std::to_string(meta) + ".model").c_str());
-		break;
-	default:
-		FileSystem::fDeleteFile((GetLibraryFromType(type) + std::to_string(meta) + GetLibraryExtensionFromType(type)).c_str());
-		//LOGW("Resource type %i could not be deleted, type not setted in switch", (int)type);
-		break;
-	}
-}
-
-void m1Resources::DeleteMeshes(const uint64_t& meta)
-{
-	auto model = FileSystem::OpenJSONFile((LIBRARY_MODELS_PATH + std::to_string(meta) + ".model").c_str());
-	for (auto i = model["Meshes"].begin(); i != model["Meshes"].end(); ++i)
-		FileSystem::fDeleteFile((LIBRARY_MESHES_PATH + std::to_string((uint64_t)*i) + ".mesh").c_str());
 }

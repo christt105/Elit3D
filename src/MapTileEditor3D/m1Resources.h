@@ -12,13 +12,6 @@ class FileWatch;
 #define ASSETS_TILESETS_PATH "Assets/Tilesets/"
 #define ASSETS_MAPS_PATH "Assets/Maps/"
 
-#define LIBRARY_PATH "Library/"
-#define LIBRARY_TEXTURES_PATH "Library/Textures/"
-#define LIBRARY_MODELS_PATH "Library/Models/"
-#define LIBRARY_MESHES_PATH "Library/Meshes/"
-#define LIBRARY_TILESETS_PATH "Library/Tilesets/"
-#define LIBRARY_MAPS_PATH "Library/Maps/"
-
 class m1Resources :
 	public Module
 {
@@ -75,22 +68,11 @@ public:
 
 private:
 	void GenerateLibrary();
-	void GenerateEngineLibrary();
+	void LoadEngineResources();
 	void ImportFiles(const Folder* parent);
 
 	void StartFileWatcher();
-
-	//without dot
-	const char* GetLibraryFromType(const char* type);
-	const char* GetLibraryFromType(Resource::Type type);
-
-	std::string GetLibraryExtension(const char* type);
-	std::string GetLibraryExtensionFromType(Resource::Type type);
-	Resource::Type GetTypeFromStr(const char* type);
-
-	void DeleteFromLibrary(Resource::Type type, const uint64_t& meta);
-
-	void DeleteMeshes(const uint64_t& meta);
+	Resource::Type GetTypeFromStr(const char* type) const;
 
 private:
 	std::map<uint64_t, Resource*> resources;

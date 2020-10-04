@@ -27,22 +27,17 @@ public:
 
 	Uint64 GetUID() const;
 
-	virtual void GenerateFiles();
-
 	void Attach();
 	void Detach();
 
-	virtual void GenerateFilesLibrary() {}
-
 	virtual void OnInspector() {} //TODO: 
 
-	Resource::Type GetType();
-	std::string GetStrType();
+	Resource::Type GetType() const;
+	std::string GetStrType() const;
 	
 public:
 	std::string name;
-	std::string assets_path;
-	std::string library_path;
+	std::string path;
 	std::string extension;
 
 protected:

@@ -22,7 +22,7 @@ r1Mesh::~r1Mesh()
 
 void r1Mesh::Load()
 {
-	auto file = FileSystem::OpenJSONFile(library_path.c_str());
+	/*auto file = FileSystem::OpenJSONFile(library_path.c_str());
 
 	vertices.size = file["nVertex"];
 	vertices.data = new float[vertices.size * 3];
@@ -42,7 +42,7 @@ void r1Mesh::Load()
 		texture.data[i] = file["Tex"][i];
 	}
 
-	GenerateBuffers();
+	GenerateBuffers();*/
 }
 
 void r1Mesh::Unload()
@@ -59,7 +59,7 @@ void r1Mesh::Unload()
 
 void r1Mesh::GenerateFiles(const aiMesh* mesh)
 {
-	nlohmann::json file;
+	/*nlohmann::json file;
 
 	file["nVertex"] = mesh->mNumVertices;
 	for (unsigned int i = 0u; i < mesh->mNumVertices; ++i) {
@@ -82,7 +82,7 @@ void r1Mesh::GenerateFiles(const aiMesh* mesh)
 		}
 	}
 
-	FileSystem::SaveJSONFile(library_path.c_str(), file);
+	FileSystem::SaveJSONFile(library_path.c_str(), file);*/
 }
 
 void r1Mesh::GenerateBuffers()

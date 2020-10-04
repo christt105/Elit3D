@@ -76,7 +76,7 @@ void r1Map::Save(const uint64_t& tileset)
 			file["layers"].push_back(lay);
 		}
 
-		FileSystem::SaveJSONFile(assets_path.c_str(), file);
+		FileSystem::SaveJSONFile(path.c_str(), file);
 	}
 	else {
 		//attach
@@ -96,7 +96,7 @@ void r1Map::SaveInImage()
 
 void r1Map::Load()
 {
-	auto file = FileSystem::OpenJSONFile(assets_path.c_str()); // TODO: OWN FILEFORMAT
+	auto file = FileSystem::OpenJSONFile(path.c_str()); // TODO: OWN FILEFORMAT
 
 	size.x = file["size"][0];
 	size.y = file["size"][1];

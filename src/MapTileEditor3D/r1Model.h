@@ -25,10 +25,6 @@ public:
 	r1Model(const uint64_t& uid);
 	~r1Model();
 
-	void GenerateFiles() override;
-
-	void GenerateFilesLibrary() override;
-
 	Object* CreateObject();
 
 	void Load() override;

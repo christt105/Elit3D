@@ -30,7 +30,7 @@ void r1Texture::Load()
 
 	ilutRenderer(ILUT_OPENGL);
 
-	if (ilLoad(IL_PNG, library_path.c_str())) { // TODO: load for different types
+	if (ilLoad(IL_PNG, path.c_str())) { // TODO: load for different types
 		width = ilGetInteger(IL_IMAGE_WIDTH);
 		height = ilGetInteger(IL_IMAGE_HEIGHT);
 

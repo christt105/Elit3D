@@ -313,7 +313,7 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 		FileSystem::SaveJSONFile(path.c_str(), jsontileset);
 		uint64_t meta = App->resources->GenerateMeta(path.c_str());
 		r1Tileset* res = App->resources->CreateResource<r1Tileset>(path.c_str(), meta);
-		res->GenerateFiles();
+		
 		tileset = res->GetUID();
 		res->Attach();
 
