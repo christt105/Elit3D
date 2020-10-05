@@ -249,15 +249,16 @@ Folder* FileSystem::GetPtrFolder(const char* folder)
 
     std::stack<Folder*> s;
     s.push(root);
+    std::string sfolder = std::string("./") + folder;
 
     while (s.empty() == false) {
         auto f = s.top();
         s.pop();
         for (auto i = f->folders.begin(); i != f->folders.end(); ++i) {
-            if ((*i)->full_path.compare(std::string("./") + folder) == 0) {
+            if ((*i)->full_path.compare(sfolder) == 0) {
                 return *i;
             }
-            if ((std::string("./") + folder).find((*i)->full_path) != std::string::npos) {
+            if (sfolder.find((*i)->full_path) != std::string::npos) {
                 s.push(*i);
             }
         }

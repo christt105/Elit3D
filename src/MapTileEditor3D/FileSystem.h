@@ -15,7 +15,6 @@ public:
 	}
 	std::unordered_map<std::string, uint64_t> files; // <filename, last_time_write>
 	std::vector<Folder*> folders;
-	//
 	std::string full_path;
 	std::string name;
 	Folder* parent = nullptr;

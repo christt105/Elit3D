@@ -47,7 +47,6 @@ Viewport::Viewport()
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, ID[RBO]);
-	HANDLE_ERROR();
 }
 
 Viewport::~Viewport()
@@ -59,7 +58,6 @@ void Viewport::Clear()
 	glBindFramebuffer(GL_FRAMEBUFFER, ID[FBO_MS]);
 	glClearColor(color[0], color[1], color[2], 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	HANDLE_ERROR();
 }
 
 void Viewport::Update()
@@ -100,7 +98,6 @@ void Viewport::Update()
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, ID[RBO]);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, ID[FBO_MS]);
-	HANDLE_ERROR();
 }
 
 void Viewport::UpdateSize(int x, int y)
@@ -116,7 +113,6 @@ void Viewport::Blit() const
 	glBlitFramebuffer(0, 0, size.x, size.y, 0, 0, size.x, size.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	HANDLE_ERROR();
 }
 
 unsigned int Viewport::GetTexture() const
@@ -127,11 +123,9 @@ unsigned int Viewport::GetTexture() const
 void Viewport::Begin() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, ID[FBO_MS]);
-	HANDLE_ERROR();
 }
 
 void Viewport::End() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	HANDLE_ERROR();
 }
