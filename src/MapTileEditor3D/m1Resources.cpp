@@ -119,6 +119,16 @@ const std::map<uint64_t, Resource*> m1Resources::GetResources() const
 	return resources;
 }
 
+FileWatch* m1Resources::GetFileWatcher() const
+{
+	return filewatch;
+}
+
+void m1Resources::PauseFileWatcher(bool pause)
+{
+	filewatch->Pause(pause);
+}
+
 Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_path, const uint64_t& force_uid)
 {
 	Resource* ret = nullptr;

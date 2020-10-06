@@ -78,8 +78,7 @@ UpdateStatus m1MapEditor::Update()
 
 			for (auto layer : layers) {
 				if (layer->visible) {
-					layer->Prepare();
-					layer->Update(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
+					layer->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
 				}
 			}
 

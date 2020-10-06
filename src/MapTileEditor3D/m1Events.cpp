@@ -4,6 +4,7 @@
 #include "Application.h"
 
 #include "m1Resources.h"
+#include "FileWatch.h"
 
 #include "m1MapEditor.h"
 #include "ExternalTools/MathGeoLib/include/Math/float3.h"
@@ -23,34 +24,41 @@ m1Events::~m1Events()
 UpdateStatus m1Events::PreUpdate()
 {
 	PROFILE_FUNCTION();
+	std::unique_lock<std::mutex> lock(App->resources->GetFileWatcher()->mtx);
 	while (!events.empty()) {
 		auto e = events.top();
 		switch (e->type)
 		{
 		case Event::Type::FILE_CREATED:
 			// Generate metadata and generate library
+			LOG("File %s created", ((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FILE_MOVED:
 			// Check if metadata is within and change resource assets path
+			LOG("File %s moved", ((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FILE_REMOVED:
 			// Remove from library and from resources map
+			LOG("File %s removed", ((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FILE_RENAMED:
 			//Change metadata name file and resources assets path
+			LOG("File %s renamed", ((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FILE_MODIFIED:
 			App->resources->ReimportResource(((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FOLDER_CREATED:
 			//Check for resources inside
+			LOG("Folder %s created", ((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FOLDER_MOVED:
-		case Event::Type::FOLDER_RENAMED:
 			// Change resources assets path
+			LOG("Folder %s moved", ((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FOLDER_REMOVED:
 			// delete all resources inside folder
+			LOG("Folder %s removed", ((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 
 		case Event::Type::RESIZE_MAP:
@@ -70,6 +78,7 @@ UpdateStatus m1Events::PreUpdate()
 			App->LoadConfiduration("Configuration/Configuration_default.json");
 			break;
 		default:
+			LOG("Event with type %i not handled", (int)e->type);
 			break;
 		}
 		delete e;
@@ -81,6 +90,7 @@ UpdateStatus m1Events::PreUpdate()
 
 void m1Events::AddEvent(Event* e)
 {
+	std::unique_lock<std::mutex> lock(App->resources->GetFileWatcher()->mtx);
 	events.push(e);
 }
 

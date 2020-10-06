@@ -117,10 +117,12 @@ void p1Scene::PopUpCreateMap()
 					path = "./Assets/Maps/" + std::string(name) + "(" + std::to_string(repeat++) + ")" + ".scene";
 				}
 			}
+			App->resources->PauseFileWatcher(true);
 			r1Map::CreateNewMap(size[0], size[1], path.c_str());
 			auto m = App->resources->CreateResource<r1Map>(path.c_str());
 			App->resources->GenerateMeta(path.c_str());
 			App->map_editor->LoadMap(m->GetUID());
+			App->resources->PauseFileWatcher(false);
 			ImGui::CloseCurrentPopup();
 		}
 	}
