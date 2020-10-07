@@ -8,18 +8,18 @@
 
 #include "Profiler.h"
 
-p1Resources::p1Resources(bool start_enabled, bool appear_mainmenubar, bool can_close)
-	: Panel("Resources", start_enabled, appear_mainmenubar, can_close, ICON_FA_FOLDER_OPEN)
+p1Project::p1Project(bool start_enabled, bool appear_mainmenubar, bool can_close)
+	: Panel("Project", start_enabled, appear_mainmenubar, can_close, ICON_FA_FOLDER_OPEN)
 {
 	root = FileSystem::FileSystem::GetPtrFolder("Assets/");
 	selected = root;
 }
 
-p1Resources::~p1Resources()
+p1Project::~p1Project()
 {
 }
 
-void p1Resources::Start()
+void p1Project::Start()
 {
 	r1Texture* t = nullptr;
 	for (int i = (int)m1Resources::EResourceType::RESOURCE_MIN + 1; i < (int)m1Resources::EResourceType::RESOURCE_MAX; ++i) {
@@ -29,7 +29,7 @@ void p1Resources::Start()
 	}
 }
 
-void p1Resources::Update()
+void p1Project::Update()
 {
 	PROFILE_FUNCTION();
 	ImGui::Columns(2, "##resources", false);
@@ -133,7 +133,7 @@ void p1Resources::Update()
 	}
 }
 
-void p1Resources::SideTreeFolder(const Folder* folder)
+void p1Project::SideTreeFolder(const Folder* folder)
 {
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
 	if (folder->folders.empty())
@@ -181,7 +181,7 @@ while (s.empty() == false) {
 */
 }
 
-m1Resources::EResourceType p1Resources::GetEType(const std::string& extension) const
+m1Resources::EResourceType p1Project::GetEType(const std::string& extension) const
 {
 	if (extension.compare("png") == 0)
 		return m1Resources::EResourceType::PNG;
@@ -196,7 +196,7 @@ m1Resources::EResourceType p1Resources::GetEType(const std::string& extension) c
 	return m1Resources::EResourceType::UNKNOWN;
 }
 
-p1Inspector::SelectedType p1Resources::GetInspectorType(const std::string& extension) const
+p1Inspector::SelectedType p1Project::GetInspectorType(const std::string& extension) const
 {
 	if (extension.compare("png") == 0)
 		return p1Inspector::SelectedType::PNG;

@@ -8,7 +8,7 @@ class p1Objects;
 class p1Inspector;
 class p1Console;
 class p1Scene;
-class p1Resources;
+class p1Project;
 class p1Tileset;
 class p1DebugResources;
 class p1Layers;
@@ -46,7 +46,7 @@ public: //TODO private
 	p1Inspector*		inspector = nullptr;
 	p1Console*			console = nullptr;
 	p1Scene*			scene = nullptr;
-	p1Resources*		resources = nullptr;
+	p1Project*			project = nullptr;
 	p1Tileset*			tileset = nullptr;
 	p1Layers*			layers = nullptr;
 	

@@ -5,12 +5,12 @@
 #include "m1Resources.h"
 #include "p1Inspector.h"
 
-class p1Resources :
+class p1Project :
 	public Panel
 {
 public:
-	p1Resources(bool start_enabled = true, bool appear_mainmenubar = true, bool can_close = true);
-	~p1Resources();
+	p1Project(bool start_enabled = true, bool appear_mainmenubar = true, bool can_close = true);
+	~p1Project();
 
 	void Start() override;
 	void Update() override;

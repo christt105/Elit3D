@@ -43,23 +43,23 @@ m1GUI::~m1GUI()
 bool m1GUI::Init(const nlohmann::json& node)
 {
 	PROFILE_FUNCTION();
-	configuration = new p1Configuration();
-	about = new p1About(false, false);
-	objects = new p1Objects();
-	inspector = new p1Inspector();
-	console = new p1Console();
-	scene = new p1Scene(true, false, false);
-	resources = new p1Resources();
-	tileset = new p1Tileset();
-	layers = new p1Layers();
-	dbg_resources = new p1DebugResources(false, false);
+	configuration	= new p1Configuration();
+	about			= new p1About(false, false);
+	objects			= new p1Objects();
+	inspector		= new p1Inspector();
+	console			= new p1Console();
+	scene			= new p1Scene(true, false, false);
+	project			= new p1Project();
+	tileset			= new p1Tileset();
+	layers			= new p1Layers();
+	dbg_resources	= new p1DebugResources(false, false);
 
 	panels.push_back(objects);
 	panels.push_back(configuration);
 	panels.push_back(inspector);
 	panels.push_back(about);
 	panels.push_back(console);
-	panels.push_back(resources);
+	panels.push_back(project);
 	panels.push_back(scene);
 	panels.push_back(tileset);
 	panels.push_back(layers);
