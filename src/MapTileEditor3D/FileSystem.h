@@ -57,10 +57,8 @@ public:
 	static void DeleteRoot();
 
 private:
-	static Folder* _GetFilesRecursive(const char* path);
+	static Folder* GetFolders(const char* path);
 
 private:
-	static void GetFiles(Folder* parent);
-
 	static Folder* root;
 };

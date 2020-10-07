@@ -77,7 +77,7 @@ void oglh::BindTexture(unsigned int id)
 	HANDLE_ERROR();
 }
 
-void oglh::TexSubImage2D(int x, int y, int width, int height, unsigned char* pixels)
+void oglh::TexSubImage2D(int x, int y, int width, int height, const unsigned char* pixels)
 {
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	HANDLE_ERROR();
@@ -171,7 +171,7 @@ void oglh::GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type
 	HANDLE_ERROR();
 }
 
-void oglh::GenElementBuffer(unsigned int& id, unsigned int size, unsigned int* data)
+void oglh::GenElementBuffer(unsigned int& id, unsigned int size, const unsigned int* data)
 {
 	glGenBuffers(1, &id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);

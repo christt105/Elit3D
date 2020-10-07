@@ -30,6 +30,6 @@ void i1Model::Import(const char* path)
 		uint64_t meta = App->resources->GenerateMeta(assets_file.c_str());
 		r1Model* model = (r1Model*)App->resources->CreateResource(Resource::Type::Model, assets_file.c_str(), meta);
 		
-		model->GenerateFiles();
+		//model->GenerateFiles();
 	}
 }

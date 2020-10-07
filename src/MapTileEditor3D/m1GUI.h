@@ -22,7 +22,6 @@ class m1GUI :
 {
 	friend class Logger;
 	friend class m1Camera3D;
-	friend class m1Scene; // TODO: Remove this and forward declaration
 public:
 	m1GUI(bool start_enabled = true);
 	~m1GUI();

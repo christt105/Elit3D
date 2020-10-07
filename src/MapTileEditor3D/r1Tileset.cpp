@@ -18,7 +18,7 @@ r1Tileset::~r1Tileset()
 
 void r1Tileset::Load()
 {
-	auto json = FileSystem::OpenJSONFile(library_path.c_str());
+	auto json = FileSystem::OpenJSONFile(path.c_str());
 
 	texture_uid = json.value("Image", 0ULL);
 	r1Texture* res = (r1Texture*)App->resources->Get(texture_uid);
@@ -35,11 +35,11 @@ void r1Tileset::Load()
 
 	ntiles = json.value("ntiles", 0);
 	columns = json.value("columns", 0);
-	if (res->GetWidth() / width != columns || res->GetHeight() / height != ntiles / columns) {
+	/*if (res->GetWidth() / width != columns || res->GetHeight() / height != ntiles / columns) {
 		LOGW("TileSet changed ncolumns or rows, may change the result of map");
 		columns = res->GetWidth() / width;
 		ntiles = columns * res->GetHeight() / height;
-	}
+	}*/
 
 	use_transparent = json.value("use transparent", false);
 	transparent_color[0] = json["transparent color"].value("r", -1.f);

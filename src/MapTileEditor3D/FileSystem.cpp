@@ -12,7 +12,7 @@
 
 namespace fs = std::filesystem;
 
-Folder* FileSystem::root = FileSystem::_GetFilesRecursive("./");
+Folder* FileSystem::root = FileSystem::GetFolders("./");
 
 FileSystem::FileSystem() 
 {
@@ -141,11 +141,27 @@ bool FileSystem::IsFileInFolder(const char* file, const char* folder, bool recur
     return false;
 }
 
-Folder* FileSystem::_GetFilesRecursive(const char* path)
+Folder* FileSystem::GetFolders(const char* path)
 {
     Folder* parent = new Folder(path, nullptr);
+    std::stack<Folder*> stack;
+    stack.push(parent);
 
-    GetFiles(parent);
+    while (!stack.empty()) {
+        Folder* folder = stack.top();
+        stack.pop();
+
+        for (const auto& entry : fs::directory_iterator(folder->full_path)) {
+            if (entry.is_directory()) {
+                Folder* f = new Folder((entry.path().u8string() + '/').c_str(), folder);
+                stack.push(f);
+                folder->folders.push_back(f);
+            }
+            else {
+                folder->files[entry.path().filename().string()] = LastTimeWrite((folder->full_path + entry.path().filename().string()).c_str());
+            }
+        }
+    }
 
     return parent;
 }
@@ -233,18 +249,18 @@ Folder* FileSystem::GetPtrFolder(const char* folder)
 
     std::stack<Folder*> s;
     s.push(root);
+    std::string sfolder = std::string("./") + folder;
 
     while (s.empty() == false) {
-        /*
-        TODO: find by aproximation if want "Assets/Maps/" don't look on "Configuration/"
-        */
         auto f = s.top();
         s.pop();
         for (auto i = f->folders.begin(); i != f->folders.end(); ++i) {
-            if ((*i)->full_path.compare(std::string("./") + folder) == 0)
+            if ((*i)->full_path.compare(sfolder) == 0) {
                 return *i;
-            //if ((std::string("./") + folder).findfirstof(f))
-            s.push(*i);
+            }
+            if (sfolder.find((*i)->full_path) != std::string::npos) {
+                s.push(*i);
+            }
         }
     }
     LOGW("Folder %s not found", folder);
@@ -259,20 +275,6 @@ Folder* FileSystem::GetRootFolder()
 void FileSystem::DeleteRoot()
 {
     delete root;
-}
-
-void FileSystem::GetFiles(Folder* parent)
-{
-    for (const auto& entry : fs::directory_iterator(parent->full_path)) {
-        if (entry.is_directory()) {
-            Folder* f = new Folder((entry.path().u8string() + '/').c_str(), parent);
-            GetFiles(f);
-            parent->folders.push_back(f);
-        }
-        else {
-            parent->files[entry.path().filename().string()] = LastTimeWrite((parent->full_path + entry.path().filename().string()).c_str());
-        }
-    }
 }
 
 Folder::Folder(const char* n, Folder* parent) :full_path(n), parent(parent)

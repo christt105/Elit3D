@@ -76,10 +76,10 @@ void r1Map::Save(const uint64_t& tileset)
 			file["layers"].push_back(lay);
 		}
 
-		FileSystem::SaveJSONFile(assets_path.c_str(), file);
+		FileSystem::SaveJSONFile(path.c_str(), file);
 	}
 	else {
-		//attach
+		//TODO: attach
 	}
 }
 
@@ -91,12 +91,14 @@ void r1Map::SaveInImage()
 		FileSystem::CreateFolder("Export/Debug/");
 
 	ilEnable(IL_FILE_OVERWRITE);
-	ilutGLSaveImage((char*)"Export/Debug/MAP_IMAGE_LAYER0.png", layers[0]->id_tex);
+	for (auto i = layers.begin(); i != layers.end(); ++i) {
+		ilutGLSaveImage((char*)("Export/Debug/MAP_IMAGE_LAYER_" + name + std::to_string(i - layers.begin()) + ".png").c_str(), layers[i - layers.begin()]->id_tex);
+	}
 }
 
 void r1Map::Load()
 {
-	auto file = FileSystem::OpenJSONFile(assets_path.c_str()); // TODO: OWN FILEFORMAT
+	auto file = FileSystem::OpenJSONFile(path.c_str()); // TODO: OWN FILEFORMAT
 
 	size.x = file["size"][0];
 	size.y = file["size"][1];
@@ -228,10 +230,7 @@ void r1Map::Edit(int layer, int row, int col, char r, char g, char b)
 	//gpu
 	oglh::BindTexture(layers[layer]->id_tex);
 
-	unsigned char bits[3];
-	bits[0] = r;
-	bits[1] = g;
-	bits[2] = b;
+	unsigned char bits[3] = { r, g, b };
 	oglh::TexSubImage2D(col, row, 1, 1, bits);
 
 	oglh::UnBindTexture();

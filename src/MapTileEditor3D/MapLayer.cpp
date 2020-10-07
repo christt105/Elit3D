@@ -36,15 +36,12 @@ Layer::~Layer()
 	properties.clear();
 }
 
-void Layer::Prepare() const
-{
-	oglh::BindTexture(id_tex);
-}
-
-void Layer::Update(const int2& size, int tile_width, int tile_height) const
+void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 {
 	PROFILE_FUNCTION();
 	
+	oglh::BindTexture(id_tex);
+
 	static auto shader = App->render->GetShader("tilemap");
 	shader->SetMat4("model", float4x4::FromTRS(float3((float)displacement[0] / (float)tile_width, height, (float)displacement[1] / (float)tile_height), Quat::identity, float3((float)size.x, 1.f, (float)size.y))); // TODO: don't create a mat4x4 for every layer
 	shader->SetFloat("alpha", opacity);

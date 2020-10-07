@@ -34,8 +34,7 @@ public:
 
     unsigned int id_tex = 0u;
 
-    void Prepare() const;
-    void Update(const int2& size, int tile_width, int tile_height) const;
+    void Draw(const int2& size, int tile_width, int tile_height) const;
     void Reset(const int2& size);
 
     static void SelectBuffers();

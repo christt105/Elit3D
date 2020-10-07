@@ -78,8 +78,7 @@ UpdateStatus m1MapEditor::Update()
 
 			for (auto layer : layers) {
 				if (layer->visible) {
-					layer->Prepare();
-					layer->Update(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
+					layer->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
 				}
 			}
 
@@ -143,7 +142,7 @@ void m1MapEditor::LoadMap(const uint64_t& id)
 void m1MapEditor::ReLoadMap()
 {
 	auto m = (r1Map*)App->resources->Get(map);
-	App->resources->ReimportResource(m->assets_path.c_str());
+	App->resources->ReimportResource(m->path.c_str());
 }
 
 void m1MapEditor::MousePicking(const Ray& ray)

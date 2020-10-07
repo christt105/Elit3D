@@ -16,11 +16,6 @@ Uint64 Resource::GetUID() const
 	return uid;
 }
 
-void Resource::GenerateFiles()
-{
-	FileSystem::CopyTo(assets_path.c_str(), library_path.c_str());
-}
-
 void Resource::Attach()
 {
 	if (++references == 1u)
@@ -33,12 +28,12 @@ void Resource::Detach()
 		Unload();
 }
 
-Resource::Type Resource::GetType()
+Resource::Type Resource::GetType() const
 {
 	return type;
 }
 
-std::string Resource::GetStrType()
+std::string Resource::GetStrType() const
 {
 	switch (type)
 	{
@@ -57,6 +52,8 @@ std::string Resource::GetStrType()
 	case Resource::Type::Tileset:
 		return std::string("Tileset");
 		break;
+	default:
+		return std::string("None");
+		break;
 	}
-	return std::string("None");
 }
