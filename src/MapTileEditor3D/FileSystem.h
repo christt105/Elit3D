@@ -50,6 +50,7 @@ public:
 	static std::string GetFileExtension(const char* file, bool with_dot = false);
 	static std::string GetNameFile(const char* file, bool with_extension = false);
 	static std::string GetFolder(const char* path);
+	static std::string GetFullPath(const char* path);
 
 	static Folder* GetPtrFolder(const char* folder);
 	static Folder* GetRootFolder();

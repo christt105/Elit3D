@@ -375,6 +375,9 @@
     <ClCompile Include="p1Layers.cpp">
       <Filter>Panels</Filter>
     </ClCompile>
+    <ClCompile Include="OSUtils.cpp">
+      <Filter>Tools\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1297,6 +1300,9 @@
     </ClInclude>
     <ClInclude Include="p1Layers.h">
       <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="OSUtils.h">
+      <Filter>Tools\System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

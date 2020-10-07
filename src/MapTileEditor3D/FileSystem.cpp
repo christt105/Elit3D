@@ -242,6 +242,11 @@ std::string FileSystem::GetFolder(const char* path)
     return ret;
 }
 
+std::string FileSystem::GetFullPath(const char* path)
+{
+    return fs::absolute(path).string().c_str();
+}
+
 Folder* FileSystem::GetPtrFolder(const char* folder)
 {
     if (root->full_path.compare(folder) == 0)

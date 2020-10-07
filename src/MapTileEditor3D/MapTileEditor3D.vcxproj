@@ -227,6 +227,7 @@
     <ClCompile Include="m1Objects.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="OpenGLHelper.cpp" />
+    <ClCompile Include="OSUtils.cpp" />
     <ClCompile Include="p1About.cpp" />
     <ClCompile Include="p1Configuration.cpp" />
     <ClCompile Include="p1Console.cpp" />
@@ -535,6 +536,7 @@
     <ClInclude Include="m1Objects.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="OpenGLHelper.h" />
+    <ClInclude Include="OSUtils.h" />
     <ClInclude Include="p1About.h" />
     <ClInclude Include="p1Configuration.h" />
     <ClInclude Include="p1Console.h" />

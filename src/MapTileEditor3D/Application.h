@@ -64,8 +64,6 @@ public:
 		return framerate_last_second;
 	}
 
-	void ExecuteURL(const char* url);
-
 	void SaveConfiguration();
 	void LoadConfiduration(const char* file);
 

@@ -6,6 +6,8 @@
 #include "FileSystem.h"
 #include "m1GUI.h"
 
+#include "OSUtils.h"
+
 #include <SDL_version.h>
 #include "OpenGLHelper.h"
 #include "ExternalTools/DevIL/il.h"
@@ -55,18 +57,18 @@ void p1About::Update()
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Made by "); ImGui::SameLine();
 	if (ImGui::Button(ICON_FA_GITHUB" christt105")) {
-		App->ExecuteURL("https://github.com/christt105");
+		OSUtils::ExecuteURL("https://github.com/christt105");
 	}
 	
 	ImGui::TextWrapped("Licensed under CC-BY-4.0, see LICENSE file.");
 	ImGui::TextWrapped(file_data[0].c_str());
 	ImGui::Spacing();
 	if (ImGui::Button("Repository")) {
-		App->ExecuteURL("https://github.com/christt105/MapTileEditor-3D");
+		OSUtils::ExecuteURL("https://github.com/christt105/MapTileEditor-3D");
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Wiki")) {
-		App->ExecuteURL("https://github.com/christt105/MapTileEditor-3D/wiki");
+		OSUtils::ExecuteURL("https://github.com/christt105/MapTileEditor-3D/wiki");
 	}
 
 	ImGui::TextWrapped(file_data[1].c_str());
@@ -86,10 +88,10 @@ void p1About::Update()
 	
 	ImGui::TextWrapped(file_data[2].c_str());
 	if (ImGui::Button("christt105.github.io")) {
-		App->ExecuteURL("https://christt105.github.io");
+		OSUtils::ExecuteURL("https://christt105.github.io");
 	}
 	ImGui::TextWrapped("Also, you can visit my dev-blog if you are interested in the development of the project:");
 	if (ImGui::Button("christt105.github.io/dev-blog")) {
-		App->ExecuteURL("https://christt105.github.io/dev-blog");
+		OSUtils::ExecuteURL("https://christt105.github.io/dev-blog");
 	}
 }

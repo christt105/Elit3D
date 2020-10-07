@@ -6,6 +6,8 @@
 #include "m1GUI.h"
 #include "m1MapEditor.h"
 
+#include "OSUtils.h"
+
 #include "Profiler.h"
 
 p1Project::p1Project(bool start_enabled, bool appear_mainmenubar, bool can_close)
@@ -121,6 +123,17 @@ void p1Project::Update()
 				ImGui::Text(FileSystem::GetNameFile((*i).first.c_str()).c_str());
 				ImGui::EndGroup();
 				if (ImGui::BeginPopupContextItem("##popupfile")) {
+					if (ImGui::Selectable("Open")) {
+						OSUtils::Open(FileSystem::GetFullPath((selected->full_path + (*i).first).c_str()).c_str());
+					}
+					if (ImGui::Selectable("Copy Path")) {
+						OSUtils::SetClipboardText((selected->full_path + (*i).first).c_str());
+					}
+					if (ImGui::Selectable("Rename")) {
+					}
+					if (ImGui::Selectable("Show in Explorer")) {
+						OSUtils::OpenAndSelect(FileSystem::GetFullPath((selected->full_path + (*i).first).c_str()).c_str());
+					}
 					if (ImGui::Selectable("Delete")) {
 						App->resources->DeleteResource(App->resources->FindByPath((selected->full_path + (*i).first).c_str()));
 					}
