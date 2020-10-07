@@ -75,7 +75,7 @@ void FileWatch::CheckFolders(std::list<m1Events::Event*>& ev)
 
 void FileWatch::CheckFilesCreatedAndRemoved(Folder* f, std::stack<Folder*>& stack, std::list<m1Events::Event*>& ev)
 {
-	std::unique_lock<std::mutex> lock(mtx);
+	//std::unique_lock<std::mutex> lock(mtx);
 	for (const auto& entry : fs::directory_iterator(f->full_path)) {
 		if (entry.is_directory()) {
 			std::vector<Folder*>::iterator it = f->folders.end();
@@ -116,7 +116,7 @@ void FileWatch::CheckFilesCreatedAndRemoved(Folder* f, std::stack<Folder*>& stac
 
 void FileWatch::CheckRemovedFolders(Folder* f, std::list<m1Events::Event*>& ev)
 {
-	std::unique_lock<std::mutex> lock(mtx);
+	//std::unique_lock<std::mutex> lock(mtx);
 	auto j = f->folders.begin();
 	while (j != f->folders.end()) {
 		if (!FileSystem::Exists((*j)->full_path.c_str())) {
@@ -132,7 +132,7 @@ void FileWatch::CheckRemovedFolders(Folder* f, std::list<m1Events::Event*>& ev)
 
 void FileWatch::CheckRemovedFiles(Folder* f, std::list<m1Events::Event*>& ev)
 {
-	std::unique_lock<std::mutex> lock(mtx);
+	//std::unique_lock<std::mutex> lock(mtx);
 	auto i = f->files.begin();
 	while (i != f->files.end()) {
 		if (!FileSystem::Exists((f->full_path + (*i).first).c_str())) {
