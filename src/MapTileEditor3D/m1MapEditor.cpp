@@ -62,6 +62,11 @@ UpdateStatus m1MapEditor::Update()
 		shader->Use();
 
 		auto m = (r1Map*)App->resources->Get(map);
+		if (m == nullptr) {
+			map = 0ULL;
+			panel_tileset->SelectTileset(0ULL);
+			return UpdateStatus::UPDATE_CONTINUE;
+		}
 
 		Layer::SelectBuffers();
 		oglh::ActiveTexture(0);

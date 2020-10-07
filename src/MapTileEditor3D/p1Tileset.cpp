@@ -137,8 +137,18 @@ void p1Tileset::DisplayImage(r1Texture* texture, r1Tileset* tile)
 
 void p1Tileset::TileSetInfo(r1Tileset* tile)
 {
+	auto tex = App->resources->Get(tile->texture_uid);
 	ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), tile->name.c_str());
 	ImGui::Spacing();
+	if (tex == nullptr) {
+		//LOGW("Deleted texture of the tileset. Add a texture on the panel inspector");
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.f, 0.f, 1.f));
+		ImGui::TextWrapped("Image of the tileset deleted. Edit tileset with an existing image.");
+		ImGui::PopStyleColor();
+		return;
+	}
+	ImGui::Text("Image: "); ImGui::SameLine(); 
+	ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), tex->path.c_str());
 	ImGui::Text("Tile width:  ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->width);
 	ImGui::SameLine();
 	ImGui::Text("\tMargin: ");  ImGui::SameLine(); ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), "%i", tile->margin);
@@ -309,7 +319,7 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 		jsontileset["transparent color"]["g"] = data.transparent_color[1];
 		jsontileset["transparent color"]["b"] = data.transparent_color[2];
 
-		std::string path("Assets/Tilesets/" + std::string(data.buf_name) + ".tileset");
+		std::string path("./Assets/Tilesets/" + std::string(data.buf_name) + ".tileset");
 		FileSystem::SaveJSONFile(path.c_str(), jsontileset);
 		uint64_t meta = App->resources->GenerateMeta(path.c_str());
 		r1Tileset* res = App->resources->CreateResource<r1Tileset>(path.c_str(), meta);

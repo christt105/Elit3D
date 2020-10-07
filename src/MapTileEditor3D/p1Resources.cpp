@@ -58,19 +58,6 @@ void p1Resources::Update()
 	}
 	ImGui::PopStyleColor();
 
-	// Back Button
-	/*if (selected != root) {
-		ImGui::BeginGroup();
-		if (ImGui::ImageButton((ImTextureID)((r1Texture*)App->resources->EGet(m1Resources::EResourceType::FOLDER_BACK))->GetBufferID(),
-			ImVec2(40.f, 50.f), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f), 2)) {
-			selected = selected->parent;
-			ImGui::EndGroup();
-			return;
-		}
-		ImGui::Text("Back");
-		ImGui::EndGroup();
-		ImGui::SameLine();
-	}*/
 	if (size == 0.25f) { //List
 		for (auto i = selected->folders.begin(); i != selected->folders.end(); ++i) {
 			ImGui::PushID(*i);
@@ -133,6 +120,12 @@ void p1Resources::Update()
 				}
 				ImGui::Text(FileSystem::GetNameFile((*i).first.c_str()).c_str());
 				ImGui::EndGroup();
+				if (ImGui::BeginPopupContextItem("##popupfile")) {
+					if (ImGui::Selectable("Delete")) {
+						App->resources->DeleteResource(App->resources->FindByPath((selected->full_path + (*i).first).c_str()));
+					}
+					ImGui::EndPopup();
+				}
 				ImGui::SameLine();
 				ImGui::PopID();
 			}
