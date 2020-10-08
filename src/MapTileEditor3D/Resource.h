@@ -7,6 +7,7 @@ class Resource
 {
 	friend class m1Resources;
 	friend class p1Inspector;
+	friend class p1DebugResources;
 public:
 	enum class Type {
 		NONE = -1,

@@ -9,6 +9,7 @@
 #include "m1Render3D.h"
 #include "m1Events.h"
 #include "m1MapEditor.h"
+#include "m1Resources.h"
 #include "r1Map.h"
 
 #include "p1Configuration.h"
@@ -132,17 +133,25 @@ void m1GUI::MainMenuBar()
 			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::SAVE_MAP));
 		}
 
+		if (ImGui::MenuItem("Load")) {
+			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::SAVE_MAP));
+		}
+
 		ImGui::EndMenu();
 	}
 
 	if(create_map)
 		if (ImGui::Begin("Create New Map", &create_map)) {
+			static char buf[50];
 			static int size[2] = { 10 , 10 };
+			ImGui::InputText("Name", buf, 50);
 			ImGui::InputInt2("Size", size);
 
 			if (ImGui::Button("Create")) {
-				r1Map::CreateNewMap(size[0], size[1]);
-				App->map_editor->ReLoadMap();
+				auto m = App->resources->CreateResource<r1Map>(("./Assets/Maps/" + std::string(buf) + ".scene").c_str());
+				r1Map::CreateNewMap(size[0], size[1], m->assets_path.c_str());
+				App->resources->GenerateMeta(m->assets_path.c_str());
+				memset(buf, 0, 50);
 				create_map = false;
 			}
 

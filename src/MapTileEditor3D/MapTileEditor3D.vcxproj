@@ -555,6 +555,7 @@
     <ClInclude Include="Random.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="r1Shader.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="SystemInfo.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TypeVar.h" />
@@ -576,6 +577,12 @@
     <None Include="ExternalTools\MathGeoLib\include\Geometry\TriangleMesh_IntersectRay_CPP.inl" />
     <None Include="ExternalTools\MathGeoLib\include\Geometry\TriangleMesh_IntersectRay_SSE.inl" />
     <None Include="ExternalTools\MathGeoLib\include\Math\Matrix.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MapTileEditor3D.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

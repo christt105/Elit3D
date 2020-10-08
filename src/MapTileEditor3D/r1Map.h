@@ -7,6 +7,7 @@
 #include "int2.h"
 #include "TypeVar.h"
 #include "MapLayer.h"
+#include "ExternalTools/JSON/json.hpp"
 
 class r1Map :
     public Resource
@@ -23,7 +24,11 @@ public:
     void Resize(int width, int height);
     void Edit(int layer, int row, int col, char r, char g, char b);
 
-    static void CreateNewMap(int width, int height);
+    static void CreateNewMap(int width, int height, const char* path);
+
+private:
+    void LoadLayers(nlohmann::json& file);
+    void LoadProperties(const nlohmann::detail::iter_impl<nlohmann::json>& l, Layer* layer);
 
 private:
     int2 size = { -1, -1 };

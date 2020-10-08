@@ -17,6 +17,7 @@ public:
 	void ShowCreateMap();
 
 	void PopUpCreateMap();
+	void PopUpLoadMap();
 
 	void MenuBar();
 

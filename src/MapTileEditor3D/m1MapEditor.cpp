@@ -49,10 +49,7 @@ UpdateStatus m1MapEditor::Update()
 {
 	PROFILE_FUNCTION();
 
-	if (map == 0ULL) {
-		LoadMap(App->resources->FindByName("map"));
-	}
-	else {
+	if (map != 0ULL) {
 		App->render->GetViewport("scene")->Begin();
 
 		static auto shader = App->render->GetShader("tilemap");
@@ -117,9 +114,15 @@ void m1MapEditor::SaveImageMap() const
 
 void m1MapEditor::LoadMap(const uint64_t& id)
 {
-	map = id;
-	auto m = (r1Map*)App->resources->Get(id);
-	m->Attach();
+	if (map != id) {
+		if (map != 0ULL) {
+			auto m = (r1Map*)App->resources->Get(map);
+			m->Detach();
+		}
+		map = id;
+		auto m = (r1Map*)App->resources->Get(id);
+		m->Attach();
+	}
 }
 
 void m1MapEditor::ReLoadMap()

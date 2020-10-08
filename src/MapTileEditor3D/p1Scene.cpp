@@ -5,6 +5,7 @@
 #include "m1Camera3D.h"
 #include "m1Render3D.h"
 #include "m1MapEditor.h"
+#include "m1Resources.h"
 
 #include "r1Map.h"
 
@@ -66,21 +67,32 @@ void p1Scene::Update()
 
 void p1Scene::ShowCreateMap()
 {
-	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f - ImVec2(50, 10));
-	if (ImGui::Button("Create Map", ImVec2(100, 20))) {
+	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f);
+	if (ImGui::Button("Create Map", ImVec2(100.f, 20.f))) {
 		ImGui::OpenPopup("Create Map");
 	}
-	ImGui::SetNextWindowSize(ImVec2(350, 250), ImGuiCond_Always);
+	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f + ImVec2(45.f, 25.f));
+	ImGui::Text("or");
+	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f + ImVec2(0.f, 40.f));
+	if (ImGui::Button("Load Map", ImVec2(100.f, 20.f))) {
+		ImGui::OpenPopup("Load Map");
+	}
+	ImGui::SetNextWindowSize(ImVec2(350.f, 250.f), ImGuiCond_Always);
 	ImGui::SetNextWindowPos(ImVec2((float)App->window->GetWidth() * 0.5f - 350.f * 0.5f, (float)App->window->GetHeight() * 0.5f - 250.f * 0.5f));
 	if (ImGui::BeginPopupModal("Create Map", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove)) {
 		PopUpCreateMap();
+		ImGui::EndPopup();
+	}
+
+	if (ImGui::BeginPopupModal("Load Map", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove)) {
+		PopUpLoadMap();
 		ImGui::EndPopup();
 	}
 }
 
 void p1Scene::PopUpCreateMap()
 {
-	static char name[30] = { ' ' };
+	static char name[30];
 	ImGui::InputText("Name:", name, 30);
 
 	ImGui::Text("Size:");
@@ -91,13 +103,25 @@ void p1Scene::PopUpCreateMap()
 	ImGui::NewLine();
 
 	if (ImGui::Button("Save")) {
-		r1Map::CreateNewMap(size[0], size[1]);
-
+		r1Map::CreateNewMap(size[0], size[1], ("./Assets/Maps/" + std::string(name) + ".scene").c_str());
+		auto m = App->resources->CreateResource<r1Map>(("./Assets/Maps/" + std::string(name) + ".scene").c_str());
+		App->map_editor->LoadMap(m->GetUID());
 		ImGui::CloseCurrentPopup();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Cancel")) {
 		ImGui::CloseCurrentPopup();
+	}
+}
+
+void p1Scene::PopUpLoadMap()
+{
+	auto maps = App->resources->GetVectorOf(Resource::Type::Map);
+
+	for (auto i = maps.begin(); i != maps.end(); ++i) {
+		if (ImGui::Button((*i)->name.c_str())) {
+			App->map_editor->LoadMap((*i)->GetUID());
+		}
 	}
 }
 
