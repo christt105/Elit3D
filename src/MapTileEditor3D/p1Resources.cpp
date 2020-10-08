@@ -95,6 +95,18 @@ void p1Project::Update()
 		}
 		DragDropTargetFolder((*i)->full_path);
 		if (ImGui::BeginPopupContextItem("##popupfile")) {
+			if (ImGui::Selectable("Create Folder")) {
+				if (FileSystem::Exists(((*i)->full_path + "New Folder").c_str())) {
+					int index = 1;
+					while (FileSystem::Exists(((*i)->full_path + "New Folder (" + std::to_string(index) + ")").c_str())) {
+						++index;
+					}
+					FileSystem::CreateFolder(((*i)->full_path + "New Folder (" + std::to_string(index) + ")").c_str());
+				}
+				else {
+					FileSystem::CreateFolder(((*i)->full_path + "New Folder").c_str());
+				}
+			}
 			if (ImGui::Selectable("Open")) {
 				OSUtils::Open(FileSystem::GetFullPath((*i)->full_path.c_str()).c_str());
 			}
