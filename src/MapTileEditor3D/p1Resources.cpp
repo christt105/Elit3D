@@ -1,5 +1,7 @@
 #include "p1Resources.h"
 
+#include <stack>
+
 #include "Application.h"
 #include "FileSystem.h"
 #include "r1Texture.h"
@@ -92,6 +94,53 @@ void p1Project::Update()
 			ImGui::SameLine();
 		}
 		DragDropTargetFolder((*i)->full_path);
+		if (ImGui::BeginPopupContextItem("##popupfile")) {
+			if (ImGui::Selectable("Open")) {
+				OSUtils::Open(FileSystem::GetFullPath((*i)->full_path.c_str()).c_str());
+			}
+			if (ImGui::Selectable("Copy Path")) {
+				OSUtils::SetClipboardText((*i)->full_path.c_str());
+			}
+			if (ImGui::Selectable("Rename")) {
+			}
+			if (ImGui::Selectable("Show in Explorer")) {
+				OSUtils::OpenAndSelect(FileSystem::GetFullPath((*i)->full_path.c_str()).c_str());
+			}
+			if (ImGui::Selectable("Delete")) {
+				std::stack<Folder*> stack;
+				std::stack<Folder*> folders;
+				stack.push(*i);
+				folders.push(*i);
+				while (!folders.empty()) {
+					Folder* folder = folders.top();
+					folders.pop();
+					for (auto it = folder->folders.begin(); it != folder->folders.end(); ++it) {
+						stack.push(*it);
+						folders.push(*it);
+					}
+				}
+				while (!stack.empty()) {
+					Folder* f = stack.top();
+					stack.pop();
+					auto itfile = f->files.begin();
+					while (itfile != f->files.end()) {
+						if (FileSystem::GetFileExtension((*itfile).first.c_str()).compare("meta") != 0) {
+							uint64_t uid = App->resources->FindByPath((f->full_path + (*itfile).first).c_str());
+							if (uid == 0) {
+								FileSystem::fDeleteFile((f->full_path + (*itfile).first).c_str());
+							}
+							else {
+								App->resources->DeleteResource(uid);
+								itfile = f->files.begin();
+							}
+						}
+						++itfile;
+					}
+					FileSystem::DeleteFolder(f->full_path.c_str());
+				}
+			}
+			ImGui::EndPopup();
+		}
 		ImGui::PopID();
 	}
 
@@ -162,8 +211,14 @@ void p1Project::DragDropTargetFolder(const std::string& folder)
 		if (const ImGuiPayload* impayload = ImGui::AcceptDragDropPayload("DND_FILE_PROJECT"))
 		{
 			IM_ASSERT(impayload->DataSize == sizeof(int));
+			App->resources->PauseFileWatcher(true);
 			FileSystem::MoveTo(payload.c_str(), (folder + FileSystem::GetNameFile(payload.c_str(), true)).c_str());
 			FileSystem::MoveTo((payload + ".meta").c_str(), (folder + FileSystem::GetNameFile(payload.c_str(), true) + ".meta").c_str());
+			auto r = App->resources->FindGet(payload.c_str(), false);
+			if (r != nullptr)
+				r->path.assign((folder + FileSystem::GetNameFile(payload.c_str(), true)).c_str());
+			std::this_thread::sleep_for(std::chrono::milliseconds(10)); // TODO: Pause filewatcher stops the loop, and reanude reimport root
+			App->resources->PauseFileWatcher(false);
 		}
 		ImGui::EndDragDropTarget();
 	}

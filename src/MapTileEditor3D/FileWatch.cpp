@@ -41,7 +41,6 @@ void FileWatch::Watch()
 			std::list<m1Events::Event*> events;
 			CheckFolders(events);
 			HandleEvents(events);
-			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 	}
 	catch (const std::exception& ex)
@@ -155,6 +154,7 @@ void FileWatch::HandleEvents(std::list<m1Events::Event*>& e)
 			case m1Events::Event::Type::FILE_CREATED:
 			case m1Events::Event::Type::FILE_REMOVED:
 				CheckIfFileMoved(e, i, (*i)->type);
+				continue;
 				break;
 			default:
 				LOG("Event with type %i not handled", (*i)->type);
@@ -162,6 +162,7 @@ void FileWatch::HandleEvents(std::list<m1Events::Event*>& e)
 				break;
 			}
 		}
+		++i;
 	}
 }
 
@@ -238,5 +239,6 @@ void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, std::list<m1E
 	if (only_created) {
 		LOG("File %s has created", dynamic_cast<sTypeVar*>((*e)->info["basic_info"])->value.c_str());
 		App->events->AddEvent(*e);
+		++e;
 	}
 }

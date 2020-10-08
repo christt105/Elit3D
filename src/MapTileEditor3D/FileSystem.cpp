@@ -115,11 +115,22 @@ bool FileSystem::CreateFolder(const char* path)
 bool FileSystem::fDeleteFile(const char* path)
 {
     std::error_code err;
-    if (fs::remove(path, err) != 0) {
+    if (!fs::remove(path, err)) {
         LOGW("Could not delete %s, error: %s", path, err.message().c_str());
         return false;
     }
     
+    return true;
+}
+
+bool FileSystem::DeleteFolder(const char* path)
+{
+    std::error_code err;
+    if (!fs::remove_all(path, err)) {
+        LOGW("Could not delete %s, error: %s", path, err.message().c_str());
+        return false;
+    }
+
     return true;
 }
 
@@ -251,7 +262,7 @@ std::string FileSystem::GetFolder(const char* path)
 
 std::string FileSystem::GetFullPath(const char* path)
 {
-    return fs::absolute(path).string().c_str();
+    return fs::absolute(path).string();
 }
 
 Folder* FileSystem::GetPtrFolder(const char* folder)

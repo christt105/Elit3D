@@ -37,7 +37,7 @@ public:
 	
 public:
 	std::string name;
-	std::string path;
+	std::string path; //e.g. "./Assets/Models/test/cat.png"
 	std::string extension;
 
 protected:

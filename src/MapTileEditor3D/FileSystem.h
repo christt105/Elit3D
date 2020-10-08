@@ -43,6 +43,7 @@ public:
 
 	static bool CreateFolder(const char* path);
 	static bool fDeleteFile(const char* path);
+	static bool DeleteFolder(const char* path);
 	static bool CopyTo(const char* source, const char* dst);
 	static bool MoveTo(const char* source, const char* dst);
 
