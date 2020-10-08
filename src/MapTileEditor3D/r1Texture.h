@@ -29,6 +29,8 @@ public:
 private:
 	unsigned int id = 0U;
 
+	bool tileset = false;
+
 	int width = 0U;
 	int height = 0U;
 	int channels = 0U;

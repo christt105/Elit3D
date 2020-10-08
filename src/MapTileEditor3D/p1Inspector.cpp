@@ -33,6 +33,9 @@ void p1Inspector::Update()
 			((Layer*)selected)->OnInspector();
 			break;
 		case p1Inspector::SelectedType::TILESET:
+		case p1Inspector::SelectedType::FBX:
+		case p1Inspector::SelectedType::MAP:
+		case p1Inspector::SelectedType::PNG:
 		{
 			auto r = App->resources->FindGet(((std::string*)selected)->c_str(), false);
 			if (r)
@@ -46,20 +49,6 @@ void p1Inspector::Update()
 
 void p1Inspector::SetSelected(void* ptr, SelectedType t)
 {
-	if (loaded) {
-		App->resources->FindGet(((std::string*)selected)->c_str(), false)->Detach();
-		loaded = false;
-	}
-
 	selected = ptr;
 	type = t;
-
-	if (type == SelectedType::TILESET) {
-		auto r = App->resources->FindGet(((std::string*)selected)->c_str(), false);
-		if (r->references == 0) {
-			r->Attach();
-			loaded = true;
-		}
-	}
-
 }

@@ -9,6 +9,7 @@ public:
 	~r1Tileset();
 
 	void Load() override;
+	void LoadVars() override;
 	void Unload() override;
 	
 	uint64_t GetTextureUID() const;

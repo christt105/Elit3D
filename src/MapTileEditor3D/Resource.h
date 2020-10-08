@@ -42,6 +42,7 @@ public:
 
 protected:
 	virtual void Load() {}
+	virtual void LoadVars() {}
 	virtual void Unload() {}
 
 	Uint64 uid = 0ULL;

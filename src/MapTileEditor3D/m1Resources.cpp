@@ -148,6 +148,7 @@ Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_pa
 	if (ret != nullptr) {
 		SetResourceStrings(ret, assets_path);
 		resources[ret->GetUID()] = ret;
+		ret->LoadVars();
 	}
 
 	return ret;
@@ -291,6 +292,7 @@ uint64_t m1Resources::GenerateMeta(const char* file)
 	meta["UID"] = uid;
 	meta["timestamp"] = FileSystem::LastTimeWrite(file);
 	meta["extension"] = FileSystem::GetFileExtension(file);
+	meta["properties"] = nlohmann::json::object();
 
 	FileSystem::SaveJSONFile((file + std::string(".meta")).c_str(), meta);
 
@@ -303,6 +305,7 @@ void m1Resources::ReimportResource(const char* file)
 	if (r) {
 		if (r->references > 0) {
 			r->Unload();
+			r->LoadVars();
 			r->Load();
 		}
 	}
