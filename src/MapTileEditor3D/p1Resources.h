@@ -15,6 +15,8 @@ public:
 	void Start() override;
 	void Update() override;
 
+	void DragDropTargetFolder(const std::string& i);
+
 private:
 	void SideTreeFolder(const Folder* folder);
 
@@ -27,6 +29,8 @@ private:
 	Folder* selected = nullptr;
 
 	std::map<m1Resources::EResourceType, unsigned int> ids;
+
+	std::string payload;
 
 	float size = 0.5f;
 };

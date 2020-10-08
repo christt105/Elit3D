@@ -132,6 +132,13 @@ bool FileSystem::CopyTo(const char* source, const char* dst)
     return err.value() == 0;
 }
 
+bool FileSystem::MoveTo(const char* source, const char* dst)
+{
+    if (CopyTo(source, dst))
+        return fDeleteFile(source);
+    return false;
+}
+
 bool FileSystem::IsFileInFolder(const char* file, const char* folder, bool recursive)
 {
     auto f = GetPtrFolder(folder);

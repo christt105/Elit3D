@@ -44,6 +44,7 @@ public:
 	static bool CreateFolder(const char* path);
 	static bool fDeleteFile(const char* path);
 	static bool CopyTo(const char* source, const char* dst);
+	static bool MoveTo(const char* source, const char* dst);
 
 	static bool IsFileInFolder(const char* file, const char* folder, bool recursive = false);
 

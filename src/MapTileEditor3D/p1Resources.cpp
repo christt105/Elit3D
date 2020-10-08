@@ -10,6 +10,8 @@
 
 #include "Profiler.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 p1Project::p1Project(bool start_enabled, bool appear_mainmenubar, bool can_close)
 	: Panel("Project", start_enabled, appear_mainmenubar, can_close, ICON_FA_FOLDER_OPEN)
 {
@@ -51,6 +53,7 @@ void p1Project::Update()
 		if (ImGui::Button((*i)->name.c_str())) {
 			selected = *i;
 		}
+		DragDropTargetFolder((*i)->full_path);
 		if ((i + 1) != folders.rend()) {
 			ImGui::SameLine();
 			ImGui::Text(ICON_FA_CHEVRON_RIGHT);
@@ -60,40 +63,23 @@ void p1Project::Update()
 	}
 	ImGui::PopStyleColor();
 
-	if (size == 0.25f) { //List
-		for (auto i = selected->folders.begin(); i != selected->folders.end(); ++i) {
-			ImGui::PushID(*i);
+	for (auto i = selected->folders.begin(); i != selected->folders.end(); ++i) {
+		ImGui::PushID(*i);
+		if (size <= 0.25f) { //List
 			ImGui::AlignTextToFramePadding();
-			if(ImGui::Selectable("##folders"))
+			ImGui::BeginGroup();
+			if (ImGui::Selectable("##folders")) {
 				selected = *i;
+				ImGui::PopID();
+				return;
+			}
 			ImGui::SameLine();
 			ImGui::Image((ImTextureID)ids[m1Resources::EResourceType::FOLDER], ImVec2(0.15f * 120.f, 0.15f * 100.f), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
 			ImGui::SameLine();
 			ImGui::Text((*i)->name.c_str());
-			ImGui::PopID();
+			ImGui::EndGroup();
 		}
-
-		for (auto i = selected->files.begin(); i != selected->files.end(); ++i) {
-			std::string extension = FileSystem::GetFileExtension((*i).first.c_str());
-			if (extension.compare("meta") != 0) {
-				ImGui::PushID(&(*i).second);
-				ImGui::AlignTextToFramePadding();
-				if (ImGui::Selectable("##files")) { //TODO: make it bigger
-					static std::string path;
-					path = selected->full_path + (*i).first;
-					App->gui->inspector->SetSelected((void*)&(path), GetInspectorType(extension));
-				}
-				ImGui::SameLine();
-				ImGui::Image((ImTextureID)ids[GetEType(extension)], ImVec2(0.15f * 80.f, 0.15f * 100.6f), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
-				ImGui::SameLine();
-				ImGui::Text(FileSystem::GetNameFile((*i).first.c_str()).c_str());
-				ImGui::PopID();
-			}
-		}
-	}
-	else { //Grid
-		for (auto i = selected->folders.begin(); i != selected->folders.end(); ++i) {
-			ImGui::PushID(*i);
+		else { //Grid
 			ImGui::BeginGroup();
 			if (ImGui::ImageButtonGL((ImTextureID)ids[m1Resources::EResourceType::FOLDER], ImVec2(size * 120.f, size * 100.f), 2)) {
 				selected = *i;
@@ -104,13 +90,30 @@ void p1Project::Update()
 			ImGui::Text((*i)->name.c_str());
 			ImGui::EndGroup();
 			ImGui::SameLine();
-			ImGui::PopID();
 		}
+		DragDropTargetFolder((*i)->full_path);
+		ImGui::PopID();
+	}
 
-		for (auto i = selected->files.begin(); i != selected->files.end(); ++i) {
-			std::string extension = FileSystem::GetFileExtension((*i).first.c_str());
-			if (extension.compare("meta") != 0) {
-				ImGui::PushID(&(*i).second);
+	for (auto i = selected->files.begin(); i != selected->files.end(); ++i) {
+		std::string extension = FileSystem::GetFileExtension((*i).first.c_str());
+		if (extension.compare("meta") != 0) {
+			ImGui::PushID(&(*i).second);
+			if (size <= 0.25f) { // List
+				ImGui::AlignTextToFramePadding();
+				ImGui::BeginGroup();
+				if (ImGui::Selectable("##files")) { //TODO: make it bigger
+					static std::string path;
+					path = selected->full_path + (*i).first;
+					App->gui->inspector->SetSelected((void*)&(path), GetInspectorType(extension));
+				}
+				ImGui::SameLine();
+				ImGui::Image((ImTextureID)ids[GetEType(extension)], ImVec2(0.15f * 80.f, 0.15f * 100.6f), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
+				ImGui::SameLine();
+				ImGui::Text(FileSystem::GetNameFile((*i).first.c_str()).c_str());
+				ImGui::EndGroup();
+			}
+			else { // Grid
 				ImGui::BeginGroup();
 				if (ImGui::ImageButtonGL((ImTextureID)ids[GetEType(extension)], ImVec2(size * 80.f, size * 100.6f), 2)) {
 					static std::string path;
@@ -122,27 +125,47 @@ void p1Project::Update()
 				}
 				ImGui::Text(FileSystem::GetNameFile((*i).first.c_str()).c_str());
 				ImGui::EndGroup();
-				if (ImGui::BeginPopupContextItem("##popupfile")) {
-					if (ImGui::Selectable("Open")) {
-						OSUtils::Open(FileSystem::GetFullPath((selected->full_path + (*i).first).c_str()).c_str());
-					}
-					if (ImGui::Selectable("Copy Path")) {
-						OSUtils::SetClipboardText((selected->full_path + (*i).first).c_str());
-					}
-					if (ImGui::Selectable("Rename")) {
-					}
-					if (ImGui::Selectable("Show in Explorer")) {
-						OSUtils::OpenAndSelect(FileSystem::GetFullPath((selected->full_path + (*i).first).c_str()).c_str());
-					}
-					if (ImGui::Selectable("Delete")) {
-						App->resources->DeleteResource(App->resources->FindByPath((selected->full_path + (*i).first).c_str()));
-					}
-					ImGui::EndPopup();
-				}
 				ImGui::SameLine();
-				ImGui::PopID();
 			}
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+				payload = selected->full_path + (*i).first;
+				ImGui::SetDragDropPayload("DND_FILE_PROJECT", &(*i).first, sizeof(int));
+				ImGui::Text((*i).first.c_str());
+				ImGui::EndDragDropSource();
+			}
+			if (ImGui::BeginPopupContextItem("##popupfile")) {
+				if (ImGui::Selectable("Open")) {
+					OSUtils::Open(FileSystem::GetFullPath((selected->full_path + (*i).first).c_str()).c_str());
+				}
+				if (ImGui::Selectable("Copy Path")) {
+					OSUtils::SetClipboardText((selected->full_path + (*i).first).c_str());
+				}
+				if (ImGui::Selectable("Rename")) {
+				}
+				if (ImGui::Selectable("Show in Explorer")) {
+					OSUtils::OpenAndSelect(FileSystem::GetFullPath((selected->full_path + (*i).first).c_str()).c_str());
+				}
+				if (ImGui::Selectable("Delete")) {
+					App->resources->DeleteResource(App->resources->FindByPath((selected->full_path + (*i).first).c_str()));
+				}
+				ImGui::EndPopup();
+			}
+			ImGui::PopID();
 		}
+	}
+}
+
+void p1Project::DragDropTargetFolder(const std::string& folder)
+{
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* impayload = ImGui::AcceptDragDropPayload("DND_FILE_PROJECT"))
+		{
+			IM_ASSERT(impayload->DataSize == sizeof(int));
+			FileSystem::MoveTo(payload.c_str(), (folder + FileSystem::GetNameFile(payload.c_str(), true)).c_str());
+			FileSystem::MoveTo((payload + ".meta").c_str(), (folder + FileSystem::GetNameFile(payload.c_str(), true) + ".meta").c_str());
+		}
+		ImGui::EndDragDropTarget();
 	}
 }
 
@@ -162,36 +185,15 @@ void p1Project::SideTreeFolder(const Folder* folder)
 		selected = (Folder*)folder;
 	}
 
-	if (open)
+	DragDropTargetFolder(folder->full_path);
+	if (open) {
 		for (auto i = folder->folders.begin(); i != folder->folders.end(); ++i) {
 			SideTreeFolder(*i);
 		}
-
-	if (open)
-		ImGui::TreePop();
-
-	/*
-	std::stack<Folder*> s;
-	s.push((Folder*)folder);
-while (s.empty() == false) {
-	Folder* f = s.top();
-	s.pop();
-
-	bool open = ImGui::TreeNodeEx(f->name.c_str(), (f->folders.empty()) ? ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow);
-
-	if (!ImGui::IsItemToggledOpen() && ImGui::IsItemClicked()) {
-		selected = (Folder*)f;
 	}
 
 	if (open)
-		for (auto i = f->folders.begin(); i != f->folders.end(); ++i) {
-			s.push(*i);
-		}
-
-	if (open)
-		ImGui::TreePop(); //TODO: modify to use tree indent
-}
-*/
+		ImGui::TreePop();
 }
 
 m1Resources::EResourceType p1Project::GetEType(const std::string& extension) const

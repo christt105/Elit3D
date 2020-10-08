@@ -26,7 +26,7 @@ private:
 	void CheckRemovedFiles(Folder* f, std::list<m1Events::Event*>& ev);
 	void HandleEvents(std::list<m1Events::Event*>& e);
 
-	void CheckIfFileMoved(std::list<m1Events::Event*>& evs, m1Events::Event* e, m1Events::Event::Type type);
+	void CheckIfFileMoved(std::list<m1Events::Event*>& evs, std::list<m1Events::Event*>::iterator& e, m1Events::Event::Type type);
 
 public:
 	std::mutex mtx;

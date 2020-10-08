@@ -35,7 +35,7 @@ UpdateStatus m1Events::PreUpdate()
 			break;
 		case Event::Type::FILE_MOVED:
 			// Check if metadata is within and change resource assets path
-			LOG("File %s moved", ((sTypeVar*)e->info["basic_info"])->value.c_str());
+			LOG("File %s moved", ((sTypeVar*)e->info["to"])->value.c_str());
 			break;
 		case Event::Type::FILE_REMOVED:
 			// Remove from library and from resources map

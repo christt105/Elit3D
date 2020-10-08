@@ -147,13 +147,14 @@ void FileWatch::CheckRemovedFiles(Folder* f, std::list<m1Events::Event*>& ev)
 
 void FileWatch::HandleEvents(std::list<m1Events::Event*>& e)
 {
-	for (auto i = e.begin(); i != e.end(); ++i) {
+	auto i = e.begin();
+	while(i != e.end()) {
 		if (*i != nullptr) {
 			switch ((*i)->type)
 			{
 			case m1Events::Event::Type::FILE_CREATED:
 			case m1Events::Event::Type::FILE_REMOVED:
-				CheckIfFileMoved(e, *i, (*i)->type);
+				CheckIfFileMoved(e, i, (*i)->type);
 				break;
 			default:
 				LOG("Event with type %i not handled", (*i)->type);
@@ -164,14 +165,14 @@ void FileWatch::HandleEvents(std::list<m1Events::Event*>& e)
 	}
 }
 
-void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, m1Events::Event* e, m1Events::Event::Type type)
+void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, std::list<m1Events::Event*>::iterator& e, m1Events::Event::Type type)
 {
 	bool only_created = true;
 	for (auto j = evs.begin(); j != evs.end(); ++j) {
 		if (type == m1Events::Event::Type::FILE_CREATED && (*j)->type == m1Events::Event::Type::FILE_REMOVED ||
 			type == m1Events::Event::Type::FILE_REMOVED && (*j)->type == m1Events::Event::Type::FILE_CREATED) {
 			//check if is the same name
-			std::string s1 = dynamic_cast<sTypeVar*>(e->info["basic_info"])->value.c_str();
+			std::string s1 = dynamic_cast<sTypeVar*>((*e)->info["basic_info"])->value.c_str();
 			std::string s2 = dynamic_cast<sTypeVar*>((*j)->info["basic_info"])->value.c_str();
 			if (FileSystem::GetNameFile(
 				s1.c_str(), true)
@@ -193,9 +194,12 @@ void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, m1Events::Eve
 
 				only_created = false;
 
-				delete  e;
+				delete* e;
 				delete* j;
-				*j = nullptr;
+				evs.remove(*e);
+				evs.remove(*j);
+
+				e = evs.begin();
 
 				break;
 			}
@@ -215,9 +219,12 @@ void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, m1Events::Eve
 
 				only_created = false;
 
-				delete  e;
+				delete* e;
 				delete* j;
-				*j = nullptr;
+				evs.remove(*e);
+				evs.remove(*j);
+
+				e = evs.begin();
 
 				break;
 			}
@@ -229,7 +236,7 @@ void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, m1Events::Eve
 	}
 
 	if (only_created) {
-		LOG("File %s has created", dynamic_cast<sTypeVar*>(e->info["basic_info"])->value.c_str());
-		App->events->AddEvent(e);
+		LOG("File %s has created", dynamic_cast<sTypeVar*>((*e)->info["basic_info"])->value.c_str());
+		App->events->AddEvent(*e);
 	}
 }
