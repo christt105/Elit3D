@@ -58,7 +58,7 @@ void Layer::Reset(const int2& size)
 		tile_data[i*3 + 2] = 0;
 	}
 
-	oglh::GenTextureData(id_tex, true, true, size.x, size.y, tile_data);
+	oglh::GenTextureData(id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tile_data);
 }
 
 void Layer::SelectBuffers()

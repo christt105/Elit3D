@@ -11,7 +11,17 @@
 class oglh
 {
 public:
-	//TODO: add comments
+	enum Filter {
+		Nearest,
+		Linear
+	};
+
+	enum Wrap {
+		ClampToEdge,
+		ClampToBorder,
+		Repeat,
+		MirroredRepeat
+	};
 
 	//Textures
 	/**
@@ -38,21 +48,21 @@ public:
 	 * Generates a Texture Buffer and set the values
 	 * 
 	 * @param[out] id Buffer id container
-	 * @param repeat Texture parameter. true = GL_REPEAT | false = GL_CLAM_TO_EDGE
-	 * @param nearest Texture parameter. true = GL_NEAREST | false = GL_LINEAR
+	 * @param wrap Texture Wrap parameter.
+	 * @param filter Texture Filter parameter.
 	 * @param size_x Width of the image
 	 * @param size_y height of the image
 	 * @param data Pointer to the data. Array of unsigned bytes [R][G][B]
 	*/
-	static void GenTextureData(unsigned int& id, bool repeat, bool nearest, unsigned int size_x, unsigned int size_y, const unsigned char* data);
+	static void GenTextureData(unsigned int& id, Wrap wrap, Filter filter, unsigned int size_x, unsigned int size_y, const unsigned char* data);
 	/**
 	 * Set a Texture parameters given a buffer
 	 *
 	 * @param id Buffer id container
-	 * @param repeat Texture parameter. true = GL_REPEAT | false = GL_CLAM_TO_EDGE
-	 * @param nearest Texture parameter. true = GL_NEAREST | false = GL_LINEAR
+	 * @param wrap Texture Wrap parameter.
+	 * @param filter Texture Filter parameter.
 	*/
-	static void SetTextureProperties(unsigned int id, bool repeat, bool nearest);
+	static void SetTextureProperties(unsigned int id, Wrap wrap, Filter filter);
 	/**
 	 * Redefines a contiguous subregion of an existing two-dimensional texture image.
 	 *
@@ -147,5 +157,6 @@ public:
 	static std::string GetModel();
 private:
 	static void _HandleError(const char* func);
+	static int WrapEnumToGLEnum(Wrap w);
+	static int FilterEnumToGLEnum(Filter w);
 };
-

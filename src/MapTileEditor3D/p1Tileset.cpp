@@ -349,10 +349,11 @@ void p1Tileset::ModalSelectImageTileset()
 {
 	auto vec = App->resources->GetVectorOf(Resource::Type::Texture);
 	for (auto i = vec.begin(); i != vec.end(); ++i) {
-		if ((i - vec.begin()) % 2 != 0)
-			ImGui::SameLine();
+		if (!((r1Texture*)(*i))->tileset)
+			continue;
 
-		if (ImGui::ImageButton((ImTextureID)((r1Texture*)(*i))->GetBufferID(), ImVec2(100.f, 100.f), ImVec2(0, 0), ImVec2(1, -(float)((r1Texture*)(*i))->GetWidth() / (float)((r1Texture*)(*i))->GetHeight()))) {
+		ImGui::BeginGroup();
+		if (ImGui::Selectable("##tilesetimage")) {
 			data.imageUID = (*i)->GetUID();
 
 			for (auto j = vec.begin(); j != vec.end(); ++j) {
@@ -362,8 +363,16 @@ void p1Tileset::ModalSelectImageTileset()
 			(*i)->Attach();
 
 			ImGui::CloseCurrentPopup();
+			ImGui::EndGroup();
 			break;
 		}
+		ImGui::SameLine();
+		ImGui::Image((ImTextureID)((r1Texture*)(*i))->GetBufferID(), 
+			ImVec2(100.f, 100.f), ImVec2(0, 0), 
+			ImVec2(1, -1));
+		ImGui::SameLine();
+		ImGui::Text((*i)->name.c_str());
+		ImGui::EndGroup();
 	}
 
 	ImGui::EndPopup();

@@ -132,7 +132,7 @@ void r1Map::LoadLayers(nlohmann::json& file)
 			layer->tile_data[i] = *it;
 		}
 		glEnable(GL_TEXTURE_2D);
-		oglh::GenTextureData(layer->id_tex, false, true, size.x, size.y, layer->tile_data);
+		oglh::GenTextureData(layer->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, layer->tile_data);
 		oglh::UnBindTexture();
 
 
@@ -212,7 +212,7 @@ void r1Map::Resize(int width, int height)
 			(*l)->tile_data = new_data;
 
 			oglh::DeleteTexture((*l)->id_tex);
-			oglh::GenTextureData((*l)->id_tex, true, true, width, height, (*l)->tile_data); //TODO: research a faster way to do this
+			oglh::GenTextureData((*l)->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, width, height, (*l)->tile_data); //TODO: research a faster way to do this
 		}
 	}
 	size = { width, height };
