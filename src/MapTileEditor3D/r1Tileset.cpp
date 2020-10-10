@@ -80,7 +80,46 @@ void r1Tileset::OnInspector()
 	ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), std::to_string(texture_uid).c_str());
 
 	if (ImGui::Button("Edit")) {
+		ImGui::OpenPopup("SelectImageTileset");
+		ImGui::SetNextWindowSize(ImVec2(300.f, 200.f));
+	}
 
+	if (ImGui::BeginPopupModal("SelectImageTileset", 0, ImGuiWindowFlags_NoMove)) {
+		auto res = App->resources->GetVectorOf(Resource::Type::Texture);
+
+		for (auto i = res.begin(); i != res.end(); ++i) {
+			if (((r1Texture*)(*i))->tileset) {
+				ImGui::PushID(*i);
+				if (ImGui::Button((*i)->name.c_str())) {
+					if ((*i)->GetUID() != texture_uid) {
+						auto t = (r1Texture*)App->resources->Get(texture_uid);
+						t->Detach();
+
+						texture_uid = (*i)->GetUID();
+
+						t = (r1Texture*)App->resources->Get(texture_uid);
+						if (t) {
+							t->Attach();
+							columns = (int)floor(t->GetWidth() / width);
+							ntiles = (int)floor(t->GetHeight() / height) * columns;
+						}
+
+						ImGui::PopID();
+						ImGui::CloseCurrentPopup();
+						break;
+					}
+				}
+				ImGui::PopID();
+			}
+		}
+
+		ImGui::NewLine();
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.f, 0.f, 0.f, 1.f));
+		if (ImGui::Button("Cancel")) {
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::PopStyleColor();
+		ImGui::EndPopup();
 	}
 
 	ImGui::Unindent();
@@ -105,6 +144,28 @@ void r1Tileset::OnInspector()
 
 	ImGui::NewLine();
 	if (ImGui::Button("Save")) {
+		nlohmann::json jsontileset;
 
+		jsontileset["Image"] = texture_uid;
+
+		jsontileset["columns"] = columns;
+		jsontileset["ntiles"] = ntiles;
+
+		jsontileset["tile"]["width"]	= width;
+		jsontileset["tile"]["height"]	= height;
+		jsontileset["tile"]["margin"]	= margin;
+		jsontileset["tile"]["spacing"]	= spacing;
+
+		jsontileset["use transparent"] = use_transparent;
+		jsontileset["transparent color"]["r"] = transparent_color[0];
+		jsontileset["transparent color"]["g"] = transparent_color[1];
+		jsontileset["transparent color"]["b"] = transparent_color[2];
+
+		FileSystem::SaveJSONFile(path.c_str(), jsontileset);
+
+		if (references > 0) {
+			Unload();
+			Load();
+		}
 	}
 }

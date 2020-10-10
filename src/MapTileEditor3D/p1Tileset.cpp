@@ -175,11 +175,6 @@ bool p1Tileset::SelectTex()
 	return false;
 }
 
-void p1Tileset::DeselectTex()
-{
-	
-}
-
 void p1Tileset::SelectTileset(const uint64_t& uid)
 {
 	if (tileset != uid) {
@@ -251,7 +246,7 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 	ImGui::Separator();
 
 	if (data.imageUID != 0ULL) {
-		r1Texture* tex = (r1Texture*)App->resources->Get(data.imageUID);
+		const r1Texture* tex = (r1Texture*)App->resources->Get(data.imageUID);
 		if (tex != nullptr) {
 			ImGui::Text("Current Texture: ");
 			ImGui::SameLine();

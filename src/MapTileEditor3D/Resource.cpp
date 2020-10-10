@@ -24,8 +24,9 @@ void Resource::Attach()
 
 void Resource::Detach()
 {
-	if (--references == 0u)
-		Unload();
+	if (references > 0u)
+		if (--references == 0u)
+			Unload();
 }
 
 Resource::Type Resource::GetType() const
