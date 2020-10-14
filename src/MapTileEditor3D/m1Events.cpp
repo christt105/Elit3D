@@ -32,19 +32,49 @@ UpdateStatus m1Events::PreUpdate()
 		case Event::Type::FILE_CREATED:
 			// Generate metadata and generate library
 			LOG("File %s created", ((sTypeVar*)e->info["basic_info"])->value.c_str());
+			App->resources->NewResource(((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FILE_MOVED:
+		{
 			// Check if metadata is within and change resource assets path
 			LOG("File %s moved", ((sTypeVar*)e->info["to"])->value.c_str());
+			uint64_t r = App->resources->FindByPath(((sTypeVar*)(e->info["from"]))->value.c_str());
+			if (r != 0ULL) {
+				Resource* res = App->resources->Get(r);
+				if (res != nullptr) {
+					res->path.assign(((sTypeVar*)(e->info["to"]))->value);
+				}
+				else
+					LOGE("FileWatcher: resource with id %ull not found to move", r);
+			}
+			else {
+				LOGE("FileWatcher: resource with path %s not found to move", ((sTypeVar*)(e->info["from"]))->value.c_str());
+			}
 			break;
+		}
 		case Event::Type::FILE_REMOVED:
 			// Remove from library and from resources map
 			LOG("File %s removed", ((sTypeVar*)e->info["basic_info"])->value.c_str());
+			App->resources->DeleteResource(App->resources->FindByPath(((sTypeVar*)e->info["basic_info"])->value.c_str()));
 			break;
 		case Event::Type::FILE_RENAMED:
+		{
 			//Change metadata name file and resources assets path
-			LOG("File %s renamed", ((sTypeVar*)e->info["basic_info"])->value.c_str());
+			LOG("File %s renamed", ((sTypeVar*)(e->info["to"]))->value.c_str());
+			uint64_t r = App->resources->FindByPath(((sTypeVar*)(e->info["from"]))->value.c_str());
+			if (r != 0ULL) {
+				Resource* res = App->resources->Get(r);
+				if (res != nullptr) {
+					res->path.assign(((sTypeVar*)(e->info["to"]))->value);
+				}
+				else
+					LOGE("FileWatcher: resource with id %ull not found to move", r);
+			}
+			else {
+				LOGE("FileWatcher: resource with path %s not found to move", ((sTypeVar*)(e->info["from"]))->value.c_str());
+			}
 			break;
+		}
 		case Event::Type::FILE_MODIFIED:
 			App->resources->ReimportResource(((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;

@@ -38,6 +38,11 @@ void FileWatch::Watch()
 {
 	try {
 		while (watch) {
+			while(pause_watch){
+				conditional.notify_one();
+				std::unique_lock lock(mtx);
+				conditional.wait(lock);
+			}
 			std::list<m1Events::Event*> events;
 			CheckFolders(events);
 			HandleEvents(events);
@@ -53,6 +58,16 @@ void FileWatch::Pause(bool pause)
 {
 	std::unique_lock<std::mutex> lock(mtx);
 	pause_watch = pause;
+	if (pause) {
+		conditional.wait(lock);
+	}
+	else {
+		create_events = false;
+		std::list<m1Events::Event*> dummy;
+		CheckFolders(dummy);
+		create_events = true;
+		conditional.notify_one();
+	}
 }
 
 void FileWatch::CheckFolders(std::list<m1Events::Event*>& ev)
@@ -88,8 +103,8 @@ void FileWatch::CheckFilesCreatedAndRemoved(Folder* f, std::stack<Folder*>& stac
 				stack.push(*it);
 			}
 			else {
-				if (!pause_watch)
-					ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_CREATED, f->full_path.c_str()));
+				if (create_events)
+					ev.push_back(new m1Events::Event(m1Events::Event::Type::FOLDER_CREATED, f->full_path.c_str()));
 				f->folders.push_back(new Folder((FileSystem::NormalizePath(entry.path().u8string().c_str()) + "/").c_str(), f));
 			}
 		}
@@ -98,14 +113,14 @@ void FileWatch::CheckFilesCreatedAndRemoved(Folder* f, std::stack<Folder*>& stac
 			auto file = f->files.find(entry.path().filename().string());
 			if (file != f->files.end()) {
 				if ((*file).second != time) {
-					if (!pause_watch) {
+					if (create_events) {
 						App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::FILE_MODIFIED, (f->full_path + (*file).first).c_str()));
 					}
 					f->files[entry.path().filename().string()] = time;
 				}
 			}
 			else {
-				if (!pause_watch)
+				if (create_events)
 					ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_CREATED, entry.path().u8string().c_str()));
 				f->files[entry.path().filename().string()] = time;
 			}
@@ -119,7 +134,7 @@ void FileWatch::CheckRemovedFolders(Folder* f, std::list<m1Events::Event*>& ev)
 	auto j = f->folders.begin();
 	while (j != f->folders.end()) {
 		if (!FileSystem::Exists((*j)->full_path.c_str())) {
-			if (!pause_watch)
+			if (create_events)
 				ev.push_back(new m1Events::Event(m1Events::Event::Type::FOLDER_REMOVED, (*j)->full_path.c_str()));
 			delete* j;
 			j = f->folders.erase(j);
@@ -135,7 +150,7 @@ void FileWatch::CheckRemovedFiles(Folder* f, std::list<m1Events::Event*>& ev)
 	auto i = f->files.begin();
 	while (i != f->files.end()) {
 		if (!FileSystem::Exists((f->full_path + (*i).first).c_str())) {
-			if (!pause_watch)
+			if (create_events)
 				ev.push_back(new m1Events::Event(m1Events::Event::Type::FILE_REMOVED, (f->full_path + (*i).first).c_str()));
 			i = f->files.erase(i);
 		}
@@ -180,7 +195,7 @@ void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, std::list<m1E
 				.compare(FileSystem::GetNameFile(s2.c_str(), true)) == 0)
 			{
 				//File Moved to other folder
-				if (!pause_watch) {
+				if (create_events) {
 					m1Events::Event* ev = new m1Events::Event(m1Events::Event::Type::FILE_MOVED);
 					ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "from" : "to"] = new sTypeVar(s1);
 					ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "to" : "from"] = new sTypeVar(s2);
@@ -206,7 +221,7 @@ void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, std::list<m1E
 			}
 			else if (FileSystem::GetFolder(s1.c_str()).compare(FileSystem::GetFolder(s2.c_str())) == 0) {
 				//File renamed
-				if (!pause_watch) {
+				if (create_events) {
 					m1Events::Event* ev = new m1Events::Event(m1Events::Event::Type::FILE_RENAMED);
 					ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "to" : "from"] = new sTypeVar(FileSystem::GetNameFile(s1.c_str(), true));
 					ev->info[(type == m1Events::Event::Type::FILE_CREATED) ? "from" : "to"] = new sTypeVar(FileSystem::GetNameFile(s2.c_str(), true));

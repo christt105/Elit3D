@@ -154,18 +154,29 @@ Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_pa
 	return ret;
 }
 
+Resource* m1Resources::NewResource(const char* assets_path)
+{
+	Resource* ret = nullptr;
+
+	ret = CreateResource(GetTypeFromStr(FileSystem::GetFileExtension(assets_path).c_str()), assets_path, GenerateMeta(assets_path));
+
+	return ret;
+}
+
 void m1Resources::DeleteResource(const uint64_t& uid)
 {
 	auto r = Get(uid);
-	if (r->references > 0)
-		r->Unload();
+	if (r != nullptr) {
+		if (r->references > 0)
+			r->Unload();
 
-	FileSystem::fDeleteFile(r->path.c_str());
-	FileSystem::fDeleteFile((r->path + ".meta").c_str());
+		FileSystem::fDeleteFile(r->path.c_str());
+		FileSystem::fDeleteFile((r->path + ".meta").c_str());
 
-	resources.erase(r->uid);
+		resources.erase(r->uid);
 
-	delete r;
+		delete r;
+	}
 }
 
 void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)

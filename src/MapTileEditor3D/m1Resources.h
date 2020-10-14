@@ -58,6 +58,7 @@ public:
 	template<class T>
 	T* CreateResource(const char* assets_path, const uint64_t& force_uid = 0ULL, bool set_strings = true);
 	Resource* CreateResource(Resource::Type type, const char* assets_path, const uint64_t& force_uid = 0ULL);
+	Resource* NewResource(const char* assets_path);
 
 	void DeleteResource(const uint64_t& uid);
 

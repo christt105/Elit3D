@@ -214,6 +214,23 @@ void p1Project::Update()
 			ImGui::PopID();
 		}
 	}
+
+	if (ImGui::BeginPopupContextWindow("##popupwindow", 1, false)) {
+		if (ImGui::Selectable("Create Folder")) {
+			if (FileSystem::Exists((selected->full_path + "New Folder").c_str())) {
+				int index = 1;
+				while (FileSystem::Exists((selected->full_path + "New Folder (" + std::to_string(index) + ")").c_str())) {
+					++index;
+				}
+				FileSystem::CreateFolder((selected->full_path + "New Folder (" + std::to_string(index) + ")").c_str());
+			}
+			else {
+				FileSystem::CreateFolder((selected->full_path + "New Folder").c_str());
+			}
+		}
+
+		ImGui::EndPopup();
+	}
 }
 
 void p1Project::DragDropTargetFolder(const std::string& folder)

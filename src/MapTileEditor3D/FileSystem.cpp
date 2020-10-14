@@ -14,14 +14,6 @@ namespace fs = std::filesystem;
 
 Folder* FileSystem::root = FileSystem::GetFolders("./");
 
-FileSystem::FileSystem() 
-{
-}
-
-FileSystem::~FileSystem()
-{
-}
-
 nlohmann::json FileSystem::OpenJSONFile(const char* path)
 {
     PROFILE_FUNCTION();
@@ -293,6 +285,13 @@ Folder* FileSystem::GetPtrFolder(const char* folder)
 Folder* FileSystem::GetRootFolder()
 {
     return root;
+}
+
+Folder* FileSystem::RegenerateRootFolder()
+{
+    //TODO: don't delete all folders
+    delete root;
+    return root = FileSystem::GetFolders("./");
 }
 
 void FileSystem::DeleteRoot()

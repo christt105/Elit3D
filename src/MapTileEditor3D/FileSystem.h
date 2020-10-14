@@ -27,9 +27,6 @@ public:
 class FileSystem
 {
 public:
-	FileSystem();
-	~FileSystem();
-
 	static nlohmann::json	OpenJSONFile(const char* path);
 	static void				SaveJSONFile(const char* path, const nlohmann::json& file);
 	static std::string		OpenTextFile(const char* path);
@@ -56,6 +53,7 @@ public:
 
 	static Folder* GetPtrFolder(const char* folder);
 	static Folder* GetRootFolder();
+	static Folder* RegenerateRootFolder();
 
 	static void DeleteRoot();
 

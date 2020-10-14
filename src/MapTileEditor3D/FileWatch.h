@@ -30,6 +30,7 @@ private:
 
 public:
 	std::mutex mtx;
+	std::condition_variable conditional;
 
 private:
 	std::string folder = "Assets/";
@@ -38,5 +39,6 @@ private:
 	Folder* root = nullptr;
 
 	bool pause_watch = false;
+	bool create_events = true;
 };
 
