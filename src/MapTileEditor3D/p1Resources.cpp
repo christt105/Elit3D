@@ -119,16 +119,17 @@ void p1Project::Update()
 				OSUtils::OpenAndSelect(FileSystem::GetFullPath((*i)->full_path.c_str()).c_str());
 			}
 			if (ImGui::Selectable("Delete")) {
+				App->resources->PauseFileWatcher(true);
 				std::stack<Folder*> stack;
-				std::stack<Folder*> folders;
+				std::stack<Folder*> stkfolders;
 				stack.push(*i);
-				folders.push(*i);
-				while (!folders.empty()) {
-					Folder* folder = folders.top();
-					folders.pop();
+				stkfolders.push(*i);
+				while (!stkfolders.empty()) {
+					Folder* folder = stkfolders.top();
+					stkfolders.pop();
 					for (auto it = folder->folders.begin(); it != folder->folders.end(); ++it) {
 						stack.push(*it);
-						folders.push(*it);
+						stkfolders.push(*it);
 					}
 				}
 				while (!stack.empty()) {
@@ -150,6 +151,10 @@ void p1Project::Update()
 					}
 					FileSystem::DeleteFolder(f->full_path.c_str());
 				}
+				App->resources->PauseFileWatcher(false);
+				ImGui::EndPopup();
+				ImGui::PopID();
+				break;
 			}
 			ImGui::EndPopup();
 		}

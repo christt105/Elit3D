@@ -297,6 +297,8 @@ void m1Resources::StartFileWatcher()
 
 uint64_t m1Resources::GenerateMeta(const char* file)
 {
+	PauseFileWatcher(true);
+
 	nlohmann::json meta;
 
 	uint64_t uid = Random::RandomGUID();
@@ -306,6 +308,8 @@ uint64_t m1Resources::GenerateMeta(const char* file)
 	meta["properties"] = nlohmann::json::object();
 
 	FileSystem::SaveJSONFile((file + std::string(".meta")).c_str(), meta);
+
+	PauseFileWatcher(false);
 
 	return uid;
 }

@@ -32,7 +32,8 @@ UpdateStatus m1Events::PreUpdate()
 		case Event::Type::FILE_CREATED:
 			// Generate metadata and generate library
 			LOG("File %s created", ((sTypeVar*)e->info["basic_info"])->value.c_str());
-			App->resources->NewResource(((sTypeVar*)e->info["basic_info"])->value.c_str());
+			if (FileSystem::GetFileExtension(((sTypeVar*)e->info["basic_info"])->value.c_str()).compare("meta") != 0)
+				App->resources->NewResource(((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FILE_MOVED:
 		{

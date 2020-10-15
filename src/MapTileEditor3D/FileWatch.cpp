@@ -134,8 +134,26 @@ void FileWatch::CheckRemovedFolders(Folder* f, std::list<m1Events::Event*>& ev)
 	auto j = f->folders.begin();
 	while (j != f->folders.end()) {
 		if (!FileSystem::Exists((*j)->full_path.c_str())) {
-			if (create_events)
+			if (create_events) {
 				ev.push_back(new m1Events::Event(m1Events::Event::Type::FOLDER_REMOVED, (*j)->full_path.c_str()));
+
+				std::stack<Folder*> folders;
+				folders.push(*j);
+				while (!folders.empty()) {
+					Folder* itf = folders.top();
+					folders.pop();
+					for (auto i = (*itf).files.begin(); i != (*itf).files.end(); ++i) {
+						if (FileSystem::GetFileExtension((*i).first.c_str()).compare("meta") != 0)
+							App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::FILE_REMOVED, (*i).first.c_str()));
+					}
+
+					for (auto i = (*itf).folders.begin(); i != (*itf).folders.end(); ++i) {
+						folders.push(*i);
+					}
+				}
+			}
+
+
 			delete* j;
 			j = f->folders.erase(j);
 		}
@@ -170,7 +188,6 @@ void FileWatch::HandleEvents(std::list<m1Events::Event*>& e)
 			case m1Events::Event::Type::FILE_REMOVED:
 				CheckIfFileMoved(e, i, (*i)->type);
 				continue;
-				break;
 			default:
 				LOG("Event with type %i not handled", (*i)->type);
 				delete* i;
