@@ -81,7 +81,7 @@ bool m1GUI::Start()
 
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiDockNodeFlags_PassthruCentralNode;
-	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	io.ConfigDockingWithShift = true;
 
 	// merge in icons from Font Awesome
@@ -291,6 +291,17 @@ UpdateStatus m1GUI::PostUpdate()
 	PROFILE_FUNCTION();
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+		SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+	}
 
 	return UpdateStatus::UPDATE_CONTINUE;
 }
