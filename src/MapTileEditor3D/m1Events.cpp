@@ -85,7 +85,7 @@ UpdateStatus m1Events::PreUpdate()
 			break;
 		case Event::Type::FOLDER_MOVED:
 			// Change resources assets path
-			LOG("Folder %s moved", ((sTypeVar*)e->info["basic_info"])->value.c_str());
+			LOG("Folder %s moved", ((sTypeVar*)e->info["to"])->value.c_str());
 			break;
 		case Event::Type::FOLDER_REMOVED:
 			// delete all resources inside folder

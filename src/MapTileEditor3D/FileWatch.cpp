@@ -36,7 +36,7 @@ void FileWatch::StartWatching()
 
 void FileWatch::Watch()
 {
-	try {
+	/*try {*/
 		while (watch) {
 			while(pause_watch){
 				conditional.notify_one();
@@ -46,12 +46,13 @@ void FileWatch::Watch()
 			std::list<m1Events::Event*> events;
 			CheckFolders(events);
 			HandleEvents(events);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
-	}
-	catch (const std::exception& ex)
+	/*}*/
+	/*catch (const std::exception& ex)
 	{
 		LOGE("FileWatcher thread finished with exception: %s", ex.what());
-	}
+	}*/
 }
 
 void FileWatch::Pause(bool pause)
@@ -188,6 +189,10 @@ void FileWatch::HandleEvents(std::list<m1Events::Event*>& e)
 			case m1Events::Event::Type::FILE_REMOVED:
 				CheckIfFileMoved(e, i, (*i)->type);
 				continue;
+			case m1Events::Event::Type::FOLDER_CREATED:
+			case m1Events::Event::Type::FOLDER_REMOVED:
+				CheckIfFolderMoved(e, i, (*i)->type);
+				continue;
 			default:
 				LOG("Event with type %i not handled", (*i)->type);
 				delete* i;
@@ -270,6 +275,81 @@ void FileWatch::CheckIfFileMoved(std::list<m1Events::Event*>& evs, std::list<m1E
 
 	if (only_created) {
 		LOG("File %s has created", dynamic_cast<sTypeVar*>((*e)->info["basic_info"])->value.c_str());
+		App->events->AddEvent(*e);
+		++e;
+	}
+}
+
+void FileWatch::CheckIfFolderMoved(std::list<m1Events::Event*>& evs, std::list<m1Events::Event*>::iterator& e, m1Events::Event::Type type)
+{
+	bool only_created = true;
+	for (auto j = evs.begin(); j != evs.end(); ++j) {
+		if (type == m1Events::Event::Type::FOLDER_CREATED && (*j)->type == m1Events::Event::Type::FOLDER_REMOVED ||
+			type == m1Events::Event::Type::FOLDER_REMOVED && (*j)->type == m1Events::Event::Type::FOLDER_CREATED) {
+			//check if is the same name
+			std::string s1 = dynamic_cast<sTypeVar*>((*e)->info["basic_info"])->value.c_str();
+			std::string s2 = dynamic_cast<sTypeVar*>((*j)->info["basic_info"])->value.c_str();
+			if (FileSystem::GetNameFolder(s1.c_str()).compare(FileSystem::GetNameFolder(s2.c_str())) == 0)
+			{
+				//Folder moved to other folder
+				if (create_events) {
+					m1Events::Event* ev = new m1Events::Event(m1Events::Event::Type::FOLDER_MOVED);
+					ev->info[(type == m1Events::Event::Type::FOLDER_CREATED) ? "from" : "to"] = new sTypeVar(s1);
+					ev->info[(type == m1Events::Event::Type::FOLDER_CREATED) ? "to" : "from"] = new sTypeVar(s2);
+
+					LOG("Folder %s moved from %s to %s",
+						FileSystem::GetNameFolder(s1.c_str()).c_str(),
+						dynamic_cast<sTypeVar*>(ev->info["from"])->value.c_str(),
+						dynamic_cast<sTypeVar*>(ev->info["to"])->value.c_str());
+
+					App->events->AddEvent(ev);
+				}
+
+				only_created = false;
+
+				delete* e;
+				delete* j;
+				evs.remove(*e);
+				evs.remove(*j);
+
+				e = evs.begin();
+
+				break;
+			}
+			else if (FileSystem::GetParentFolder(s1.c_str()).compare(FileSystem::GetParentFolder(s2.c_str())) == 0) {
+				//Folder renamed
+				if (create_events) {
+					m1Events::Event* ev = new m1Events::Event(m1Events::Event::Type::FOLDER_RENAMED);
+					ev->info[(type == m1Events::Event::Type::FOLDER_CREATED) ? "to" : "from"] = new sTypeVar(s1.c_str());
+					ev->info[(type == m1Events::Event::Type::FOLDER_CREATED) ? "from" : "to"] = new sTypeVar(s2.c_str());
+
+					LOG("Folder %s renamed to %s",
+						s1.c_str(),
+						dynamic_cast<sTypeVar*>(ev->info["to"])->value.c_str());
+
+					App->events->AddEvent(ev);
+				}
+
+				only_created = false;
+
+				delete* e;
+				delete* j;
+				evs.remove(*e);
+				evs.remove(*j);
+
+				e = evs.begin();
+
+				break;
+			}
+			else {
+				//is strange to have on the same frame a file created and other deleted
+				LOGW("Folder %s created and %s removed", s1.c_str(), s2.c_str());
+			}
+		}
+	}
+
+	if (only_created) {
+		LOG("Folder %s has created", dynamic_cast<sTypeVar*>((*e)->info["basic_info"])->value.c_str());
 		App->events->AddEvent(*e);
 		++e;
 	}

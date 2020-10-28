@@ -93,6 +93,11 @@ void p1Project::Update()
 			ImGui::EndGroup();
 			ImGui::SameLine();
 		}
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+			ImGui::SetDragDropPayload("DND_FOLDER_PROJECT", (*i), sizeof(int));
+			ImGui::Text("Not implemented");// (*i)->full_path.c_str());
+			ImGui::EndDragDropSource();
+		}
 		DragDropTargetFolder((*i)->full_path);
 		if (ImGui::BeginPopupContextItem("##popupfile")) {
 			if (ImGui::Selectable("Create Folder")) {
@@ -242,6 +247,14 @@ void p1Project::DragDropTargetFolder(const std::string& folder)
 {
 	if (ImGui::BeginDragDropTarget())
 	{
+		if (const ImGuiPayload* impayload = ImGui::AcceptDragDropPayload("DND_FOLDER_PROJECT")) {
+			IM_ASSERT(impayload->DataSize == sizeof(int));
+
+			Folder* payload = (Folder*)impayload->Data;
+			App->resources->PauseFileWatcher(true);
+			//FileSystem::MoveTo(payload->full_path.c_str(), folder.c_str());
+			App->resources->PauseFileWatcher(false);
+		}
 		if (const ImGuiPayload* impayload = ImGui::AcceptDragDropPayload("DND_FILE_PROJECT"))
 		{
 			IM_ASSERT(impayload->DataSize == sizeof(int));

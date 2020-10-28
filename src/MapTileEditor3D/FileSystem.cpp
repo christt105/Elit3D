@@ -252,6 +252,57 @@ std::string FileSystem::GetFolder(const char* path)
     return ret;
 }
 
+std::string FileSystem::GetNameFolder(const char* path, bool with_slash)
+{
+    std::string ret;
+    std::string p(path);
+
+    bool first_slash = false;
+    for (auto i = p.rbegin(); i != p.rend(); ++i) {
+        if (*i == '/' || *i == '//' || *i == '\\') {
+            if (first_slash) {
+                first_slash = true;
+                if (with_slash)
+                    ret.push_back(*i);
+            }
+            else
+                break;
+        }
+        else {
+            ret.push_back(*i);
+        }
+    }
+    std::reverse(ret.begin(), ret.end());
+    return ret;
+}
+
+std::string FileSystem::GetParentFolder(const char* path)
+{
+    std::string p(path);
+    std::string ret;
+
+    bool end_of_file = false;
+    bool first_slash = true;
+    for (auto i = p.rbegin(); i != p.rend(); ++i) {
+        if (!end_of_file) {
+            if (*i == '/' || *i == '//' || *i == '\\') {
+                if (first_slash) {
+                    first_slash = false;
+                }
+                else {
+                    end_of_file = true;
+                }
+            }
+        }
+        else {
+            ret.push_back(*i);
+        }
+    }
+
+    std::reverse(ret.begin(), ret.end());
+    return ret;
+}
+
 std::string FileSystem::GetFullPath(const char* path)
 {
     return fs::absolute(path).string();
