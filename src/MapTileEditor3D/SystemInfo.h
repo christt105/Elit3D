@@ -41,7 +41,7 @@ public:
 	const char* GetIwareVersion() const;
 
 private:
-	//static const char* endianness_name(iware::cpu::endianness_t endianness) noexcept;
-	//static const char* architecture_name(iware::cpu::architecture_t architecture) noexcept;
+	static const char* endianness_name(iware::cpu::endianness_t endianness) noexcept;
+	static const char* architecture_name(iware::cpu::architecture_t architecture) noexcept;
 };
 

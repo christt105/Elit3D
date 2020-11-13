@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-/*#if defined(_WIN64)
+#if defined(_WIN64)
 #ifdef _DEBUG
 #pragma comment(lib, "ExternalTools/infoware/libx64/_Debug/infowared.lib")
 #else
@@ -19,12 +19,12 @@
 #else
 #pragma comment(lib, "ExternalTools/infoware/libx86/_Release/infoware.lib")
 #endif
-#endif*/
+#endif
 
 void SystemInfo::FillInfo()
 {
 	//platform
-	/*const auto OS_info = iware::system::OS_info();
+	const auto OS_info = iware::system::OS_info();
 	platform = OS_info.name;
 	platform_fullname = OS_info.full_name;
 	platform_version.assign(
@@ -37,8 +37,8 @@ void SystemInfo::FillInfo()
 	cpu_name = iware::cpu::model_name();
 	cpu_cores = SDL_GetCPUCount();
 	ram_mb = SDL_GetSystemRAM();
-	//architecture = architecture_name(iware::cpu::architecture());
-	//endianness = endianness_name(iware::cpu::endianness());
+	architecture = architecture_name(iware::cpu::architecture());
+	endianness = endianness_name(iware::cpu::endianness());
 
 	//gpu
 	ogl_version = oglh::GetVersion();
@@ -55,7 +55,7 @@ void SystemInfo::FillInfo()
 			d.colour_depth = display.bpp;
 			d.refresh_rate = (int)display.refresh_rate;
 			displays.push_back(d);
-		};*/
+		};
 
 }
 
@@ -75,7 +75,7 @@ void SystemInfo::SaveInFile() const
 		
 	}
 
-	std::string file = "xd";/* {
+	std::string file = {
 		"System and Hardware information by infoware v" + std::string(iware::version) +
 
 		"\n\nOS:\n" + 
@@ -96,7 +96,7 @@ void SystemInfo::SaveInFile() const
 		"\n\tGraphics Card:\n\t\tVendor: " + vendor + "\n\t\tModel: " + model + 
 
 		"\nDisplays:\n" + display
-	};*/
+	};
 
 	if (!FileSystem::Exists("Export/"))
 		FileSystem::CreateFolder("Export/");
@@ -105,11 +105,10 @@ void SystemInfo::SaveInFile() const
 
 const char* SystemInfo::GetIwareVersion() const
 {
-	return "xd";
-	//return iware::version;
+	return iware::version;
 }
 
-/*const char* SystemInfo::endianness_name(iware::cpu::endianness_t endianness) noexcept
+const char* SystemInfo::endianness_name(iware::cpu::endianness_t endianness) noexcept
 {
 	switch (endianness) {
 	case iware::cpu::endianness_t::little:
@@ -135,4 +134,4 @@ const char* SystemInfo::architecture_name(iware::cpu::architecture_t architectur
 	default:
 		return "Unknown";
 	}
-}*/
+}
