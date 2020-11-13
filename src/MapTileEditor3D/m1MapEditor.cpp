@@ -238,3 +238,16 @@ bool m1MapEditor::GetLayers(std::vector<Layer*>* &vec) const
 
 	return true;
 }
+
+void m1MapEditor::ExportMap(MapTypeExport t) const
+{
+	switch (t)
+	{
+	case m1MapEditor::MapTypeExport::XML:
+		LOG("EXPORTING map in XML...");
+		((r1Map*)App->resources->Get(map))->ExportXML(panel_tileset->GetTileset());
+		break;
+	default:
+		break;
+	}
+}

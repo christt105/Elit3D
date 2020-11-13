@@ -18,6 +18,7 @@ public:
     ~r1Map();
 
     void Save(const uint64_t& tileset);
+    void ExportXML(const uint64_t& tileset);
     void SaveInImage();
     void Load() override;
     void Unload() override;

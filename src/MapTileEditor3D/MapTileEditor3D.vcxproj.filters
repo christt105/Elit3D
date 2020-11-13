@@ -103,6 +103,9 @@
     <Filter Include="Tools\System">
       <UniqueIdentifier>{0ee56091-7e71-4d72-b9b8-6363e7ecf223}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External Libraries\pugixml">
+      <UniqueIdentifier>{4fb34090-a93b-4f5e-b737-ba37265bfdcf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -377,6 +380,9 @@
     </ClCompile>
     <ClCompile Include="OSUtils.cpp">
       <Filter>Tools\System</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\pugixml\pugixml.cpp">
+      <Filter>External Libraries\pugixml</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1303,6 +1309,12 @@
     </ClInclude>
     <ClInclude Include="OSUtils.h">
       <Filter>Tools\System</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\pugixml\pugixml.hpp">
+      <Filter>External Libraries\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\pugixml\pugiconfig.hpp">
+      <Filter>External Libraries\pugixml</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

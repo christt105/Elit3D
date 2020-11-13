@@ -15,6 +15,14 @@ class m1MapEditor :
     public Module
 {
 public:
+    enum class MapTypeExport {
+        NONE = -1,
+
+        XML,
+
+        MAX
+    };
+
     m1MapEditor();
     ~m1MapEditor();
 
@@ -36,6 +44,8 @@ public:
 
     bool ValidMap() const;
     bool GetLayers(std::vector<Layer*>* &vec) const;
+
+    void ExportMap(MapTypeExport t) const;
 
 private:
     uint64_t map = 0ULL;

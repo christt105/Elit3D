@@ -84,6 +84,7 @@ void p1About::Update()
 	ImGui::BulletText("mmgr: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.0.0");
 	ImGui::BulletText("MathGeoLib: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.5");
 	ImGui::BulletText("infoware: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", iware::version);
+	ImGui::BulletText("pugixml: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.10");
 	ImGui::BulletText("par_shapes: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.0");
 	
 	ImGui::TextWrapped(file_data[2].c_str());

@@ -164,6 +164,7 @@
     <ClCompile Include="c1Material.cpp" />
     <ClCompile Include="c1Mesh.cpp" />
     <ClCompile Include="c1Transform.cpp" />
+    <ClCompile Include="ExternalTools\pugixml\pugixml.cpp" />
     <ClCompile Include="MapLayer.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ExternalTools\ImGui\imgui.cpp" />
@@ -272,6 +273,8 @@
     <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\pci.hpp" />
     <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\system.hpp" />
     <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\version.hpp" />
+    <ClInclude Include="ExternalTools\pugixml\pugiconfig.hpp" />
+    <ClInclude Include="ExternalTools\pugixml\pugixml.hpp" />
     <ClInclude Include="MapLayer.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ExternalTools\Assimp\include\aabb.h" />

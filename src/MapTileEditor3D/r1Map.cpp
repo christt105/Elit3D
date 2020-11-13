@@ -15,6 +15,8 @@
 
 #include "Profiler.h"
 
+#include "ExternalTools/pugixml/pugixml.hpp"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 r1Map::r1Map(const uint64_t& _uid) : Resource(Resource::Type::Map, _uid)
@@ -81,6 +83,68 @@ void r1Map::Save(const uint64_t& tileset)
 	else {
 		//TODO: attach
 	}
+}
+
+void r1Map::ExportXML(const uint64_t& tileset)
+{
+	pugi::xml_document doc;
+	pugi::xml_node map = doc.append_child("map");
+	map.append_attribute("attribute").set_value("Test");
+	map.append_child("child");
+	doc.save_file("Export/Test.xml");
+	/*if (references > 0) {
+		pugi::xml_document file;
+
+		file["properties"] = nlohmann::json::object();
+		file["size"] = { size.x, size.y };
+		file["tileset"] = tileset;
+
+		for (auto l = layers.begin(); l != layers.end(); ++l) {
+			nlohmann::json lay = nlohmann::json::object();
+			for (int i = 0; i < size.x * size.y * 3; ++i) {
+				lay["data"].push_back((*l)->tile_data[i]);
+			}
+
+			for (auto p = (*l)->properties.begin(); p != (*l)->properties.end(); ++p) {
+				nlohmann::json prop = nlohmann::json::object();
+				prop["name"] = (*p).first;
+				prop["type"] = (*p).second->type;
+				switch ((*p).second->type)
+				{
+				case TypeVar::Type::Int:
+					prop["value"] = static_cast<iTypeVar*>((*p).second)->value;
+					break;
+				case TypeVar::Type::String:
+					prop["value"] = static_cast<sTypeVar*>((*p).second)->value;
+					break;
+				case TypeVar::Type::Float:
+					prop["value"] = static_cast<fTypeVar*>((*p).second)->value;
+					break;
+				case TypeVar::Type::Bool:
+					prop["value"] = static_cast<bTypeVar*>((*p).second)->value;
+					break;
+				default:
+					break;
+				}
+
+				lay["properties"].push_back(prop);
+			}
+
+			lay["name"] = (*l)->GetName();
+			lay["height"] = (*l)->height;
+			lay["opacity"] = (*l)->opacity;
+			lay["visible"] = (*l)->visible;
+			lay["locked"] = (*l)->locked;
+			lay["displacement"] = { (*l)->displacement[0], (*l)->displacement[1] };
+
+			file["layers"].push_back(lay);
+		}
+
+		FileSystem::SaveJSONFile(path.c_str(), file);
+	}
+	else {
+		//TODO: attach
+	}*/
 }
 
 void r1Map::SaveInImage()

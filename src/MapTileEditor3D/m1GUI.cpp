@@ -145,6 +145,12 @@ void m1GUI::MainMenuBar()
 			load_map = true;
 		}
 
+		ImGui::Separator();
+
+		if (ImGui::MenuItem("Export XML")) {
+			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::XML));
+		}
+
 		ImGui::EndMenu();
 	}
 
