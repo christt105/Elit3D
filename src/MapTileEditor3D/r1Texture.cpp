@@ -5,8 +5,8 @@
 
 #include "m1Resources.h"
 
-#include "ExternalTools/DevIL/il.h"
-#include "ExternalTools/DevIL/ilut.h"
+#include "ExternalTools/DevIL/include/IL/il.h"
+#include "ExternalTools/DevIL/include/IL/ilut.h"
 
 #include "OpenGLHelper.h"
 

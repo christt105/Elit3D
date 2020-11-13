@@ -89,7 +89,7 @@
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include;$(SolutionDir)MapTileEditor3D\ExternalTools\DevIL\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include;$(SolutionDir)MapTileEditor3D\ExternalTools\DevIL\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -113,6 +113,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx64;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;glew32.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -260,6 +262,14 @@
     <ClInclude Include="c1Mesh.h" />
     <ClInclude Include="c1Transform.h" />
     <ClInclude Include="DebugVars.h" />
+    <ClInclude Include="ExternalTools\DevIL\include\IL\devil_cpp_wrapper.hpp" />
+    <ClInclude Include="ExternalTools\DevIL\include\IL\devil_internal_exports.h" />
+    <ClInclude Include="ExternalTools\DevIL\include\IL\il.h" />
+    <ClInclude Include="ExternalTools\DevIL\include\IL\ilu.h" />
+    <ClInclude Include="ExternalTools\DevIL\include\IL\ilut.h" />
+    <ClInclude Include="ExternalTools\DevIL\include\IL\ilut_config.h" />
+    <ClInclude Include="ExternalTools\DevIL\include\IL\ilu_region.h" />
+    <ClInclude Include="ExternalTools\DevIL\include\IL\il_wrap.h" />
     <ClInclude Include="ExternalTools\ImGui\IconsFontAwesome5\IconsFontAwesome5Brands.h" />
     <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\cpu.hpp" />
     <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\cpuid.hpp" />

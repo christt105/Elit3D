@@ -10,8 +10,8 @@
 
 #include "MapLayer.h"
 
-#include "ExternalTools/DevIL/il.h"
-#include "ExternalTools/DevIL/ilut.h"
+#include "ExternalTools/DevIL/include/IL/il.h"
+#include "ExternalTools/DevIL/include/IL/ilut.h"
 
 #include "Profiler.h"
 

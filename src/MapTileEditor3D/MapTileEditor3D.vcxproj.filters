@@ -106,6 +106,9 @@
     <Filter Include="External Libraries\pugixml">
       <UniqueIdentifier>{4fb34090-a93b-4f5e-b737-ba37265bfdcf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External Libraries\DevIL">
+      <UniqueIdentifier>{3f3a6888-ad57-4fe0-a0d7-832f90e10ede}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -1315,6 +1318,30 @@
     </ClInclude>
     <ClInclude Include="ExternalTools\pugixml\pugiconfig.hpp">
       <Filter>External Libraries\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\DevIL\include\IL\ilut.h">
+      <Filter>External Libraries\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\DevIL\include\IL\ilut_config.h">
+      <Filter>External Libraries\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\DevIL\include\IL\devil_cpp_wrapper.hpp">
+      <Filter>External Libraries\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\DevIL\include\IL\devil_internal_exports.h">
+      <Filter>External Libraries\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\DevIL\include\IL\il.h">
+      <Filter>External Libraries\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\DevIL\include\IL\il_wrap.h">
+      <Filter>External Libraries\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\DevIL\include\IL\ilu.h">
+      <Filter>External Libraries\DevIL</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\DevIL\include\IL\ilu_region.h">
+      <Filter>External Libraries\DevIL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

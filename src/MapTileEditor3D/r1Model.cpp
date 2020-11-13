@@ -24,7 +24,11 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
+#ifdef _WIN64
+#pragma comment(lib, "ExternalTools/Assimp/libx64/assimp.lib")
+#else
 #pragma comment(lib, "ExternalTools/Assimp/libx86/assimp-vc141-mtd.lib")
+#endif
 
 r1Model::r1Model(const uint64_t& id) : Resource(Resource::Type::Model, id)
 {
