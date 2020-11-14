@@ -28,11 +28,13 @@ m1Camera3D::~m1Camera3D()
 
 bool m1Camera3D::Init(const nlohmann::json& node)
 {
-	frustum.SetPos({ 0, 15, 0 });
 	frustum.SetFrame({ 0, 15, 0 }, -float3::unitY, float3::unitZ);
 	frustum.SetKind(FrustumProjectiveSpace::FrustumSpaceGL, FrustumHandedness::FrustumLeftHanded);
 
-	SetFov(node.value("FOV", 60.f));
+	//SetFov(node.value("FOV", 60.f));
+	SetFov(math::DegToRad(60.f));
+
+	auto t = frustum.Type();
 
 	mov_speed = node.value("mov_speed", 15.0f);
 	orbit_speed = node.value("orbit_speed", 0.1f);
@@ -61,15 +63,13 @@ void m1Camera3D::SetFov(float vertical_angle)
 
 void m1Camera3D::SetFov()
 {
-	frustum.SetVerticalFovAndAspectRatio(FOV, App->window->GetWidth() / App->window->GetHeight());
+	frustum.SetVerticalFovAndAspectRatio(FOV, (float)App->window->GetWidth() / (float)App->window->GetHeight());
 }
 
 UpdateStatus m1Camera3D::PreUpdate()
 {
 	PROFILE_FUNCTION();
 	CameraMovement();
-
-	static auto m = float4x4::FromTRS(float3::zero, Quat::identity, float3(-1.f, 1.f, 1.f)); // TODO: research about inverted x
 
 	auto shader = App->render->GetShader("default");
 	shader->Use();
@@ -80,7 +80,7 @@ UpdateStatus m1Camera3D::PreUpdate()
 	shader = App->render->GetShader("tilemap");
 	shader->Use();
 	shader->SetMat4("model", float4x4::identity);
-	shader->SetMat4("view", frustum.ViewMatrix() * m);
+	shader->SetMat4("view", frustum.ViewMatrix());
 	shader->SetMat4("projection", frustum.ProjectionMatrix());
 
 	shader = App->render->GetShader("grid");
@@ -107,9 +107,9 @@ void m1Camera3D::CameraMovement()
 		if (App->input->IsKeyPressed(SDL_SCANCODE_S))
 			frustum.Translate(-frustum.Front().Normalized() * speed * App->GetDt());
 		if (App->input->IsKeyPressed(SDL_SCANCODE_A))
-			frustum.Translate(-frustum.Front().Cross(frustum.Up()) * speed * App->GetDt());
-		if (App->input->IsKeyPressed(SDL_SCANCODE_D))
 			frustum.Translate(frustum.Front().Cross(frustum.Up()) * speed * App->GetDt());
+		if (App->input->IsKeyPressed(SDL_SCANCODE_D))
+			frustum.Translate(-frustum.Front().Cross(frustum.Up()) * speed * App->GetDt());
 
 		if (App->input->IsKeyPressed(SDL_SCANCODE_R))
 			frustum.Translate(float3::unitY * speed * App->GetDt());
@@ -127,7 +127,7 @@ void m1Camera3D::CameraMovement()
 
 			lastRight = current;
 
-			Quat rot = Quat(float3::unitY, -offset.x * App->GetDt()) * Quat(frustum.Up().Cross(frustum.Front()), offset.y * App->GetDt());
+			Quat rot = Quat(float3::unitY, offset.x * App->GetDt()) * Quat(frustum.Up().Cross(frustum.Front()), offset.y * App->GetDt());
 
 			float3 up = rot * frustum.Up();
 			if (up.y >= 0) { // Block rotation camera will be upside down
@@ -141,11 +141,11 @@ void m1Camera3D::CameraMovement()
 				lastMiddle = float2((float)App->input->GetMouseX(), (float)App->input->GetMouseY());
 			}
 			float2 current = float2((float)App->input->GetMouseX(), (float)App->input->GetMouseY());
-			float2 offset = (current - lastMiddle) * pan_speed;
+			float2 offset = (lastMiddle - current) * pan_speed;
 
 			lastMiddle = current;
 
-			frustum.Translate(frustum.Up().Cross(frustum.Front()) * offset.x * App->GetDt() + frustum.Up() * offset.y * App->GetDt());
+			frustum.Translate(frustum.Up().Cross(frustum.Front()) * offset.x * App->GetDt() + frustum.Up() * -offset.y * App->GetDt());
 		}
 		if (App->input->GetMouseZ() != 0) {
 			switch (frustum.Type())

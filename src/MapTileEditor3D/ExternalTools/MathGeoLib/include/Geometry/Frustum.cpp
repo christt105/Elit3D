@@ -735,6 +735,7 @@ vec Frustum::UniformRandomPointInside(LCG &rng) const
 void Frustum::Translate(const vec &offset)
 {
 	pos += offset;
+	WorldMatrixChanged();
 }
 
 void Frustum::Transform(const float3x3 &transform)
