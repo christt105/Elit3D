@@ -78,7 +78,7 @@ r1Model::~r1Model()
 	//	}
 
 	//	for (unsigned int i = 0; i < scene->mNumTextures; ++i) { //TODO
-	//		LOGW("Textures import from FBX not done already...");
+	//		MLOGW("Textures import from FBX not done already...");
 	//		/*r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
 	//		m->GenerateFiles(scene->mTextures[i]);
 	//		textures.push_back(m->GetUID());*/

@@ -17,12 +17,14 @@
 	@brief Implementation for the Triangle geometry object. */
 #include "Triangle.h"
 #include "../Math/MathFunc.h"
+#include "../Math/Swap.h"
 #include "../Math/float2.h"
 #include "../Math/float3.h"
 #include "../Math/float3x3.h"
 #include "../Math/float3x4.h"
 #include "../Math/float4x4.h"
 #include "../Math/Quat.h"
+#include "../Math/float4d.h"
 #include "Capsule.h"
 #include "Frustum.h"
 #include "Plane.h"
@@ -40,14 +42,19 @@
 #include <iostream>
 #endif
 
+#if defined(MATH_SSE) && defined(MATH_AUTOMATIC_SSE)
+#include "../Math/float4_sse.h"
+#include "../Math/float4_neon.h"
+#endif
+
 MATH_BEGIN_NAMESPACE
 
-Triangle::Triangle(const float3 &a_, const float3 &b_, const float3 &c_)
+Triangle::Triangle(const vec &a_, const vec &b_, const vec &c_)
 :a(a_), b(b_), c(c_)
 {
 }
 
-void Triangle::Translate(const float3 &offset)
+void Triangle::Translate(const vec &offset)
 {
 	a += offset;
 	b += offset;
@@ -84,12 +91,12 @@ inline float TriArea2D(float x1, float y1, float x2, float y2, float x3, float y
 	return (x1-x2)*(y2-y3) - (x2-x3)*(y1-y2);
 }
 
-float3 Triangle::BarycentricUVW(const float3 &point) const
+float3 Triangle::BarycentricUVW(const vec &point) const
 {
 	// Implementation from Christer Ericson's Real-Time Collision Detection, pp. 51-52.
 
 	// Unnormalized triangle normal.
-	float3 m = Cross(b-a, c-a);
+	vec m = Cross(b-a, c-a);
 
 	// Nominators and one-over-denominator for u and v ratios.
 	float nu, nv, ood;
@@ -124,9 +131,9 @@ float3 Triangle::BarycentricUVW(const float3 &point) const
 	float w = 1.f - u - v;
 	return float3(u,v,w);
 #if 0 // TODO: This version should be more SIMD-friendly, but for some reason, it doesn't return good values for all points inside the triangle.
-	float3 v0 = b - a;
-	float3 v1 = c - a;
-	float3 v2 = point - a;
+	vec v0 = b - a;
+	vec v1 = c - a;
+	vec v2 = point - a;
 	float d00 = Dot(v0, v0);
 	float d01 = Dot(v0, v1);
 	float d02 = Dot(v0, v2);
@@ -136,11 +143,11 @@ float3 Triangle::BarycentricUVW(const float3 &point) const
 	float v = (d11 * d02 - d01 * d12) * denom;
 	float w = (d00 * d12 - d01 * d02) * denom;
 	float u = 1.0f - v - w;
-	return float3(u, v, w);
+	return vec(u, v, w);
 #endif
 }
 
-float2 Triangle::BarycentricUV(const float3 &point) const
+float2 Triangle::BarycentricUV(const vec &point) const
 {
 	float3 uvw = BarycentricUVW(point);
 	return float2(uvw.y, uvw.z);
@@ -152,29 +159,32 @@ bool Triangle::BarycentricInsideTriangle(const float3 &barycentric)
 		EqualAbs(barycentric.x + barycentric.y + barycentric.z, 1.f);
 }
 
-float3 Triangle::Point(float u, float v) const
+vec Triangle::Point(float u, float v) const
 {
-	return a + (b-a) * u + (c-a) * v;
+	// In case the triangle is far away from the origin but is small in size, the elements of 'a' will have large magnitudes,
+	// and the elements of (b-a) and (c-a) will be much smaller quantities. Therefore be extra careful with the
+	// parentheses and first sum the small floats together before adding it to the large one.
+	return a + ((b-a) * u + (c-a) * v);
 }
 
-float3 Triangle::Point(float u, float v, float w) const
+vec Triangle::Point(float u, float v, float w) const
 {
 	return u * a + v * b + w * c;
 }
 
-float3 Triangle::Point(const float3 &b) const
+vec Triangle::Point(const float3 &uvw) const
 {
-	return Point(b.x, b.y, b.z);
+	return Point(uvw.x, uvw.y, uvw.z);
 }
 
-float3 Triangle::Point(const float2 &b) const
+vec Triangle::Point(const float2 &uv) const
 {
-	return Point(b.x, b.y);
+	return Point(uv.x, uv.y);
 }
 
-float3 Triangle::Centroid() const
+vec Triangle::Centroid() const
 {
-	return (a + b + c) / 3.f;
+	return (a + b + c) * (1.f/3.f);
 }
 
 float Triangle::Area() const
@@ -198,10 +208,10 @@ LineSegment Triangle::Edge(int i) const
 	else if (i == 2)
 		return LineSegment(c, a);
 	else
-		return LineSegment(float3::nan, float3::nan);
+		return LineSegment(vec::nan, vec::nan);
 }
 
-float3 Triangle::Vertex(int i) const
+vec Triangle::Vertex(int i) const
 {
 	assume(0 <= i);
 	assume(i <= 2);
@@ -212,7 +222,7 @@ float3 Triangle::Vertex(int i) const
 	else if (i == 2)
 		return c;
 	else
-		return float3::nan;
+		return vec::nan;
 }
 
 Plane Triangle::PlaneCCW() const
@@ -225,33 +235,33 @@ Plane Triangle::PlaneCW() const
 	return Plane(a, c, b);
 }
 
-float3 Triangle::NormalCCW() const
+vec Triangle::NormalCCW() const
 {
 	return UnnormalizedNormalCCW().Normalized();
 }
 
-float3 Triangle::NormalCW() const
+vec Triangle::NormalCW() const
 {
 	return UnnormalizedNormalCW().Normalized();
 }
 
-float3 Triangle::UnnormalizedNormalCCW() const
+vec Triangle::UnnormalizedNormalCCW() const
 {
 	return Cross(b-a, c-a);
 }
 
-float3 Triangle::UnnormalizedNormalCW() const
+vec Triangle::UnnormalizedNormalCW() const
 {
 	return Cross(c-a, b-a);
 }
 
-float3 Triangle::ExtremePoint(const float3 &direction) const
+vec Triangle::ExtremePoint(const vec &direction) const
 {
-	float3 mostExtreme = float3::nan;
+	vec mostExtreme = vec::nan;
 	float mostExtremeDist = -FLT_MAX;
 	for(int i = 0; i < 3; ++i)
 	{
-		float3 pt = Vertex(i);
+		vec pt = Vertex(i);
 		float d = Dot(direction, pt);
 		if (d > mostExtremeDist)
 		{
@@ -260,6 +270,13 @@ float3 Triangle::ExtremePoint(const float3 &direction) const
 		}
 	}
 	return mostExtreme;
+}
+
+vec Triangle::ExtremePoint(const vec &direction, float &projectionDistance) const
+{
+	vec extremePoint = ExtremePoint(direction);
+	projectionDistance = extremePoint.Dot(direction);
+	return extremePoint;
 }
 
 Polygon Triangle::ToPolygon() const
@@ -279,10 +296,8 @@ Polyhedron Triangle::ToPolyhedron() const
 AABB Triangle::BoundingAABB() const
 {
 	AABB aabb;
-	aabb.SetNegativeInfinity();
-	aabb.Enclose(a);
-	aabb.Enclose(b);
-	aabb.Enclose(c);
+	aabb.minPoint = Min(a, b, c);
+	aabb.maxPoint = Max(a, b, c);
 	return aabb;
 }
 
@@ -291,7 +306,7 @@ float Triangle::Area2D(const float2 &p1, const float2 &p2, const float2 &p3)
 	return (p1.x - p2.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p2.y);
 }
 
-float Triangle::SignedArea(const float3 &pt, const float3 &a, const float3 &b, const float3 &c)
+float Triangle::SignedArea(const vec &pt, const vec &a, const vec &b, const vec &c)
 {
 	return Dot(Cross(b-pt, c-pt), Cross(b-a, c-a).Normalized());
 }
@@ -306,14 +321,17 @@ bool Triangle::IsDegenerate(float epsilon) const
 	return IsDegenerate(a, b, c, epsilon);
 }
 
-bool Triangle::IsDegenerate(const float3 &a, const float3 &b, const float3 &c, float epsilon)
+bool Triangle::IsDegenerate(const vec &a, const vec &b, const vec &c, float epsilon)
 {
 	return a.Equals(b, epsilon) || a.Equals(c, epsilon) || b.Equals(c, epsilon);
 }
 
-bool Triangle::Contains(const float3 &point, float triangleThickness) const
+bool Triangle::Contains(const vec &point, float triangleThicknessSq) const
 {
-	if (PlaneCCW().Distance(point) > triangleThickness) // The winding order of the triangle plane does not matter.
+	vec normal = (b-a).Cross(c-a);
+	float lenSq = normal.LengthSq();
+	float d = normal.Dot(b - point);
+	if (d*d > triangleThicknessSq * lenSq)
 		return false; ///@todo The plane-point distance test is omitted in Real-Time Collision Detection. p. 25. A bug in the book?
 
 	float3 br = BarycentricUVW(point);
@@ -342,9 +360,19 @@ bool Triangle::Contains(const Polygon &polygon, float triangleThickness) const
 	return true;
 }
 */
-float Triangle::Distance(const float3 &point) const
+float Triangle::Distance(const vec &point) const
 {
 	return ClosestPoint(point).Distance(point);
+}
+
+float Triangle::DistanceSq(const vec &point) const
+{
+	return ClosestPoint(point).DistanceSq(point);
+}
+
+double Triangle::DistanceSqD(const vec &point) const
+{
+    return ClosestPointD(point).DistanceSq(point);
 }
 
 float Triangle::Distance(const Sphere &sphere) const
@@ -354,8 +382,8 @@ float Triangle::Distance(const Sphere &sphere) const
 
 float Triangle::Distance(const Capsule &capsule) const
 {
-	float3 otherPt;
-	float3 thisPt = ClosestPoint(capsule.l, &otherPt);
+	vec otherPt;
+	vec thisPt = ClosestPoint(capsule.l, &otherPt);
 	return Max(0.f, thisPt.Distance(otherPt) - capsule.r);
 }
 
@@ -374,32 +402,29 @@ float Triangle::Distance(const Capsule &capsule) const
 		If no intersection, then u and v and t will contain undefined values. If lineDir was not normalized, then to get the
 		real world-space distance, one must scale the returned value with lineDir.Length(). If the returned value is negative,
 		then the intersection occurs 'behind' the line starting position, with respect to the direction vector lineDir. */
-float Triangle::IntersectLineTri(const float3 &linePos, const float3 &lineDir,
-		const float3 &v0, const float3 &v1, const float3 &v2,
+float Triangle::IntersectLineTri(const vec &linePos, const vec &lineDir,
+		const vec &v0, const vec &v1, const vec &v2,
 		float &u, float &v)
 {
-	float3 vE1, vE2;
-	float3 vT, vP, vQ;
-
 	const float epsilon = 1e-4f;
 
 	// Edge vectors
-	vE1 = v1 - v0;
-	vE2 = v2 - v0;
+	vec vE1 = v1 - v0;
+	vec vE2 = v2 - v0;
 
 	// begin calculating determinant - also used to calculate U parameter
-	vP = lineDir.Cross(vE2);
+	vec vP = lineDir.Cross(vE2);
 
 	// If det < 0, intersecting backfacing tri, > 0, intersecting frontfacing tri, 0, parallel to plane.
 	const float det = vE1.Dot(vP);
 
 	// If determinant is near zero, ray lies in plane of triangle.
-	if (fabs(det) <= epsilon)
+	if (Abs(det) <= epsilon)
 		return FLOAT_INF;
 	const float recipDet = 1.f / det;
 
 	// Calculate distance from v0 to ray origin
-	vT = linePos - v0;
+	vec vT = linePos - v0;
 
 	// Output barycentric u
 	u = vT.Dot(vP) * recipDet;
@@ -407,7 +432,7 @@ float Triangle::IntersectLineTri(const float3 &linePos, const float3 &lineDir,
 		return FLOAT_INF; // Barycentric U is outside the triangle - early out.
 
 	// Prepare to test V parameter
-	vQ = vT.Cross(vE1);
+	vec vQ = vT.Cross(vE1);
 
 	// Output barycentric v
 	v = lineDir.Dot(vQ) * recipDet;
@@ -422,33 +447,24 @@ float Triangle::IntersectLineTri(const float3 &linePos, const float3 &lineDir,
 }
 
 /// [groupSyntax]
-bool Triangle::Intersects(const LineSegment &l, float *d, float3 *intersectionPoint) const
+bool Triangle::Intersects(const LineSegment &l, float *d, vec *intersectionPoint) const
 {
 	/** The Triangle-Line/LineSegment/Ray intersection tests are based on M&ouml;ller-Trumbore method:
 		"T. M&ouml;ller, B. Trumbore. Fast, Minimum Storage Ray/Triangle Intersection. 2005."
 		http://jgt.akpeters.com/papers/MollerTrumbore97/. */
 	float u, v;
-	float t = IntersectLineTri(l.a, l.Dir(), a, b, c, u, v);
-	bool success = (t >= 0 && t != FLOAT_INF);
+	float t = IntersectLineTri(l.a, l.b - l.a, a, b, c, u, v);
+	bool success = (t >= 0.0f && t <= 1.0f);
 	if (!success)
 		return false;
-	float length = l.LengthSq();
-	if (t < 0.f || t*t >= length)
-		return false;
-	length = Sqrt(length);
 	if (d)
-	{
-		float len = t / length;
-		*d = len;
-		if (intersectionPoint)
-			*intersectionPoint = l.GetPoint(len);
-	}
-	else if (intersectionPoint)
-		*intersectionPoint = l.GetPoint(t / length);
+		*d = t;
+	if (intersectionPoint)
+		*intersectionPoint = l.GetPoint(t);
 	return true;
 }
 
-bool Triangle::Intersects(const Line &l, float *d, float3 *intersectionPoint) const
+bool Triangle::Intersects(const Line &l, float *d, vec *intersectionPoint) const
 {
 	float u, v;
 	float t = IntersectLineTri(l.pos, l.dir, a, b, c, u, v);
@@ -462,7 +478,7 @@ bool Triangle::Intersects(const Line &l, float *d, float3 *intersectionPoint) co
 	return success;
 }
 
-bool Triangle::Intersects(const Ray &r, float *d, float3 *intersectionPoint) const
+bool Triangle::Intersects(const Ray &r, float *d, vec *intersectionPoint) const
 {
 	float u, v;
 	float t = IntersectLineTri(r.pos, r.dir, a, b, c, u, v);
@@ -483,9 +499,9 @@ bool Triangle::Intersects(const Plane &plane) const
 
 /// [groupSyntax]
 /** For Triangle-Sphere intersection code, see Christer Ericson's Real-Time Collision Detection, p.167. */
-bool Triangle::Intersects(const Sphere &sphere, float3 *closestPointOnTriangle) const
+bool Triangle::Intersects(const Sphere &sphere, vec *closestPointOnTriangle) const
 {
-	float3 pt = ClosestPoint(sphere.pos);
+	vec pt = ClosestPoint(sphere.pos);
 
 	if (closestPointOnTriangle)
 		*closestPointOnTriangle = pt;
@@ -523,102 +539,297 @@ static void FindIntersectingLineSegments(const Triangle &t, float da, float db, 
 	See also Christer Ericson's Real-Time Collision Detection, p. 172. */
 bool Triangle::Intersects(const Triangle &t2, LineSegment *outLine) const
 {
+	const float triangleThickness = 1e-4f;
 	// Is the triangle t2 completely on one side of the plane of this triangle?
 	Plane p1 = this->PlaneCCW();
-	float t2da = p1.SignedDistance(t2.a);
-	float t2db = p1.SignedDistance(t2.b);
-	float t2dc = p1.SignedDistance(t2.c);
-	if (t2da*t2db > 0.f && t2da*t2dc > 0.f)
-		return false;
-	// Is this triangle completely on one side of the plane of the triangle t2?
 	Plane p2 = t2.PlaneCCW();
-	float t1da = p2.SignedDistance(this->a);
-	float t1db = p2.SignedDistance(this->b);
-	float t1dc = p2.SignedDistance(this->c);
-	if (t1da*t1db > 0.f && t1da*t1dc > 0.f)
-		return false;
-
-	// Find the intersection line of the two planes.
-	Line l;
-	bool success = p1.Intersects(p2, &l);
-	assume(success); // We already determined the two triangles have intersecting planes, so this should always succeed.
-	if (!success)
-		return false;
-
-	// Find the two line segments of both triangles which straddle the intersection line.
-	LineSegment l1a, l1b;
-	LineSegment l2a, l2b;
-	FindIntersectingLineSegments(*this, t1da, t1db, t1dc, l1a, l1b);
-	FindIntersectingLineSegments(t2, t2da, t2db, t2dc, l2a, l2b);
-
-	// Find the projection intervals on the intersection line.
-	float d1a, d1b, d2a, d2b;
-	l.Distance(l1a, &d1a);
-	l.Distance(l1b, &d1b);
-	l.Distance(l2a, &d2a);
-	l.Distance(l2b, &d2b);
-	if (d1a > d1b)
-		Swap(d1a, d1b);
-	if (d2a > d2b)
-		Swap(d2a, d2b);
-	float rStart = Max(d1a, d2a);
-	float rEnd = Min(d1b, d2b);
-	if (rStart <= rEnd)
+	if (!p1.normal.Cross(p2.normal).IsZero())
 	{
-		if (outLine)
-			*outLine = LineSegment(l.GetPoint(rStart), l.GetPoint(rEnd));
-		return true;
-	}
-	return false;
-}
+		float t2da = p1.SignedDistance(t2.a);
+		float t2db = p1.SignedDistance(t2.b);
+		float t2dc = p1.SignedDistance(t2.c);
+		float t2min = Min(Min(t2da, t2db), t2dc);
+		float t2max = Max(Max(t2da, t2db), t2dc);
+		if (t2max < -triangleThickness || t2min > triangleThickness)
+			return false;
+		// Is this triangle completely on one side of the plane of the triangle t2?
+		float t1da = p2.SignedDistance(this->a);
+		float t1db = p2.SignedDistance(this->b);
+		float t1dc = p2.SignedDistance(this->c);
+		float t1min = Min(Min(t1da, t1db), t1dc);
+		float t1max = Max(Max(t1da, t1db), t1dc);
+		if (t1max < -triangleThickness || t1min > triangleThickness)
+			return false;
 
-bool RangesOverlap(float start1, float end1, float start2, float end2)
-{
-	return end1 >= start2 && end2 >= start1;
+		// Find the intersection line of the two planes.
+		Line l;
+		bool success = p1.Intersects(p2, &l);
+		assume(success); // We already determined the two triangles have intersecting planes, so this should always succeed.
+		if (!success)
+			return false;
+
+		// Find the two line segments of both triangles which straddle the intersection line.
+		LineSegment l1a, l1b;
+		LineSegment l2a, l2b;
+		FindIntersectingLineSegments(*this, t1da, t1db, t1dc, l1a, l1b);
+		FindIntersectingLineSegments(t2, t2da, t2db, t2dc, l2a, l2b);
+
+		// Find the projection intervals on the intersection line.
+		float d1a, d1b, d2a, d2b;
+		l.Distance(l1a, d1a);
+		l.Distance(l1b, d1b);
+		l.Distance(l2a, d2a);
+		l.Distance(l2b, d2b);
+		if (d1a > d1b)
+			Swap(d1a, d1b);
+		if (d2a > d2b)
+			Swap(d2a, d2b);
+		float rStart = Max(d1a, d2a);
+		float rEnd = Min(d1b, d2b);
+		if (rStart <= rEnd)
+		{
+			if (outLine)
+				*outLine = LineSegment(l.GetPoint(rStart), l.GetPoint(rEnd));
+			return true;
+		}
+		return false;
+	}
+	else // The two triangles lie in the same plane. Perform the intersection test in 2D.
+	{
+		float tri0Pos = p1.normal.Dot(a);
+		float tri1Pos = p1.normal.Dot(t2.a);
+		if (Abs(tri0Pos-tri1Pos) > triangleThickness)
+			return false;
+
+		if (t2.Contains(a, FLOAT_INF) || this->Contains(t2.a, FLOAT_INF))
+			return true;
+
+		vec basisU, basisV;
+		p1.normal.PerpendicularBasis(basisU, basisV);
+		float2 a1 = float2::zero;
+		float2 a2 = float2(basisU.Dot(b-a), basisV.Dot(b-a));
+		float2 a3 = float2(basisU.Dot(c-a), basisV.Dot(c-a));
+		float2 b1 = float2(basisU.Dot(t2.a-a), basisV.Dot(t2.a-a));
+		float2 b2 = float2(basisU.Dot(t2.b-a), basisV.Dot(t2.b-a));
+		float2 b3 = float2(basisU.Dot(t2.c-a), basisV.Dot(t2.c-a));
+		float s, t;
+		if (LineSegment2DLineSegment2DIntersect(a1, a2-a1, b1, b2-b1, s, t)) { if (outLine) { float2 pt = s*(a2-a1); vec pt3d = a+pt.x*basisU+pt.y*basisV; *outLine = LineSegment(pt3d, pt3d); } return true; }
+		if (LineSegment2DLineSegment2DIntersect(a1, a2-a1, b2, b3-b2, s, t)) { if (outLine) { float2 pt = s*(a2-a1); vec pt3d = a+pt.x*basisU+pt.y*basisV; *outLine = LineSegment(pt3d, pt3d); } return true; }
+		if (LineSegment2DLineSegment2DIntersect(a1, a2-a1, b3, b1-b3, s, t)) { if (outLine) { float2 pt = s*(a2-a1); vec pt3d = a+pt.x*basisU+pt.y*basisV; *outLine = LineSegment(pt3d, pt3d); } return true; }
+		if (LineSegment2DLineSegment2DIntersect(a2, a3-a2, b1, b2-b1, s, t)) { if (outLine) { float2 pt = s*(a3-a2); vec pt3d = a+pt.x*basisU+pt.y*basisV; *outLine = LineSegment(pt3d, pt3d); } return true; }
+		if (LineSegment2DLineSegment2DIntersect(a2, a3-a2, b2, b3-b2, s, t)) { if (outLine) { float2 pt = s*(a3-a2); vec pt3d = a+pt.x*basisU+pt.y*basisV; *outLine = LineSegment(pt3d, pt3d); } return true; }
+		if (LineSegment2DLineSegment2DIntersect(a2, a3-a2, b3, b1-b3, s, t)) { if (outLine) { float2 pt = s*(a3-a2); vec pt3d = a+pt.x*basisU+pt.y*basisV; *outLine = LineSegment(pt3d, pt3d); } return true; }
+		if (LineSegment2DLineSegment2DIntersect(a3, a1-a3, b1, b2-b1, s, t)) { if (outLine) { float2 pt = s*(a1-a3); vec pt3d = a+pt.x*basisU+pt.y*basisV; *outLine = LineSegment(pt3d, pt3d); } return true; }
+		if (LineSegment2DLineSegment2DIntersect(a3, a1-a3, b2, b3-b2, s, t)) { if (outLine) { float2 pt = s*(a1-a3); vec pt3d = a+pt.x*basisU+pt.y*basisV; *outLine = LineSegment(pt3d, pt3d); } return true; }
+		if (LineSegment2DLineSegment2DIntersect(a3, a1-a3, b3, b1-b3, s, t)) { if (outLine) { float2 pt = s*(a1-a3); vec pt3d = a+pt.x*basisU+pt.y*basisV; *outLine = LineSegment(pt3d, pt3d); } return true; }
+		return false;
+	}
 }
 
 /// [groupSyntax]
 bool Triangle::Intersects(const AABB &aabb) const
 {
 /** The AABB-Triangle test implementation is based on the pseudo-code in
-	Christer Ericson's Real-Time Collision Detection, pp. 169-172. */
-	///@todo The Triangle-AABB intersection test can be greatly optimized by manually unrolling loops, trivial math and by avoiding
-	/// unnecessary copying.
-	float t1, t2, a1, a2;
-	const float3 e[3] = { float3(1,0,0), float3(0,1,0), float3(0,0,1) };
+	Christer Ericson's Real-Time Collision Detection, pp. 169-172. It is
+	practically a standard SAT test. */
+#if defined(MATH_AUTOMATIC_SSE) && defined(MATH_SSE)
+	// Benchmark 'Triangle_intersects_AABB': Triangle::Intersects(AABB)
+	//    Best: 8.065 nsecs / 21.664 ticks, Avg: 8.207 nsecs, Worst: 9.985 nsecs
+	simd4f tMin = min_ps(a, min_ps(b, c));
+	simd4f tMax = max_ps(a, max_ps(b, c));
 
-	for(int i = 0; i < 3; ++i)
-	{
-		ProjectToAxis(e[i], t1, t2);
-		aabb.ProjectToAxis(e[i], a1, a2);
-		if (!RangesOverlap(t1, t2, a1, a2))
-			return false;
-	}
+	simd4f cmp = cmpge_ps(tMin, aabb.maxPoint.v);
+	cmp = or_ps(cmp, cmple_ps(tMax, aabb.minPoint.v));
+	// Mask off results from the W channel and test if all were zero.
+	if (!a_and_b_allzero_ps(cmp, set_ps_hex(0, 0xFFFFFFFFU, 0xFFFFFFFFU, 0xFFFFFFFFU))) return false;
 
-	float3 n = UnnormalizedNormalCCW();
-	ProjectToAxis(n, t1, t2);
-	aabb.ProjectToAxis(n, a1, a2);
-	if (!RangesOverlap(t1, t2, a1, a2))
+	simd4f center = mul_ps(add_ps(aabb.minPoint.v, aabb.maxPoint.v), set1_ps(0.5f));
+	simd4f h = sub_ps(aabb.maxPoint.v, center);
+
+	simd4f t0 = sub_ps(b, a);
+	simd4f t1 = sub_ps(c, a);
+	simd4f ac = sub_ps(a, center);
+	simd4f n = cross_ps(t0, t1);
+	if (_mm_ucomige_ss(abs_ps(dot4_ps(n, ac)), abs_ps(dot4_ps(h, abs_ps(n))))) return false;
+
+	// {eX, eY, eZ} cross t1
+	simd4f ac_wyxz  = zxyw_ps(ac);
+	simd4f h_wyxz   = zxyw_ps(h);
+	simd4f ac_wxzy  = yzxw_ps(ac);
+	simd4f h_wxzy   = yzxw_ps(h);
+	simd4f bc = sub_ps(b, center);
+	simd4f bc_wyxz  = zxyw_ps(bc);
+	simd4f at1 = abs_ps(t1);
+	simd4f t1_wyxz  = zxyw_ps(t1);
+	simd4f at1_wyxz = zxyw_ps(at1);
+	simd4f bc_wxzy  = yzxw_ps(bc);
+	simd4f t1_wxzy  = yzxw_ps(t1);
+	simd4f at1_wxzy = yzxw_ps(at1);
+
+	simd4f d1 = msub_ps(t1_wxzy, ac_wyxz, mul_ps(t1_wyxz, ac_wxzy));
+	simd4f d2 = msub_ps(t1_wxzy, bc_wyxz, mul_ps(t1_wyxz, bc_wxzy));
+	simd4f tc = mul_ps(add_ps(d1, d2), set1_ps(0.5f));
+	simd4f r = abs_ps(madd_ps(h_wyxz, at1_wxzy, mul_ps(h_wxzy, at1_wyxz)));
+	cmp = cmplt_ps(add_ps(r, abs_ps(sub_ps(tc, d1))), abs_ps(tc));
+	if (!allzero_ps(cmp)) return false;
+
+	// Note: the above semantics with cmplt_ps() vs cmple_ps() is quite delicate. cmple_ps might be usable
+	// to define AABB and Triangle touching at a vertex to intersect, but it has troubles when the Triangle
+	// is parallel to one of the cardinal axes. (see Triangle_Intersects_AABB_Case* tests)
+	// To do the cmple_ps approach, would mask off results from the W channel and test if all were zero.
+	// cmp = cmple_ps(add_ps(r, abs_ps(sub_ps(tc, d1))), abs_ps(tc));
+	// if (!a_and_b_allzero_ps(cmp, set_ps_hex(0, 0xFFFFFFFFU, 0xFFFFFFFFU, 0xFFFFFFFFU))) return false;
+
+	// {eX, eY, eZ} cross t2
+	simd4f t2 = sub_ps(c, b);
+	simd4f at2 = abs_ps(t2);
+	simd4f t2_wyxz  = zxyw_ps(t2);
+	simd4f at2_wyxz = zxyw_ps(at2);
+	simd4f t2_wxzy  = yzxw_ps(t2);
+	simd4f at2_wxzy = yzxw_ps(at2);
+
+	d1 = msub_ps(t2_wxzy, ac_wyxz, mul_ps(t2_wyxz, ac_wxzy));
+	d2 = msub_ps(t2_wxzy, bc_wyxz, mul_ps(t2_wyxz, bc_wxzy));
+	tc = mul_ps(add_ps(d1, d2), set1_ps(0.5f));
+	r = abs_ps(madd_ps(h_wyxz, at2_wxzy, mul_ps(h_wxzy, at2_wyxz)));
+	cmp = cmplt_ps(add_ps(r, abs_ps(sub_ps(tc, d1))), abs_ps(tc));
+	if (!allzero_ps(cmp)) return false;
+
+	// {eX, eY, eZ} cross t0
+	simd4f cc = sub_ps(c, center);
+	simd4f cc_wyxz  = zxyw_ps(cc);
+	simd4f t0_wyxz  = zxyw_ps(t0);
+	simd4f at0 = abs_ps(t0);
+	simd4f at0_wyxz = zxyw_ps(at0);
+	simd4f at0_wxzy = yzxw_ps(at0);
+	simd4f t0_wxzy  = yzxw_ps(t0);
+	simd4f cc_wxzy  = yzxw_ps(cc);
+
+	d1 = msub_ps(t0_wxzy, ac_wyxz, mul_ps(t0_wyxz, ac_wxzy));
+	d2 = msub_ps(t0_wxzy, cc_wyxz, mul_ps(t0_wyxz, cc_wxzy));
+	tc = mul_ps(add_ps(d1, d2), set1_ps(0.5f));
+	r = abs_ps(madd_ps(h_wyxz, at0_wxzy, mul_ps(h_wxzy, at0_wyxz)));
+	cmp = cmplt_ps(add_ps(r, abs_ps(sub_ps(tc, d1))), abs_ps(tc));
+	return allzero_ps(cmp) != 0;
+#else
+	// Benchmark 'Triangle_intersects_AABB': Triangle::Intersects(AABB)
+	//    Best: 17.282 nsecs / 46.496 ticks, Avg: 17.804 nsecs, Worst: 18.434 nsecs
+	vec tMin = a.Min(b.Min(c));
+	vec tMax = a.Max(b.Max(c));
+
+	if (tMin.x >= aabb.maxPoint.x || tMax.x <= aabb.minPoint.x
+		|| tMin.y >= aabb.maxPoint.y || tMax.y <= aabb.minPoint.y
+		|| tMin.z >= aabb.maxPoint.z || tMax.z <= aabb.minPoint.z)
 		return false;
 
-	const float3 t[3] = { b-a, c-a, c-b };
+	vec center = (aabb.minPoint + aabb.maxPoint) * 0.5f;
+	vec h = aabb.maxPoint - center;
 
+	const vec t[3] = { b-a, c-a, c-b };
+
+	vec ac = a-center;
+
+	vec n = Cross(t[0], t[1]);
+	float s = n.Dot(ac);
+	float r = Abs(h.Dot(n.Abs()));
+	if (Abs(s) >= r)
+		return false;
+
+	const vec at[3] = { Abs(t[0]), Abs(t[1]), Abs(t[2]) };
+
+	vec bc = b-center;
+	vec cc = c-center;
+
+	// SAT test all cross-axes.
+	// The following is a fully unrolled loop of this code, stored here for reference:
+	/*
+	float d1, d2, a1, a2;
+	const vec e[3] = { DIR_VEC(1, 0, 0), DIR_VEC(0, 1, 0), DIR_VEC(0, 0, 1) };
 	for(int i = 0; i < 3; ++i)
 		for(int j = 0; j < 3; ++j)
 		{
-			float3 axis = Cross(e[i], t[j]);
-			float len = axis.LengthSq();
-			if (len <= 1e-4f)
-				continue; // Ignore tests on degenerate axes.
-
-			ProjectToAxis(axis, t1, t2);
+			vec axis = Cross(e[i], t[j]);
+			ProjectToAxis(axis, d1, d2);
 			aabb.ProjectToAxis(axis, a1, a2);
-			if (!RangesOverlap(t1, t2, a1, a2))
-				return false;
+			if (d2 <= a1 || d1 >= a2) return false;
 		}
+	*/
+
+	// eX <cross> t[0]
+	float d1 = t[0].y * ac.z - t[0].z * ac.y;
+	float d2 = t[0].y * cc.z - t[0].z * cc.y;
+	float tc = (d1 + d2) * 0.5f;
+	r = Abs(h.y * at[0].z + h.z * at[0].y);
+	if (r + Abs(tc - d1) < Abs(tc))
+		return false;
+
+	// eX <cross> t[1]
+	d1 = t[1].y * ac.z - t[1].z * ac.y;
+	d2 = t[1].y * bc.z - t[1].z * bc.y;
+	tc = (d1 + d2) * 0.5f;
+	r = Abs(h.y * at[1].z + h.z * at[1].y);
+	if (r + Abs(tc - d1) < Abs(tc))
+		return false;
+
+	// eX <cross> t[2]
+	d1 = t[2].y * ac.z - t[2].z * ac.y;
+	d2 = t[2].y * bc.z - t[2].z * bc.y;
+	tc = (d1 + d2) * 0.5f;
+	r = Abs(h.y * at[2].z + h.z * at[2].y);
+	if (r + Abs(tc - d1) < Abs(tc))
+		return false;
+
+	// eY <cross> t[0]
+	d1 = t[0].z * ac.x - t[0].x * ac.z;
+	d2 = t[0].z * cc.x - t[0].x * cc.z;
+	tc = (d1 + d2) * 0.5f;
+	r = Abs(h.x * at[0].z + h.z * at[0].x);
+	if (r + Abs(tc - d1) < Abs(tc))
+		return false;
+
+	// eY <cross> t[1]
+	d1 = t[1].z * ac.x - t[1].x * ac.z;
+	d2 = t[1].z * bc.x - t[1].x * bc.z;
+	tc = (d1 + d2) * 0.5f;
+	r = Abs(h.x * at[1].z + h.z * at[1].x);
+	if (r + Abs(tc - d1) < Abs(tc))
+		return false;
+
+	// eY <cross> t[2]
+	d1 = t[2].z * ac.x - t[2].x * ac.z;
+	d2 = t[2].z * bc.x - t[2].x * bc.z;
+	tc = (d1 + d2) * 0.5f;
+	r = Abs(h.x * at[2].z + h.z * at[2].x);
+	if (r + Abs(tc - d1) < Abs(tc))
+		return false;
+
+	// eZ <cross> t[0]
+	d1 = t[0].x * ac.y - t[0].y * ac.x;
+	d2 = t[0].x * cc.y - t[0].y * cc.x;
+	tc = (d1 + d2) * 0.5f;
+	r = Abs(h.y * at[0].x + h.x * at[0].y);
+	if (r + Abs(tc - d1) < Abs(tc))
+		return false;
+
+	// eZ <cross> t[1]
+	d1 = t[1].x * ac.y - t[1].y * ac.x;
+	d2 = t[1].x * bc.y - t[1].y * bc.x;
+	tc = (d1 + d2) * 0.5f;
+	r = Abs(h.y * at[1].x + h.x * at[1].y);
+	if (r + Abs(tc - d1) < Abs(tc))
+		return false;
+
+	// eZ <cross> t[2]
+	d1 = t[2].x * ac.y - t[2].y * ac.x;
+	d2 = t[2].x * bc.y - t[2].y * bc.x;
+	tc = (d1 + d2) * 0.5f;
+	r = Abs(h.y * at[2].x + h.x * at[2].y);
+	if (r + Abs(tc - d1) < Abs(tc))
+		return false;
 
 	// No separating axis exists, the AABB and triangle intersect.
 	return true;
+#endif
 }
 
 bool Triangle::Intersects(const OBB &obb) const
@@ -646,7 +857,7 @@ bool Triangle::Intersects(const Capsule &capsule) const
 	return capsule.Intersects(*this);
 }
 
-void Triangle::ProjectToAxis(const float3 &axis, float &dMin, float &dMax) const
+void Triangle::ProjectToAxis(const vec &axis, float &dMin, float &dMax) const
 {
 	dMin = dMax = Dot(axis, a);
 	float t = Dot(axis, b);
@@ -657,22 +868,45 @@ void Triangle::ProjectToAxis(const float3 &axis, float &dMin, float &dMax) const
 	dMax = Max(t, dMax);
 }
 
+int Triangle::UniqueFaceNormals(vec *out) const
+{
+	out[0] = Cross(b-a, c-a);
+	// If testing a pair of coplanar triangles for SAT intersection,
+	// the common face normal will not be a separating axis, and neither will
+	// the cross products of the pairwise edges, since those all coincide with the face normals.
+	// Therefore to make SAT test work properly in that case, also report all the edge normals
+	// as possible separation test directions, which fixes the coplanar case.
+	// For more info, see Geometric Tools for Computer Graphics, 11.11.1, p. 612.
+	out[1] = Cross(out[0], b-a);
+	out[2] = Cross(out[0], c-a);
+	out[3] = Cross(out[0], c-b);
+	return 4;
+}
+
+int Triangle::UniqueEdgeDirections(vec *out) const
+{
+	out[0] = b-a;
+	out[1] = c-a;
+	out[2] = c-b;
+	return 3;
+}
+
 /// [groupSyntax]
-float3 Triangle::ClosestPoint(const float3 &p) const
+vec Triangle::ClosestPoint(const vec &p) const
 {
 	/** The code for Triangle-float3 test is from Christer Ericson's Real-Time Collision Detection, pp. 141-142. */
 
 	// Check if P is in vertex region outside A.
-	float3 ab = b - a;
-	float3 ac = c - a;
-	float3 ap = p - a;
+	vec ab = b - a;
+	vec ac = c - a;
+	vec ap = p - a;
 	float d1 = Dot(ab, ap);
 	float d2 = Dot(ac, ap);
 	if (d1 <= 0.f && d2 <= 0.f)
 		return a; // Barycentric coordinates are (1,0,0).
 
 	// Check if P is in vertex region outside B.
-	float3 bp = p - b;
+	vec bp = p - b;
 	float d3 = Dot(ab, bp);
 	float d4 = Dot(ac, bp);
 	if (d3 >= 0.f && d4 <= d3)
@@ -687,7 +921,7 @@ float3 Triangle::ClosestPoint(const float3 &p) const
 	}
 
 	// Check if P is in vertex region outside C.
-	float3 cp = p - c;
+	vec cp = p - c;
 	float d5 = Dot(ab, cp);
 	float d6 = Dot(ac, cp);
 	if (d6 >= 0.f && d5 <= d6)
@@ -716,22 +950,85 @@ float3 Triangle::ClosestPoint(const float3 &p) const
 	return a + ab * v + ac * w;
 }
 
-float3 Triangle::ClosestPoint(const LineSegment &lineSegment, float3 *otherPt) const
+// This is a copy of Triangle::ClosestPoint(), except intermediate computation is done in doubles instead of floats
+// for extra precision.
+vec Triangle::ClosestPointD(const vec &p) const
+{
+	/** The code for Triangle-float3 test is from Christer Ericson's Real-Time Collision Detection, pp. 141-142. */
+
+	// Check if P is in vertex region outside A.
+	float4d ab = POINT_TO_FLOAT4D(b) - POINT_TO_FLOAT4D(a);
+	float4d ac = POINT_TO_FLOAT4D(c) - POINT_TO_FLOAT4D(a);
+	float4d ap = POINT_TO_FLOAT4D(p) - POINT_TO_FLOAT4D(a);
+	double d1 = ab.Dot(ap);
+	double d2 = ac.Dot(ap);
+	if (d1 <= 0.0 && d2 <= 0.0)
+		return a; // Barycentric coordinates are (1,0,0).
+
+	// Check if P is in vertex region outside B.
+	float4d bp = POINT_TO_FLOAT4D(p) - POINT_TO_FLOAT4D(b);
+	double d3 = ab.Dot(bp);
+	double d4 = ac.Dot(bp);
+	if (d3 >= 0.0 && d4 <= d3)
+		return b; // Barycentric coordinates are (0,1,0).
+
+	// Check if P is in edge region of AB, and if so, return the projection of P onto AB.
+	double vc = d1*d4 - d3*d2;
+	if (vc <= 0.0 && d1 >= 0.0 && d3 <= 0.0)
+	{
+		double v = d1 / (d1 - d3);
+		return (POINT_TO_FLOAT4D(a) + v * ab).ToPointVec(); // The barycentric coordinates are (1-v, v, 0).
+	}
+
+	// Check if P is in vertex region outside C.
+	float4d cp = POINT_TO_FLOAT4D(p) - POINT_TO_FLOAT4D(c);
+	double d5 = ab.Dot(cp);
+	double d6 = ac.Dot(cp);
+	if (d6 >= 0.0 && d5 <= d6)
+		return c; // The barycentric coordinates are (0,0,1).
+
+	// Check if P is in edge region of AC, and if so, return the projection of P onto AC.
+	double vb = d5*d2 - d1*d6;
+	if (vb <= 0.0 && d2 >= 0.0 && d6 <= 0.0)
+	{
+		double w = d2 / (d2 - d6);
+		return (POINT_TO_FLOAT4D(a) + w * ac).ToPointVec(); // The barycentric coordinates are (1-w, 0, w).
+	}
+
+	// Check if P is in edge region of BC, and if so, return the projection of P onto BC.
+	double va = d3*d6 - d5*d4;
+	if (va <= 0.0 && d4 - d3 >= 0.0 && d5 - d6 >= 0.0)
+	{
+		double w = (d4 - d3) / (d4 - d3 + d5 - d6);
+		return (POINT_TO_FLOAT4D(b) + w * (POINT_TO_FLOAT4D(c) - POINT_TO_FLOAT4D(b))).ToPointVec(); // The barycentric coordinates are (0, 1-w, w).
+	}
+
+	// P must be inside the face region. Compute the closest point through its barycentric coordinates (u,v,w).
+	double denom = 1.f / (va + vb + vc);
+	double v = vb * denom;
+	double w = vc * denom;
+	return (POINT_TO_FLOAT4D(a) + ab * v + ac * w).ToPointVec();
+}
+
+vec Triangle::ClosestPoint(const LineSegment &lineSegment, vec *otherPt) const
 {
 	///\todo Optimize.
-	float3 intersectionPoint;
-	if (Intersects(lineSegment, 0, &intersectionPoint))
+	float u, v;
+	float t = IntersectLineTri(lineSegment.a, lineSegment.b - lineSegment.a, a, b, c, u, v);
+	bool intersects = (t >= 0.0f && t <= 1.0f);
+	if (intersects)
 	{
+//		assume3(lineSegment.GetPoint(t).Equals(this->Point(u, v)), lineSegment.GetPoint(t).SerializeToCodeString(), this->Point(u, v).SerializeToCodeString(), lineSegment.GetPoint(t).Distance(this->Point(u, v)));
 		if (otherPt)
-			*otherPt = intersectionPoint;
-		return intersectionPoint;
+			*otherPt = lineSegment.GetPoint(t);
+		return this->Point(u, v);
 	}
 
 	float u1,v1,d1;
-	float3 pt1 = ClosestPointToTriangleEdge(lineSegment, &u1, &v1, &d1);
+	vec pt1 = ClosestPointToTriangleEdge(lineSegment, &u1, &v1, &d1);
 
-	float3 pt2 = ClosestPoint(lineSegment.a);
-	float3 pt3 = ClosestPoint(lineSegment.b);
+	vec pt2 = ClosestPoint(lineSegment.a);
+	vec pt3 = ClosestPoint(lineSegment.b);
 	
 	float D1 = pt1.DistanceSq(lineSegment.GetPoint(d1));
 	float D2 = pt2.DistanceSq(lineSegment.a);
@@ -763,12 +1060,12 @@ float3 Triangle::ClosestPoint(const LineSegment &lineSegment, float3 *otherPt) c
 /// direction of the gradient to determine the proper region of intersection.
 /// Instead using a slower code path above.
 /// [groupSyntax]
-float3 Triangle::ClosestPoint(const LineSegment &lineSegment, float3 *otherPt) const
+vec Triangle::ClosestPoint(const LineSegment &lineSegment, vec *otherPt) const
 {
-	float3 e0 = b - a;
-	float3 e1 = c - a;
-	float3 v_p = a - lineSegment.a;
-	float3 d = lineSegment.b - lineSegment.a;
+	vec e0 = b - a;
+	vec e1 = c - a;
+	vec v_p = a - lineSegment.a;
+	vec d = lineSegment.b - lineSegment.a;
 
 	// Q(u,v) = a + u*e0 + v*e1
 	// L(t)   = ls.a + t*d
@@ -1097,14 +1394,15 @@ float3 Triangle::ClosestPoint(const LineSegment &lineSegment, float3 *otherPt) c
 	}
 }
 #endif
-float3 Triangle::ClosestPointToTriangleEdge(const Line &other, float *outU, float *outV, float *outD) const
+vec Triangle::ClosestPointToTriangleEdge(const Line &other, float *outU, float *outV, float *outD) const
 {
 	///@todo Optimize!
 	// The line is parallel to the triangle.
+	float unused1, unused2, unused3;
 	float d1, d2, d3;
-	float3 pt1 = Edge(0).ClosestPoint(other, 0, &d1);
-	float3 pt2 = Edge(1).ClosestPoint(other, 0, &d2);
-	float3 pt3 = Edge(2).ClosestPoint(other, 0, &d3);
+	vec pt1 = Edge(0).ClosestPoint(other, unused1, d1);
+	vec pt2 = Edge(1).ClosestPoint(other, unused2, d2);
+	vec pt3 = Edge(2).ClosestPoint(other, unused3, d3);
 	float dist1 = pt1.DistanceSq(other.GetPoint(d1));
 	float dist2 = pt2.DistanceSq(other.GetPoint(d2));
 	float dist3 = pt3.DistanceSq(other.GetPoint(d3));
@@ -1131,14 +1429,15 @@ float3 Triangle::ClosestPointToTriangleEdge(const Line &other, float *outU, floa
 	}
 }
 
-float3 Triangle::ClosestPointToTriangleEdge(const LineSegment &lineSegment, float *outU, float *outV, float *outD) const
+vec Triangle::ClosestPointToTriangleEdge(const LineSegment &lineSegment, float *outU, float *outV, float *outD) const
 {
 	///@todo Optimize!
 	// The line is parallel to the triangle.
+	float unused1, unused2, unused3;
 	float d1, d2, d3;
-	float3 pt1 = Edge(0).ClosestPoint(lineSegment, 0, &d1);
-	float3 pt2 = Edge(1).ClosestPoint(lineSegment, 0, &d2);
-	float3 pt3 = Edge(2).ClosestPoint(lineSegment, 0, &d3);
+	vec pt1 = Edge(0).ClosestPoint(lineSegment, unused1, d1);
+	vec pt2 = Edge(1).ClosestPoint(lineSegment, unused2, d2);
+	vec pt3 = Edge(2).ClosestPoint(lineSegment, unused3, d3);
 	float dist1 = pt1.DistanceSq(lineSegment.GetPoint(d1));
 	float dist2 = pt2.DistanceSq(lineSegment.GetPoint(d2));
 	float dist3 = pt3.DistanceSq(lineSegment.GetPoint(d3));
@@ -1165,10 +1464,10 @@ float3 Triangle::ClosestPointToTriangleEdge(const LineSegment &lineSegment, floa
 	}
 }
 
-float3 Triangle::ClosestPoint(const Line &line, float3 *otherPt) const
+vec Triangle::ClosestPoint(const Line &line, vec *otherPt) const
 {
 	///\todo Optimize this function.
-	float3 intersectionPoint;
+	vec intersectionPoint;
 	if (Intersects(line, 0, &intersectionPoint))
 	{
 		if (otherPt)
@@ -1177,7 +1476,7 @@ float3 Triangle::ClosestPoint(const Line &line, float3 *otherPt) const
 	}
 
 	float u1,v1,d1;
-	float3 pt1 = ClosestPointToTriangleEdge(line, &u1, &v1, &d1);
+	vec pt1 = ClosestPointToTriangleEdge(line, &u1, &v1, &d1);
 	if (otherPt)
 		*otherPt = line.GetPoint(d1);
 	return pt1;
@@ -1188,12 +1487,12 @@ float3 Triangle::ClosestPoint(const Line &line, float3 *otherPt) const
 /// but the algorithm in the book is broken and does not take into account the
 /// direction of the gradient to determine the proper region of intersection.
 /// Instead using a slower code path above.
-float3 Triangle::ClosestPoint(const Line &line, float3 *otherPt) const
+vec Triangle::ClosestPoint(const Line &line, vec *otherPt) const
 {
-	float3 e0 = b - a;
-	float3 e1 = c - a;
-	float3 v_p = a - line.pos;
-	float3 d = line.dir;
+	vec e0 = b - a;
+	vec e1 = c - a;
+	vec v_p = a - line.pos;
+	vec d = line.dir;
 
 	float v_p_dot_e0 = Dot(v_p, e0);
 	float v_p_dot_e1 = Dot(v_p, e1);
@@ -1356,7 +1655,7 @@ float3 Triangle::ClosestPoint(const Line &line, float3 *otherPt) const
 
 #if 0
 /// [groupSyntax]
-float3 Triangle::ClosestPoint(const Line &other, float *outU, float *outV, float *outD) const
+vec Triangle::ClosestPoint(const Line &other, float *outU, float *outV, float *outD) const
 {
 	/** The implementation of the Triangle-Line test is based on the pseudo-code in
 		Schneider, Eberly. Geometric Tools for Computer Graphics pp. 433 - 441. */
@@ -1366,9 +1665,9 @@ float3 Triangle::ClosestPoint(const Line &other, float *outU, float *outV, float
 	// Point on line:  L(t) = p + t*d;
 	// Minimize the function Q(u,v,t) = ||T(u,v) - L(t)||.
 
-	float3 e0 = b-a;
-	float3 e1 = c-a;
-	float3 d = other.dir;
+	vec e0 = b-a;
+	vec e1 = c-a;
+	vec d = other.dir;
 
 	const float d_e0e0 = Dot(e0, e0);
 	const float d_e0e1 = Dot(e0, e1);
@@ -1387,7 +1686,7 @@ float3 Triangle::ClosestPoint(const Line &other, float *outU, float *outV, float
 	if (!inv)
 		return ClosestPointToTriangleEdge(other, outU, outV, outD);
 
-	float3 v_m_p = a - other.pos;
+	vec v_m_p = a - other.pos;
 	float v_m_p_e0 = v_m_p.Dot(e0);
 	float v_m_p_e1 = v_m_p.Dot(e1);
 	float v_m_p_d = v_m_p.Dot(d);
@@ -1515,7 +1814,7 @@ float3 Triangle::ClosestPoint(const Line &other, float *outU, float *outV, float
 #endif
 
 /// [groupSyntax]
-float3 Triangle::ClosestPoint(const Triangle &other, float3 *otherPt) const
+vec Triangle::ClosestPoint(const Triangle &other, vec *otherPt) const
 {
 	/** The code for computing the closest point pair on two Triangles is based
 		on pseudo-code from Christer Ericson's Real-Time Collision Detection, pp. 155-156. */
@@ -1525,17 +1824,17 @@ float3 Triangle::ClosestPoint(const Triangle &other, float3 *otherPt) const
 	bool success = this->Intersects(other, &l);
 	if (success)
 	{
-		float3 cp = l.CenterPoint();
+		vec cp = l.CenterPoint();
 		if (otherPt)
 			*otherPt = cp;
 		return cp;
 	}
 
-	float3 closestThis = this->ClosestPoint(other.a);
-	float3 closestOther = other.a;
+	vec closestThis = this->ClosestPoint(other.a);
+	vec closestOther = other.a;
 	float closestDSq = closestThis.DistanceSq(closestOther);
 
-	float3 pt = this->ClosestPoint(other.b);
+	vec pt = this->ClosestPoint(other.b);
 	float dSq = pt.DistanceSq(other.b);
 	if (dSq < closestDSq) closestThis = pt, closestOther = other.b, closestDSq = dSq;
 
@@ -1543,13 +1842,25 @@ float3 Triangle::ClosestPoint(const Triangle &other, float3 *otherPt) const
 	dSq = pt.DistanceSq(other.c);
 	if (dSq < closestDSq) closestThis = pt, closestOther = other.c, closestDSq = dSq;
 
+	pt = other.ClosestPoint(this->a);
+	dSq = pt.DistanceSq(this->a);
+	if (dSq < closestDSq) closestOther = pt, closestThis = this->a, closestDSq = dSq;
+
+	pt = other.ClosestPoint(this->b);
+	dSq = pt.DistanceSq(this->b);
+	if (dSq < closestDSq) closestOther = pt, closestThis = this->b, closestDSq = dSq;
+
+	pt = other.ClosestPoint(this->c);
+	dSq = pt.DistanceSq(this->c);
+	if (dSq < closestDSq) closestOther = pt, closestThis = this->c, closestDSq = dSq;
+
 	LineSegment l1[3] = { LineSegment(a,b), LineSegment(a,c), LineSegment(b,c) };
 	LineSegment l2[3] = { LineSegment(other.a,other.b), LineSegment(other.a,other.c), LineSegment(other.b,other.c) };
 	float d, d2;
 	for(int i = 0; i < 3; ++i)
 		for(int j = 0; j < 3; ++j)
 		{
-			float dist = l1[i].Distance(l2[j], &d, &d2);
+			float dist = l1[i].Distance(l2[j], d, d2);
 			if (dist*dist < closestDSq)
 			{
 				closestThis = l1[i].GetPoint(d);
@@ -1563,7 +1874,7 @@ float3 Triangle::ClosestPoint(const Triangle &other, float3 *otherPt) const
 	return closestThis;
 }
 
-float3 Triangle::RandomPointInside(LCG &rng) const
+vec Triangle::RandomPointInside(LCG &rng) const
 {
 	float epsilon = 1e-3f;
 	///@todo rng.Float() returns [0,1[, but to be completely uniform, we'd need [0,1] here.
@@ -1575,26 +1886,26 @@ float3 Triangle::RandomPointInside(LCG &rng) const
 		t = 1.f - t;
 	}
 #ifdef MATH_ASSERT_CORRECTNESS
-	float3 pt = Point(s, t);
+	vec pt = Point(s, t);
 	float2 uv = BarycentricUV(pt);
-	assert(uv.x >= 0.f);
-	assert(uv.y >= 0.f);
-	assert(uv.x + uv.y <= 1.f);
+	assert1(uv.x >= 0.f, uv.x);
+	assert1(uv.y >= 0.f, uv.y);
+	assert3(uv.x + uv.y <= 1.f, uv.x, uv.y, uv.x + uv.y);
 	float3 uvw = BarycentricUVW(pt);
-	assert(uvw.x >= 0.f);
-	assert(uvw.y >= 0.f);
-	assert(uvw.z >= 0.f);
-	assert(EqualAbs(uvw.x + uvw.y + uvw.z, 1.f));
+	assert1(uvw.x >= 0.f, uvw.x);
+	assert1(uvw.y >= 0.f, uvw.y);
+	assert1(uvw.z >= 0.f, uvw.z);
+	assert4(EqualAbs(uvw.x + uvw.y + uvw.z, 1.f), uvw.x, uvw.y, uvw.z, uvw.x + uvw.y + uvw.z);
 #endif
 	return Point(s, t);
 }
 
-float3 Triangle::RandomVertex(LCG &rng) const
+vec Triangle::RandomVertex(LCG &rng) const
 {
 	return Vertex(rng.Int(0, 2));
 }
 
-float3 Triangle::RandomPointOnEdge(LCG &rng) const
+vec Triangle::RandomPointOnEdge(LCG &rng) const
 {
 	assume(!IsDegenerate());
 	float ab = a.Distance(b);
@@ -1638,14 +1949,39 @@ Triangle operator *(const Quat &transform, const Triangle &triangle)
 	return t;
 }
 
-#ifdef MATH_ENABLE_STL_SUPPORT
-std::string Triangle::ToString() const
+#if defined(MATH_ENABLE_STL_SUPPORT) || defined(MATH_CONTAINERLIB_SUPPORT)
+StringT Triangle::ToString() const
 {
 	char str[256];
-	sprintf_s(str, 256, "Triangle(a:(%.2f, %.2f, %.2f) b:(%.2f, %.2f, %.2f) c:(%.2f, %.2f, %.2f))",
+	sprintf(str, "Triangle(a:(%.2f, %.2f, %.2f) b:(%.2f, %.2f, %.2f) c:(%.2f, %.2f, %.2f))",
 		a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
 	return str;
 }
+
+StringT Triangle::SerializeToString() const
+{
+	char str[256];
+	char *s = SerializeFloat(a.x, str); *s = ','; ++s;
+	s = SerializeFloat(a.y, s); *s = ','; ++s;
+	s = SerializeFloat(a.z, s); *s = ','; ++s;
+	s = SerializeFloat(b.x, s); *s = ','; ++s;
+	s = SerializeFloat(b.y, s); *s = ','; ++s;
+	s = SerializeFloat(b.z, s); *s = ','; ++s;
+	s = SerializeFloat(c.x, s); *s = ','; ++s;
+	s = SerializeFloat(c.y, s); *s = ','; ++s;
+	s = SerializeFloat(c.z, s);
+	assert(s+1 - str < 256);
+	MARK_UNUSED(s);
+	return str;
+}
+
+StringT Triangle::SerializeToCodeString() const
+{
+	return "Triangle(" + a.SerializeToCodeString() + "," + b.SerializeToCodeString() + "," + c.SerializeToCodeString() + ")";
+}
+#endif
+
+#if defined(MATH_ENABLE_STL_SUPPORT)
 
 std::ostream &operator <<(std::ostream &o, const Triangle &triangle)
 {
@@ -1654,5 +1990,23 @@ std::ostream &operator <<(std::ostream &o, const Triangle &triangle)
 }
 
 #endif
+
+Triangle Triangle::FromString(const char *str, const char **outEndStr)
+{
+	assume(str);
+	if (!str)
+		return Triangle(vec::nan, vec::nan, vec::nan);
+	Triangle t;
+	MATH_SKIP_WORD(str, "Triangle(");
+	MATH_SKIP_WORD(str, "a:(");
+	t.a = PointVecFromString(str, &str);
+	MATH_SKIP_WORD(str, " b:(");
+	t.b = PointVecFromString(str, &str);
+	MATH_SKIP_WORD(str, " c:(");
+	t.c = PointVecFromString(str, &str);
+	if (outEndStr)
+		*outEndStr = str;
+	return t;
+}
 
 MATH_END_NAMESPACE

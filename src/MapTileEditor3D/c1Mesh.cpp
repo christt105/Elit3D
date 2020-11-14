@@ -40,7 +40,7 @@ void c1Mesh::Update()
 		material->UnBindTex();
 	}
 	else
-		LOGE("Object %s not find mesh %" SDL_PRIu64, object->GetName(), mesh)
+		LOGE("Object %s not find mesh %" SDL_PRIu64, object->GetName(), mesh);
 }
 
 void c1Mesh::SetMesh(const uint64_t& id)

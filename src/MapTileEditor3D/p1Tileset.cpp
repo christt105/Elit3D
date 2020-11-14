@@ -141,7 +141,7 @@ void p1Tileset::TileSetInfo(r1Tileset* tile)
 	ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), tile->name.c_str());
 	ImGui::Spacing();
 	if (tex == nullptr) {
-		//LOGW("Deleted texture of the tileset. Add a texture on the panel inspector");
+		//MLOGW("Deleted texture of the tileset. Add a texture on the panel inspector");
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.f, 0.f, 1.f));
 		ImGui::TextWrapped("Image of the tileset deleted. Edit tileset with an existing image.");
 		ImGui::PopStyleColor();

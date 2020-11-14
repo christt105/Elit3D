@@ -22,8 +22,6 @@
 #include "MathNamespace.h"
 
 #include "BitOps.h"
-#include "Complex.h"
-#include "CoordinateAxisConvention.h"
 #include "FixedPoint.h"
 #include "float2.h"
 #include "float3.h"
@@ -41,3 +39,4 @@
 #include "Rect.h"
 #include "SSEMath.h"
 #include "TransformOps.h"
+#include "Swap.h"

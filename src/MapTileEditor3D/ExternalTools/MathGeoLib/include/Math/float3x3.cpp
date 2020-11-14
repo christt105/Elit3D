@@ -19,6 +19,7 @@
 #include <string.h>
 #include "assume.h"
 #include "MathFunc.h"
+#include "Swap.h"
 #include "float3.h"
 #include "float4.h"
 #include "float3x4.h"
@@ -86,8 +87,48 @@ float3x3 float3x3::RotateAxisAngle(const float3 &axisDirection, float angleRadia
 
 float3x3 float3x3::RotateFromTo(const float3 &sourceDirection, const float3 &targetDirection)
 {
+	assume2(sourceDirection.IsNormalized(), sourceDirection, sourceDirection.Length());
+	assume2(targetDirection.IsNormalized(), targetDirection, targetDirection.Length());
+
+	// http://cs.brown.edu/research/pubs/pdfs/1999/Moller-1999-EBA.pdf
 	float3x3 r;
-	r.SetRotatePart(Quat::RotateFromTo(sourceDirection, targetDirection));
+	float dot = sourceDirection.Dot(targetDirection);
+	if (Abs(dot) > 0.999f)
+	{
+		float3 s = sourceDirection.Abs();
+		float3 unit = s.x < s.y && s.x < s.z ? float3::unitX : (s.y < s.z ? float3::unitY : float3::unitZ);
+		float3 u = unit - sourceDirection;
+		float3 v = unit - targetDirection;
+		float uv = u.Dot(v);
+		float uu = u.Dot(u);
+		float vv = v.Dot(v);
+		float a = -2.f / uu;
+		float b = -2.f / vv;
+		float c = a * b * uv;
+
+		r[0][0] = 1.f + a*u.x*u.x + b*v.x*v.x + c*v.x*u.x;
+		r[0][1] =       a*u.x*u.y + b*v.x*v.y + c*v.x*u.y;
+		r[0][2] =       a*u.x*u.z + b*v.x*v.z + c*v.x*u.z;
+
+		r[1][0] =       a*u.y*u.x + b*v.y*v.x + c*v.y*u.x;
+		r[1][1] = 1.f + a*u.y*u.y + b*v.y*v.y + c*v.y*u.y;
+		r[1][2] =       a*u.y*u.z + b*v.y*v.z + c*v.y*u.z;
+
+		r[2][0] =       a*u.z*u.x + b*v.z*v.x + c*v.z*u.x;
+		r[2][1] =       a*u.z*u.y + b*v.z*v.y + c*v.z*u.y;
+		r[2][2] = 1.f + a*u.z*u.z + b*v.z*v.z + c*v.z*u.z;
+	}
+	else
+	{
+		float3 v = sourceDirection.Cross(targetDirection);
+		float h = (1.f - dot) / v.Dot(v);
+		float hvx = h * v.x;
+		float hvy = h * v.y;
+		float hvz = h * v.z;
+		r[0][0] = hvx * v.x + dot; r[0][1] = hvy * v.x - v.z; r[0][2] = hvz * v.x + v.y;
+		r[1][0] = hvx * v.y + v.z; r[1][1] = hvy * v.y + dot; r[1][2] = hvz * v.y - v.x;
+		r[2][0] = hvx * v.z - v.y; r[2][1] = hvy * v.z + v.x; r[2][2] = hvz * v.z + dot;
+	}
 	return r;
 }
 
@@ -315,41 +356,18 @@ float3x3 float3x3::OrthographicProjectionXY()
 	return v;
 }
 
-MatrixProxy<float3x3::Cols> &float3x3::operator[](int row)
-{
-	assume(row >= 0);
-	assume(row < Rows);
-
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (row < 0 || row >= Rows)
-		row = 0; // Benign failure, just give the first row.
-#endif
-	return *(reinterpret_cast<MatrixProxy<Cols>*>(v[row]));
-}
-
-const MatrixProxy<float3x3::Cols> &float3x3::operator[](int row) const
-{
-	assume(row >= 0);
-	assume(row < Rows);
-
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (row < 0 || row >= Rows)
-		row = 0; // Benign failure, just give the first row.
-#endif
-	return *(reinterpret_cast<const MatrixProxy<Cols>*>(v[row]));
-}
-
 float &float3x3::At(int row, int col)
 {
 	assume(row >= 0);
 	assume(row < Rows);
 	assume(col >= 0);
 	assume(col < Cols);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (row < 0 || row >= Rows || col < 0 || col >= Cols)
-		return v[0][0]; // Benign failure, return the first element.
-#endif
+
+#ifdef MATH_COLMAJOR_MATRICES
+	return v[col][row];
+#else
 	return v[row][col];
+#endif
 }
 
 CONST_WIN32 float float3x3::At(int row, int col) const
@@ -358,21 +376,41 @@ CONST_WIN32 float float3x3::At(int row, int col) const
 	assume(row < Rows);
 	assume(col >= 0);
 	assume(col < Cols);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (row < 0 || row >= Rows || col < 0 || col >= Cols)
-		return FLOAT_NAN;
-#endif
+
+#ifdef MATH_COLMAJOR_MATRICES
+	return v[col][row];
+#else
 	return v[row][col];
+#endif
 }
 
+#ifdef MATH_COLMAJOR_MATRICES
+float3 &float3x3::Col(int col)
+{
+	assume(col >= 0);
+	assume(col < Cols);
+	return reinterpret_cast<float3 &>(v[col]);
+}
+
+const float3 &float3x3::Col(int col) const
+{
+	assume(col >= 0);
+	assume(col < Cols);
+	return reinterpret_cast<const float3 &>(v[col]);
+}
+
+CONST_WIN32 float3 float3x3::Row(int row) const
+{
+	assume(row >= 0);
+	assume(row < Rows);
+	return float3(At(row, 0), At(row, 1), At(row, 2));
+}
+
+#else
 float3 &float3x3::Row(int row)
 {
 	assume(row >= 0);
 	assume(row < Rows);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (row < 0 || row >= Rows)
-		row = 0; // Benign failure, just give the first row.
-#endif
 	return reinterpret_cast<float3 &>(v[row]);
 }
 
@@ -380,10 +418,6 @@ const float3 &float3x3::Row(int row) const
 {
 	assume(row >= 0);
 	assume(row < Rows);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (row < 0 || row >= Rows)
-		row = 0; // Benign failure, just give the first row.
-#endif
 	return reinterpret_cast<const float3 &>(v[row]);
 }
 
@@ -391,13 +425,9 @@ CONST_WIN32 float3 float3x3::Col(int col) const
 {
 	assume(col >= 0);
 	assume(col < Cols);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (col < 0 || col >= Cols)
-		return float3::nan;
-#endif
-
-	return float3(v[0][col], v[1][col], v[2][col]);
+	return float3(At(0, col), At(1, col), At(2, col));
 }
+#endif
 
 CONST_WIN32 float3 float3x3::Diagonal() const
 {
@@ -408,25 +438,19 @@ void float3x3::ScaleRow(int row, float scalar)
 {
 	assume(row >= 0);
 	assume(row < Rows);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (row < 0 || row >= Rows)
-		return;
-#endif
 	assume(MATH_NS::IsFinite(scalar));
-	Row(row) *= scalar;
+	At(row, 0) *= scalar;
+	At(row, 1) *= scalar;
+	At(row, 2) *= scalar;
 }
 
 void float3x3::ScaleCol(int col, float scalar)
 {
 	assume(col >= 0);
 	assume(col < Cols);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (col < 0 || col >= Cols)
-		return;
-#endif
-	v[0][col] *= scalar;
-	v[1][col] *= scalar;
-	v[2][col] *= scalar;
+	At(0, col) *= scalar;
+	At(1, col) *= scalar;
+	At(2, col) *= scalar;
 }
 
 float3 float3x3::WorldX() const
@@ -444,30 +468,16 @@ float3 float3x3::WorldZ() const
 	return Col(2);
 }
 
-float *float3x3::ptr()
-{
-	return &v[0][0];
-}
-
-const float *float3x3::ptr() const
-{
-	return &v[0][0];
-}
-
 void float3x3::SetRow(int row, float x, float y, float z)
 {
 	assume(row >= 0);
 	assume(row < Rows);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (row < 0 || row >= Rows)
-		return;
-#endif
 	assume(MATH_NS::IsFinite(x));
 	assume(MATH_NS::IsFinite(y));
 	assume(MATH_NS::IsFinite(z));
-	v[row][0] = x;
-	v[row][1] = y;
-	v[row][2] = z;
+	At(row, 0) = x;
+	At(row, 1) = y;
+	At(row, 2) = z;
 }
 
 void float3x3::SetRow(int row, const float3 &rowVector)
@@ -478,10 +488,6 @@ void float3x3::SetRow(int row, const float3 &rowVector)
 void float3x3::SetRow(int row, const float *data)
 {
 	assume(data);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (!data)
-		return;
-#endif
 	SetRow(row, data[0], data[1], data[2]);
 }
 
@@ -489,16 +495,12 @@ void float3x3::SetCol(int column, float x, float y, float z)
 {
 	assume(column >= 0);
 	assume(column < Cols);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (column < 0 || column >= Cols)
-		return;
-#endif
 	assume(MATH_NS::IsFinite(x));
 	assume(MATH_NS::IsFinite(y));
 	assume(MATH_NS::IsFinite(z));
-	v[0][column] = x;
-	v[1][column] = y;
-	v[2][column] = z;
+	At(0, column) = x;
+	At(1, column) = y;
+	At(2, column) = z;
 }
 
 void float3x3::SetCol(int column, const float3 &columnVector)
@@ -509,10 +511,6 @@ void float3x3::SetCol(int column, const float3 &columnVector)
 void float3x3::SetCol(int column, const float *data)
 {
 	assume(data);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (!data)
-		return;
-#endif
 	SetCol(column, data[0], data[1], data[2]);
 }
 
@@ -520,9 +518,9 @@ void float3x3::Set(float _00, float _01, float _02,
                    float _10, float _11, float _12,
                    float _20, float _21, float _22)
 {
-	v[0][0] = _00; v[0][1] = _01; v[0][2] = _02;
-	v[1][0] = _10; v[1][1] = _11; v[1][2] = _12;
-	v[2][0] = _20; v[2][1] = _21; v[2][2] = _22;
+	At(0, 0) = _00; At(0, 1) = _01; At(0, 2) = _02;
+	At(1, 0) = _10; At(1, 1) = _11; At(1, 2) = _12;
+	At(2, 0) = _20; At(2, 1) = _21; At(2, 2) = _22;
 }
 
 void float3x3::Set(const float3x3 &rhs)
@@ -533,32 +531,14 @@ void float3x3::Set(const float3x3 &rhs)
 void float3x3::Set(const float *values)
 {
 	assume(values);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (!values)
-		return;
-#endif
-	v[0][0] = values[0];
-	v[0][1] = values[1];
-	v[0][2] = values[2];
-
-	v[1][0] = values[3];
-	v[1][1] = values[4];
-	v[1][2] = values[5];
-
-	v[2][0] = values[6];
-	v[2][1] = values[7];
-	v[2][2] = values[8];
+	memcpy(this, values, sizeof(float)*9);
 }
 
 void float3x3::Set(int row, int col, float value)
 {
 	assume(0 <= row && row <= 2);
 	assume(0 <= col && col <= 2);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (row < 0 || row >= Rows || col < 0 || col >= Cols)
-		return;
-#endif
-	v[row][col] = value;
+	At(row, col) = value;
 }
 
 void float3x3::SetIdentity()
@@ -574,13 +554,9 @@ void float3x3::SwapColumns(int col1, int col2)
 	assume(col1 < Cols);
 	assume(col2 >= 0);
 	assume(col2 < Cols);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (col1 < 0 || col1 >= Cols || col2 < 0 || col2 >= Cols)
-		return;
-#endif
-	Swap(v[0][col1], v[0][col2]);
-	Swap(v[1][col1], v[1][col2]);
-	Swap(v[2][col1], v[2][col2]);
+	Swap(At(0, col1), At(0, col2));
+	Swap(At(1, col1), At(1, col2));
+	Swap(At(2, col1), At(2, col2));
 }
 
 void float3x3::SwapRows(int row1, int row2)
@@ -589,13 +565,9 @@ void float3x3::SwapRows(int row1, int row2)
 	assume(row1 < Rows);
 	assume(row2 >= 0);
 	assume(row2 < Rows);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (row1 < 0 || row1 >= Rows || row2 < 0 || row2 >= Rows)
-		return;
-#endif
-	Swap(v[row1][0], v[row2][0]);
-	Swap(v[row1][1], v[row2][1]);
-	Swap(v[row1][2], v[row2][2]);
+	Swap(At(row1, 0), At(row2, 0));
+	Swap(At(row1, 1), At(row2, 1));
+	Swap(At(row1, 2), At(row2, 2));
 }
 
 void float3x3::SetRotatePartX(float angle)
@@ -615,7 +587,7 @@ void float3x3::SetRotatePartZ(float angle)
 
 void float3x3::SetRotatePart(const float3 &axisDirection, float angle)
 {
-	SetRotatePart(Quat(axisDirection, angle));
+	SetRotationAxis3x3(*this, axisDirection, angle);
 }
 
 void float3x3::SetRotatePart(const Quat &q)
@@ -633,6 +605,9 @@ float3x3 float3x3::LookAt(const float3 &localForward, const float3 &targetDirect
 
 	// In the local space, the forward and up directions must be perpendicular to be well-formed.
 	assume(localForward.IsPerpendicular(localUp));
+
+	// In the world space, the targetDirection and worldUp cannot be degenerate (collinear)
+	assume(!targetDirection.Cross(worldUp).IsZero() && "Passed a degenerate coordinate frame to look towards in float3x3::LookAt!");
 
 	// Generate the third basis vector in the local space.
 	float3 localRight = localUp.Cross(localForward).Normalized();
@@ -788,10 +763,6 @@ float3x3 float3x3::Adjugate() const
 
 bool float3x3::Inverse(float epsilon)
 {
-#ifdef MATH_ASSERT_CORRECTNESS
-	float3x3 orig = *this;
-#endif
-
 	// There exists a generic matrix inverse calculator that uses Gaussian elimination.
 	// It would be invoked by calling
 	// return InverseMatrix(*this, epsilon);
@@ -800,13 +771,6 @@ bool float3x3::Inverse(float epsilon)
 	bool success = InverseMatrix(i, epsilon);
 	if (!success)
 		return false;
-
-#ifdef MATH_ASSERT_CORRECTNESS
-	float3x3 id = orig * i;
-	float3x3 id2 = i * orig;
-	mathassert(id.IsIdentity(0.5f));
-	mathassert(id2.IsIdentity(0.5f));
-#endif
 
 	*this = i;
 	return true;
@@ -826,17 +790,17 @@ bool float3x3::InverseFast(float epsilon)
 
 	d = 1.f / d;
 	float3x3 i;
-	i[0][0] = d * (v[1][1] * v[2][2] - v[1][2] * v[2][1]);
-	i[0][1] = d * (v[0][2] * v[2][1] - v[0][1] * v[2][2]);
-	i[0][2] = d * (v[0][1] * v[1][2] - v[0][2] * v[1][1]);
+	i[0][0] = d * (At(1, 1) * At(2, 2) - At(1, 2) * At(2, 1));
+	i[0][1] = d * (At(0, 2) * At(2, 1) - At(0, 1) * At(2, 2));
+	i[0][2] = d * (At(0, 1) * At(1, 2) - At(0, 2) * At(1, 1));
 
-	i[1][0] = d * (v[1][2] * v[2][0] - v[1][0] * v[2][2]);
-	i[1][1] = d * (v[0][0] * v[2][2] - v[0][2] * v[2][0]);
-	i[1][2] = d * (v[0][2] * v[1][0] - v[0][0] * v[1][2]);
+	i[1][0] = d * (At(1, 2) * At(2, 0) - At(1, 0) * At(2, 2));
+	i[1][1] = d * (At(0, 0) * At(2, 2) - At(0, 2) * At(2, 0));
+	i[1][2] = d * (At(0, 2) * At(1, 0) - At(0, 0) * At(1, 2));
 
-	i[2][0] = d * (v[1][0] * v[2][1] - v[1][1] * v[2][0]);
-	i[2][1] = d * (v[2][0] * v[0][1] - v[0][0] * v[2][1]);
-	i[2][2] = d * (v[0][0] * v[1][1] - v[0][1] * v[1][0]);
+	i[2][0] = d * (At(1, 0) * At(2, 1) - At(1, 1) * At(2, 0));
+	i[2][1] = d * (At(2, 0) * At(0, 1) - At(0, 0) * At(2, 1));
+	i[2][2] = d * (At(0, 0) * At(1, 1) - At(0, 1) * At(1, 0));
 
 #ifdef MATH_ASSERT_CORRECTNESS
 	float3x3 id = orig * i;
@@ -852,17 +816,17 @@ bool float3x3::InverseFast(float epsilon)
 bool float3x3::SolveAxb(float3 b, float3 &x) const
 {
 	// Solve by pivotization.
-	float v00 = v[0][0];
-	float v10 = v[1][0];
-	float v20 = v[2][0];
+	float v00 = At(0, 0);
+	float v10 = At(1, 0);
+	float v20 = At(2, 0);
 
-	float v01 = v[0][1];
-	float v11 = v[1][1];
-	float v21 = v[2][1];
+	float v01 = At(0, 1);
+	float v11 = At(1, 1);
+	float v21 = At(2, 1);
 
-	float v02 = v[0][2];
-	float v12 = v[1][2];
-	float v22 = v[2][2];
+	float v02 = At(0, 2);
+	float v12 = At(1, 2);
+	float v22 = At(2, 2);
 
 	float av00 = Abs(v00);
 	float av10 = Abs(v10);
@@ -876,7 +840,7 @@ bool float3x3::SolveAxb(float3 b, float3 &x) const
 		Swap(v02, v12);
 		Swap(b[0], b[1]);
 	}
-	else if (v20 >= v00)
+	else if (av20 >= av00)
 	{
 		Swap(v00, v20);
 		Swap(v01, v21);
@@ -969,21 +933,21 @@ bool float3x3::InverseColOrthogonal()
 	float3x3 orig = *this;
 #endif
 	assume(IsColOrthogonal());
-	float s1 = float3(v[0][0], v[1][0], v[2][0]).LengthSq();
-	float s2 = float3(v[0][1], v[1][1], v[2][1]).LengthSq();
-	float s3 = float3(v[0][2], v[1][2], v[2][2]).LengthSq();
+	float s1 = float3(At(0, 0), At(1, 0), At(2, 0)).LengthSq();
+	float s2 = float3(At(0, 1), At(1, 1), At(2, 1)).LengthSq();
+	float s3 = float3(At(0, 2), At(1, 2), At(2, 2)).LengthSq();
 	if (s1 < 1e-8f || s2 < 1e-8f || s3 < 1e-8f)
 		return false;
 	s1 = 1.f / s1;
 	s2 = 1.f / s2;
 	s3 = 1.f / s3;
-	Swap(v[0][1], v[1][0]);
-	Swap(v[0][2], v[2][0]);
-	Swap(v[1][2], v[2][1]);
+	Swap(At(0, 1), At(1, 0));
+	Swap(At(0, 2), At(2, 0));
+	Swap(At(1, 2), At(2, 1));
 
-	v[0][0] *= s1; v[0][1] *= s1; v[0][2] *= s1;
-	v[1][0] *= s2; v[1][1] *= s2; v[1][2] *= s2;
-	v[2][0] *= s3; v[2][1] *= s3; v[2][2] *= s3;
+	At(0, 0) *= s1; At(0, 1) *= s1; At(0, 2) *= s1;
+	At(1, 0) *= s2; At(1, 1) *= s2; At(1, 2) *= s2;
+	At(2, 0) *= s3; At(2, 1) *= s3; At(2, 2) *= s3;
 
 	mathassert(!orig.IsInvertible()|| (orig * *this).IsIdentity());
 	mathassert(IsRowOrthogonal());
@@ -998,17 +962,17 @@ bool float3x3::InverseOrthogonalUniformScale()
 #endif
 	assume(IsColOrthogonal());
 	assume(HasUniformScale());
-	float scale = float3(v[0][0], v[1][0], v[2][0]).LengthSq();
+	float scale = float3(At(0, 0), At(1, 0), At(2, 0)).LengthSq();
 	if (scale < 1e-8f)
 		return false;
 	scale = 1.f / scale;
-	Swap(v[0][1], v[1][0]);
-	Swap(v[0][2], v[2][0]);
-	Swap(v[1][2], v[2][1]);
+	Swap(At(0, 1), At(1, 0));
+	Swap(At(0, 2), At(2, 0));
+	Swap(At(1, 2), At(2, 1));
 
-	v[0][0] *= scale; v[0][1] *= scale; v[0][2] *= scale;
-	v[1][0] *= scale; v[1][1] *= scale; v[1][2] *= scale;
-	v[2][0] *= scale; v[2][1] *= scale; v[2][2] *= scale;
+	At(0, 0) *= scale; At(0, 1) *= scale; At(0, 2) *= scale;
+	At(1, 0) *= scale; At(1, 1) *= scale; At(1, 2) *= scale;
+	At(2, 0) *= scale; At(2, 1) *= scale; At(2, 2) *= scale;
 
 	assume(IsFinite());
 	assume(IsColOrthogonal());
@@ -1107,10 +1071,6 @@ void float3x3::Orthonormalize(int c0, int c1, int c2)
 {
 	assume(c0 != c1 && c0 != c2 && c1 != c2);
 	assume(c0 >= 0 && c1 >= 0 && c2 >= 0 && c0 < Cols && c1 < Cols && c2 < Cols);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (c0 == c1 || c0 == c2 || c1 == c2)
-		return;
-#endif
 	///@todo Optimize away copies.
 	float3 v0 = Col(c0);
 	float3 v1 = Col(c1);
@@ -1124,9 +1084,18 @@ void float3x3::Orthonormalize(int c0, int c1, int c2)
 void float3x3::RemoveScale()
 {
 	assume(IsFinite());
+#ifdef MATH_COLMAJOR_MATRICES
+	float3 row0 = Row(0);
+	float3 row1 = Row(1);
+	float3 row2 = Row(2);
+	float x = row0.Normalize();
+	float y = row1.Normalize();
+	float z = row2.Normalize();
+#else
 	float x = Row(0).Normalize();
 	float y = Row(1).Normalize();
 	float z = Row(2).Normalize();
+#endif
 	assume(x != 0 && y != 0 && z != 0 && "float3x3::RemoveScale failed!");
 	MARK_UNUSED(x);
 	MARK_UNUSED(y);
@@ -1140,33 +1109,29 @@ float3 float3x3::Transform(const float3 &vector) const
 
 float3 float3x3::TransformLeft(const float3 &vector) const
 {
-	return float3(DOT3STRIDED(vector, ptr(), 3),
-	              DOT3STRIDED(vector, ptr()+1, 3),
-	              DOT3STRIDED(vector, ptr()+2, 3));
+	return float3(vector[0] * At(0, 0) + vector[1] * At(1, 0) + vector[2] * At(2, 0),
+				  vector[0] * At(0, 1) + vector[1] * At(1, 1) + vector[2] * At(2, 1),
+				  vector[0] * At(0, 2) + vector[1] * At(1, 2) + vector[2] * At(2, 2));
 }
 
 float3 float3x3::Transform(float x, float y, float z) const
 {
-	return float3(DOT3_xyz(Row(0), x,y,z),
-	             DOT3_xyz(Row(1), x,y,z),
-	             DOT3_xyz(Row(2), x,y,z));
+	return float3(At(0, 0) * x + At(0, 1) * y + At(0, 2) * z,
+	              At(1, 0) * x + At(1, 1) * y + At(1, 2) * z,
+				  At(2, 0) * x + At(2, 1) * y + At(2, 2) * z);
 }
 
 float4 float3x3::Transform(const float4 &vector) const
 {
-	return float4(DOT3(Row(0), vector),
-	              DOT3(Row(1), vector),
-	              DOT3(Row(2), vector),
-	              vector.w);
+	return float4(At(0, 0) * vector.x + At(0, 1) * vector.y + At(0, 2) * vector.z,
+				  At(1, 0) * vector.x + At(1, 1) * vector.y + At(1, 2) * vector.z,
+				  At(2, 0) * vector.x + At(2, 1) * vector.y + At(2, 2) * vector.z,
+				  vector.w);
 }
 
 void float3x3::BatchTransform(float3 *pointArray, int numPoints) const
 {
 	assume(pointArray || numPoints == 0);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (!pointArray)
-		return;
-#endif
 	for(int i = 0; i < numPoints; ++i)
 		pointArray[i] = *this * pointArray[i];
 }
@@ -1174,26 +1139,18 @@ void float3x3::BatchTransform(float3 *pointArray, int numPoints) const
 void float3x3::BatchTransform(float3 *pointArray, int numPoints, int stride) const
 {
 	assume(pointArray || numPoints == 0);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (!pointArray)
-		return;
-#endif
 	assume(stride >= (int)sizeof(float3));
 	u8 *data = reinterpret_cast<u8*>(pointArray);
 	for(int i = 0; i < numPoints; ++i)
 	{
-		float3 *v = reinterpret_cast<float3*>(data + stride*i);
-		*v = *this * *v;
+		float3 *vtx = reinterpret_cast<float3*>(data + stride*i);
+		*vtx = *this * *vtx;
 	}
 }
 
 void float3x3::BatchTransform(float4 *vectorArray, int numVectors) const
 {
 	assume(vectorArray || numVectors == 0);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (!vectorArray)
-		return;
-#endif
 	for(int i = 0; i < numVectors; ++i)
 		vectorArray[i] = *this * vectorArray[i];
 }
@@ -1201,16 +1158,12 @@ void float3x3::BatchTransform(float4 *vectorArray, int numVectors) const
 void float3x3::BatchTransform(float4 *vectorArray, int numVectors, int stride) const
 {
 	assume(vectorArray || numVectors == 0);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (!vectorArray)
-		return;
-#endif
 	assume(stride >= (int)sizeof(float4));
 	u8 *data = reinterpret_cast<u8*>(vectorArray);
 	for(int i = 0; i < numVectors; ++i)
 	{
-		float4 *v = reinterpret_cast<float4*>(data + stride*i);
-		*v = *this * *v;
+		float4 *vtx = reinterpret_cast<float4*>(data + stride*i);
+		*vtx = *this * *vtx;
 	}
 }
 
@@ -1219,20 +1172,17 @@ float3x3 float3x3::operator *(const float3x3 &rhs) const
 	assume(IsFinite());
 	assume(rhs.IsFinite());
 	float3x3 r;
-	const float *c0 = rhs.ptr();
-	const float *c1 = rhs.ptr() + 1;
-	const float *c2 = rhs.ptr() + 2;
-	r[0][0] = DOT3STRIDED(v[0], c0, 3);
-	r[0][1] = DOT3STRIDED(v[0], c1, 3);
-	r[0][2] = DOT3STRIDED(v[0], c2, 3);
+	r[0][0] = At(0, 0) * rhs.At(0, 0) + At(0, 1) * rhs.At(1, 0) + At(0, 2) * rhs.At(2, 0);
+	r[0][1] = At(0, 0) * rhs.At(0, 1) + At(0, 1) * rhs.At(1, 1) + At(0, 2) * rhs.At(2, 1);
+	r[0][2] = At(0, 0) * rhs.At(0, 2) + At(0, 1) * rhs.At(1, 2) + At(0, 2) * rhs.At(2, 2);
 
-	r[1][0] = DOT3STRIDED(v[1], c0, 3);
-	r[1][1] = DOT3STRIDED(v[1], c1, 3);
-	r[1][2] = DOT3STRIDED(v[1], c2, 3);
+	r[1][0] = At(1, 0) * rhs.At(0, 0) + At(1, 1) * rhs.At(1, 0) + At(1, 2) * rhs.At(2, 0);
+	r[1][1] = At(1, 0) * rhs.At(0, 1) + At(1, 1) * rhs.At(1, 1) + At(1, 2) * rhs.At(2, 1);
+	r[1][2] = At(1, 0) * rhs.At(0, 2) + At(1, 1) * rhs.At(1, 2) + At(1, 2) * rhs.At(2, 2);
 
-	r[2][0] = DOT3STRIDED(v[2], c0, 3);
-	r[2][1] = DOT3STRIDED(v[2], c1, 3);
-	r[2][2] = DOT3STRIDED(v[2], c2, 3);
+	r[2][0] = At(2, 0) * rhs.At(0, 0) + At(2, 1) * rhs.At(1, 0) + At(2, 2) * rhs.At(2, 0);
+	r[2][1] = At(2, 0) * rhs.At(0, 1) + At(2, 1) * rhs.At(1, 1) + At(2, 2) * rhs.At(2, 1);
+	r[2][2] = At(2, 0) * rhs.At(0, 2) + At(2, 1) * rhs.At(1, 2) + At(2, 2) * rhs.At(2, 2);
 
 	return r;
 }
@@ -1244,17 +1194,17 @@ float3x3 float3x3::operator *(const Quat &rhs) const
 
 float3 float3x3::operator *(const float3 &rhs) const
 {
-	return float3(DOT3(v[0], rhs),
-	              DOT3(v[1], rhs),
-	              DOT3(v[2], rhs));
+	return float3(At(0, 0) * rhs.x + At(0, 1) * rhs.y + At(0, 2) * rhs.z,
+				  At(1, 0) * rhs.x + At(1, 1) * rhs.y + At(1, 2) * rhs.z,
+				  At(2, 0) * rhs.x + At(2, 1) * rhs.y + At(2, 2) * rhs.z);
 }
 
 float4 float3x3::operator *(const float4 &rhs) const
 {
-	return float4(DOT3(v[0], rhs),
-	              DOT3(v[1], rhs),
-	              DOT3(v[2], rhs),
-	              rhs.w);
+	return float4(At(0, 0) * rhs.x + At(0, 1) * rhs.y + At(0, 2) * rhs.z,
+				  At(1, 0) * rhs.x + At(1, 1) * rhs.y + At(1, 2) * rhs.z,
+				  At(2, 0) * rhs.x + At(2, 1) * rhs.y + At(2, 2) * rhs.z,
+				  rhs.w);
 }
 
 float3x3 float3x3::operator *(float scalar) const
@@ -1290,7 +1240,7 @@ float3x3 float3x3::operator -() const
 	float3x3 r;
 	for(int y = 0; y < Rows; ++y)
 		for(int x = 0; x < Cols; ++x)
-			r[y][x] = -v[y][x];
+			r[y][x] = -At(y, x);
 	return r;
 }
 
@@ -1321,7 +1271,7 @@ float3x3 &float3x3::operator +=(const float3x3 &rhs)
 	assume(rhs.IsFinite());
 	for(int y = 0; y < Rows; ++y)
 		for(int x = 0; x < Cols; ++x)
-			v[y][x] += rhs[y][x];
+			At(y, x) += rhs[y][x];
 
 	return *this;
 }
@@ -1331,7 +1281,7 @@ float3x3 &float3x3::operator -=(const float3x3 &rhs)
 	assume(rhs.IsFinite());
 	for(int y = 0; y < Rows; ++y)
 		for(int x = 0; x < Cols; ++x)
-			v[y][x] -= rhs[y][x];
+			At(y, x) -= rhs[y][x];
 
 	return *this;
 }
@@ -1435,32 +1385,49 @@ bool float3x3::Equals(const float3x3 &other, float epsilon) const
 {
 	for(int y = 0; y < Rows; ++y)
 		for(int x = 0; x < Cols; ++x)
-			if (!EqualAbs(v[y][x], other[y][x], epsilon))
+			if (!EqualAbs(At(y, x), other[y][x], epsilon))
 				return false;
 	return true;
 }
 
-#ifdef MATH_ENABLE_STL_SUPPORT
-std::string float3x3::ToString() const
+#if defined(MATH_ENABLE_STL_SUPPORT) || defined(MATH_CONTAINERLIB_SUPPORT)
+StringT float3x3::ToString() const
 {
 	char str[256];
-	sprintf_s(str, 256,"(%.2f, %.2f, %.2f) (%.2f, %.2f, %.2f) (%.2f, %.2f, %.2f)",
-		v[0][0], v[0][1], v[0][2],
-		v[1][0], v[1][1], v[1][2],
-		v[2][0], v[2][1], v[2][2]);
+	sprintf(str, "(%.2f, %.2f, %.2f) (%.2f, %.2f, %.2f) (%.2f, %.2f, %.2f)",
+		At(0, 0), At(0, 1), At(0, 2),
+		At(1, 0), At(1, 1), At(1, 2),
+		At(2, 0), At(2, 1), At(2, 2));
 
-	return std::string(str);
+	return str;
 }
 
-std::string float3x3::ToString2() const
+StringT float3x3::SerializeToString() const
 {
 	char str[256];
-	sprintf_s(str, 256,"float3x3(X:(%.2f,%.2f,%.2f) Y:(%.2f,%.2f,%.2f) Z:(%.2f,%.2f,%.2f)",
-		v[0][0], v[1][0], v[2][0],
-		v[0][1], v[1][1], v[2][1],
-		v[0][2], v[1][2], v[2][2]);
+	char *s = SerializeFloat(At(0, 0), str); *s = ','; ++s;
+	s = SerializeFloat(At(0, 1), s); *s = ','; ++s;
+	s = SerializeFloat(At(0, 2), s); *s = ','; ++s;
+	s = SerializeFloat(At(1, 0), s); *s = ','; ++s;
+	s = SerializeFloat(At(1, 1), s); *s = ','; ++s;
+	s = SerializeFloat(At(1, 2), s); *s = ','; ++s;
+	s = SerializeFloat(At(2, 0), s); *s = ','; ++s;
+	s = SerializeFloat(At(2, 1), s); *s = ','; ++s;
+	s = SerializeFloat(At(2, 2), s);
+	assert(s+1 - str < 256);
+	MARK_UNUSED(s);
+	return str;
+}
 
-	return std::string(str);
+StringT float3x3::ToString2() const
+{
+	char str[256];
+	sprintf(str, "float3x3(X:(%.2f,%.2f,%.2f) Y:(%.2f,%.2f,%.2f) Z:(%.2f,%.2f,%.2f)",
+		At(0, 0), At(1, 0), At(2, 0),
+		At(0, 1), At(1, 1), At(2, 1),
+		At(0, 2), At(1, 2), At(2, 2));
+
+	return str;
 }
 #endif
 

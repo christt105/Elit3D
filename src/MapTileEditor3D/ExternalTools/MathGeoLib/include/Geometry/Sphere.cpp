@@ -20,6 +20,7 @@
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 #else
 #include "Container/Array.h"
 #endif
@@ -37,6 +38,7 @@
 #include "Polygon.h"
 #include "Polyhedron.h"
 #include "Plane.h"
+#include "Circle.h"
 #include "../Math/float2.h"
 #include "../Math/float3x3.h"
 #include "../Math/float3x4.h"
@@ -51,27 +53,27 @@
 
 MATH_BEGIN_NAMESPACE
 
-Sphere::Sphere(const float3 &center, float radius)
+Sphere::Sphere(const vec &center, float radius)
 :pos(center), r(radius)
 {
 }
 
-Sphere::Sphere(const float3 &a, const float3 &b)
+Sphere::Sphere(const vec &a, const vec &b)
 {
 	*this = FitThroughPoints(a, b);
 }
 
-Sphere::Sphere(const float3 &a, const float3 &b, const float3 &c)
+Sphere::Sphere(const vec &a, const vec &b, const vec &c)
 {
 	*this = FitThroughPoints(a, b, c);
 }
 
-Sphere::Sphere(const float3 &a, const float3 &b, const float3 &c, const float3 &d)
+Sphere::Sphere(const vec &a, const vec &b, const vec &c, const vec &d)
 {
 	*this = FitThroughPoints(a, b, c, d);
 }
 
-void Sphere::Translate(const float3 &offset)
+void Sphere::Translate(const vec &offset)
 {
 	pos += offset;
 }
@@ -115,13 +117,13 @@ AABB Sphere::MaximalContainedAABB() const
 	AABB aabb;
 	static const float recipSqrt3 = RSqrt(3);
 	float halfSideLength = r * recipSqrt3;
-	aabb.SetFromCenterAndSize(pos, float3(halfSideLength,halfSideLength,halfSideLength));
+	aabb.SetFromCenterAndSize(pos, DIR_VEC(halfSideLength,halfSideLength,halfSideLength));
 	return aabb;
 }
 
 void Sphere::SetNegativeInfinity()
 {
-	pos = float3(0,0,0);
+	pos = POINT_VEC(0,0,0);
 	r = -FLOAT_INF;
 }
 
@@ -135,12 +137,21 @@ float Sphere::SurfaceArea() const
 	return 4.f * pi * r*r;
 }
 
-float3 Sphere::ExtremePoint(const float3 &direction) const
+vec Sphere::ExtremePoint(const vec &direction) const
 {
-	return pos + direction.ScaledToLength(r);
+	float len = direction.Length();
+	assume(len > 0.f);
+	return pos + direction * (r / len);
 }
 
-void Sphere::ProjectToAxis(const float3 &direction, float &outMin, float &outMax) const
+vec Sphere::ExtremePoint(const vec &direction, float &projectionDistance) const
+{
+	vec extremePoint = ExtremePoint(direction);
+	projectionDistance = extremePoint.Dot(direction);
+	return extremePoint;
+}
+
+void Sphere::ProjectToAxis(const vec &direction, float &outMin, float &outMax) const
 {
 	float d = Dot(direction, pos);
 	outMin = d - r;
@@ -154,21 +165,21 @@ bool Sphere::IsFinite() const
 
 bool Sphere::IsDegenerate() const
 {
-	return r < 0.f;
+	return !(r > 0.f) || !pos.IsFinite(); // Peculiar order of testing so that NaNs end up being degenerate.
 }
 
 void Sphere::SetDegenerate()
 {
-	pos = float3::nan;
-	r = FLOAT_NAN;
+	pos = vec::nan;
+	r = nan;
 }
 
-bool Sphere::Contains(const float3 &point) const
+bool Sphere::Contains(const vec &point) const
 {
 	return pos.DistanceSq(point) <= r*r;
 }
 
-bool Sphere::Contains(const float3 &point, float epsilon) const
+bool Sphere::Contains(const vec &point, float epsilon) const
 {
 	return pos.DistanceSq(point) <= r*r + epsilon;
 }
@@ -233,13 +244,18 @@ bool Sphere::Contains(const Sphere &sphere) const
 	return pos.Distance(sphere.pos) + sphere.r <= r;
 }
 
+bool Sphere::Contains(const Sphere &sphere, float epsilon) const
+{
+	return pos.Distance(sphere.pos) + sphere.r -r <= epsilon;
+}
+
 bool Sphere::Contains(const Capsule &capsule) const
 {
 	return pos.Distance(capsule.l.a) + capsule.r <= r &&
 		pos.Distance(capsule.l.b) + capsule.r <= r;
 }
 
-Sphere Sphere::FastEnclosingSphere(const float3 *pts, int numPoints)
+Sphere Sphere::FastEnclosingSphere(const vec *pts, int numPoints)
 {
 	Sphere s;
 	if (numPoints == 0)
@@ -248,10 +264,6 @@ Sphere Sphere::FastEnclosingSphere(const float3 *pts, int numPoints)
 		return s;
 	}
 	assume(pts || numPoints == 0);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (!pts)
-		return Sphere();
-#endif
 
 	// First pass: Pick the cardinal axis (X,Y or Z) which has the two most distant points.
 	int minx, maxx, miny, maxy, minz, maxz;
@@ -274,7 +286,7 @@ Sphere Sphere::FastEnclosingSphere(const float3 *pts, int numPoints)
 	}
 
 	// The two points on the longest axis define the initial sphere.
-	s.pos = (pts[min] + pts[max]) / 2.f;
+	s.pos = (pts[min] + pts[max]) * 0.5f;
 	s.r = pts[min].Distance(s.pos);
 
 	// Second pass: Make sure each point lies inside this sphere, expand if necessary.
@@ -286,7 +298,7 @@ Sphere Sphere::FastEnclosingSphere(const float3 *pts, int numPoints)
 /* This implementation was adapted from Christer Ericson's Real-time Collision Detection, pp. 99-100.
 	@bug This implementation is broken! */
 /*
-Sphere WelzlSphere(const float3 *pts, int numPoints, float3 *support, int numSupports)
+Sphere WelzlSphere(const vec *pts, int numPoints, vec *support, int numSupports)
 {
 	if (numPoints == 0)
 	{
@@ -311,9 +323,9 @@ Sphere WelzlSphere(const float3 *pts, int numPoints, float3 *support, int numSup
 */
 
 // The epsilon value used for enclosing sphere computations.
-static const float epsilon = 1e-4f;
+static const float sEpsilon = 1e-4f;
 
-Sphere Sphere::OptimalEnclosingSphere(const float3 *pts, int numPoints)
+Sphere Sphere::OptimalEnclosingSphere(const vec *pts, int numPoints)
 {
 	// If we have only a small number of points, can solve with a specialized function.
 	switch(numPoints)
@@ -338,7 +350,7 @@ Sphere Sphere::OptimalEnclosingSphere(const float3 *pts, int numPoints)
 	bool expendable[4] = { true, true, true, true };
 	// The so-far constructed minimal sphere.
 	Sphere s = OptimalEnclosingSphere(pts[sp[0]], pts[sp[1]], pts[sp[2]], pts[sp[3]]);
-	float rSq = s.r * s.r + epsilon;
+	float rSq = s.r * s.r + sEpsilon;
 	for(int i = 4; i < numPoints; ++i)
 	{
 		if (i == sp[0] || i == sp[1] || i == sp[2] || i == sp[3])
@@ -349,7 +361,7 @@ Sphere Sphere::OptimalEnclosingSphere(const float3 *pts, int numPoints)
 		{
 			int redundant;
 			s = OptimalEnclosingSphere(pts[sp[0]], pts[sp[1]], pts[sp[2]], pts[sp[3]], pts[i], redundant);
-			rSq = s.r*s.r + epsilon;
+			rSq = s.r*s.r + sEpsilon;
 			// A sphere is uniquely defined by four points, so one of the five points passed in above is
 			// now redundant, and can be removed from the support set.
 			if (redundant != 4 && (sp[redundant] < i || expendable[redundant]))
@@ -372,7 +384,7 @@ Sphere Sphere::OptimalEnclosingSphere(const float3 *pts, int numPoints)
 	return s;
 }
 
-float Sphere::Distance(const float3 &point) const
+float Sphere::Distance(const vec &point) const
 {
 	return Max(0.f, pos.Distance(point) - r);
 }
@@ -422,16 +434,25 @@ float Sphere::Distance(const Line &line) const
 	return line.Distance(*this);
 }
 
-float Sphere::MaxDistance(const float3 &point) const
+float Sphere::MaxDistance(const vec &point) const
 {
 	return point.Distance(pos) + r;
 }
 
-float3 Sphere::ClosestPoint(const float3 &point) const
+vec Sphere::ClosestPoint(const vec &point) const
 {
 	float d = pos.Distance(point);
 	float t = (d >= r ? r : d);
 	return pos + (point - pos) * (t / d);
+}
+
+Circle Sphere::Intersect(const Plane &plane) const
+{
+	Circle c;
+	c.pos = plane.ClosestPoint(pos);
+	c.normal = plane.normal;
+	c.r = Sqrt(r*r - c.pos.DistanceSq(pos));
+	return c;
 }
 
 bool Sphere::Intersects(const Sphere &sphere) const
@@ -444,11 +465,11 @@ bool Sphere::Intersects(const Capsule &capsule) const
 	return capsule.Intersects(*this);
 }
 
-int Sphere::IntersectLine(const float3 &linePos, const float3 &lineDir, const float3 &sphereCenter,
+int Sphere::IntersectLine(const vec &linePos, const vec &lineDir, const vec &sphereCenter,
                           float sphereRadius, float &t1, float &t2)
 {
-	assume(lineDir.IsNormalized());
-	assume(sphereRadius >= 0.f);
+	assume2(lineDir.IsNormalized(), lineDir, lineDir.LengthSq());
+	assume1(sphereRadius >= 0.f, sphereRadius);
 
 	/* A line is represented explicitly by the set { linePos + t * lineDir }, where t is an arbitrary float.
 	  A sphere is represented implictly by the set of vectors that satisfy ||v - sphereCenter|| == sphereRadius.
@@ -463,7 +484,7 @@ int Sphere::IntersectLine(const float3 &linePos, const float3 &lineDir, const fl
 	// unknown variable, t, for which we solve to get the actual points of intersection.
 
 	// Compute variables from the above equation:
-	const float3 a = linePos - sphereCenter;
+	const vec a = linePos - sphereCenter;
 	const float radSq = sphereRadius * sphereRadius;
 
 	/* so now the equation looks like
@@ -519,7 +540,7 @@ int Sphere::IntersectLine(const float3 &linePos, const float3 &lineDir, const fl
 	return 2;
 }
 
-int Sphere::Intersects(const Ray &ray, float3 *intersectionPoint, float3 *intersectionNormal, float *d, float *d2) const
+int Sphere::Intersects(const Ray &ray, vec *intersectionPoint, vec *intersectionNormal, float *d, float *d2) const
 {
 	float t1, t2;
 	int numIntersections = IntersectLine(ray.pos, ray.dir, pos, r, t1, t2);
@@ -533,7 +554,7 @@ int Sphere::Intersects(const Ray &ray, float3 *intersectionPoint, float3 *inters
 	if (t1 < 0.f)
 		return 0; // The intersection position is on the negative direction of the ray.
 
-	float3 hitPoint = ray.pos + t1 * ray.dir;
+	vec hitPoint = ray.pos + t1 * ray.dir;
 	if (intersectionPoint)
 		*intersectionPoint = hitPoint;
 	if (intersectionNormal)
@@ -546,14 +567,14 @@ int Sphere::Intersects(const Ray &ray, float3 *intersectionPoint, float3 *inters
 	return numIntersections;
 }
 
-int Sphere::Intersects(const Line &line, float3 *intersectionPoint, float3 *intersectionNormal, float *d, float *d2) const
+int Sphere::Intersects(const Line &line, vec *intersectionPoint, vec *intersectionNormal, float *d, float *d2) const
 {
 	float t1, t2;
 	int numIntersections = IntersectLine(line.pos, line.dir, pos, r, t1, t2);
 	if (numIntersections == 0)
 		return 0;
 
-	float3 hitPoint = line.pos + t1 * line.dir;
+	vec hitPoint = line.pos + t1 * line.dir;
 	if (intersectionPoint)
 		*intersectionPoint = hitPoint;
 	if (intersectionNormal)
@@ -566,7 +587,7 @@ int Sphere::Intersects(const Line &line, float3 *intersectionPoint, float3 *inte
 	return numIntersections;
 }
 
-int Sphere::Intersects(const LineSegment &l, float3 *intersectionPoint, float3 *intersectionNormal, float *d, float *d2) const
+int Sphere::Intersects(const LineSegment &l, vec *intersectionPoint, vec *intersectionNormal, float *d, float *d2) const
 {
 	float t1, t2;
 	int numIntersections = IntersectLine(l.a, l.Dir(), pos, r, t1, t2);
@@ -577,7 +598,7 @@ int Sphere::Intersects(const LineSegment &l, float3 *intersectionPoint, float3 *
 	float lineLength = l.Length();
 	if (t2 < 0.f || t1 > lineLength)
 		return 0;
-	float3 hitPoint = l.GetPoint(t1 / lineLength);
+	vec hitPoint = l.GetPoint(t1 / lineLength);
 	if (intersectionPoint)
 		*intersectionPoint = hitPoint;
 	if (intersectionNormal)
@@ -587,7 +608,7 @@ int Sphere::Intersects(const LineSegment &l, float3 *intersectionPoint, float3 *
 	if (d2)
 		*d2 = t2 / lineLength;
 
-	return true;
+	return numIntersections;
 }
 
 bool Sphere::Intersects(const Plane &plane) const
@@ -595,17 +616,17 @@ bool Sphere::Intersects(const Plane &plane) const
 	return plane.Intersects(*this);
 }
 
-bool Sphere::Intersects(const AABB &aabb, float3 *closestPointOnAABB) const
+bool Sphere::Intersects(const AABB &aabb, vec *closestPointOnAABB) const
 {
 	return aabb.Intersects(*this, closestPointOnAABB);
 }
 
-bool Sphere::Intersects(const OBB &obb, float3 *closestPointOnOBB) const
+bool Sphere::Intersects(const OBB &obb, vec *closestPointOnOBB) const
 {
 	return obb.Intersects(*this, closestPointOnOBB);
 }
 
-bool Sphere::Intersects(const Triangle &triangle, float3 *closestPointOnTriangle) const
+bool Sphere::Intersects(const Triangle &triangle, vec *closestPointOnTriangle) const
 {
 	return triangle.Intersects(*this, closestPointOnTriangle);
 }
@@ -625,66 +646,136 @@ bool Sphere::Intersects(const Polyhedron &polyhedron) const
 	return polyhedron.Intersects(*this);
 }
 
-void Sphere::Enclose(const float3 &point, float epsilon)
+void Sphere::Enclose(const vec &point, float epsilon)
 {
-	float3 d = point - pos;
-	float dist2 = d.LengthSq() + epsilon;
-	if (dist2 > r*r)
+	vec d = point - pos;
+	float dist2 = d.LengthSq();
+	if (dist2 + epsilon > r*r)
 	{
+#ifdef MATH_ASSERT_CORRECTNESS
+		Sphere copy = *this;
+#endif
 		float dist = Sqrt(dist2);
-		float newRadius = (r + dist) / 2.f;
-		pos += d * (newRadius - r) / dist;
-		r = newRadius;
+		float halfDist = (dist - r) * 0.5f;
+		// Nudge this Sphere towards the target point. Add half the missing distance to radius,
+		// and the other half to position. This gives a tighter enclosure, instead of if
+		// the whole missing distance were just added to radius.
+		pos += d * halfDist / dist;
+		r += halfDist + 1e-4f; // Use a fixed epsilon deliberately, the param is a squared epsilon, so different order of magnitude.
+#ifdef MATH_ASSERT_CORRECTNESS
+		mathassert(this->Contains(copy, epsilon));
+#endif
 	}
+
+	assume(this->Contains(point));
+}
+
+struct PointWithDistance
+{
+	vec pt;
+	float d;
+
+	bool operator <(const PointWithDistance &rhs) const { return d < rhs.d; }
+};
+
+// A quick and dirty RAII container for allocated AlignedNew-AlignedFree array to avoid leaking
+// memory if a test throws an exception.
+template<typename T>
+class AutoArrayPtr
+{
+public:
+	T *ptr;
+	AutoArrayPtr(T *ptr):ptr(ptr) {}
+	~AutoArrayPtr() { AlignedFree(ptr); }
+private:
+	AutoArrayPtr(const AutoArrayPtr&);
+	void operator=(const AutoArrayPtr&);
+};
+
+// Encloses n points into the Sphere s, in the order of farthest first, in order to
+// generate the tightest resulting enclosure.
+void Sphere_Enclose_pts(Sphere &s, const vec *pts, int n)
+{
+	AutoArrayPtr<PointWithDistance> cornersPtr(AlignedNew<PointWithDistance>(n, 16));
+	PointWithDistance *corners = cornersPtr.ptr;
+
+	for(int i = 0; i < n; ++i)
+	{
+		corners[i].pt = pts[i];
+		corners[i].d = s.pos.DistanceSq(corners[i].pt);
+	}
+	std::sort(corners, corners+n);
+
+	for(int i = n-1; i >= 0; --i)
+		s.Enclose(corners[i].pt);
+}
+
+// Optimize/reimplement the above function in the case when enclosing geometric objects where the number of 
+// points to enclose is fixed at compile-time. This avoids dynamic memory allocation.
+template<typename T, int n>
+void Sphere_Enclose(Sphere &s, const T &obj)
+{
+	PointWithDistance corners[n];
+	for(int i = 0; i < n; ++i)
+	{
+		corners[i].pt = obj.CornerPoint(i);
+		corners[i].d = s.pos.DistanceSq(corners[i].pt);
+	}
+	std::sort(corners, corners+n);
+
+	for(int i = n-1; i >= 0; --i)
+		s.Enclose(corners[i].pt);
 }
 
 void Sphere::Enclose(const AABB &aabb)
 {
-	///@todo This might not be very optimal at all. Perhaps better to enclose the farthest point first.
-	for(int i = 0; i < 8; ++i)
-		Enclose(aabb.CornerPoint(i));
+	Sphere_Enclose<AABB, 8>(*this, aabb);
+
+	assume(this->Contains(aabb));
 }
 
 void Sphere::Enclose(const OBB &obb)
 {
-	///@todo This might not be very optimal at all. Perhaps better to enclose the farthest point first.
-	for(int i = 0; i < 8; ++i)
-		Enclose(obb.CornerPoint(i));
+	Sphere_Enclose<OBB, 8>(*this, obb);
+
+	assume(this->Contains(obb));
 }
 
 void Sphere::Enclose(const Sphere &sphere)
 {
-	// To enclose another sphere into this sphere, we can simply enclose the farthest point
-	// of that sphere to this sphere.
-	float3 farthestPoint = sphere.pos - pos;
-	farthestPoint = sphere.pos + farthestPoint * (sphere.r / farthestPoint.Length());
-	Enclose(farthestPoint);
+	// To enclose another sphere into this sphere, we only need to enclose two points:
+	// 1) Enclose the farthest point on the other sphere into this sphere.
+	// 2) Enclose the opposite point of the farthest point into this sphere.
+	vec toFarthestPoint = (sphere.pos - pos).ScaledToLength(sphere.r);
+	Enclose(sphere.pos + toFarthestPoint);
+	Enclose(sphere.pos - toFarthestPoint);
+
+	assume(this->Contains(sphere));
 }
 
 void Sphere::Enclose(const LineSegment &lineSegment)
 {
-	///@todo This might not be very optimal at all. Perhaps better to enclose the farthest point first.
-	Enclose(lineSegment.a);
-	Enclose(lineSegment.b);
+	if (pos.DistanceSq(lineSegment.a) > pos.DistanceSq(lineSegment.b))
+	{
+		Enclose(lineSegment.a);
+		Enclose(lineSegment.b);
+	}
+	else
+	{
+		Enclose(lineSegment.b);
+		Enclose(lineSegment.a);
+	}
 }
 
-void Sphere::Enclose(const float3 *pointArray, int numPoints)
+void Sphere::Enclose(const vec *pointArray, int numPoints)
 {
 	assume(pointArray || numPoints == 0);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (!pointArray)
-		return;
-#endif
-	///@todo This might not be very optimal at all. Perhaps better to enclose the farthest point first.
-	for(int i = 0; i < numPoints; ++i)
-		Enclose(pointArray[i]);
+	Sphere_Enclose_pts(*this, pointArray, numPoints);
 }
 
 void Sphere::Enclose(const Triangle &triangle)
 {
-	Enclose(triangle.a);
-	Enclose(triangle.b);
-	Enclose(triangle.c);
+	Sphere_Enclose<Triangle, 3>(*this, triangle);
 }
 
 void Sphere::Enclose(const Polygon &polygon)
@@ -699,37 +790,65 @@ void Sphere::Enclose(const Polyhedron &polyhedron)
 
 void Sphere::Enclose(const Frustum &frustum)
 {
-	for(int i = 0; i < 8; ++i)
-		Enclose(frustum.CornerPoint(i));
+	Sphere_Enclose<Frustum, 8>(*this, frustum);
 }
 
-int Sphere::Triangulate(float3 *outPos, float3 *outNormal, float2 *outUV, int numVertices, bool ccwIsFrontFacing) const
+void Sphere::Enclose(const Capsule &capsule)
+{
+	// Capsule is a convex object spanned by the endpoint spheres - enclosing
+	// the endpoint spheres will also cause this Sphere to enclose the middle
+	// section since Sphere is convex as well.
+	float da = pos.DistanceSq(capsule.l.a);
+	float db = pos.DistanceSq(capsule.l.b);
+
+	// Enclose the farther Sphere of the Capsule first, and the closer one second to retain the tightest fit.
+	if (da > db) 
+	{
+		Enclose(capsule.SphereA());
+		Enclose(capsule.SphereB());
+	}
+	else
+	{
+		Enclose(capsule.SphereB());
+		Enclose(capsule.SphereA());
+	}
+}
+
+void Sphere::ExtendRadiusToContain(const vec &point, float epsilon)
+{
+	float requiredRadius = pos.Distance(point) + epsilon;
+	r = Max(r, requiredRadius);
+}
+
+void Sphere::ExtendRadiusToContain(const Sphere &sphere, float epsilon)
+{
+	float requiredRadius = pos.Distance(sphere.pos) + sphere.r + epsilon;
+	r = Max(r, requiredRadius);
+}
+
+int Sphere::Triangulate(vec *outPos, vec *outNormal, float2 *outUV, int numVertices, bool ccwIsFrontFacing) const
 {
 	assume(outPos);
 	assume(numVertices >= 24 && "At minimum, sphere triangulation will contain at least 8 triangles, which is 24 vertices, but fewer were specified!");
 	assume(numVertices % 3 == 0 && "Warning:: The size of output should be divisible by 3 (each triangle takes up 3 vertices!)");
 
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (!outPos)
-		return 0;
-#endif
 	assume(this->r > 0.f);
 
 	if (numVertices < 24)
 		return 0;
 
 #ifdef MATH_ENABLE_STL_SUPPORT
-	std::vector<Triangle> temp;
+	TriangleArray temp;
 #else
 	Array<Triangle> temp;
 #endif
 	// Start subdividing from a diamond shape.
-	float3 xp(r,0,0);
-	float3 xn(-r,0,0);
-	float3 yp(0,r,0);
-	float3 yn(0,-r,0);
-	float3 zp(0,0,r);
-	float3 zn(0,0,-r);
+	vec xp = POINT_VEC(r,0,0);
+	vec xn = POINT_VEC(-r, 0, 0);
+	vec yp = POINT_VEC(0, r, 0);
+	vec yn = POINT_VEC(0, -r, 0);
+	vec zp = POINT_VEC(0, 0, r);
+	vec zn = POINT_VEC(0, 0, -r);
 
 	if (ccwIsFrontFacing)
 	{
@@ -758,9 +877,9 @@ int Sphere::Triangulate(float3 *outPos, float3 *outNormal, float2 *outUV, int nu
 	while(((int)temp.size()-oldEnd+3)*3 <= numVertices)
 	{
 		Triangle cur = temp[oldEnd];
-		float3 a = ((cur.a + cur.b) * 0.5f).ScaledToLength(this->r);
-		float3 b = ((cur.a + cur.c) * 0.5f).ScaledToLength(this->r);
-		float3 c = ((cur.b + cur.c) * 0.5f).ScaledToLength(this->r);
+		vec a = ((cur.a + cur.b) * 0.5f).ScaledToLength(this->r);
+		vec b = ((cur.a + cur.c) * 0.5f).ScaledToLength(this->r);
+		vec c = ((cur.b + cur.c) * 0.5f).ScaledToLength(this->r);
 
 		temp.push_back(Triangle(cur.a, a, b));
 		temp.push_back(Triangle(cur.b, c, a));
@@ -774,40 +893,43 @@ int Sphere::Triangulate(float3 *outPos, float3 *outNormal, float2 *outUV, int nu
 
 	for(size_t i = oldEnd, j = 0; i < temp.size(); ++i, ++j)
 	{
-		outPos[3*j] = this->pos + temp[i].a;
-		outPos[3*j+1] = this->pos + temp[i].b;
-		outPos[3*j+2] = this->pos + temp[i].c;
+		outPos[3*j] = this->pos + TRIANGLE(temp[i]).a;
+		outPos[3*j+1] = this->pos + TRIANGLE(temp[i]).b;
+		outPos[3*j+2] = this->pos + TRIANGLE(temp[i]).c;
 	}
 
 	if (outNormal)
 		for(size_t i = oldEnd, j = 0; i < temp.size(); ++i, ++j)
 		{
-			outNormal[3*j] = temp[i].a.Normalized();
-			outNormal[3*j+1] = temp[i].b.Normalized();
-			outNormal[3*j+2] = temp[i].c.Normalized();
+			outNormal[3*j] = TRIANGLE(temp[i]).a.Normalized();
+			outNormal[3*j+1] = TRIANGLE(temp[i]).b.Normalized();
+			outNormal[3*j+2] = TRIANGLE(temp[i]).c.Normalized();
 		}
 
 	if (outUV)
 		for(size_t i = oldEnd, j = 0; i < temp.size(); ++i, ++j)
 		{
-			outUV[3*j] = float2(atan2(temp[i].a.y, temp[i].a.x) / (2.f * 3.141592654f) + 0.5f, (temp[i].a.z + r) / (2.f * r));
-			outUV[3*j+1] = float2(atan2(temp[i].b.y, temp[i].b.x) / (2.f * 3.141592654f) + 0.5f, (temp[i].b.z + r) / (2.f * r));
-			outUV[3*j+2] = float2(atan2(temp[i].c.y, temp[i].c.x) / (2.f * 3.141592654f) + 0.5f, (temp[i].c.z + r) / (2.f * r));
+			outUV[3*j] = float2(atan2(TRIANGLE(temp[i]).a.y, TRIANGLE(temp[i]).a.x) / (2.f * 3.141592654f) + 0.5f, (TRIANGLE(temp[i]).a.z + r) / (2.f * r));
+			outUV[3*j+1] = float2(atan2(TRIANGLE(temp[i]).b.y, TRIANGLE(temp[i]).b.x) / (2.f * 3.141592654f) + 0.5f, (TRIANGLE(temp[i]).b.z + r) / (2.f * r));
+			outUV[3*j+2] = float2(atan2(TRIANGLE(temp[i]).c.y, TRIANGLE(temp[i]).c.x) / (2.f * 3.141592654f) + 0.5f, (TRIANGLE(temp[i]).c.z + r) / (2.f * r));
 		}
 
 	return ((int)temp.size() - oldEnd) * 3;
 }
 
-float3 Sphere::RandomPointInside(LCG &lcg)
+vec Sphere::RandomPointInside(LCG &lcg)
 {
 	assume(r > 1e-3f);
+	vec v = vec::zero;
+	// Rejection sampling analysis: The unit sphere fills ~52.4% of the volume of its enclosing box, so this
+	// loop is expected to take only very few iterations before succeeding.
 	for(int i = 0; i < 1000; ++i)
 	{
-		float x = lcg.Float(-r, r);
-		float y = lcg.Float(-r, r);
-		float z = lcg.Float(-r, r);
-		if (x*x + y*y + z*z <= r*r)
-			return pos + float3(x,y,z);
+		v.x = lcg.Float(-r, r);
+		v.y = lcg.Float(-r, r);
+		v.z = lcg.Float(-r, r);
+		if (v.LengthSq() <= r*r)
+			return pos + v;
 	}
 	assume(false && "Sphere::RandomPointInside failed!");
 
@@ -815,45 +937,48 @@ float3 Sphere::RandomPointInside(LCG &lcg)
 	return pos;
 }
 
-float3 Sphere::RandomPointOnSurface(LCG &lcg)
+vec Sphere::RandomPointOnSurface(LCG &lcg)
 {
-	assume(r > 1e-3f);
+	vec v = vec::zero;
+	// Rejection sampling analysis: The unit sphere fills ~52.4% of the volume of its enclosing box, so this
+	// loop is expected to take only very few iterations before succeeding.
 	for(int i = 0; i < 1000; ++i)
 	{
-		float x = lcg.Float(-r, r);
-		float y = lcg.Float(-r, r);
-		float z = lcg.Float(-r, r);
-		float lenSq = x*x + y*y + z*z;
-		if (lenSq >= 1e-6f && lenSq <= r*r)
-			return pos + r / Sqrt(lenSq) * float3(x,y,z);
+		v.x = lcg.FloatNeg1_1();
+		v.y = lcg.FloatNeg1_1();
+		v.z = lcg.FloatNeg1_1();
+		float lenSq = v.LengthSq();
+		if (lenSq >= 1e-6f && lenSq <= 1.f)
+			return pos + (r / Sqrt(lenSq)) * v;
 	}
+	// Astronomically small probability to reach here, and if we do so, the provided random number generator must have been in a bad state.
 	assume(false && "Sphere::RandomPointOnSurface failed!");
 
 	// Failed to generate a point inside this sphere. Return an arbitrary point on the surface as fallback.
-	return pos + float3(r, 0, 0);
+	return pos + DIR_VEC(r, 0, 0);
 }
 
-float3 Sphere::RandomPointInside(LCG &lcg, const float3 &center, float radius)
+vec Sphere::RandomPointInside(LCG &lcg, const vec &center, float radius)
 {
 	return Sphere(center, radius).RandomPointInside(lcg);
 }
 
-float3 Sphere::RandomPointOnSurface(LCG &lcg, const float3 &center, float radius)
+vec Sphere::RandomPointOnSurface(LCG &lcg, const vec &center, float radius)
 {
 	return Sphere(center, radius).RandomPointOnSurface(lcg);
 }
 
-Sphere Sphere::OptimalEnclosingSphere(const float3 &a, const float3 &b)
+Sphere Sphere::OptimalEnclosingSphere(const vec &a, const vec &b)
 {
 	Sphere s;
-	s.pos = (a + b) / 2.f;
+	s.pos = (a + b) * 0.5f;
 	s.r = (b - s.pos).Length();
 	assume(s.pos.IsFinite());
 	assume(s.r >= 0.f);
 
 	// Allow floating point inconsistency and expand the radius by a small epsilon so that the containment tests
 	// really contain the points (note that the points must be sufficiently near enough to the origin)
-	s.r += epsilon;
+	s.r += sEpsilon;
 
 	mathassert(s.Contains(a));
 	mathassert(s.Contains(b));
@@ -872,7 +997,7 @@ Sphere Sphere::OptimalEnclosingSphere(const float3 &a, const float3 &b)
 		smallest sphere that encloses these three points!
 	@return True if the function succeeded. False on failure. This function fails if the points (0,0,0), ab and ac
 		are collinear, in which case there does not exist a sphere that passes through the three given points. */
-bool FitSphereThroughPoints(const float3 &ab, const float3 &ac, float &s, float &t)
+bool FitSphereThroughPoints(const vec &ab, const vec &ac, float &s, float &t)
 {
 	/* The task is to compute the minimal radius sphere through the three points
 	   a, b and c. (Note that this is not necessarily the minimal radius sphere enclosing
@@ -955,7 +1080,7 @@ bool FitSphereThroughPoints(const float3 &ab, const float3 &ac, float &s, float 
 		the smallest sphere that encloses these four points!
 	@return True if the function succeeded. False on failure. This function fails if the points (0,0,0), ab, ac and ad
 		are coplanar, in which case there does not exist a sphere that passes through the four given points. */
-bool FitSphereThroughPoints(const float3 &ab, const float3 &ac, const float3 &ad, float &s, float &t, float &u)
+bool FitSphereThroughPoints(const vec &ab, const vec &ac, const vec &ad, float &s, float &t, float &u)
 {
 	/* The task is to compute the (unique) sphere through the four points
 	   a, b c and d. (Note that this is not necessarily the minimal radius sphere enclosing
@@ -1028,20 +1153,20 @@ bool FitSphereThroughPoints(const float3 &ab, const float3 &ac, const float3 &ad
 }
 
 /** For reference, see http://realtimecollisiondetection.net/blog/?p=20 . */
-Sphere Sphere::OptimalEnclosingSphere(const float3 &a, const float3 &b, const float3 &c)
+Sphere Sphere::OptimalEnclosingSphere(const vec &a, const vec &b, const vec &c)
 {
 	Sphere sphere;
 
-	float3 ab = b-a;
-	float3 ac = c-a;
+	vec ab = b-a;
+	vec ac = c-a;
 
 	float s, t;
 	bool areCollinear = ab.Cross(ac).LengthSq() < 1e-4f; // Manually test that we don't try to fit sphere to three collinear points.
 	bool success = !areCollinear && FitSphereThroughPoints(ab, ac, s, t);
 	if (!success || Abs(s) > 10000.f || Abs(t) > 10000.f) // If s and t are very far from the triangle, do a manual box fitting for numerical stability.
 	{
-		float3 minPt = Min(a, b, c);
-		float3 maxPt = Max(a, b, c);
+		vec minPt = Min(a, b, c);
+		vec maxPt = Max(a, b, c);
 		sphere.pos = (minPt + maxPt) * 0.5f;
 		sphere.r = sphere.pos.Distance(minPt);
 	}
@@ -1065,7 +1190,7 @@ Sphere Sphere::OptimalEnclosingSphere(const float3 &a, const float3 &b, const fl
 	}
 	else
 	{
-		const float3 center = s*ab + t*ac;
+		const vec center = s*ab + t*ac;
 		sphere.pos = a + center;
 		// Mathematically, the following would be correct, but it suffers from floating point inaccuracies,
 		// since it only tests distance against one point.
@@ -1078,15 +1203,15 @@ Sphere Sphere::OptimalEnclosingSphere(const float3 &a, const float3 &b, const fl
 
 	// Allow floating point inconsistency and expand the radius by a small epsilon so that the containment tests
 	// really contain the points (note that the points must be sufficiently near enough to the origin)
-	sphere.r += 2.f * epsilon; // We test against one epsilon, so expand by two epsilons.
+	sphere.r += 2.f * sEpsilon; // We test against one epsilon, so expand by two epsilons.
 
 #ifdef MATH_ASSERT_CORRECTNESS
-	if (!sphere.Contains(a, epsilon) || !sphere.Contains(b, epsilon) || !sphere.Contains(c, epsilon))
+	if (!sphere.Contains(a, sEpsilon) || !sphere.Contains(b, sEpsilon) || !sphere.Contains(c, sEpsilon))
 	{
-		LOGME("Pos: %s, r: %f", sphere.pos.ToString().c_str(), sphere.r);
-		LOGME("A: %s, dist: %f", a.ToString().c_str(), a.Distance(sphere.pos));
-		LOGME("B: %s, dist: %f", b.ToString().c_str(), b.Distance(sphere.pos));
-		LOGME("C: %s, dist: %f", c.ToString().c_str(), c.Distance(sphere.pos));
+		MLOGE("Pos: %s, r: %f", sphere.pos.ToString().c_str(), sphere.r);
+		MLOGE("A: %s, dist: %f", a.ToString().c_str(), a.Distance(sphere.pos));
+		MLOGE("B: %s, dist: %f", b.ToString().c_str(), b.Distance(sphere.pos));
+		MLOGE("C: %s, dist: %f", c.ToString().c_str(), c.Distance(sphere.pos));
 		mathassert(false);
 	}
 #endif
@@ -1094,14 +1219,14 @@ Sphere Sphere::OptimalEnclosingSphere(const float3 &a, const float3 &b, const fl
 }
 
 /** For reference, see http://realtimecollisiondetection.net/blog/?p=20 . */
-Sphere Sphere::OptimalEnclosingSphere(const float3 &a, const float3 &b, const float3 &c, const float3 &d)
+Sphere Sphere::OptimalEnclosingSphere(const vec &a, const vec &b, const vec &c, const vec &d)
 {
 	Sphere sphere;
 
 	float s,t,u;
-	const float3 ab = b-a;
-	const float3 ac = c-a;
-	const float3 ad = d-a;
+	const vec ab = b-a;
+	const vec ac = c-a;
+	const vec ad = d-a;
 	bool success = FitSphereThroughPoints(ab, ac, ad, s, t, u);
 	if (!success || s < 0.f || t < 0.f || u < 0.f || s+t+u > 1.f)
 	{
@@ -1132,7 +1257,7 @@ Sphere Sphere::OptimalEnclosingSphere(const float3 &a, const float3 &b, const fl
 		sphere = OptimalEnclosingSphere(b, c, d); */
 	else // The fitted sphere is inside the convex hull of the vertices (a,b,c,d), so it must be optimal.
 	{
-		const float3 center = s*ab + t*ac + u*ad;
+		const vec center = s*ab + t*ac + u*ad;
 
 		sphere.pos = a + center;
 		// Mathematically, the following would be correct, but it suffers from floating point inaccuracies,
@@ -1146,16 +1271,16 @@ Sphere Sphere::OptimalEnclosingSphere(const float3 &a, const float3 &b, const fl
 
 		// Allow floating point inconsistency and expand the radius by a small epsilon so that the containment tests
 		// really contain the points (note that the points must be sufficiently near enough to the origin)
-		sphere.r += 2.f*epsilon; // We test against one epsilon, so expand using 2 epsilons.
+		sphere.r += 2.f*sEpsilon; // We test against one epsilon, so expand using 2 epsilons.
 
 #ifdef MATH_ASSERT_CORRECTNESS
-	if (!sphere.Contains(a, epsilon) || !sphere.Contains(b, epsilon) || !sphere.Contains(c, epsilon) || !sphere.Contains(d, epsilon))
+	if (!sphere.Contains(a, sEpsilon) || !sphere.Contains(b, sEpsilon) || !sphere.Contains(c, sEpsilon) || !sphere.Contains(d, sEpsilon))
 	{
-		LOGME("Pos: %s, r: %f", sphere.pos.ToString().c_str(), sphere.r);
-		LOGME("A: %s, dist: %f", a.ToString().c_str(), a.Distance(sphere.pos));
-		LOGME("B: %s, dist: %f", b.ToString().c_str(), b.Distance(sphere.pos));
-		LOGME("C: %s, dist: %f", c.ToString().c_str(), c.Distance(sphere.pos));
-		LOGME("D: %s, dist: %f", d.ToString().c_str(), d.Distance(sphere.pos));
+		MLOGE("Pos: %s, r: %f", sphere.pos.ToString().c_str(), sphere.r);
+		MLOGE("A: %s, dist: %f", a.ToString().c_str(), a.Distance(sphere.pos));
+		MLOGE("B: %s, dist: %f", b.ToString().c_str(), b.Distance(sphere.pos));
+		MLOGE("C: %s, dist: %f", c.ToString().c_str(), c.Distance(sphere.pos));
+		MLOGE("D: %s, dist: %f", d.ToString().c_str(), d.Distance(sphere.pos));
 		mathassert(false);
 	}
 #endif
@@ -1163,57 +1288,57 @@ Sphere Sphere::OptimalEnclosingSphere(const float3 &a, const float3 &b, const fl
 	return sphere;
 }
 
-Sphere Sphere::OptimalEnclosingSphere(const float3 &a, const float3 &b, const float3 &c, const float3 &d, const float3 &e,
+Sphere Sphere::OptimalEnclosingSphere(const vec &a, const vec &b, const vec &c, const vec &d, const vec &e,
                                       int &redundantPoint)
 {
 	Sphere s = OptimalEnclosingSphere(b,c,d,e);
-	if (s.Contains(a, epsilon))
+	if (s.Contains(a, sEpsilon))
 	{
 		redundantPoint = 0;
 		return s;
 	}
 	s = OptimalEnclosingSphere(a,c,d,e);
-	if (s.Contains(b, epsilon))
+	if (s.Contains(b, sEpsilon))
 	{
 		redundantPoint = 1;
 		return s;
 	}
 	s = OptimalEnclosingSphere(a,b,d,e);
-	if (s.Contains(c, epsilon))
+	if (s.Contains(c, sEpsilon))
 	{
 		redundantPoint = 2;
 		return s;
 	}
 	s = OptimalEnclosingSphere(a,b,c,e);
-	if (s.Contains(d, epsilon))
+	if (s.Contains(d, sEpsilon))
 	{
 		redundantPoint = 3;
 		return s;
 	}
 	s = OptimalEnclosingSphere(a,b,c,d);
-	mathassert(s.Contains(e, epsilon));
+	mathassert(s.Contains(e, sEpsilon));
 	redundantPoint = 4;
 	return s;
 }
 
 /** For reference, see http://realtimecollisiondetection.net/blog/?p=20 . */
-Sphere Sphere::FitThroughPoints(const float3 &a, const float3 &b, const float3 &c)
+Sphere Sphere::FitThroughPoints(const vec &a, const vec &b, const vec &c)
 {
 	Sphere sphere;
 
-	float3 ab = b-a;
-	float3 ac = c-a;
+	vec ab = b-a;
+	vec ac = c-a;
 
 	float s, t;
 	bool success = FitSphereThroughPoints(ab, ac, s, t);
 	if (!success)
 	{
-		LOGMW("Sphere::FitThroughPoints(a,b,c) failed! The three input points are collinear!");
+		MLOGW("Sphere::FitThroughPoints(a,b,c) failed! The three input points are collinear!");
 		sphere.SetDegenerate();
 		return sphere;
 	}
 
-	const float3 p = s*ab + t*ac;
+	const vec p = s*ab + t*ac;
 
 	// In our translated coordinate space, the origin lies on the sphere, so the distance of p from origin
 	// gives the radius of the sphere.
@@ -1226,38 +1351,60 @@ Sphere Sphere::FitThroughPoints(const float3 &a, const float3 &b, const float3 &
 }
 
 /** For reference, see http://realtimecollisiondetection.net/blog/?p=20 . */
-Sphere Sphere::FitThroughPoints(const float3 &a, const float3 &b, const float3 &c, const float3 &d)
+Sphere Sphere::FitThroughPoints(const vec &a, const vec &b, const vec &c, const vec &d)
 {
 	Sphere sphere;
 
 	float s,t,u;
-	const float3 ab = b-a;
-	const float3 ac = c-a;
-	const float3 ad = d-a;
+	const vec ab = b-a;
+	const vec ac = c-a;
+	const vec ad = d-a;
 	bool success = FitSphereThroughPoints(ab, ac, ad, s, t, u);
 	if (success)
 	{
-		const float3 center = s*ab + t*ac + u*ad;
+		const vec center = s*ab + t*ac + u*ad;
 		sphere.r = center.Length();
 		sphere.pos = a + center;
 	}
 	else
 	{
-		LOGMW("Sphere::FitThroughPoints through four points failed! The points lie on the same plane!");
+		MLOGW("Sphere::FitThroughPoints through four points failed! The points lie on the same plane!");
 		sphere.SetDegenerate();
 	}
 
 	return sphere;
 }
 
-#ifdef MATH_ENABLE_STL_SUPPORT
-std::string Sphere::ToString() const
+#if defined(MATH_ENABLE_STL_SUPPORT) || defined(MATH_CONTAINERLIB_SUPPORT)
+StringT Sphere::ToString() const
 {
 	char str[256];
-	sprintf_s(str, 256, "Sphere(pos:(%.2f, %.2f, %.2f) r:%.2f)",
+	sprintf(str, "Sphere(pos:(%.2f, %.2f, %.2f) r:%.2f)",
 		pos.x, pos.y, pos.z, r);
 	return str;
 }
+
+StringT Sphere::SerializeToString() const
+{
+	char str[256];
+	char *s = SerializeFloat(pos.x, str); *s = ','; ++s;
+	s = SerializeFloat(pos.y, s); *s = ','; ++s;
+	s = SerializeFloat(pos.z, s); *s = ','; ++s;
+	s = SerializeFloat(r, s);
+	assert(s+1 - str < 256);
+	MARK_UNUSED(s);
+	return str;
+}
+
+StringT Sphere::SerializeToCodeString() const
+{
+	char str[256];
+	sprintf(str, "%.9g", r);
+	return "Sphere(" + pos.SerializeToCodeString() + "," + str + ")";
+}
+#endif
+
+#if defined(MATH_ENABLE_STL_SUPPORT)
 
 std::ostream &operator <<(std::ostream &o, const Sphere &sphere)
 {
@@ -1266,6 +1413,27 @@ std::ostream &operator <<(std::ostream &o, const Sphere &sphere)
 }
 
 #endif
+
+Sphere Sphere::FromString(const char *str, const char **outEndStr)
+{
+	assume(str);
+	if (!str)
+		return Sphere(vec::nan, FLOAT_NAN);
+	Sphere s;
+	MATH_SKIP_WORD(str, "Sphere(");
+	MATH_SKIP_WORD(str, "pos:(");
+	s.pos = PointVecFromString(str, &str);
+	MATH_SKIP_WORD(str, " r:");
+	s.r = DeserializeFloat(str, &str);
+	if (outEndStr)
+		*outEndStr = str;
+	return s;
+}
+
+bool Sphere::BitEquals(const Sphere &other) const
+{
+	return pos.BitEquals(other.pos) && ReinterpretAsU32(r) == ReinterpretAsU32(other.r);
+}
 
 Sphere operator *(const float3x3 &transform, const Sphere &sphere)
 {
@@ -1298,19 +1466,19 @@ Sphere operator *(const Quat &transform, const Sphere &sphere)
 #ifdef MATH_GRAPHICSENGINE_INTEROP
 void Sphere::Triangulate(VertexBuffer &vb, int numVertices, bool ccwIsFrontFacing) const
 {
-	Array<float3> pos;
-	Array<float3> normal;
+	Array<vec> position;
+	Array<vec> normal;
 	Array<float2> uv;
-	pos.Resize_pod(numVertices);
-	normal.Resize_pod(numVertices);
-	uv.Resize_pod(numVertices);
-	Triangulate(pos.beginptr(), normal.beginptr(), uv.beginptr(), numVertices, ccwIsFrontFacing);
+	position.Resize_unspecified(numVertices);
+	normal.Resize_unspecified(numVertices);
+	uv.Resize_unspecified(numVertices);
+	Triangulate(position.ptr(), normal.ptr(), uv.ptr(), numVertices, ccwIsFrontFacing);
 	int startIndex = vb.AppendVertices(numVertices);
-	for(int i = 0; i < (int)pos.size(); ++i)
+	for(int i = 0; i < (int)position.size(); ++i)
 	{
-		vb.Set(startIndex+i, VDPosition, float4(pos[i],1.f));
+		vb.Set(startIndex+i, VDPosition, POINT_TO_FLOAT4(position[i]));
 		if (vb.Declaration()->TypeOffset(VDNormal) >= 0)
-			vb.Set(startIndex+i, VDNormal, float4(normal[i],0.f));
+			vb.Set(startIndex+i, VDNormal, DIR_TO_FLOAT4(normal[i]));
 		if (vb.Declaration()->TypeOffset(VDUV) >= 0)
 			vb.SetFloat2(startIndex+i, VDUV, 0, uv[i]);
 	}
