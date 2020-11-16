@@ -16,36 +16,68 @@
 	@author Jukka Jylänki
 	@brief Control over assert() macro for MathGeoLib. */
 #include "MathLog.h"
+#include "assume.h"
 
+#ifdef MATH_ENABLE_STL_SUPPORT
 #include <sstream>
+#endif
 
 #ifdef assert
 #undef assert
 #endif
 
-#if defined(OPTIMIZED_RELEASE) && !defined(FAIL_USING_EXCEPTIONS)
-
-#define assert(x)
-#define asserteq(x,y)
-#define assertcmp(x, cmp, y)
-
-#elif defined(FAIL_USING_EXCEPTIONS)
-
+#ifdef FAIL_USING_EXCEPTIONS
 #include <stdexcept>
+#define RuntimeFailure(str) throw std::runtime_error(str)
+#elif defined(OPTIMIZED_RELEASE) || defined(NDEBUG)
+#define RuntimeFailure(str) ((void)0)
+#define RUNTIME_FAILURE_DISABLED
+#elif defined(_MSC_VER)
+#include <crtdbg.h>
+#define RuntimeFailure(str) do { MLOGE("%s", str); _CrtDbgBreak(); } while(0)
+#else
+#define RuntimeFailure(str) do { MLOGE("%s", str); } while(0)
+#endif
+
+#ifdef RUNTIME_FAILURE_DISABLED
+
+#define assert(x) ((void)0)
+#define asserteq(x,y) ((void)0)
+#define assertcmp(x, cmp, y) ((void)0)
+
+// If defined in a compilation unit, MATH_IGNORE_UNUSED_VARS_WARNING will kill all subsequent warnings about variables going unused.
+// This occurs commonly in unit tests that are also doubled as benchmarks - killing the use of assert() macro will leave variables
+// that were otherwise not used, except when assert()ing a condition. As a simplest measure, MATH_IGNORE_UNUSED_VARS_WARNING will
+// operate only when assert() is a no-op, so that in debug builds etc. real instances of unused variables are still caught.
+#ifdef _MSC_VER
+#define MATH_IGNORE_UNUSED_VARS_WARNING __pragma(warning(disable:4189)) // C4189: 'variableName' : local variable is initialized but not referenced
+#elif defined(__GNUC__) && (__GNUC__*10000+__GNUC_MINOR*100) >= 40600
+// GCC 4.6 introduced a new warning "-Wunused-but-set-variable", so suppress that on those compilers.
+#define MATH_IGNORE_UNUSED_VARS_WARNING _Pragma("GCC diagnostic ignored \"-Wunused-variable\"") _Pragma("GCC diagnostic ignored \"-Wunused-but-set-variable\"")
+#else
+#define MATH_IGNORE_UNUSED_VARS_WARNING _Pragma("GCC diagnostic ignored \"-Wunused-variable\"")
+#endif
+
+#else
+
+#define MATH_IGNORE_UNUSED_VARS_WARNING
 
 #define assert(x) \
 	MULTI_LINE_MACRO_BEGIN \
 		if (!(x)) \
-			throw std::runtime_error(#x); \
+		{ \
+			const char *error_ = #x " in " __FILE__ ":" STRINGIZE(__LINE__); \
+			MARK_UNUSED(error_); /* Appease cppcheck to not complain that error is unused. */ \
+			RuntimeFailure(error_); \
+		} \
 	MULTI_LINE_MACRO_END
 
 #define asserteq(x,y) \
 	MULTI_LINE_MACRO_BEGIN \
 		if ((x) != (y)) \
 		{ \
-			std::stringstream std_stringstream; \
-			std_stringstream << "Assertion '" #x "' == '" #y "' failed! (" << (x) << " != " << (y) << "!)"; \
-			throw std::runtime_error(std_stringstream.str().c_str()); \
+			StringT str = StringT("Assertion '" #x "' == '" #y "' failed! (") + ObjToString(x) + " != " + ObjToString(y) + ("!) in " __FILE__ ":" STRINGIZE(__LINE__)); \
+			RuntimeFailure(str.c_str()); \
 		} \
 	MULTI_LINE_MACRO_END
 
@@ -53,64 +85,9 @@
 	MULTI_LINE_MACRO_BEGIN \
 		if (!((x) cmp (y))) \
 		{ \
-			std::stringstream std_stringstream; \
-			std_stringstream << "Assertion '" #x "' " #cmp " '" #y "' failed! (" << (x) << " and " << (y) << "!)"; \
-			throw std::runtime_error(std_stringstream.str().c_str()); \
+			StringT str = StringT("Assertion '" #x "' " #cmp " '" #y "' failed! (") + ObjToString(x) + " and " + ObjToString(y) + ("!) in " __FILE__ ":" STRINGIZE(__LINE__)); \
+			RuntimeFailure(str.c_str()); \
 		} \
 	MULTI_LINE_MACRO_END
-
-#elif defined(WIN32)
-
-#include <cassert>
-
-#define asserteq(x,y) \
-	MULTI_LINE_MACRO_BEGIN \
-		if ((x) != (y)) \
-		{ \
-			std::stringstream std_stringstream; \
-			std_stringstream << "Assertion '" #x "' == '" #y "' failed! (" << (x) << " != " << (y) << "!)"; \
-			LOGME("%s", std_stringstream.str().c_str()); \
-			_CrtDebugBreak(); \
-		} \
-	MULTI_LINE_MACRO_END
-
-#define assertcmp(x, cmp, y) \
-	MULTI_LINE_MACRO_BEGIN \
-		if (!((x) cmp (y))) \
-		{ \
-			std::stringstream std_stringstream; \
-			std_stringstream << "Assertion '" #x "' " #cmp " '" #y "' failed! (" << (x) << " and " << (y) << "!)"; \
-			LOGME("%s", std_stringstream.str().c_str()); \
-			_CrtDebugBreak(); \
-		} \
-	MULTI_LINE_MACRO_END
-
-#elif defined(_DEBUG)
-
-#define assert(x) do { if (!(x)) LOGMW("Assertion failed: %s",  #x); } while(0)
-#define asserteq(x,y) \
-	MULTI_LINE_MACRO_BEGIN \
-		if ((x) != (y)) \
-		{ \
-			std::stringstream std_stringstream; \
-			std_stringstream << "Assertion '" #x "' == '" #y "' failed! (" << (x) << " != " << (y) << "!)"; \
-			LOGME("%s", std_stringstream.str().c_str()); \
-		} \
-	MULTI_LINE_MACRO_END
-#define assertcmp(x, cmp, y) \
-	MULTI_LINE_MACRO_BEGIN \
-		if (!((x) cmp (y))) \
-		{ \
-			std::stringstream std_stringstream; \
-			std_stringstream << "Assertion '" #x "' " #cmp " '" #y "' failed! (" << (x) << " and " << (y) << "!)"; \
-			LOGME("%s", std_stringstream.str().c_str()); \
-		} \
-	MULTI_LINE_MACRO_END
-
-#else
-
-#define assert(x)
-#define asserteq(x,y)
-#define assertcmp(x, cmp, y)
 
 #endif

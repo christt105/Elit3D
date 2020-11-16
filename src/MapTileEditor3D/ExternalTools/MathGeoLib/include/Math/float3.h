@@ -24,22 +24,8 @@
 #endif
 
 #include "../MathGeoLibFwd.h"
-
-#ifdef MATH_QT_INTEROP
-#include <QVector3D>
-#endif
-/*
-#ifdef MATH_IRRLICHT_INTEROP
-#include "float3.h"
-#endif
-*/
-#ifdef MATH_OGRE_INTEROP
-#include <OgreVector3.h>
-#endif
-
-#ifdef MATH_BULLET_INTEROP
-#include "../../../Bullet/include/LinearMath/btVector3.h"
-#endif
+#include "MathConstants.h"
+#include "assume.h"
 
 MATH_BEGIN_NAMESPACE
 
@@ -68,12 +54,8 @@ public:
 		@see x, y, z. */
 	float3() {}
 
-#ifdef MATH_EXPLICIT_COPYCTORS
 	/// The float3 copy constructor.
-	/** The copy constructor is a standard default copy-ctor, but it is explicitly written to be able to automatically pick up
-		this function for script bindings. */
 	float3(const float3 &rhs) { x = rhs.x; y = rhs.y; z = rhs.z; }
-#endif
 
 	/// Constructs a new float3 with the value (x, y, z).
 	/** @see x, y, z. */
@@ -101,30 +83,40 @@ public:
 			the At() function to access the elements of this vector by index.
 		@return A pointer to the first float element of this class. The data is contiguous in memory.
 		@see operator [](), At(). */
-	float *ptr();
-	const float *ptr() const;
+	FORCE_INLINE float *ptr() { return &x; }
+	FORCE_INLINE const float *ptr() const { return &x; }
 
 	/// Accesses an element of this vector using array notation.
 	/** @param index The element to get. Pass in 0 for x, 1 for y and 2 for z.
 		@note If you have a non-const instance of this class, you can use this notation to set the elements of
 			this vector as well, e.g. vec[1] = 10.f; would set the y-component of this vector.
 		@see ptr(), At(). */
-	float &operator [](int index) { return At(index); }
-	CONST_WIN32 float operator [](int index) const { return At(index); }
+	FORCE_INLINE float &operator [](int index) { return At(index); }
+	FORCE_INLINE CONST_WIN32 float operator [](int index) const { return At(index); }
 
 	/// Accesses an element of this vector.
 	/** @param index The element to get. Pass in 0 for x, 1 for y, and 2 for z.
 		@note If you have a non-const instance of this class, you can use this notation to set the elements of
 			this vector as well, e.g. vec.At(1) = 10.f; would set the y-component of this vector.
 		@see ptr(), operator [](). */
-	float &At(int index);
-	CONST_WIN32 float At(int index) const;
+	FORCE_INLINE CONST_WIN32 float At(int index) const
+	{
+		assume(index >= 0);
+		assume(index < Size);
+		return ptr()[index];
+	}
+	
+	FORCE_INLINE float &At(int index)
+	{
+		assume(index >= 0);
+		assume(index < Size);
+		return ptr()[index];
+	}
 
 	/// Adds two vectors. [indexTitle: operators +,-,*,/]
 	/** This function is identical to the member function Add().
 		@return float3(x + v.x, y + v.y, z + v.z); */
 	float3 operator +(const float3 &v) const;
-	float3 LSum(const float3 &v) const;
 	/// Performs an unary negation of this vector. [similarOverload: operator+] [hideIndex]
 	/** This function is identical to the member function Neg().
 		@return float3(-x, -y, -z). */
@@ -133,7 +125,6 @@ public:
 	/** This function is identical to the member function Sub().
 		@return float3(x - v.x, y - v.y, z - v.z); */
 	float3 operator -(const float3 &v) const;
-	float3 LSub(const float3 &v) const;
 	/// Multiplies this vector by a scalar. [similarOverload: operator+] [hideIndex]
 	/** This function is identical to the member function Mul().
 		@return float3(x * scalar, y * scalar, z * scalar); */
@@ -145,6 +136,9 @@ public:
 	/// Unary operator + allows this structure to be used in an expression '+x'.
 	float3 operator +() const { return *this; }
 
+	/// Assigns a vector to another.
+	/** @return A reference to this. */
+	float3 &operator =(const float3 &v);
 	/// Adds a vector to this vector, in-place. [indexTitle: operators +=,-=,*=,/=]
 	/** @return A reference to this. */
 	float3 &operator +=(const float3 &v);
@@ -159,6 +153,12 @@ public:
 	float3 &operator /=(float scalar);
 
 #ifdef MATH_ENABLE_UNCOMMON_OPERATIONS
+	// In math textbooks, pointwise multiplication of vectors is not defined within a linear space.
+	// However, in programming it is often useful for e.g. modulating colors via pointwise multiplication.
+	// If you #define MATH_ENABLE_UNCOMMON_OPERATIONS, you'll get these operations upgraded to handy
+	// operator * and / notation and can use vec * vec and vec / vec. Otherwise, use the notation
+	// vec.Mul(vec) and vec.Div(vec) for pointwise notation. MATH_ENABLE_UNCOMMON_OPERATIONS also enables
+	// the operation scalar / vec.
 	float3 operator *(const float3 &vector) const { return this->Mul(vector); }
 	float3 operator /(const float3 &vector) const { return this->Div(vector); }
 	float3 &operator *=(const float3 &vector) { *this = this->Mul(vector); return *this; }
@@ -284,7 +284,6 @@ public:
 	/// Sets all elements of this vector.
 	/** @see x, y, z, At(). */
 	void Set(float x, float y, float z);
-	void Set(float* v);
 
 	/// Converts the given vector represented in spherical coordinates to an euclidean float3 (x,y,z) triplet.
 	/** @param azimuth The direction, or yaw, of the vector. This function uses the convention that the X-Z plane is
@@ -315,7 +314,7 @@ public:
 	float4 ToDir4() const;
 
 	/// Converts this euclidean (x,y,z) float3 to spherical coordinates representation in the form (azimuth, inclination, radius).
-	/** @note This corresponsds to the matrix operation R_y * R_x * (0,0,radius), where R_y is a rotation about the y-axis by azimuth,
+	/** @note This corresponds to the matrix operation R_y * R_x * (0,0,radius), where R_y is a rotation about the y-axis by azimuth,
 			and R_x is a rotation about the x-axis by inclination.
 		@note It is valid for the magnitude of this vector to be (very close to) zero, in which case the return value is the zero vector.
 		@see FromSphericalCoordinates, SetFromSphericalCoordinates, ToSphericalCoordinatesNormalized. */
@@ -380,11 +379,11 @@ public:
 
 	/// Tests if the length of this vector is one, up to the given epsilon.
 	/** @see IsZero(), IsFinite(), IsPerpendicular(). */
-	bool IsNormalized(float epsilonSq = 1e-6f) const;
+	bool IsNormalized(float epsilonSq = 1e-5f) const;
 
 	/// Tests if this is the null vector, up to the given epsilon.
 	/** @see IsNormalized(), IsFinite(), IsPerpendicular(). */
-	bool IsZero(float epsilonSq = 1e-6f) const;
+	bool IsZero(float epsilonSq = 1e-7f) const;
 
 	/// Tests if this vector contains valid finite elements.
 	/** @see IsNormalized(), IsZero(), IsPerpendicular(). */
@@ -392,30 +391,35 @@ public:
 
 	/// Tests if two vectors are perpendicular to each other.
 	/** @see IsNormalized(), IsZero(), IsPerpendicular(), Equals(). */
-	bool IsPerpendicular(const float3 &other, float epsilon = 1e-3f) const;
+	bool IsPerpendicular(const float3 &other, float epsilonSq = 1e-5f) const;
 
 	/// Tests if the points p1, p2 and p3 lie on a straight line, up to the given epsilon.
 	/** @see AreOrthogonal(), AreOrthonormal(), Line::AreCollinear(). */
-	static MUST_USE_RESULT bool AreCollinear(const float3 &p1, const float3 &p2, const float3 &p3, float epsilon = 1e-4f);
+	static MUST_USE_RESULT bool AreCollinear(const float3 &p1, const float3 &p2, const float3 &p3, float epsilonSq = 1e-7f);
 
 	/// Tests if two vectors are equal, up to the given epsilon.
 	/** @see IsPerpendicular(). */
 	bool Equals(const float3 &other, float epsilon = 1e-3f) const;
 	bool Equals(float x, float y, float z, float epsilon = 1e-3f) const;
 
-#ifdef MATH_ENABLE_STL_SUPPORT
-	/// Returns "(x, y, z)".
-	std::string ToString() const;
+	/// Compares whether this float3 and the given float3 are identical bit-by-bit in the underlying representation.
+	/** @note Prefer using this over e.g. memcmp, since there can be SSE-related padding in the structures. */
+	bool BitEquals(const float3 &other) const;
 
-	/// Returns "x y z". This is the preferred format for the float3 if it has to be serialized to a string for machine transfer.
-	std::string SerializeToString() const;
+#if defined(MATH_ENABLE_STL_SUPPORT) || defined(MATH_CONTAINERLIB_SUPPORT)
+	/// Returns "(x, y, z)".
+	StringT ToString() const;
+
+	/// Returns "x,y,z". This is the preferred format for the float3 if it has to be serialized to a string for machine transfer.
+	StringT SerializeToString() const;
+
+	/// Returns a string of C++ code that can be used to construct this object. Useful for generating test cases from badly behaving objects.
+	StringT SerializeToCodeString() const;
+	static MUST_USE_RESULT float3 FromString(const StringT &str) { return FromString(str.c_str()); }
 #endif
 
 	/// Parses a string that is of form "x,y,z" or "(x,y,z)" or "(x;y;z)" or "x y z" to a new float3.
-	static MUST_USE_RESULT float3 FromString(const char *str);
-#ifdef MATH_ENABLE_STL_SUPPORT
-	static MUST_USE_RESULT float3 FromString(const std::string &str) { return FromString(str.c_str()); }
-#endif
+	static MUST_USE_RESULT float3 FromString(const char *str, const char **outEndStr = 0);
 
 	/// @return x + y + z.
 	float SumOfElements() const;
@@ -502,6 +506,7 @@ public:
 		(monotonous and non-decreasing) function.
 		@see Distance(), Length(), LengthSq(). */
 	float DistanceSq(const float3 &point) const;
+	double DistanceSqD(const float3 &point) const;
 
 	/// Computes the dot product of this and the given vector.
 	/** The dot product has a geometric interpretation of measuring how close two direction vectors are to pointing
@@ -530,6 +535,14 @@ public:
 	/** The set (this, Perpendicular(), AnotherPerpendicular()) forms a right-handed normalized 3D basis.
 		@see Perpendicular(), Cross(). */
 	float3 AnotherPerpendicular(const float3 &hint = float3(0,1,0), const float3 &hint2 = float3(0,0,1)) const;
+
+	// Completes this vector to generate a perpendicular basis.
+	/** This function computes two new vectors b and c which are both orthogonal to this vector and to each other.
+		That is, the set { this, b, c} is an orthogonal set. The vectors b and c that are outputted are also normalized.
+		@param outB [out] Receives vector b.
+		@param outC [out] Receives vector c.
+		@note When calling this function, this vector should not be zero! */
+	void PerpendicularBasis(float3 &outB, float3 &outC) const;
 
 	/// Generates a random vector that is perpendicular to this vector.
 	/** The distribution is uniformly random. */
@@ -639,6 +652,9 @@ public:
 	/// Returns a random float3 with each entry randomized between the range [minElem, maxElem].
 	static MUST_USE_RESULT float3 RandomBox(LCG &lcg, float minElem, float maxElem);
 
+	// Identical to RandomBox, but provided for generic API between float3 and float4 in templates.
+	static inline float3 RandomGeneral(LCG &lcg, float minElem, float maxElem) { return RandomBox(lcg, minElem, maxElem); }
+
 	/// Specifies a compile-time constant float3 with value (0, 0, 0).
 	/** @note Due to static data initialization order being undefined in C++, do NOT use this
 			member to initialize other static data in other compilation units! */
@@ -661,7 +677,7 @@ public:
 	static const float3 unitZ;
 	/// A compile-time constant float3 with value (NaN, NaN, NaN).
 	/** For this constant, each element has the value of quiet NaN, or Not-A-Number.
-		@note Never compare a float3 to this value! Due to how IEEE floats work, for each float x, both expressions "x == nan" and "x != nan" return false!
+		@note Never compare a float3 to this value! Due to how IEEE floats work, "nan == nan" returns false!
 			  That is, nothing is equal to NaN, not even NaN itself!
 		@note Due to static data initialization order being undefined in C++, do NOT use this
 			member to initialize other static data in other compilation units! */
@@ -670,30 +686,6 @@ public:
 	/** @note Due to static data initialization order being undefined in C++, do NOT use this
 			member to initialize other static data in other compilation units! */
 	static const float3 inf;
-
-#ifdef MATH_OGRE_INTEROP
-	float3(const Ogre::Vector3 &other) { x = other.x; y = other.y; z = other.z; }
-	operator Ogre::Vector3() const { return Ogre::Vector3(x, y, z); }
-#endif
-/*
-#ifdef MATH_IRRLICHT_INTEROP
-	float3(const Vector3df &other) { x = other.x; y = other.y; z = other.z; }
-	operator Vector3df() const { return Vector3df(x, y, z); }
-#endif
-*/
-#ifdef MATH_QT_INTEROP
-	float3(const QVector3D &other) { x = other.x(); y = other.y(); z = other.z(); }
-	operator QVector3D() const { return QVector3D(x, y, z); }
-	operator QString() const { return "float3(" + QString::number(x) + "," + QString::number(y) + "," + QString::number(z) + ")"; }
-	QString toString() const { return (QString)*this; }
-	QVector3D ToQVector3D() const { return QVector3D(x, y, z); }
-	static float3 FromQVector3D(const QVector3D &v) { return (float3)v; }
-	static float3 FromString(const QString &str) { return FromString(str.toStdString()); }
-#endif
-#ifdef MATH_BULLET_INTEROP
-	float3(const btVector3 &other) { x = other.x(); y = other.y(); z = other.z(); }
-	operator btVector3() const { return btVector3(x, y, z); }
-#endif
 };
 
 /// Prints this float3 to the given stream.
@@ -719,9 +711,99 @@ inline float3 Clamp(const float3 &a, const float3 &floor, const float3 &ceil) { 
 inline float3 Clamp01(const float3 &a) { return a.Clamp01(); }
 inline float3 Lerp(const float3 &a, const float3 &b, float t) { return a.Lerp(b, t); }
 
-#ifdef MATH_QT_INTEROP
-Q_DECLARE_METATYPE(float3)
-Q_DECLARE_METATYPE(float3*)
+MATH_END_NAMESPACE
+
+#include "float4.h"
+#include "MathFunc.h"
+
+MATH_BEGIN_NAMESPACE
+
+#ifdef MATH_AUTOMATIC_SSE
+bool EqualAbs(float a, float b, float epsilon);
+
+// Given a xyz triplet or a float3, constructs a vec object that represents a point vector.
+#define POINT_VEC(...) float4(__VA_ARGS__, 1.f)
+
+// Given a xyz triplet or a float3, constructs a vec object that represents a direction vector.
+#define DIR_VEC(...) float4(__VA_ARGS__, 0.f)
+
+// Given a xy pair or a float2d, constructs a vec object that represents a 2D point vector.
+#define POINT_VEC2D(...) float4(__VA_ARGS__, 0.f, 1.f)
+
+// Given a xy pair or a float2d, constructs a vec object that represents a 2D direction vector.
+#define DIR_VEC2D(...) float4(__VA_ARGS__, 0.f, 0.f)
+
+#define POINT_VEC_SCALAR(s) float4(pos_from_scalar_ps(s))
+#define DIR_VEC_SCALAR(s) float4(dir_from_scalar_ps(s))
+
+#define FLOAT4D_POINT_VEC(...) float4d(__VA_ARGS__, 1.0)
+#define FLOAT4D_DIR_VEC(...) float4d(__VA_ARGS__, 0.0)
+
+#define FLOAT4D_POINT_VEC_SCALAR(s) float4d(pos_from_scalar_ps(s))
+#define FLOAT4D_DIR_VEC_SCALAR(s) float4d(dir_from_scalar_ps(s))
+
+#define POINT_TO_FLOAT3(v) (v).xyz()
+#define DIR_TO_FLOAT3(v) (v).xyz()
+
+#define POINT_TO_FLOAT4(v) (v)
+#define DIR_TO_FLOAT4(v) (v)
+
+#define POINT_TO_FLOAT4D(v) float4d(v)
+#define DIR_TO_FLOAT4D(v) float4d(v)
+
+#define FLOAT4_TO_POINT(v) (v)
+#define FLOAT4_TO_DIR(v) (v)
+
+// TODO: SSE optimize double->float conversion
+#define FLOAT4D_TO_POINT(v) (float4((float)v.x, (float)v.y, (float)v.z, (float)v.w))
+#define FLOAT4D_TO_DIR(v) (float4((float)v.x, (float)v.y, (float)v.z, (float)v.w))
+
+/* /// TODO: Enable this:
+inline float3 POINT_TO_FLOAT3(const vec &v)
+{
+	assume(EqualAbs(v.w, 1.f, 1e-4f));
+	return v.xyz();
+}
+inline float3 DIR_TO_FLOAT3(const vec &v)
+{
+	assume(EqualAbs(v.w, 0.f, 1e-4f));
+	return v.xyz();
+}
+*/
+#else
+#define POINT_VEC(...) float3(__VA_ARGS__)
+#define DIR_VEC(...) float3(__VA_ARGS__)
+#define POINT_VEC2D(...) float2(__VA_ARGS__)
+#define DIR_VEC2D(...) float2(__VA_ARGS__)
+#define POINT_TO_FLOAT3(x) x
+#define DIR_TO_FLOAT3(x) x
+#define POINT_VEC_SCALAR(s) float3::FromScalar(s)
+#define DIR_VEC_SCALAR(s) float3::FromScalar(s)
+#define POINT_TO_FLOAT4(v) float4(v, 1.f)
+#define DIR_TO_FLOAT4(v) float4(v, 0.f)
+#define POINT_TO_FLOAT4D(v) float4d(v, 1.f)
+#define DIR_TO_FLOAT4D(v) float4d(v, 0.f)
+#define FLOAT4_TO_POINT(v) (v).xyz()
+#define FLOAT4_TO_DIR(v) (v).xyz()
+#define FLOAT4D_TO_POINT(v) (float3((float)v.x, (float)v.y, (float)v.z))
+#define FLOAT4D_TO_DIR(v) (float3((float)v.x, (float)v.y, (float)v.z))
+
+#define FLOAT4D_POINT_VEC(...) float4d(__VA_ARGS__)
+#define FLOAT4D_DIR_VEC(...) float4d(__VA_ARGS__)
+
+#define FLOAT4D_POINT_VEC_SCALAR(s) float4d::FromScalar(s)
+#define FLOAT4D_DIR_VEC_SCALAR(s) float4d::FromScalar(s)
+
 #endif
+
+vec PointVecFromString(const char *str, const char **outEndStr = 0);
+vec DirVecFromString(const char *str, const char **outEndStr = 0);
+
+/// Converts the given amount of degrees into radians.
+/// 180 degrees equals pi, 360 degrees is a full circle, and equals 2pi.
+FORCE_INLINE float3 DegToRad(const float3 &degrees) { return degrees * (pi / 180.f); }
+
+/// Converts the given amount of radians into degrees.
+FORCE_INLINE float3 RadToDeg(const float3 &radians) { return radians * (180.f / pi); }
 
 MATH_END_NAMESPACE

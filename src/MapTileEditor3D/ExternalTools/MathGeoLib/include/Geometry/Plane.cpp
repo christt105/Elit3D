@@ -31,6 +31,7 @@
 #include "LineSegment.h"
 #include "../Math/float3x3.h"
 #include "../Math/float3x4.h"
+#include "../Math/float4x4.h"
 #include "../Math/float4.h"
 #include "../Math/Quat.h"
 #include "Frustum.h"
@@ -45,37 +46,37 @@
 
 MATH_BEGIN_NAMESPACE
 
-Plane::Plane(const float3 &normal_, float d_)
+Plane::Plane(const vec &normal_, float d_)
 :normal(normal_), d(d_)
 {
-	assume(normal.IsNormalized());
+	assume2(normal.IsNormalized(), normal.SerializeToCodeString(), normal.Length());
 }
 
-Plane::Plane(const float3 &v1, const float3 &v2, const float3 &v3)
+Plane::Plane(const vec &v1, const vec &v2, const vec &v3)
 {
 	Set(v1, v2, v3);
 }
 
-Plane::Plane(const float3 &point, const float3 &normal_)
+Plane::Plane(const vec &point, const vec &normal_)
 {
 	Set(point, normal_);
 }
 
-Plane::Plane(const Ray &ray, const float3 &normal)
+Plane::Plane(const Ray &ray, const vec &normal)
 {
-	float3 perpNormal = normal - normal.ProjectToNorm(ray.dir);
+	vec perpNormal = normal - normal.ProjectToNorm(ray.dir);
 	Set(ray.pos, perpNormal.Normalized());
 }
 
-Plane::Plane(const Line &line, const float3 &normal)
+Plane::Plane(const Line &line, const vec &normal)
 {
-	float3 perpNormal = normal - normal.ProjectToNorm(line.dir);
+	vec perpNormal = normal - normal.ProjectToNorm(line.dir);
 	Set(line.pos, perpNormal.Normalized());
 }
 
-Plane::Plane(const LineSegment &lineSegment, const float3 &normal)
+Plane::Plane(const LineSegment &lineSegment, const vec &normal)
 {
-	float3 perpNormal = normal - normal.ProjectTo(lineSegment.b - lineSegment.a);
+	vec perpNormal = normal - normal.ProjectTo(lineSegment.b - lineSegment.a);
 	Set(lineSegment.a, perpNormal.Normalized());
 }
 
@@ -84,27 +85,26 @@ bool Plane::IsDegenerate() const
 	return !normal.IsFinite() || normal.IsZero() || !IsFinite(d);
 }
 
-void Plane::Set(const float3 &v1, const float3 &v2, const float3 &v3)
+void Plane::Set(const vec &v1, const vec &v2, const vec &v3)
 {
-	normal = ((v2-v1).Cross(v3-v1)).Normalized();
-	d = Dot(v1, normal);
-
-#ifdef MATH_ASSERT_CORRECTNESS
-	float d2 = Dot(v2, normal);
-	float d3 = Dot(v3, normal);
-	mathassert(EqualAbs(d, d2, 1e-2f));
-	mathassert(EqualAbs(d, d3, 1e-2f));
-#endif
+	normal = (v2-v1).Cross(v3-v1);
+	float len = normal.Length();
+	assume1(len > 1e-10f, len);
+	normal /= len;
+	assume2(normal.IsNormalized(), normal, normal.LengthSq());
+	d = normal.Dot(v1);
 }
 
-void Plane::Set(const float3 &point, const float3 &normal_)
+void Plane::Set(const vec &point, const vec &normal_)
 {
 	normal = normal_;
-	assume(normal.IsNormalized());
-	d = Dot(point, normal);
+	assume2(normal.IsNormalized(), normal.SerializeToCodeString(), normal.Length());
+	d = point.Dot(normal);
 
-	mathassert(EqualAbs(SignedDistance(point), 0.f, 0.01f));
-	mathassert(EqualAbs(SignedDistance(point + normal_), 1.f, 0.01f));
+#ifdef MATH_ASSERT_CORRECTNESS
+	assert1(EqualAbs(SignedDistance(point), 0.f, 0.01f), SignedDistance(point));
+	assert1(EqualAbs(SignedDistance(point + normal_), 1.f, 0.01f), SignedDistance(point + normal_));
+#endif
 }
 
 void Plane::ReverseNormal()
@@ -113,24 +113,32 @@ void Plane::ReverseNormal()
 	d = -d;
 }
 
-float3 Plane::PointOnPlane() const
+vec Plane::PointOnPlane() const
 {
+#ifdef MATH_AUTOMATIC_SSE
+	return normal * d + vec(POINT_VEC_SCALAR(0.f));
+#else
 	return normal * d;
+#endif
 }
 
-float3 Plane::Point(float u, float v) const
+vec Plane::Point(float u, float v) const
 {
-	return PointOnPlane() + u * normal.Perpendicular() + v * normal.AnotherPerpendicular();
+	vec b1, b2;
+	normal.PerpendicularBasis(b1, b2);
+	return PointOnPlane() + u * b1 + v * b2;
 }
 
-float3 Plane::Point(float u, float v, const float3 &referenceOrigin) const
+vec Plane::Point(float u, float v, const vec &referenceOrigin) const
 {
-	return Project(referenceOrigin) + u * normal.Perpendicular() + v * normal.AnotherPerpendicular();
+	vec b1, b2;
+	normal.PerpendicularBasis(b1, b2);
+	return Project(referenceOrigin) + u * b1 + v * b2;
 }
 
-void Plane::Translate(const float3 &offset)
+void Plane::Translate(const vec &offset)
 {
-	d -= Dot(normal, offset);
+	d -= normal.Dot(offset);
 }
 
 void Plane::Transform(const float3x3 &transform)
@@ -147,7 +155,7 @@ void Plane::Transform(const float3x4 &transform)
 	bool success = r.Inverse(); ///@todo Can optimize the inverse here by assuming orthogonality or orthonormality.
 	assume(success);
 	MARK_UNUSED(success);
-	d = d + Dot(normal, r * transform.TranslatePart());
+	d = d + normal.Dot(DIR_VEC(r * transform.TranslatePart()));
 	normal = normal * r;
 }
 
@@ -163,12 +171,12 @@ void Plane::Transform(const Quat &transform)
 	Transform(r);
 }
 
-bool Plane::IsInPositiveDirection(const float3 &directionVector) const
+bool Plane::IsInPositiveDirection(const vec &directionVector) const
 {
 	return normal.Dot(directionVector) >= 0.f;
 }
 
-bool Plane::IsOnPositiveSide(const float3 &point) const
+bool Plane::IsOnPositiveSide(const vec &point) const
 {
 	return SignedDistance(point) >= 0.f;
 }
@@ -186,12 +194,12 @@ int Plane::ExamineSide(const Triangle &triangle) const
 	return 0;
 }
 
-bool Plane::AreOnSameSide(const float3 &p1, const float3 &p2) const
+bool Plane::AreOnSameSide(const vec &p1, const vec &p2) const
 {
 	return SignedDistance(p1) * SignedDistance(p2) >= 0.f;
 }
 
-float Plane::Distance(const float3 &point) const
+float Plane::Distance(const vec &point) const
 {
 	return Abs(SignedDistance(point));
 }
@@ -211,8 +219,12 @@ float Plane::Distance(const Capsule &capsule) const
 	return Max(0.f, Distance(capsule.l) - capsule.r);
 }
 
-float Plane::SignedDistance(const float3 &point) const
+float Plane::SignedDistance(const vec &point) const
 {
+	assume2(normal.IsNormalized(), normal, normal.Length());
+#ifdef MATH_VEC_IS_FLOAT4
+	assert1(normal.w == 0.f, normal.w);
+#endif
 	return normal.Dot(point) - d;
 }
 
@@ -249,10 +261,10 @@ float3x4 Plane::OrthoProjection() const
 }
 
 #if 0
-float3x4 Plane::ObliqueProjection(const float3 & /*obliqueProjectionDir*/) const
+float3x4 Plane::ObliqueProjection(const vec & /*obliqueProjectionDir*/) const
 {
 #ifdef _MSC_VER
-#pragma WARNING(Plane::ObliqueProjection not implemented!)
+#pragma warning(Plane::ObliqueProjection not implemented!)
 #else
 #warning Plane::ObliqueProjection not implemented!
 #endif
@@ -266,28 +278,37 @@ float3x4 Plane::MirrorMatrix() const
 	return float3x4::Mirror(*this);
 }
 
-float3 Plane::Mirror(const float3 &point) const
+vec Plane::Mirror(const vec &point) const
 {
 #ifdef MATH_ASSERT_CORRECTNESS
 	float signedDistance = SignedDistance(point);
 #endif
-	assume(normal.IsNormalized());
-	float3 reflected = point - 2.f * (Dot(point, normal) - d) * normal;
-	mathassert(EqualAbs(signedDistance, -SignedDistance(reflected)));
+	assume2(normal.IsNormalized(), normal.SerializeToCodeString(), normal.Length());
+	vec reflected = point - 2.f * (point.Dot(normal) - d) * normal;
+	mathassert(EqualAbs(signedDistance, -SignedDistance(reflected), 1e-2f));
 	mathassert(reflected.Equals(MirrorMatrix().MulPos(point)));
 	return reflected;
 }
 
-float3 Plane::Refract(const float3 &vec, float negativeSideRefractionIndex, float positiveSideRefractionIndex) const
+vec Plane::Refract(const vec &vec, float negativeSideRefractionIndex, float positiveSideRefractionIndex) const
 {
-	return float3(vec).Refract(normal, negativeSideRefractionIndex, positiveSideRefractionIndex);
+	return vec.Refract(normal, negativeSideRefractionIndex, positiveSideRefractionIndex);
 }
 
-float3 Plane::Project(const float3 &point) const
+vec Plane::Project(const vec &point) const
 {
-	float3 projected = point - (Dot(normal, point) - d) * normal;
-	mathassert(projected.Equals(OrthoProjection().MulPos(point)));
+	vec projected = point - (normal.Dot(point) - d) * normal;
 	return projected;
+}
+
+vec Plane::ProjectToNegativeHalf(const vec &point) const
+{
+	return point - Max(0.f, (normal.Dot(point) - d)) * normal;
+}
+
+vec Plane::ProjectToPositiveHalf(const vec &point) const
+{
+	return point - Min(0.f, (Dot(normal, point) - d)) * normal;
 }
 
 LineSegment Plane::Project(const LineSegment &lineSegment) const
@@ -335,23 +356,26 @@ Polygon Plane::Project(const Polygon &polygon) const
 	return p;
 }
 
-float3 Plane::ClosestPoint(const Ray &ray) const
+vec Plane::ClosestPoint(const Ray &ray) const
 {
 	assume(ray.IsFinite());
 	assume(!IsDegenerate());
 
+	// The plane and a ray have three configurations:
+	// 1) the ray and the plane don't intersect: the closest point is the ray origin point.
+	// 2) the ray and the plane do intersect: the closest point is the intersection point.
+	// 3) the ray is parallel to the plane: any point on the ray projected to the plane is a closest point.
 	float denom = Dot(normal, ray.dir);
-	if (EqualAbs(denom, 0.f))
-		return Project(ray.pos); // Output t == 0.
+	if (denom == 0.f)
+		return Project(ray.pos); // case 3)
+	float t = (d - Dot(normal, ray.pos)) / denom;
+	if (t >= 0.f && t < 1e6f) // Numerical stability check: Instead of checking denom against epsilon, check the resulting t for very large values.
+		return ray.GetPoint(t); // case 2)
 	else
-	{
-		///@todo Output parametric t along the ray as well.
-		float t = (d - Dot(normal, ray.pos)) / denom;
-		return ray.GetPoint(t);
-	}
+		return Project(ray.pos); // case 1)
 }
 
-float3 Plane::ClosestPoint(const LineSegment &lineSegment) const
+vec Plane::ClosestPoint(const LineSegment &lineSegment) const
 {
 	/*
 	///@todo Output parametric d as well.
@@ -388,19 +412,19 @@ float3 Plane::ClosestPoint(const LineSegment &lineSegment) const
 }
 
 #if 0
-float3 Plane::ObliqueProject(const float3 & /*point*/, const float3 & /*obliqueProjectionDir*/) const
+vec Plane::ObliqueProject(const vec & /*point*/, const vec & /*obliqueProjectionDir*/) const
 {
 #ifdef _MSC_VER
-#pragma WARNING(Plane::ObliqueProject not implemented!)
+#pragma warning(Plane::ObliqueProject not implemented!)
 #else
 #warning Plane::ObliqueProject not implemented!
 #endif
 	assume(false && "Plane::ObliqueProject not implemented!"); /// @todo Implement.
-	return float3();
+	return vec();
 }
 #endif
 
-bool Plane::Contains(const float3 &point, float distanceThreshold) const
+bool Plane::Contains(const vec &point, float distanceThreshold) const
 {
 	return Distance(point) <= distanceThreshold;
 }
@@ -455,12 +479,12 @@ bool Plane::Equals(const Plane &other, float epsilon) const
 
 bool Plane::Intersects(const Plane &plane, Line *outLine) const
 {
-	float3 perp = normal.Perpendicular(plane.normal);//float3::Perpendicular Cross(normal, plane.normal);
+	vec perp = normal.Perpendicular(plane.normal);//vec::Perpendicular Cross(normal, plane.normal);
 
 	float3x3 m;
-	m.SetRow(0, normal);
-	m.SetRow(1, plane.normal);
-	m.SetRow(2, perp); // This is arbitrarily chosen, to produce m invertible.
+	m.SetRow(0, DIR_TO_FLOAT3(normal));
+	m.SetRow(1, DIR_TO_FLOAT3(plane.normal));
+	m.SetRow(2, DIR_TO_FLOAT3(perp)); // This is arbitrarily chosen, to produce m invertible.
 	float3 intersectionPos;
 	bool success = m.SolveAxb(float3(d, plane.d, 0.f),intersectionPos);
 	if (!success) // Inverse failed, so the planes must be parallel.
@@ -476,11 +500,11 @@ bool Plane::Intersects(const Plane &plane, Line *outLine) const
 			return false;
 	}
 	if (outLine)
-		*outLine = Line(intersectionPos, perp.Normalized());
+		*outLine = Line(POINT_VEC(intersectionPos), perp.Normalized());
 	return true;
 }
 
-bool Plane::Intersects(const Plane &plane, const Plane &plane2, Line *outLine, float3 *outPoint) const
+bool Plane::Intersects(const Plane &plane, const Plane &plane2, Line *outLine, vec *outPoint) const
 {
 	Line dummy;
 	if (!outLine)
@@ -514,15 +538,15 @@ bool Plane::Intersects(const Plane &plane, const Plane &plane2, Line *outLine, f
 
 	// All planes point to different directions.
 	float3x3 m;
-	m.SetRow(0, normal);
-	m.SetRow(1, plane.normal);
-	m.SetRow(2, plane2.normal);
+	m.SetRow(0, DIR_TO_FLOAT3(normal));
+	m.SetRow(1, DIR_TO_FLOAT3(plane.normal));
+	m.SetRow(2, DIR_TO_FLOAT3(plane2.normal));
 	float3 intersectionPos;
 	bool success = m.SolveAxb(float3(d, plane.d, plane2.d), intersectionPos);
 	if (!success)
 		return false;
 	if (outPoint)
-		*outPoint = intersectionPos;
+		*outPoint = POINT_VEC(intersectionPos);
 	return true;
 }
 
@@ -532,7 +556,7 @@ bool Plane::Intersects(const Polygon &polygon) const
 }
 
 #if 0
-bool Plane::IntersectLinePlane(const float3 &p, const float3 &n, const float3 &a, const float3 &d, float &t)
+bool Plane::IntersectLinePlane(const vec &p, const vec &n, const vec &a, const vec &d, float &t)
 {
 	/* The set of points x lying on a plane is defined by the equation
 
@@ -569,7 +593,7 @@ bool Plane::IntersectLinePlane(const float3 &p, const float3 &n, const float3 &a
 }
 #endif
 
-bool Plane::IntersectLinePlane(const float3 &planeNormal, float planeD, const float3 &linePos, const float3 &lineDir, float &t)
+bool Plane::IntersectLinePlane(const vec &planeNormal, float planeD, const vec &linePos, const vec &lineDir, float &t)
 {
 	/* The set of points x lying on a plane is defined by the equation
 
@@ -592,45 +616,49 @@ bool Plane::IntersectLinePlane(const float3 &planeNormal, float planeD, const fl
 	is embedded on the plane, and infinitely many intersections occur. */
 
 	float denom = Dot(planeNormal, lineDir);
-	if (EqualAbs(denom, 0.f))
-	{
-		t = 0.f;
-		return EqualAbs(Dot(planeNormal, linePos), planeD, 1e-2f);
-	}
-	else
+	if (Abs(denom) > 1e-4f)
 	{
 		// Compute the distance from the line starting point to the point of intersection.
 		t = (planeD - Dot(planeNormal, linePos)) / denom;
 		return true;
 	}
+
+	if (denom != 0.f)
+	{
+		t = (planeD - Dot(planeNormal, linePos)) / denom;
+		if (Abs(t) < 1e4f)
+			return true;
+	}
+	t = 0.f;
+	return EqualAbs(Dot(planeNormal, linePos), planeD, 1e-3f);
 }
 
 
-bool Plane::Intersects(const Ray &ray, float *d) const
+bool Plane::Intersects(const Ray &ray, float *dist) const
 {
 	float t;
 	bool success = IntersectLinePlane(normal, this->d, ray.pos, ray.dir, t);
-	if (d)
-		*d = t;
+	if (dist)
+		*dist = t;
 	return success && t >= 0.f;
 }
 
-bool Plane::Intersects(const Line &line, float *d) const
+bool Plane::Intersects(const Line &line, float *dist) const
 {
 	float t;
 	bool intersects = IntersectLinePlane(normal, this->d, line.pos, line.dir, t);
-	if (d)
-		*d = t;
+	if (dist)
+		*dist = t;
 	return intersects;
 }
 
-bool Plane::Intersects(const LineSegment &lineSegment, float *d) const
+bool Plane::Intersects(const LineSegment &lineSegment, float *dist) const
 {
 	float t;
 	bool success = IntersectLinePlane(normal, this->d, lineSegment.a, lineSegment.Dir(), t);
 	const float lineSegmentLength = lineSegment.Length();
-	if (d)
-		*d = t / lineSegmentLength;
+	if (dist)
+		*dist = t / lineSegmentLength;
 	return success && t >= 0.f && t <= lineSegmentLength;
 }
 
@@ -647,13 +675,14 @@ bool Plane::Intersects(const Capsule &capsule) const
 /// The Plane-AABB intersection is implemented according to Christer Ericson's Real-Time Collision Detection, p.164. [groupSyntax]
 bool Plane::Intersects(const AABB &aabb) const
 {
-	float3 c = aabb.CenterPoint();
-	float3 e = aabb.HalfDiagonal();
+	vec c = aabb.CenterPoint();
+	vec e = aabb.HalfDiagonal();
 
 	// Compute the projection interval radius of the AABB onto L(t) = aabb.center + t * plane.normal;
 	float r = e[0]*Abs(normal[0]) + e[1]*Abs(normal[1]) + e[2]*Abs(normal[2]);
 	// Compute the distance of the box center from plane.
-	float s = Dot(normal, c) - d;
+//	float s = Dot(normal, c) - d;
+	float s = Dot(normal.xyz(), c.xyz()) - d; ///\todo Use the above form when Plane is SSE'ized.
 	return Abs(s) <= r;
 }
 
@@ -690,7 +719,7 @@ bool Plane::Intersects(const Polyhedron &polyhedron) const
 	return false;
 }
 
-int Plane::Intersects(const Circle &circle, float3 *pt1, float3 *pt2) const
+int Plane::Intersects(const Circle &circle, vec *pt1, vec *pt2) const
 {
 	Line line;
 	bool planeIntersects = Intersects(circle.ContainingPlane(), &line);
@@ -717,7 +746,7 @@ int Plane::Intersects(const Circle &circle) const
 	return Intersects(circle, 0, 0);
 }
 
-bool Plane::Clip(float3 &a, float3 &b) const
+bool Plane::Clip(vec &a, vec &b) const
 {
 	float t;
 	bool intersects = IntersectLinePlane(normal, d, a, b-a, t);
@@ -728,7 +757,7 @@ bool Plane::Clip(float3 &a, float3 &b) const
 		else
 			return true; // The whole line segment is in the positive halfspace. Keep all of it.
 	}
-	float3 pt = a + (b-a) * t; // The intersection point.
+	vec pt = a + (b-a) * t; // The intersection point.
 	// We are either interested in the line segment [a, pt] or the segment [pt, b]. Which one is in the positive side?
 	if (IsOnPositiveSide(a))
 		b = pt;
@@ -783,14 +812,14 @@ int Plane::Clip(const Triangle &triangle, Triangle &t1, Triangle &t2) const
 	{
 		if (side[1])
 		{
-			float3 tmp = t1.a;
+			vec tmp = t1.a;
 			t1.a = t1.b;
 			t1.b = t1.c;
 			t1.c = tmp;
 		}
 		else if (side[2])
 		{
-			float3 tmp = t1.a;
+			vec tmp = t1.a;
 			t1.a = t1.c;
 			t1.c = t1.b;
 			t1.b = tmp;
@@ -807,14 +836,14 @@ int Plane::Clip(const Triangle &triangle, Triangle &t1, Triangle &t2) const
 	// Must be nPos == 2.
 	if (!side[1])
 	{
-		float3 tmp = t1.a;
+		vec tmp = t1.a;
 		t1.a = t1.b;
 		t1.b = t1.c;
 		t1.c = tmp;
 	}
 	else if (!side[2])
 	{
-		float3 tmp = t1.a;
+		vec tmp = t1.a;
 		t1.a = t1.c;
 		t1.c = t1.b;
 		t1.b = tmp;
@@ -823,9 +852,9 @@ int Plane::Clip(const Triangle &triangle, Triangle &t1, Triangle &t2) const
 
 	float t, r;
 	Intersects(LineSegment(t1.a, t1.b), &t);
-	float3 ab = t1.a + (t1.b-t1.a)*t;
+	vec ab = t1.a + (t1.b-t1.a)*t;
 	Intersects(LineSegment(t1.a, t1.c), &r);
-	float3 ac = t1.a + (t1.c-t1.a)*t;
+	vec ac = t1.a + (t1.c-t1.a)*r;
 	t1.a = ab;
 
 	t2.a = t1.c;
@@ -842,7 +871,7 @@ bool Plane::IsParallel(const Plane &plane, float epsilon) const
 
 bool Plane::PassesThroughOrigin(float epsilon) const
 {
-	return fabs(d) <= epsilon;
+	return MATH_NS::Abs(d) <= epsilon;
 }
 
 float Plane::DihedralAngle(const Plane &plane) const
@@ -850,7 +879,7 @@ float Plane::DihedralAngle(const Plane &plane) const
 	return Dot(normal, plane.normal);
 }
 
-Circle Plane::GenerateCircle(const float3 &circleCenter, float radius) const
+Circle Plane::GenerateCircle(const vec &circleCenter, float radius) const
 {
 	return Circle(Project(circleCenter), normal, radius);
 }
@@ -883,13 +912,52 @@ Plane operator *(const Quat &transform, const Plane &plane)
 	return p;
 }
 
-#ifdef MATH_ENABLE_STL_SUPPORT
-std::string Plane::ToString() const
+#if defined(MATH_ENABLE_STL_SUPPORT) || defined(MATH_CONTAINERLIB_SUPPORT)
+
+StringT Plane::ToString() const
 {
 	char str[256];
-	sprintf_s(str, 256,"Plane(Normal:(%.2f, %.2f, %.2f) d:%.2f)", normal.x, normal.y, normal.z, d);
+	sprintf(str, "Plane(Normal:(%.2f, %.2f, %.2f) d:%.2f)", normal.x, normal.y, normal.z, d);
 	return str;
 }
+
+StringT Plane::SerializeToString() const
+{
+	char str[256];
+	char *s = SerializeFloat(normal.x, str); *s = ','; ++s;
+	s = SerializeFloat(normal.y, s); *s = ','; ++s;
+	s = SerializeFloat(normal.z, s); *s = ','; ++s;
+	s = SerializeFloat(d, s);
+	assert(s+1 - str < 256);
+	MARK_UNUSED(s);
+	return str;
+}
+
+StringT Plane::SerializeToCodeString() const
+{
+	char str[256];
+	sprintf(str, "%.9g", d);
+	return "Plane(" + normal.SerializeToCodeString() + "," + str + ")";
+}
+#endif
+
+Plane Plane::FromString(const char *str, const char **outEndStr)
+{
+	assume(str);
+	if (!str)
+		return Plane(vec::nan, FLOAT_NAN);
+	Plane p;
+	MATH_SKIP_WORD(str, "Plane(");
+	MATH_SKIP_WORD(str, "Normal:(");
+	p.normal = DirVecFromString(str, &str);
+	MATH_SKIP_WORD(str, " d:");
+	p.d = DeserializeFloat(str, &str);
+	if (outEndStr)
+		*outEndStr = str;
+	return p;
+}
+
+#if defined(MATH_ENABLE_STL_SUPPORT)
 
 std::ostream &operator <<(std::ostream &o, const Plane &plane)
 {
@@ -900,20 +968,20 @@ std::ostream &operator <<(std::ostream &o, const Plane &plane)
 #endif
 
 #ifdef MATH_GRAPHICSENGINE_INTEROP
-void Plane::Triangulate(VertexBuffer &vb, float uWidth, float vHeight, const float3 &centerPoint, int numFacesU, int numFacesV, bool ccwIsFrontFacing) const
+void Plane::Triangulate(VertexBuffer &vb, float uWidth, float vHeight, const vec &centerPoint, int numFacesU, int numFacesV, bool ccwIsFrontFacing) const
 {
-	float3 topLeft = Point(-uWidth*0.5f, -vHeight *0.5f, centerPoint);
-	float3 uEdge = (Point(uWidth*0.5f, -vHeight *0.5f, centerPoint) - topLeft) / (float)numFacesU;
-	float3 vEdge = (Point(-uWidth*0.5f, vHeight *0.5f, centerPoint) - topLeft) / (float)numFacesV;
+	vec topLeft = Point(-uWidth*0.5f, -vHeight *0.5f, centerPoint);
+	vec uEdge = (Point(uWidth*0.5f, -vHeight *0.5f, centerPoint) - topLeft) / (float)numFacesU;
+	vec vEdge = (Point(-uWidth*0.5f, vHeight *0.5f, centerPoint) - topLeft) / (float)numFacesV;
 
 	int i = vb.AppendVertices(numFacesU * numFacesV * 6);
 	for(int y = 0; y < numFacesV; ++y)
 		for(int x = 0; x < numFacesU; ++x)
 		{
-			float4 tl = float4(topLeft + uEdge * (float)x + vEdge * (float)y, 1.f);
-			float4 tr = float4(topLeft + uEdge * (float)(x+1) + vEdge * (float)y, 1.f);
-			float4 bl = float4(topLeft + uEdge * (float)x + vEdge * (float)(y+1), 1.f);
-			float4 br = float4(topLeft + uEdge * (float)(x+1) + vEdge * (float)(y+1), 1.f);
+			float4 tl = POINT_TO_FLOAT4(topLeft + uEdge * (float)x + vEdge * (float)y);
+			float4 tr = POINT_TO_FLOAT4(topLeft + uEdge * (float)(x+1) + vEdge * (float)y);
+			float4 bl = POINT_TO_FLOAT4(topLeft + uEdge * (float)x + vEdge * (float)(y+1));
+			float4 br = POINT_TO_FLOAT4(topLeft + uEdge * (float)(x+1) + vEdge * (float)(y+1));
 			int i0 = ccwIsFrontFacing ? i : i+5;
 			int i1 = ccwIsFrontFacing ? i+5 : i;
 			vb.Set(i0, VDPosition, tl);
@@ -941,24 +1009,24 @@ void Plane::Triangulate(VertexBuffer &vb, float uWidth, float vHeight, const flo
 			if (vb.Declaration()->HasType(VDNormal))
 			{
 				for(int k = 0; k < 6; ++k)
-					vb.Set(i+k, VDNormal, float4(normal, 0.f));
+					vb.Set(i+k, VDNormal, DIR_TO_FLOAT4(normal));
 			}
 
 			i += 6;
 		}
 }
 
-void Plane::ToLineList(VertexBuffer &vb, float uWidth, float vHeight, const float3 &centerPoint, int numLinesU, int numLinesV) const
+void Plane::ToLineList(VertexBuffer &vb, float uWidth, float vHeight, const vec &centerPoint, int numLinesU, int numLinesV) const
 {
-	float3 topLeft = Point(-uWidth*0.5f, -vHeight *0.5f, centerPoint);
-	float3 uEdge = (Point(uWidth*0.5f, -vHeight *0.5f, centerPoint) - topLeft) / (float)numLinesU;
-	float3 vEdge = (Point(-uWidth*0.5f, vHeight *0.5f, centerPoint) - topLeft) / (float)numLinesV;
+	vec topLeft = Point(-uWidth*0.5f, -vHeight *0.5f, centerPoint);
+	vec uEdge = (Point(uWidth*0.5f, -vHeight *0.5f, centerPoint) - topLeft) / (float)numLinesU;
+	vec vEdge = (Point(-uWidth*0.5f, vHeight *0.5f, centerPoint) - topLeft) / (float)numLinesV;
 
 	int i = vb.AppendVertices((numLinesU + numLinesV) * 2);
 	for(int y = 0; y < numLinesV; ++y)
 	{
-		float4 start = float4(topLeft + vEdge * (float)y, 1.f);
-		float4 end   = float4(topLeft + uWidth * uEdge + vEdge * (float)y, 1.f);
+		float4 start = POINT_TO_FLOAT4(topLeft + vEdge * (float)y);
+		float4 end   = POINT_TO_FLOAT4(topLeft + uWidth * uEdge + vEdge * (float)y);
 		vb.Set(i, VDPosition, start);
 		vb.Set(i+1, VDPosition, end);
 		i += 2;
@@ -966,8 +1034,8 @@ void Plane::ToLineList(VertexBuffer &vb, float uWidth, float vHeight, const floa
 
 	for(int x = 0; x < numLinesU; ++x)
 	{
-		float4 start = float4(topLeft + uEdge * (float)x, 1.f);
-		float4 end   = float4(topLeft + vHeight * vEdge + uEdge * (float)x, 1.f);
+		float4 start = POINT_TO_FLOAT4(topLeft + uEdge * (float)x);
+		float4 end   = POINT_TO_FLOAT4(topLeft + vHeight * vEdge + uEdge * (float)x);
 		vb.Set(i, VDPosition, start);
 		vb.Set(i+1, VDPosition, end);
 		i += 2;

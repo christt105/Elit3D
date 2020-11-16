@@ -22,6 +22,9 @@
 
 #include "SSEMath.h"
 #include "float4_neon.h"
+#include "float4x4_sse.h"
+
+MATH_BEGIN_NAMESPACE
 
 #if !defined(ANDROID) ///\bug Android GCC 4.6.6 gives internal compiler error!
 // Multiplies mat * vec, where mat is a matrix in row-major format.
@@ -37,7 +40,7 @@ FORCE_INLINE simd4f mat4x4_mul_vec4(const simd4f *mat, simd4f vec)
 #elif defined(MATH_SSE3)
 	return mat4x4_mul_sse3(mat, vec);
 #else
-	return mat4x4_mul_sse(mat, vec);
+	return mat4x4_mul_sse1(mat, vec);
 #endif
 }
 #endif
@@ -127,6 +130,19 @@ FORCE_INLINE void mat4x4_transpose(simd4f *out, const simd4f *mat)
 	vst1q_f32((float32_t*)out+8, m.val[2]);
 	vst1q_f32((float32_t*)out+12, m.val[3]);
 #else
+
+	// Work around Visual Studio AVX codegen issue and avoid movelh and movehl altogether,
+	// they seem to produce fishy results even when /GL is not enabled. Related: https://connect.microsoft.com/VisualStudio/feedback/details/814682/visual-studio-2013-x64-compiler-generates-faulty-code-with-gl-o2-arch-avx-flags-enabled
+#ifdef MATH_AVX
+	__m128 tmp0 = _mm_shuffle_ps(mat[0], mat[1], 0x44);
+	__m128 tmp2 = _mm_shuffle_ps(mat[0], mat[1], 0xEE);
+	__m128 tmp1 = _mm_shuffle_ps(mat[2], mat[3], 0x44);
+	__m128 tmp3 = _mm_shuffle_ps(mat[2], mat[3], 0xEE);
+	out[0] = _mm_shuffle_ps(tmp0, tmp1, 0x88);
+	out[1] = _mm_shuffle_ps(tmp0, tmp1, 0xDD);
+	out[2] = _mm_shuffle_ps(tmp2, tmp3, 0x88);
+	out[3] = _mm_shuffle_ps(tmp2, tmp3, 0xDD);
+#else
 	__m128 tmp0 = _mm_unpacklo_ps(mat[0], mat[1]);
 	__m128 tmp2 = _mm_unpacklo_ps(mat[2], mat[3]);
 	__m128 tmp1 = _mm_unpackhi_ps(mat[0], mat[1]);
@@ -135,6 +151,8 @@ FORCE_INLINE void mat4x4_transpose(simd4f *out, const simd4f *mat)
 	out[1] = _mm_movehl_ps(tmp2, tmp0);
 	out[2] = _mm_movelh_ps(tmp1, tmp3);
 	out[3] = _mm_movehl_ps(tmp3, tmp1);
+#endif
+
 #endif
 }
 #endif
@@ -235,11 +253,13 @@ FORCE_INLINE void mat4x4_negate(simd4f *out, const simd4f *mat)
 	o[0] = _mm256_sub_ps(zero, m[0]);
 	o[1] = _mm256_sub_ps(zero, m[1]);
 #else
-	out[0] = negate_ps(mat[0]);
-	out[1] = negate_ps(mat[1]);
-	out[2] = negate_ps(mat[2]);
-	out[3] = negate_ps(mat[3]);
+	out[0] = neg_ps(mat[0]);
+	out[1] = neg_ps(mat[1]);
+	out[2] = neg_ps(mat[2]);
+	out[3] = neg_ps(mat[3]);
 #endif
 }
+
+MATH_END_NAMESPACE
 
 #endif

@@ -8,9 +8,9 @@
 
 #include "FileSystem.h"
 
-#include "ExternalTools/DevIL/il.h"
-#include "ExternalTools/DevIL/ilu.h"
-#include "ExternalTools/DevIL/ilut.h"
+#include "ExternalTools/DevIL/include/IL/il.h"
+#include "ExternalTools/DevIL/include/IL/ilu.h"
+#include "ExternalTools/DevIL/include/IL/ilut.h"
 
 #include "Logger.h"
 
@@ -20,9 +20,15 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
+#ifdef _M_X64
+#pragma comment(lib, "ExternalTools/DevIL/libx64/DevIL.lib")
+#pragma comment(lib, "ExternalTools/DevIL/libx64/ILU.lib")
+#pragma comment(lib, "ExternalTools/DevIL/libx64/ILUT.lib")
+#else
 #pragma comment(lib, "ExternalTools/DevIL/libx86/DevIL.lib")
 #pragma comment(lib, "ExternalTools/DevIL/libx86/ILU.lib")
 #pragma comment(lib, "ExternalTools/DevIL/libx86/ILUT.lib")
+#endif
 
 m1Resources::m1Resources(bool start_enabled) : Module("Resources", start_enabled)
 {
