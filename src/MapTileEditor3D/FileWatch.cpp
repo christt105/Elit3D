@@ -17,8 +17,10 @@ FileWatch::FileWatch()
 
 FileWatch::~FileWatch()
 {
-	watch = false;
-	thread.join();
+	if (watch) {
+		watch = false;
+		thread.join();
+	}
 }
 
 void FileWatch::Subscribe(const char* froot)
@@ -30,7 +32,10 @@ void FileWatch::StartWatching()
 {
 	root = FileSystem::GetPtrFolder(folder.c_str());
 #if USE_FILEWATCHER
+	watch = true;
 	thread = std::thread(&FileWatch::Watch, this);
+#else
+	watch = false;
 #endif
 }
 
@@ -57,6 +62,8 @@ void FileWatch::Watch()
 
 void FileWatch::Pause(bool pause)
 {
+	if (!watch)
+		return;
 	std::unique_lock<std::mutex> lock(mtx);
 	pause_watch = pause;
 	if (pause) {
