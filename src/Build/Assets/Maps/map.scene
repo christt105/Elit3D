@@ -624,6 +624,13 @@
             "locked": false,
             "name": "Rocks",
             "opacity": 1.0,
+            "properties": [
+                {
+                    "name": "fghdhgf",
+                    "type": 1,
+                    "value": 0
+                }
+            ],
             "visible": true
         },
         {

@@ -420,6 +420,7 @@
     <ClCompile Include="ExternalTools\MathGeoLib\include\Time\Clock.cpp">
       <Filter>External Libraries\MathGeoLib\Time</Filter>
     </ClCompile>
+    <ClCompile Include="TypeVar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">

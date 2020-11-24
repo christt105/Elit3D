@@ -134,7 +134,9 @@ void m1GUI::MainMenuBar()
 		ImGui::Separator();
 		
 		if (ImGui::MenuItem("Save")) {
+			App->resources->PauseFileWatcher(true);
 			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::SAVE_MAP));
+			App->resources->PauseFileWatcher(false);
 		}
 
 		if (ImGui::MenuItem("Save as... (not implemented)")) {

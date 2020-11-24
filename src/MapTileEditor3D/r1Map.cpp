@@ -7,6 +7,8 @@
 #include "Application.h"
 #include "m1GUI.h"
 #include "p1Tileset.h"
+#include "m1Resources.h"
+#include "r1Tileset.h"
 
 #include "MapLayer.h"
 
@@ -87,19 +89,76 @@ void r1Map::Save(const uint64_t& tileset)
 
 void r1Map::ExportXML(const uint64_t& tileset)
 {
-	pugi::xml_document doc;
-	pugi::xml_node map = doc.append_child("map");
-	map.append_attribute("attribute").set_value("Test");
-	map.append_child("child");
-	doc.save_file("Export/Test.xml");
-	/*if (references > 0) {
-		pugi::xml_document file;
+	if (references > 0) {
+		pugi::xml_document doc;
+		pugi::xml_node map = doc.append_child("map");
+
+		map.append_attribute("width").set_value(size.x);
+		map.append_attribute("height").set_value(size.y);
+
+		pugi::xml_node ntileset = map.append_child("tileset");
+		auto tile = (r1Tileset*)App->resources->Get(tileset);
+		if (tile != nullptr) {
+			ntileset.append_attribute("name").set_value(tile->name.c_str());
+			ntileset.append_attribute("tilewidth").set_value(tile->GetWidth());
+			ntileset.append_attribute("tileheight").set_value(tile->GetHeight());
+			ntileset.append_attribute("spacing").set_value(tile->GetSpacing());
+			ntileset.append_attribute("margin").set_value(tile->GetMargin());
+			ntileset.append_attribute("ntiles").set_value(tile->GetNTiles());
+			ntileset.append_attribute("columns").set_value(tile->GetColumns());
+
+			ntileset.append_child("image").append_attribute("src").set_value(tile->path.c_str());
+		}
+
+		pugi::xml_node properties = map.append_child("properties");
+
+		for (auto l = layers.begin(); l != layers.end(); ++l) {
+			pugi::xml_node layer = map.append_child("layer");
+			pugi::xml_node lproperties = layer.append_child("properties");
+
+			for (auto p = (*l)->properties.begin(); p != (*l)->properties.end(); ++p) {
+				pugi::xml_node prop = lproperties.append_child("property");
+				prop.append_attribute("name").set_value((*p).first.c_str());
+				prop.append_attribute("type").set_value(TypeVar::TypeToName((*p).second->type).c_str());
+				switch ((*p).second->type)
+				{
+				case TypeVar::Type::Int:
+					prop.append_attribute("value").set_value(static_cast<iTypeVar*>((*p).second)->value);
+					break;
+				case TypeVar::Type::String:
+					prop.append_attribute("value").set_value(static_cast<sTypeVar*>((*p).second)->value.c_str());
+					break;
+				case TypeVar::Type::Float:
+					prop.append_attribute("value").set_value(static_cast<fTypeVar*>((*p).second)->value);
+					break;
+				case TypeVar::Type::Bool:
+					prop.append_attribute("value").set_value(static_cast<bTypeVar*>((*p).second)->value);
+					break;
+				default:
+					break;
+				}
+			}
+
+			layer.append_attribute("name").set_value((*l)->GetName());
+			layer.append_attribute("visible").set_value((*l)->visible);
+			layer.append_attribute("locked").set_value((*l)->locked);
+			layer.append_attribute("height").set_value((*l)->height);
+			layer.append_attribute("opacity").set_value((*l)->opacity);
+			layer.append_attribute("displacementx").set_value((*l)->displacement[0]);
+			layer.append_attribute("displacementy").set_value((*l)->displacement[1]);
+
+			pugi::xml_node data = layer.append_child("data");
+
+		}
+
+		doc.save_file("Export/Test.xml");
+	}
+	/*	pugi::xml_document file;
 
 		file["properties"] = nlohmann::json::object();
 		file["size"] = { size.x, size.y };
 		file["tileset"] = tileset;
 
-		for (auto l = layers.begin(); l != layers.end(); ++l) {
 			nlohmann::json lay = nlohmann::json::object();
 			for (int i = 0; i < size.x * size.y * 3; ++i) {
 				lay["data"].push_back((*l)->tile_data[i]);

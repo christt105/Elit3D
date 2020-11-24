@@ -263,6 +263,7 @@
     <ClCompile Include="r1Shader.cpp" />
     <ClCompile Include="SystemInfo.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="TypeVar.cpp" />
     <ClCompile Include="Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>

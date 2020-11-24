@@ -53,6 +53,36 @@ void r1Tileset::Unload()
 		res->Detach();
 }
 
+int r1Tileset::GetWidth() const
+{
+	return width;
+}
+
+int r1Tileset::GetHeight() const
+{
+	return height;
+}
+
+int r1Tileset::GetMargin() const
+{
+	return margin;
+}
+
+int r1Tileset::GetSpacing() const
+{
+	return spacing;
+}
+
+int r1Tileset::GetNTiles() const
+{
+	return ntiles;
+}
+
+int r1Tileset::GetColumns() const
+{
+	return columns;
+}
+
 uint64_t r1Tileset::GetTextureUID() const
 {
 	return texture_uid;
