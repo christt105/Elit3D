@@ -166,6 +166,7 @@
     <ClCompile Include="c1Material.cpp" />
     <ClCompile Include="c1Mesh.cpp" />
     <ClCompile Include="c1Transform.cpp" />
+    <ClCompile Include="ExternalTools\base64\base64.cpp" />
     <ClCompile Include="ExternalTools\MathGeoLib\include\Algorithm\GJK.cpp" />
     <ClCompile Include="ExternalTools\MathGeoLib\include\Algorithm\GJK2D.cpp" />
     <ClCompile Include="ExternalTools\MathGeoLib\include\Algorithm\Random\LCG.cpp" />
@@ -273,6 +274,8 @@
     <ClInclude Include="c1Mesh.h" />
     <ClInclude Include="c1Transform.h" />
     <ClInclude Include="DebugVars.h" />
+    <ClInclude Include="ExternalTools\base64\base64.h" />
+    <ClInclude Include="ExternalTools\csv\csv.h" />
     <ClInclude Include="ExternalTools\DevIL\include\IL\devil_cpp_wrapper.hpp" />
     <ClInclude Include="ExternalTools\DevIL\include\IL\devil_internal_exports.h" />
     <ClInclude Include="ExternalTools\DevIL\include\IL\il.h" />

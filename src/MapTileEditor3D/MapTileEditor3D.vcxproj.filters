@@ -112,6 +112,12 @@
     <Filter Include="External Libraries\MathGeoLib\emscripten">
       <UniqueIdentifier>{ffc2f2db-b7ed-4464-8d3f-52fe5bd06640}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External Libraries\base64">
+      <UniqueIdentifier>{1c999a2e-7d31-4ce6-93a2-2ef3ca96d36b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\csv">
+      <UniqueIdentifier>{44ebc7b1-e217-4df2-9546-4a176adfbc62}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -420,7 +426,12 @@
     <ClCompile Include="ExternalTools\MathGeoLib\include\Time\Clock.cpp">
       <Filter>External Libraries\MathGeoLib\Time</Filter>
     </ClCompile>
-    <ClCompile Include="TypeVar.cpp" />
+    <ClCompile Include="ExternalTools\base64\base64.cpp">
+      <Filter>External Libraries\base64</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeVar.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1424,6 +1435,12 @@
     </ClInclude>
     <ClInclude Include="ExternalTools\MathGeoLib\include\Time\Clock.h">
       <Filter>External Libraries\MathGeoLib\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\base64\base64.h">
+      <Filter>External Libraries\base64</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\csv\csv.h">
+      <Filter>External Libraries\csv</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
