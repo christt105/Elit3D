@@ -42,33 +42,10 @@ void r1Map::Save(const uint64_t& tileset)
 		for (auto l = layers.begin(); l != layers.end(); ++l) {
 			nlohmann::json lay = nlohmann::json::object();
 			for (int i = 0; i < size.x * size.y * 3; ++i) {
-				lay["data"].push_back((*l)->tile_data[i]);
+				lay["data"].push_back((*l)->tile_data[i]); //TODO: csv
 			}
 
-			for (auto p = (*l)->properties.begin(); p != (*l)->properties.end(); ++p) {
-				nlohmann::json prop = nlohmann::json::object();
-				prop["name"] = (*p).first;
-				prop["type"] = (*p).second->type;
-				switch ((*p).second->type)
-				{
-				case TypeVar::Type::Int:
-					prop["value"] = static_cast<iTypeVar*>((*p).second)->value;
-					break;
-				case TypeVar::Type::String:
-					prop["value"] = static_cast<sTypeVar*>((*p).second)->value;
-					break;
-				case TypeVar::Type::Float:
-					prop["value"] = static_cast<fTypeVar*>((*p).second)->value;
-					break;
-				case TypeVar::Type::Bool:
-					prop["value"] = static_cast<bTypeVar*>((*p).second)->value;
-					break;
-				default:
-					break;
-				}
-
-				lay["properties"].push_back(prop);
-			}
+			SaveProperties(l, lay);
 
 			lay["name"] = (*l)->GetName();
 			lay["height"] = (*l)->height;
@@ -84,6 +61,34 @@ void r1Map::Save(const uint64_t& tileset)
 	}
 	else {
 		//TODO: attach
+	}
+}
+
+void r1Map::SaveProperties(std::vector<Layer*>::iterator& l, nlohmann::json& lay)
+{
+	for (auto p = (*l)->properties.begin(); p != (*l)->properties.end(); ++p) {
+		nlohmann::json prop = nlohmann::json::object();
+		prop["name"] = (*p).first;
+		prop["type"] = (*p).second->type;
+		switch ((*p).second->type)
+		{
+		case TypeVar::Type::Int:
+			prop["value"] = static_cast<iTypeVar*>((*p).second)->value;
+			break;
+		case TypeVar::Type::String:
+			prop["value"] = static_cast<sTypeVar*>((*p).second)->value;
+			break;
+		case TypeVar::Type::Float:
+			prop["value"] = static_cast<fTypeVar*>((*p).second)->value;
+			break;
+		case TypeVar::Type::Bool:
+			prop["value"] = static_cast<bTypeVar*>((*p).second)->value;
+			break;
+		default:
+			break;
+		}
+
+		lay["properties"].push_back(prop);
 	}
 }
 
@@ -247,15 +252,26 @@ void r1Map::LoadLayers(nlohmann::json& file)
 
 		LoadProperties(l, layer);
 
-		layer->tile_data = new unsigned char[size.x * size.y * 3];
-		int i = 0;
-		for (auto it = (*l)["data"].begin();
-			it != (*l)["data"].end();
-			++it, ++i) {
-			layer->tile_data[i] = *it;
+		layer->tile_data = new TILE_DATA_TYPE[size.x * size.y];
+		unsigned char* tex_data = new unsigned char[size.x * size.y * 3];
+		memset(tex_data, 0, size.x * size.y * 3);
+		int tileset_width = App->gui->tileset->GetTilesetSize().x;
+		if (tileset_width != 0) {
+			int i = 0;
+			for (auto it = (*l)["data"].begin();
+				it != (*l)["data"].end();
+				++it, ++i) {
+				layer->tile_data[i] = *it;
+				tex_data[i * 3] = layer->tile_data[i] / tileset_width;
+				tex_data[i * 3 + 2] = layer->tile_data[i] % tileset_width;
+			}
+		}
+		else {
+			memset(layer->tile_data, 0, size.x * size.y);
+			memset(tex_data, 0, size.x * size.y * 3);
 		}
 		glEnable(GL_TEXTURE_2D);
-		oglh::GenTextureData(layer->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, layer->tile_data);
+		oglh::GenTextureData(layer->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex_data);
 		oglh::UnBindTexture();
 
 
@@ -303,28 +319,18 @@ void r1Map::Resize(int width, int height)
 {
 	PROFILE_AND_LOG("Map Resize");
 
-	unsigned char* empty = new unsigned char[width * height * 3];
-	for (int i = 0; i < width * height * 3; i += 3) {
-		empty[i] = 0;
-		empty[i + 1] = 255;
-		empty[i + 2] = 0;
-	}
-
-
 	for (auto l = layers.begin(); l != layers.end(); ++l) {
-		unsigned char* new_data = new unsigned char[width * height * 3];
-		memcpy(new_data, empty, width * height * 3);
+		TILE_DATA_TYPE* new_data = new TILE_DATA_TYPE[width * height];
+		memset(new_data, 0, width * height);
 
 		{
 			PROFILE_SECTION("Copy data");
 			for (int i = 0; i < size.x * size.y; ++i) {
 				int2 colrow = int2(i % size.x, (i / size.x));
-				int new_index = (colrow.x + width * colrow.y) * 3;
-				if (new_index < width * height * 3) {
-					int old_index = (colrow.x + size.x * colrow.y) * 3;
-					for (int j = 0; j < 3; ++j) {
-						new_data[new_index + j] = (*l)->tile_data[old_index + j];
-					}
+				int new_index = (colrow.x + width * colrow.y);
+				if (new_index < width * height) {
+					int old_index = (colrow.x + size.x * colrow.y);
+					new_data[new_index] = (*l)->tile_data[old_index];
 				}
 			}
 		}
@@ -334,26 +340,31 @@ void r1Map::Resize(int width, int height)
 			delete[](*l)->tile_data;
 			(*l)->tile_data = new_data;
 
+			unsigned char* tex = new unsigned char[width * height * 3];
+			memset(tex, 0, width * height * 3);
+			int tileset_width = App->gui->tileset->GetTilesetSize().x;
+			for (auto i = 0; i < width * height; ++i) {
+				TILE_DATA_TYPE id = new_data[i];
+				tex[i * 3] = id / tileset_width;
+				tex[i * 3 + 2] = id % tileset_width;
+			}
+
 			oglh::DeleteTexture((*l)->id_tex);
-			oglh::GenTextureData((*l)->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, width, height, (*l)->tile_data); //TODO: research a faster way to do this
+			oglh::GenTextureData((*l)->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, width, height, tex); //TODO: research a faster way to do this
 		}
 	}
 	size = { width, height };
-	delete[] empty;
 }
 
-void r1Map::Edit(int layer, int row, int col, char r, char g, char b)
+void r1Map::Edit(int layer, int row, int col, TILE_DATA_TYPE id, unsigned char g, unsigned char b)
 {
 	//cpu
-	unsigned char* loc = layers[layer]->tile_data;
-	loc[(size.x * row + col) * 3] = r;
-	loc[(size.x * row + col) * 3 + 1] = g;
-	loc[(size.x * row + col) * 3 + 2] = b;
+	layers[layer]->tile_data[size.x * row + col] = id;
 
 	//gpu
 	oglh::BindTexture(layers[layer]->id_tex);
 
-	unsigned char bits[3] = { r, g, b };
+	unsigned char bits[3] = { g, 0, b };
 	oglh::TexSubImage2D(col, row, 1, 1, bits);
 
 	oglh::UnBindTexture();

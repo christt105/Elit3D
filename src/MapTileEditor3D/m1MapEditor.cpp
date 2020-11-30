@@ -15,6 +15,9 @@
 #include "r1Texture.h"
 #include "r1Map.h"
 
+#include "ExternalTools/MathGeoLib/include/Geometry/Plane.h"
+#include "ExternalTools/MathGeoLib/include/Geometry/Ray.h"
+
 #include "m1Input.h"
 
 #include "Logger.h"
@@ -77,6 +80,7 @@ UpdateStatus m1MapEditor::Update()
 			shader->SetInt2("ntilesMap", m->size);
 			oglh::ActiveTexture(1);
 			shader->SetInt("tilemap", 1);
+			shader->SetInt("max_columns", 8);
 
 			auto layers = m->layers;
 			std::sort(layers.begin(), layers.end(), Layer::HeightOrder); //TODO not every frame
@@ -161,25 +165,22 @@ void m1MapEditor::MousePicking(const Ray& ray)
 			float t = 0.f;
 			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[index]->height, ray.pos, ray.dir, t) && t > 0.f) {
 				float3 position = ray.GetPoint(t);
-				int2 tile = panel_tileset->GetTileSelected();
-				if (tile.x != -1 && tile.y != -1) {
+				TILE_DATA_TYPE tile_id = panel_tileset->GetTileIDSelected();
+				if (tile_id != 0) {
 
 					// tile.y = A * 256 + B
-					char A = 0;
-					char B = 0;
+					unsigned char A = 0;
+					unsigned char B = 0;
 
-					A = tile.y / 256;
-					B = tile.y % 256;
+					A = tile_id / UCHAR_MAX;
+					B = tile_id % UCHAR_MAX;
 
-					int col = (int)floor(position.z);
-					int row = (int)floor(-position.x);
+					auto col = (int)floor(position.z-0.5f);
+					auto row = (int)floor(position.x);
 
 					if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
-						if (m->layers[index]->tile_data[(m->size.x * col + row) * 3] != tile.x ||
-							m->layers[index]->tile_data[(m->size.x * col + row) * 3 + 1] != A ||
-							m->layers[index]->tile_data[(m->size.x * col + row) * 3 + 2] != B)
-						{
-							m->Edit(index, col, row, tile.x, A, B);
+						if (m->layers[index]->tile_data[(m->size.x * col + row)] != tile_id) {
+							m->Edit(index, col, row, tile_id, A, B);
 						}
 					}
 				}

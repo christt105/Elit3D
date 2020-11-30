@@ -23,12 +23,13 @@ public:
     void Load() override;
     void Unload() override;
     void Resize(int width, int height);
-    void Edit(int layer, int row, int col, char r, char g, char b);
+    void Edit(int layer, int row, int col, TILE_DATA_TYPE id, unsigned char g, unsigned char b);
 
     static void CreateNewMap(int width, int height, const char* path);
 
 private:
     void LoadLayers(nlohmann::json& file);
+    void SaveProperties(std::vector<Layer*>::iterator& l, nlohmann::json& lay);
     void LoadProperties(const nlohmann::detail::iter_impl<nlohmann::json>& l, Layer* layer);
 
 private:

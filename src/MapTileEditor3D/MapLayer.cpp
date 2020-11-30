@@ -50,15 +50,13 @@ void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 
 void Layer::Reset(const int2& size)
 {
-	tile_data = new unsigned char[size.x * size.y * 3];
+	tile_data = new TILE_DATA_TYPE[size.x * size.y];
+	memset(tile_data, 0, size.x * size.y);
 
-	for (int i = 0; i < size.x * size.y; ++i) {
-		tile_data[i*3    ] = 0;
-		tile_data[i*3 + 1] = 255;
-		tile_data[i*3 + 2] = 0;
-	}
+	unsigned char* tex = new unsigned char[size.x * size.y * 3];
+	memset(tex, 0, size.x * size.y * 3);
 
-	oglh::GenTextureData(id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tile_data);
+	oglh::GenTextureData(id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex);
 }
 
 void Layer::SelectBuffers()

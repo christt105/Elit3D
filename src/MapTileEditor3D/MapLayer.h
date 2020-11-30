@@ -5,6 +5,8 @@
 #include "int2.h"
 #include "Buffer.h"
 
+#include "Globals.h"
+
 class r1Mesh;
 struct TypeVar;
 
@@ -53,7 +55,7 @@ private:
 private:
     static OpenGLBuffers tile;
 
-    unsigned char* tile_data = nullptr;
+    TILE_DATA_TYPE* tile_data = nullptr; //TODO: Research about set id with short or int
 
     std::unordered_map<std::string, TypeVar*> properties;
 

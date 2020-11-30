@@ -217,6 +217,18 @@ int2 p1Tileset::GetTileSelected() const
 	return ret;
 }
 
+TILE_DATA_TYPE p1Tileset::GetTileIDSelected() const
+{
+	int2 ret = { tile_selected[0], tile_selected[1] };
+	auto tile = (r1Tileset*)App->resources->Get(tileset);
+	if (tile) {
+		ret.y = tile->ntiles / tile->columns - ret.y - 1;
+
+		return tile->columns * ret.y + ret.x;
+	}
+	return TILE_DATA_TYPE(0);
+}
+
 int p1Tileset::GetTileWidth() const
 {
 	auto t = (r1Tileset*)App->resources->Get(tileset);
@@ -238,6 +250,15 @@ int p1Tileset::GetTileHeight() const
 const uint64_t& p1Tileset::GetTileset() const
 {
 	return tileset;
+}
+
+int2 p1Tileset::GetTilesetSize() const
+{
+	auto t = (r1Tileset*)App->resources->Get(tileset);
+	if (t != nullptr) {
+		return { t->columns, t->ntiles / t->columns };
+	}
+	return int2();
 }
 
 void p1Tileset::ModalCreateTileset(bool& modal)
