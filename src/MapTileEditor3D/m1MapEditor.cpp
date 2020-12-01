@@ -46,10 +46,10 @@ bool m1MapEditor::Start()
 	panel_layers = App->gui->layers;
 
 	nlohmann::json locals = FileSystem::OpenJSONFile("Configuration/locals.json");
-	if (locals.find("last_map_used") != locals.end()) {
+	/*if (locals.find("last_map_used") != locals.end()) {
 		if (locals.value("last_map_used", 0ULL) != 0ULL)
 			LoadMap(locals.value("last_map_used", 0ULL));
-	}
+	}*/
 
 	return true;
 }
@@ -178,10 +178,9 @@ void m1MapEditor::MousePicking(const Ray& ray)
 					auto col = (int)floor(position.z-0.5f);
 					auto row = (int)floor(position.x);
 
-					if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
-						if (m->layers[index]->tile_data[(m->size.x * col + row)] != tile_id) {
-							m->Edit(index, col, row, tile_id, A, B);
-						}
+					if (row < m->size.x && col < m->size.y && (col > -1 && row > -1) 
+						&& m->layers[index]->tile_data[(m->size.x * col + row)] != tile_id) {
+						m->Edit(index, col, row, tile_id, A, B);
 					}
 				}
 			}

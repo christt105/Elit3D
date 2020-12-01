@@ -41,7 +41,7 @@ void r1Map::Save(const uint64_t& tileset)
 
 		for (auto l = layers.begin(); l != layers.end(); ++l) {
 			nlohmann::json lay = nlohmann::json::object();
-			for (int i = 0; i < size.x * size.y * 3; ++i) {
+			for (int i = 0; i < size.x * size.y; ++i) {
 				lay["data"].push_back((*l)->tile_data[i]); //TODO: csv
 			}
 
@@ -253,26 +253,29 @@ void r1Map::LoadLayers(nlohmann::json& file)
 		LoadProperties(l, layer);
 
 		layer->tile_data = new TILE_DATA_TYPE[size.x * size.y];
-		unsigned char* tex_data = new unsigned char[size.x * size.y * 3];
-		memset(tex_data, 0, size.x * size.y * 3);
+		auto tex_data = new unsigned char[size.x * size.y * 3];
+		memset(tex_data, 255, sizeof(unsigned char) * size.x * size.y * 3);
 		int tileset_width = App->gui->tileset->GetTilesetSize().x;
 		if (tileset_width != 0) {
 			int i = 0;
 			for (auto it = (*l)["data"].begin();
 				it != (*l)["data"].end();
 				++it, ++i) {
-				layer->tile_data[i] = *it;
-				tex_data[i * 3] = layer->tile_data[i] / tileset_width;
-				tex_data[i * 3 + 2] = layer->tile_data[i] % tileset_width;
+				layer->tile_data[i] = (TILE_DATA_TYPE)*it;
+				if(layer->tile_data[i] != 0) {
+					tex_data[i * 3] = (unsigned char)(layer->tile_data[i] / UCHAR_MAX);
+					tex_data[i * 3 + 2] = (unsigned char)(layer->tile_data[i] % UCHAR_MAX);
+				}
 			}
 		}
 		else {
-			memset(layer->tile_data, 0, size.x * size.y);
-			memset(tex_data, 0, size.x * size.y * 3);
+			LOGW("Could not get tileset size, it is loaded?");
+			memset(layer->tile_data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
 		}
 		glEnable(GL_TEXTURE_2D);
 		oglh::GenTextureData(layer->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex_data);
 		oglh::UnBindTexture();
+		delete[] tex_data;
 
 
 		layers.push_back(layer);
@@ -321,7 +324,7 @@ void r1Map::Resize(int width, int height)
 
 	for (auto l = layers.begin(); l != layers.end(); ++l) {
 		TILE_DATA_TYPE* new_data = new TILE_DATA_TYPE[width * height];
-		memset(new_data, 0, width * height);
+		memset(new_data, 0, sizeof(TILE_DATA_TYPE) * width * height);
 
 		{
 			PROFILE_SECTION("Copy data");
@@ -341,7 +344,7 @@ void r1Map::Resize(int width, int height)
 			(*l)->tile_data = new_data;
 
 			unsigned char* tex = new unsigned char[width * height * 3];
-			memset(tex, 0, width * height * 3);
+			memset(tex, 0, sizeof(unsigned char) * width * height * 3);
 			int tileset_width = App->gui->tileset->GetTilesetSize().x;
 			for (auto i = 0; i < width * height; ++i) {
 				TILE_DATA_TYPE id = new_data[i];
@@ -351,6 +354,7 @@ void r1Map::Resize(int width, int height)
 
 			oglh::DeleteTexture((*l)->id_tex);
 			oglh::GenTextureData((*l)->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, width, height, tex); //TODO: research a faster way to do this
+			delete[] tex;
 		}
 	}
 	size = { width, height };
@@ -379,12 +383,8 @@ void r1Map::CreateNewMap(int width, int height, const char* file)
 
 	nlohmann::json data = nlohmann::json::object();
 
-	int byte[3] = { 0, 255, 0 }; // TODO: Save with only one number (gid) & compression?
-
 	for (int i = 0; i < width * height; ++i) {
-		data["data"].push_back(byte[0]);
-		data["data"].push_back(byte[1]);
-		data["data"].push_back(byte[2]);
+		data["data"].push_back(0);
 	}
 
 	map["layers"].push_back(data);
