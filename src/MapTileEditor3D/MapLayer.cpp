@@ -97,6 +97,34 @@ void Layer::OnInspector()
 	}
 }
 
+std::string Layer::Parse(int sizeX, int sizeY) const
+{
+	std::string ret;
+
+	for (int i = 0; i < sizeX * sizeY; ++i) {
+		ret.append(std::to_string(tile_data[i]) + ((i != sizeX * sizeY - 1) ? "," : ""));
+	}
+
+	return ret;
+}
+
+void Layer::Unparse(const std::string& data)
+{	
+	auto i = data.begin();
+	int index = 0;
+	while (i != data.end()) {
+		std::string n;
+		while (i != data.end() && *i != ',') {
+			n += *i;
+			i++;
+		}
+		if (!n.empty())
+			tile_data[index++] = (TILE_DATA_TYPE)std::stoul(n);
+		if (i != data.end())
+			i++;
+	}
+}
+
 void Layer::DisplayProperties()
 {
 	if (ImGui::BeginChild("##properties")) {

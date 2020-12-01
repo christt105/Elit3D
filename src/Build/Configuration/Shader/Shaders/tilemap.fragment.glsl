@@ -36,7 +36,7 @@ void main()
             If we use A and B for the Y position, we can have 65.535 rows, and a max number of tiles of more than 16.700.000.
             However I reserve Green value of 255 as an indicator of not to draw the tile, and who knows if I will give it another utility.
         */
-        if (mapId.g == 255) {
+        if (mapId.g == 255) { // Remove enty tile ID and set the grid with bounds
             vec3 colorEmptyTile = vec3(0.9, 0.9, 0.9);
             FragColor = vec4(colorEmptyTile.xyz, alpha);
             return;
