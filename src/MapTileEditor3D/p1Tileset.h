@@ -41,6 +41,7 @@ public:
 	void SelectTileset(const uint64_t& uid);
 
 	void SelectTransparentColor(r1Shader*& shader);
+	void SetColumnUniform(r1Shader*& shader);
 
 	int2 GetTileSelected() const;
 	TILE_DATA_TYPE GetTileIDSelected() const;

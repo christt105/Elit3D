@@ -80,7 +80,7 @@ UpdateStatus m1MapEditor::Update()
 			shader->SetInt2("ntilesMap", m->size);
 			oglh::ActiveTexture(1);
 			shader->SetInt("tilemap", 1);
-			shader->SetInt("max_columns", 8);
+			panel_tileset->SetColumnUniform(shader);
 
 			auto layers = m->layers;
 			std::sort(layers.begin(), layers.end(), Layer::HeightOrder); //TODO not every frame
@@ -245,7 +245,8 @@ void m1MapEditor::ExportMap(MapTypeExport t) const
 	{
 	case m1MapEditor::MapTypeExport::XML:
 		LOG("EXPORTING map in XML...");
-		((r1Map*)App->resources->Get(map))->ExportXML(panel_tileset->GetTileset());
+		if (map != 0)
+			((r1Map*)App->resources->Get(map))->ExportXML(panel_tileset->GetTileset());
 		break;
 	default:
 		break;

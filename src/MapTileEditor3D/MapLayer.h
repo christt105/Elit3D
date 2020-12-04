@@ -45,7 +45,8 @@ public:
 
     void OnInspector();
 
-    std::string Parse(int sizeX, int sizeY) const;
+    std::string Parse(int sizeX, int sizeY, bool encode_base64 = true) const;
+    std::string ParseCSV(int sizeX, int sizeY) const; //TODO bind csv function to parse function
     void Unparse(const std::string& data);
 
     const char* GetName() const;

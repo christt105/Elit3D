@@ -208,6 +208,16 @@ void p1Tileset::SelectTransparentColor(r1Shader*& shader)
 	}
 }
 
+void p1Tileset::SetColumnUniform(r1Shader*& shader)
+{
+	if (tileset != 0) {
+		auto res = (r1Tileset*)App->resources->Get(tileset);
+		if (res) {
+			shader->SetInt("max_columns", res->columns);
+		}
+	}
+}
+
 int2 p1Tileset::GetTileSelected() const
 {
 	int2 ret = { tile_selected[0], tile_selected[1] };

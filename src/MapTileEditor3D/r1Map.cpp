@@ -151,8 +151,8 @@ void r1Map::ExportXML(const uint64_t& tileset)
 			layer.append_attribute("displacementx").set_value((*l)->displacement[0]);
 			layer.append_attribute("displacementy").set_value((*l)->displacement[1]);
 
-			pugi::xml_node data = layer.append_child("data");
-
+			auto data = layer.append_child("data");
+			data.append_child(pugi::node_pcdata).set_value((*l)->ParseCSV(size.x, size.y).c_str());
 		}
 
 		doc.save_file("Export/Test.xml");
@@ -253,7 +253,7 @@ void r1Map::LoadLayers(nlohmann::json& file)
 
 
 		layer->tile_data = new TILE_DATA_TYPE[size.x * size.y];
-		layer->Unparse((*l).value("data", "0"));
+		layer->Unparse((*l).value("data", "0")/*TODO: unparse type (csv, base64, zlib...)*/);
 
 		unsigned char* tex_data = new unsigned char[size.x * size.y * 3];
 		memset(tex_data, 254, sizeof(unsigned char) * size.x * size.y * 3);
@@ -312,7 +312,7 @@ void r1Map::Unload()
 	properties.clear();
 }
 
-void r1Map::Resize(int width, int height)
+void r1Map::Resize(int width, int height) // TODO FIX RESIZE
 {
 	PROFILE_AND_LOG("Map Resize");
 
