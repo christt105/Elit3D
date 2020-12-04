@@ -18,7 +18,6 @@
 #include "Profiler.h"
 
 #include "ExternalTools/pugixml/pugixml.hpp"
-#include "ExternalTools/csv/csv.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
@@ -42,7 +41,8 @@ void r1Map::Save(const uint64_t& tileset)
 
 		for (auto l = layers.begin(); l != layers.end(); ++l) {
 			nlohmann::json lay = nlohmann::json::object();
-			lay["data"] = (*l)->Parse(size.x, size.y);
+			lay["encoding"] = "base64-zlib";
+			lay["data"] = (*l)->Parse(size.x, size.y, Layer::DataTypeExport::BASE64_ZLIB);
 
 			SaveProperties(l, lay);
 
@@ -91,7 +91,7 @@ void r1Map::SaveProperties(std::vector<Layer*>::iterator& l, nlohmann::json& lay
 	}
 }
 
-void r1Map::ExportXML(const uint64_t& tileset)
+void r1Map::ExportXML(const uint64_t& tileset, Layer::DataTypeExport d)
 {
 	if (references > 0) {
 		pugi::xml_document doc;
@@ -152,62 +152,27 @@ void r1Map::ExportXML(const uint64_t& tileset)
 			layer.append_attribute("displacementy").set_value((*l)->displacement[1]);
 
 			auto data = layer.append_child("data");
-			data.append_child(pugi::node_pcdata).set_value((*l)->ParseCSV(size.x, size.y).c_str());
+			auto encoding = data.append_attribute("encoding");
+			switch (d)
+			{
+			case Layer::DataTypeExport::CSV:
+			case Layer::DataTypeExport::CSV_NO_NEWLINE:
+				encoding.set_value("csv");
+				break;
+			case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
+				encoding.set_value("base64");
+				break;
+			case Layer::DataTypeExport::BASE64_ZLIB:
+				encoding.set_value("base64-zlib");
+				break;
+			default:
+				break;
+			}
+			data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
 		}
 
 		doc.save_file("Export/Test.xml");
 	}
-	/*	pugi::xml_document file;
-
-		file["properties"] = nlohmann::json::object();
-		file["size"] = { size.x, size.y };
-		file["tileset"] = tileset;
-
-			nlohmann::json lay = nlohmann::json::object();
-			for (int i = 0; i < size.x * size.y * 3; ++i) {
-				lay["data"].push_back((*l)->tile_data[i]);
-			}
-
-			for (auto p = (*l)->properties.begin(); p != (*l)->properties.end(); ++p) {
-				nlohmann::json prop = nlohmann::json::object();
-				prop["name"] = (*p).first;
-				prop["type"] = (*p).second->type;
-				switch ((*p).second->type)
-				{
-				case TypeVar::Type::Int:
-					prop["value"] = static_cast<iTypeVar*>((*p).second)->value;
-					break;
-				case TypeVar::Type::String:
-					prop["value"] = static_cast<sTypeVar*>((*p).second)->value;
-					break;
-				case TypeVar::Type::Float:
-					prop["value"] = static_cast<fTypeVar*>((*p).second)->value;
-					break;
-				case TypeVar::Type::Bool:
-					prop["value"] = static_cast<bTypeVar*>((*p).second)->value;
-					break;
-				default:
-					break;
-				}
-
-				lay["properties"].push_back(prop);
-			}
-
-			lay["name"] = (*l)->GetName();
-			lay["height"] = (*l)->height;
-			lay["opacity"] = (*l)->opacity;
-			lay["visible"] = (*l)->visible;
-			lay["locked"] = (*l)->locked;
-			lay["displacement"] = { (*l)->displacement[0], (*l)->displacement[1] };
-
-			file["layers"].push_back(lay);
-		}
-
-		FileSystem::SaveJSONFile(path.c_str(), file);
-	}
-	else {
-		//TODO: attach
-	}*/
 }
 
 void r1Map::SaveInImage()

@@ -13,6 +13,7 @@
 #include "Profiler.h"
 
 #include "ExternalTools/base64/base64.h"
+#include "ExternalTools/zlib/zlib_strings.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
@@ -99,37 +100,55 @@ void Layer::OnInspector()
 	}
 }
 
-std::string Layer::Parse(int sizeX, int sizeY, bool encode_base64) const
+std::string Layer::Parse(int sizeX, int sizeY, DataTypeExport d) const
 {
 	std::string ret;
 
-	for (int i = 0; i < sizeX * sizeY; ++i) {
-		ret.append(std::to_string(tile_data[i]) + ((i != sizeX * sizeY - 1) ? "," : ""));
-	}
+	switch (d)
+	{
+	case Layer::DataTypeExport::CSV:
+	case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
+	case Layer::DataTypeExport::BASE64_ZLIB:
+		ret = "\n";
 
-	return (encode_base64) ? base64_encode(ret) : ret;
-}
+		for (int i = sizeX - 1; i >= 0; --i) {
+			for (int j = 0; j < sizeY; ++j) {
+				ret.append(std::to_string(tile_data[i * sizeX + j]) + ',');
+			}
 
-std::string Layer::ParseCSV(int sizeX, int sizeY) const
-{
-	std::string ret = "\n";
-
-	for (int i = sizeX-1; i >= 0; --i) {
-		for (int j = 0; j < sizeY; ++j) {
-			ret.append(std::to_string(tile_data[i*sizeX+j]) + ',');
+			if (i == 0)
+				ret.pop_back();
+			ret += '\n';
 		}
-		
-		if (i == 0)
-			ret.pop_back();
-		ret += '\n';
+		break;
+	case Layer::DataTypeExport::CSV_NO_NEWLINE:
+		for (int i = 0; i < sizeX * sizeY; ++i) {
+			ret.append(std::to_string(tile_data[i]) + ((i != sizeX * sizeY - 1) ? "," : ""));
+		}
+		break;
+	default:
+		break;
 	}
-	
+
+	switch (d)
+	{
+	case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
+		ret = base64_encode(ret);
+		break;
+	case Layer::DataTypeExport::BASE64_ZLIB:
+		ret = compress_string(ret);
+		ret = base64_encode(ret);
+		break;
+	default:
+		break;
+	}
+
 	return ret;
 }
 
 void Layer::Unparse(const std::string& raw_data)
 {
-	std::string data = base64_decode(raw_data);
+	std::string data = decompress_string(base64_decode(raw_data));
 	auto i = data.begin();
 	int index = 0;
 	while (i != data.end()) {

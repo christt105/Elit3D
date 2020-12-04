@@ -115,8 +115,11 @@
     <Filter Include="External Libraries\base64">
       <UniqueIdentifier>{1c999a2e-7d31-4ce6-93a2-2ef3ca96d36b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Libraries\csv">
-      <UniqueIdentifier>{44ebc7b1-e217-4df2-9546-4a176adfbc62}</UniqueIdentifier>
+    <Filter Include="External Libraries\zlib">
+      <UniqueIdentifier>{65b5addd-482e-412f-8b74-e1132449fec6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\zlib\dependencies">
+      <UniqueIdentifier>{59b821ed-f15c-42af-8e4e-d1cf3814a01c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -431,6 +434,54 @@
     </ClCompile>
     <ClCompile Include="TypeVar.cpp">
       <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\zlib_strings.cpp">
+      <Filter>External Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\gzlib.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\gzread.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\gzwrite.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\infback.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\inffast.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\inflate.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\inftrees.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\trees.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\uncompr.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\zutil.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\adler32.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\compress.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\crc32.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\deflate.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTools\zlib\gzclose.c">
+      <Filter>External Libraries\zlib\dependencies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1439,8 +1490,41 @@
     <ClInclude Include="ExternalTools\base64\base64.h">
       <Filter>External Libraries\base64</Filter>
     </ClInclude>
-    <ClInclude Include="ExternalTools\csv\csv.h">
-      <Filter>External Libraries\csv</Filter>
+    <ClInclude Include="ExternalTools\zlib\zlib_strings.h">
+      <Filter>External Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\zlib\zlib.h">
+      <Filter>External Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\zlib\zconf.h">
+      <Filter>External Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\zlib\inffast.h">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\zlib\inffixed.h">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\zlib\inflate.h">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\zlib\inftrees.h">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\zlib\trees.h">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\zlib\zutil.h">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\zlib\crc32.h">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\zlib\deflate.h">
+      <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\zlib\gzguts.h">
+      <Filter>External Libraries\zlib\dependencies</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

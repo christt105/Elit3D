@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "m1MapEditor.h"
+
 #include "int2.h"
 #include "TypeVar.h"
 #include "MapLayer.h"
@@ -18,7 +20,7 @@ public:
     ~r1Map();
 
     void Save(const uint64_t& tileset);
-    void ExportXML(const uint64_t& tileset);
+    void ExportXML(const uint64_t& tileset, Layer::DataTypeExport d);
     void SaveInImage();
     void Load() override;
     void Unload() override;

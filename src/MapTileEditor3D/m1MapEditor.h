@@ -4,12 +4,12 @@
 
 #include "int2.h"
 #include "ExternalTools/MathGeoLib/include/Math/float3.h"
+#include "MapLayer.h"
 
 class Object;
 class p1Scene;
 class p1Tileset;
 class p1Layers;
-class Layer;
 
 class m1MapEditor :
     public Module
@@ -19,6 +19,7 @@ public:
         NONE = -1,
 
         XML,
+        JSON,
 
         MAX
     };
@@ -45,7 +46,7 @@ public:
     bool ValidMap() const;
     bool GetLayers(std::vector<Layer*>* &vec) const;
 
-    void ExportMap(MapTypeExport t) const;
+    void ExportMap(MapTypeExport t, Layer::DataTypeExport d) const;
 
 private:
     uint64_t map = 0ULL;

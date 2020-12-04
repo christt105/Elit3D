@@ -29,6 +29,17 @@ class Layer {
     friend class m1MapEditor;
     friend class p1Layers;
 public:
+    enum class DataTypeExport {
+        NONE = -1,
+
+        CSV,
+        CSV_NO_NEWLINE,
+        BASE64_NO_COMPRESSION,
+        BASE64_ZLIB,
+
+        MAX
+    };
+
     Layer();
     ~Layer();
 
@@ -45,8 +56,7 @@ public:
 
     void OnInspector();
 
-    std::string Parse(int sizeX, int sizeY, bool encode_base64 = true) const;
-    std::string ParseCSV(int sizeX, int sizeY) const; //TODO bind csv function to parse function
+    std::string Parse(int sizeX, int sizeY, DataTypeExport d) const;
     void Unparse(const std::string& data);
 
     const char* GetName() const;
