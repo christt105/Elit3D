@@ -104,30 +104,18 @@ std::string Layer::Parse(int sizeX, int sizeY, DataTypeExport d) const
 {
 	std::string ret;
 
-	switch (d)
-	{
-	case Layer::DataTypeExport::CSV:
-	case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
-	case Layer::DataTypeExport::BASE64_ZLIB:
-		ret = "\n";
+	if (d != Layer::DataTypeExport::CSV_NO_NEWLINE)
+		ret = '\n';
 
-		for (int i = sizeX - 1; i >= 0; --i) {
-			for (int j = 0; j < sizeY; ++j) {
-				ret.append(std::to_string(tile_data[i * sizeX + j]) + ',');
-			}
+	for (int i = sizeX - 1; i >= 0; --i) {
+		for (int j = 0; j < sizeY; ++j) {
+			ret.append(std::to_string(tile_data[i * sizeX + j]) + ','); // TODO: encode 4 bytes array
+		}
 
-			if (i == 0)
-				ret.pop_back();
+		if (i == 0)
+			ret.pop_back();
+		if (d != Layer::DataTypeExport::CSV_NO_NEWLINE)
 			ret += '\n';
-		}
-		break;
-	case Layer::DataTypeExport::CSV_NO_NEWLINE:
-		for (int i = 0; i < sizeX * sizeY; ++i) {
-			ret.append(std::to_string(tile_data[i]) + ((i != sizeX * sizeY - 1) ? "," : ""));
-		}
-		break;
-	default:
-		break;
 	}
 
 	switch (d)
@@ -146,19 +134,29 @@ std::string Layer::Parse(int sizeX, int sizeY, DataTypeExport d) const
 	return ret;
 }
 
-void Layer::Unparse(const std::string& raw_data)
+void Layer::Unparse(int sizeX, int sizeY, const std::string& raw_data)
 {
 	std::string data = decompress_string(base64_decode(raw_data));
 	auto i = data.begin();
-	int index = 0;
+	if (*i == '\n')
+		++i;
+	int x = 0;
+	int y = sizeY-1;
 	while (i != data.end()) {
 		std::string n;
 		while (i != data.end() && *i != ',') {
+			if (*i == '\n' && (i + 1) != data.end()) { // Weird way to load cause the origin on textures is Bottom-Left and not Top-Left. TODO?
+				x = 0;
+				--y;
+				break;
+			}
 			n += *i;
 			i++;
 		}
-		if (!n.empty())
-			tile_data[index++] = (TILE_DATA_TYPE)std::stoul(n);
+		if (!n.empty()) {
+			tile_data[sizeX * y + x] = (TILE_DATA_TYPE)std::stoul(n);
+			++x;
+		}
 		if (i != data.end())
 			i++;
 	}

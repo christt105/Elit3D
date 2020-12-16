@@ -218,7 +218,7 @@ void r1Map::LoadLayers(nlohmann::json& file)
 
 
 		layer->tile_data = new TILE_DATA_TYPE[size.x * size.y];
-		layer->Unparse((*l).value("data", "0")/*TODO: unparse type (csv, base64, zlib...)*/);
+		layer->Unparse(size.x, size.y, (*l).value("data", "0")/*TODO: unparse type (csv, base64, zlib...)*/);
 
 		unsigned char* tex_data = new unsigned char[size.x * size.y * 3];
 		memset(tex_data, 254, sizeof(unsigned char) * size.x * size.y * 3);

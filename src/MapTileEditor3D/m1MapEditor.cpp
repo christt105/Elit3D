@@ -46,10 +46,10 @@ bool m1MapEditor::Start()
 	panel_layers = App->gui->layers;
 
 	nlohmann::json locals = FileSystem::OpenJSONFile("Configuration/locals.json");
-	/*if (locals.find("last_map_used") != locals.end()) {
+	if (locals.find("last_map_used") != locals.end()) {
 		if (locals.value("last_map_used", 0ULL) != 0ULL)
 			LoadMap(locals.value("last_map_used", 0ULL));
-	}*/
+	}
 
 	return true;
 }

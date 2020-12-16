@@ -57,7 +57,7 @@ public:
     void OnInspector();
 
     std::string Parse(int sizeX, int sizeY, DataTypeExport d) const;
-    void Unparse(const std::string& data);
+    void Unparse(int sizeX, int sizeY, const std::string& data);
 
     const char* GetName() const;
     void SetName(const char* n);
