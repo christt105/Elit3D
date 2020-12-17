@@ -31,13 +31,12 @@ public:
 
 private:
     void LoadLayers(nlohmann::json& file);
-    void SaveProperties(std::vector<Layer*>::iterator& l, nlohmann::json& lay);
     void LoadProperties(const nlohmann::detail::iter_impl<nlohmann::json>& l, Layer* layer);
 
 private:
     int2 size = { -1, -1 };
 
-    std::unordered_map<std::string, TypeVar*> properties;
+    Properties properties;
 
     std::vector<Layer*> layers;
 };

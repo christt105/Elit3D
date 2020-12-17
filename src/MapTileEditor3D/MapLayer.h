@@ -7,6 +7,8 @@
 
 #include "Globals.h"
 
+#include "Properties.h"
+
 class r1Mesh;
 struct TypeVar;
 
@@ -63,15 +65,11 @@ public:
     void SetName(const char* n);
 
 private:
-    void CreateProperty();
-    void DisplayProperties();
-
-private:
     static OpenGLBuffers tile;
 
     TILE_DATA_TYPE* tile_data = nullptr; //TODO: Research about set id with short or int
 
-    std::unordered_map<std::string, TypeVar*> properties;
+    Properties properties;
 
     std::string name = "Layer";
     char buf[30];

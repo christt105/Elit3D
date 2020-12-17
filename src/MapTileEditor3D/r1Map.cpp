@@ -39,12 +39,14 @@ void r1Map::Save(const uint64_t& tileset)
 		file["size"] = { size.x, size.y };
 		file["tileset"] = tileset;
 
+		properties.SaveProperties(file["properties"]);
+
 		for (auto l = layers.begin(); l != layers.end(); ++l) {
 			nlohmann::json lay = nlohmann::json::object();
 			lay["encoding"] = "base64-zlib";
 			lay["data"] = (*l)->Parse(size.x, size.y, Layer::DataTypeExport::BASE64_ZLIB);
 
-			SaveProperties(l, lay);
+			(*l)->properties.SaveProperties(lay["properties"]);
 
 			lay["name"] = (*l)->GetName();
 			lay["height"] = (*l)->height;
@@ -60,34 +62,6 @@ void r1Map::Save(const uint64_t& tileset)
 	}
 	else {
 		//TODO: attach
-	}
-}
-
-void r1Map::SaveProperties(std::vector<Layer*>::iterator& l, nlohmann::json& lay)
-{
-	for (auto p = (*l)->properties.begin(); p != (*l)->properties.end(); ++p) {
-		nlohmann::json prop = nlohmann::json::object();
-		prop["name"] = (*p).first;
-		prop["type"] = (*p).second->type;
-		switch ((*p).second->type)
-		{
-		case TypeVar::Type::Int:
-			prop["value"] = static_cast<iTypeVar*>((*p).second)->value;
-			break;
-		case TypeVar::Type::String:
-			prop["value"] = static_cast<sTypeVar*>((*p).second)->value;
-			break;
-		case TypeVar::Type::Float:
-			prop["value"] = static_cast<fTypeVar*>((*p).second)->value;
-			break;
-		case TypeVar::Type::Bool:
-			prop["value"] = static_cast<bTypeVar*>((*p).second)->value;
-			break;
-		default:
-			break;
-		}
-
-		lay["properties"].push_back(prop);
 	}
 }
 
@@ -113,35 +87,15 @@ void r1Map::ExportXML(const uint64_t& tileset, Layer::DataTypeExport d)
 
 			ntileset.append_child("image").append_attribute("src").set_value(tile->path.c_str());
 		}
-
-		pugi::xml_node properties = map.append_child("properties");
+		;
+		pugi::xml_node xmlproperties = map.append_child("properties");
+		properties.SaveProperties(xmlproperties);
 
 		for (auto l = layers.begin(); l != layers.end(); ++l) {
 			pugi::xml_node layer = map.append_child("layer");
-			pugi::xml_node lproperties = layer.append_child("properties");
 
-			for (auto p = (*l)->properties.begin(); p != (*l)->properties.end(); ++p) {
-				pugi::xml_node prop = lproperties.append_child("property");
-				prop.append_attribute("name").set_value((*p).first.c_str());
-				prop.append_attribute("type").set_value(TypeVar::TypeToName((*p).second->type).c_str());
-				switch ((*p).second->type)
-				{
-				case TypeVar::Type::Int:
-					prop.append_attribute("value").set_value(static_cast<iTypeVar*>((*p).second)->value);
-					break;
-				case TypeVar::Type::String:
-					prop.append_attribute("value").set_value(static_cast<sTypeVar*>((*p).second)->value.c_str());
-					break;
-				case TypeVar::Type::Float:
-					prop.append_attribute("value").set_value(static_cast<fTypeVar*>((*p).second)->value);
-					break;
-				case TypeVar::Type::Bool:
-					prop.append_attribute("value").set_value(static_cast<bTypeVar*>((*p).second)->value);
-					break;
-				default:
-					break;
-				}
-			}
+			xmlproperties = layer.append_child("properties");
+			(*l)->properties.SaveProperties(xmlproperties);
 
 			layer.append_attribute("name").set_value((*l)->GetName());
 			layer.append_attribute("visible").set_value((*l)->visible);
@@ -214,7 +168,7 @@ void r1Map::LoadLayers(nlohmann::json& file)
 			layer->displacement[1] = (*l)["displacement"][1];
 		}
 
-		LoadProperties(l, layer);
+		layer->properties.LoadProperties((*l)["properties"]);
 
 
 		layer->tile_data = new TILE_DATA_TYPE[size.x * size.y];
@@ -243,25 +197,7 @@ void r1Map::LoadLayers(nlohmann::json& file)
 
 void r1Map::LoadProperties(const nlohmann::detail::iter_impl<nlohmann::json>& l, Layer* layer)
 {
-	for (auto p = (*l)["properties"].begin(); p != (*l)["properties"].end(); ++p) {
-		switch ((TypeVar::Type)(*p).value("type", 0))
-		{
-		case TypeVar::Type::Int:
-			layer->properties[(*p).value("name", "UNKNOWN")] = new iTypeVar((*p).value("value", 0));
-			break;
-		case TypeVar::Type::Float:
-			layer->properties[(*p).value("name", "UNKNOWN")] = new fTypeVar((*p).value("value", 0.f));
-			break;
-		case TypeVar::Type::Bool:
-			layer->properties[(*p).value("name", "UNKNOWN")] = new bTypeVar((*p).value("value", false));
-			break;
-		case TypeVar::Type::String:
-			layer->properties[(*p).value("name", "UNKNOWN")] = new sTypeVar((*p).value("value", std::string()));
-			break;
-		default:
-			break;
-		}
-	}
+	
 }
 
 void r1Map::Unload()
@@ -270,11 +206,6 @@ void r1Map::Unload()
 		delete l;
 	}
 	layers.clear();
-
-	for (auto p : properties) {
-		delete p.second;
-	}
-	properties.clear();
 }
 
 void r1Map::Resize(int width, int height) // TODO FIX RESIZE

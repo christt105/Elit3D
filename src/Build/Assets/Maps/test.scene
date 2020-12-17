@@ -11,6 +11,13 @@
             "locked": false,
             "name": "Layer",
             "opacity": 1.0,
+            "properties": [
+                {
+                    "name": "asd",
+                    "type": 1,
+                    "value": "asd"
+                }
+            ],
             "visible": true
         },
         {
@@ -24,6 +31,13 @@
             "locked": false,
             "name": "Layer",
             "opacity": 1.0,
+            "properties": [
+                {
+                    "name": "dsa",
+                    "type": 2,
+                    "value": 0.0
+                }
+            ],
             "visible": true
         },
         {
@@ -37,6 +51,13 @@
             "locked": false,
             "name": "Layer",
             "opacity": 1.0,
+            "properties": [
+                {
+                    "name": "asd",
+                    "type": 0,
+                    "value": 0
+                }
+            ],
             "visible": true
         }
     ],

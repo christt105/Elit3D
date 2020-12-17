@@ -483,6 +483,9 @@
     <ClCompile Include="ExternalTools\zlib\gzclose.c">
       <Filter>External Libraries\zlib\dependencies</Filter>
     </ClCompile>
+    <ClCompile Include="Properties.cpp">
+      <Filter>Tools\Map</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1525,6 +1528,9 @@
     </ClInclude>
     <ClInclude Include="ExternalTools\zlib\gzguts.h">
       <Filter>External Libraries\zlib\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="Properties.h">
+      <Filter>Tools\Map</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
