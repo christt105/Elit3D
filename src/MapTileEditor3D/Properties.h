@@ -12,8 +12,6 @@ public:
 	~Properties();
 
 	void Display();
-	void CreateProperty();
-	void DisplayProperties();
 
 	void SaveProperties(nlohmann::json& propParent);
 	void SaveProperties(pugi::xml_node& propParent);
@@ -22,6 +20,10 @@ public:
 	void LoadProperties(pugi::xml_node& propParent);
 
 	void Clear();
+
+private:
+	void CreateProperty();
+	void DisplayProperties();
 
 private:
 	std::unordered_map<std::string, TypeVar*> properties;

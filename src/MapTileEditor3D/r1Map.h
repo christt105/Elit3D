@@ -29,6 +29,8 @@ public:
 
     static void CreateNewMap(int width, int height, const char* path);
 
+    void OnInspector() override;
+
 private:
     void LoadLayers(nlohmann::json& file);
     void LoadProperties(const nlohmann::detail::iter_impl<nlohmann::json>& l, Layer* layer);

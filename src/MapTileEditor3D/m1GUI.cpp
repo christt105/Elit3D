@@ -111,7 +111,6 @@ UpdateStatus m1GUI::PreUpdate()
 
 	if (ImGui::BeginMainMenuBar()) {
 		MainMenuBar();
-
 		ImGui::EndMainMenuBar();
 	}
 
@@ -215,6 +214,11 @@ void m1GUI::MainMenuBar()
 	static bool resize_map = false;
 	static int map_resize[2] = { 10 , 10 };
 	if (ImGui::BeginMenu("Edit")) {
+		if (ImGui::MenuItem("Map")) {
+			r1Map* m = App->map_editor->GetMap();
+			if (m != nullptr)
+				inspector->SetSelected(m, p1Inspector::SelectedType::EDITOR_MAP);
+		}
 		if (ImGui::MenuItem("Resize Map")) {
 			resize_map = true;
 			int2 m = App->map_editor->GetMapSize();

@@ -35,7 +35,6 @@ void r1Map::Save(const uint64_t& tileset)
 	if (references > 0) {
 		nlohmann::json file;
 		
-		file["properties"] = nlohmann::json::object();
 		file["size"] = { size.x, size.y };
 		file["tileset"] = tileset;
 
@@ -150,6 +149,8 @@ void r1Map::Load()
 	size.y = file["size"][1];
 
 	App->gui->tileset->SelectTileset(file.value("tileset", 0ULL));
+
+	properties.LoadProperties(file["properties"]);
 
 	LoadLayers(file);
 }
@@ -285,4 +286,15 @@ void r1Map::CreateNewMap(int width, int height, const char* file)
 	map["layers"].push_back(data);
 
 	FileSystem::SaveJSONFile(file, map);
+}
+
+void r1Map::OnInspector()
+{
+	if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen)) {
+		ImGui::Text("Width");  ImGui::SameLine(); ImGui::TextColored(ORANGE, std::to_string(size.x).c_str());
+		ImGui::Text("Height"); ImGui::SameLine(); ImGui::TextColored(ORANGE, std::to_string(size.y).c_str());
+	}
+	if (ImGui::CollapsingHeader("Custom Properties", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen)) {
+		properties.Display();
+	}
 }

@@ -44,6 +44,7 @@ public:
     void EraseLayer(int index);
 
     bool ValidMap() const;
+    r1Map* GetMap() const;
     bool GetLayers(std::vector<Layer*>* &vec) const;
 
     void ExportMap(MapTypeExport t, Layer::DataTypeExport d) const;

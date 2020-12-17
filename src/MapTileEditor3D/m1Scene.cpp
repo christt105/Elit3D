@@ -50,7 +50,6 @@ UpdateStatus m1Scene::Update()
 	App->render->GetViewport("scene")->Begin();
 
 	if (draw_grid) {
-		oglh::UnBindBuffers();
 		static auto shader1 = App->render->GetShader("grid");
 		shader1->Use();
 		oglh::DrawArrays(6);

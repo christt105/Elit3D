@@ -4,6 +4,7 @@
 #include "m1GUI.h"
 #include "p1Tileset.h"
 #include "p1Layers.h"
+#include "p1Inspector.h"
 #include "Viewport.h"
 
 #include "m1Render3D.h"
@@ -141,6 +142,8 @@ void m1MapEditor::LoadMap(const uint64_t& id)
 			nlohmann::json locals;
 			locals["last_map_used"] = id;
 			FileSystem::SaveJSONFile("Configuration/locals.json", locals);
+
+			App->gui->inspector->SetSelected(m, p1Inspector::SelectedType::EDITOR_MAP);
 		}
 		else {
 			LOGW("map with id %" PRIu64 " could not be loaded, not in resources", id);
@@ -226,6 +229,11 @@ void m1MapEditor::EraseLayer(int index)
 bool m1MapEditor::ValidMap() const
 {
 	return map != 0ULL;
+}
+
+r1Map* m1MapEditor::GetMap() const
+{
+	return (r1Map*)App->resources->Get(map);
 }
 
 bool m1MapEditor::GetLayers(std::vector<Layer*>* &vec) const
