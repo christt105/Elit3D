@@ -100,8 +100,8 @@ std::string Layer::Parse(int sizeX, int sizeY, DataTypeExport d) const
 	if (d != Layer::DataTypeExport::CSV_NO_NEWLINE)
 		ret = '\n';
 
-	for (int i = sizeX - 1; i >= 0; --i) {
-		for (int j = 0; j < sizeY; ++j) {
+	for (int i = sizeY - 1; i >= 0; --i) {
+		for (int j = 0; j < sizeX; ++j) {
 			ret.append(std::to_string(tile_data[i * sizeX + j]) + ','); // TODO: encode 4 bytes array
 		}
 

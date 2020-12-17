@@ -196,11 +196,6 @@ void r1Map::LoadLayers(nlohmann::json& file)
 	}
 }
 
-void r1Map::LoadProperties(const nlohmann::detail::iter_impl<nlohmann::json>& l, Layer* layer)
-{
-	
-}
-
 void r1Map::Unload()
 {
 	for (auto l : layers) {
@@ -221,8 +216,8 @@ void r1Map::Resize(int width, int height) // TODO FIX RESIZE
 			PROFILE_SECTION("Copy data");
 			for (int i = 0; i < size.x * size.y; ++i) {
 				int2 colrow = int2(i % size.x, (i / size.x));
-				int new_index = (colrow.x + width * colrow.y);
-				if (new_index < width * height) {
+				if (colrow.x < width && colrow.y < height) {
+					int new_index = (colrow.x + width * colrow.y);
 					int old_index = (colrow.x + size.x * colrow.y);
 					new_data[new_index] = (*l)->tile_data[old_index];
 				}
@@ -238,9 +233,11 @@ void r1Map::Resize(int width, int height) // TODO FIX RESIZE
 			memset(tex, 0, sizeof(unsigned char) * width * height * 3);
 			int tileset_width = App->gui->tileset->GetTilesetSize().x;
 			for (auto i = 0; i < width * height; ++i) {
-				TILE_DATA_TYPE id = new_data[i];
-				tex[i * 3] = id / tileset_width;
-				tex[i * 3 + 2] = id % tileset_width;
+				if (new_data[i] != 0) {
+					tex[i * 3] = (unsigned char)(new_data[i] / UCHAR_MAX);
+					tex[i * 3 + 1] = 0;
+					tex[i * 3 + 2] = (unsigned char)(new_data[i] % UCHAR_MAX);
+				}
 			}
 
 			oglh::DeleteTexture((*l)->id_tex);

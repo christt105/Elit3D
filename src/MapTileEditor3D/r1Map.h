@@ -33,7 +33,6 @@ public:
 
 private:
     void LoadLayers(nlohmann::json& file);
-    void LoadProperties(const nlohmann::detail::iter_impl<nlohmann::json>& l, Layer* layer);
 
 private:
     int2 size = { -1, -1 };
