@@ -5,9 +5,9 @@
 struct TypeVar {
     enum class Type {
         NONE = -1,
-        Float,
         Int,
         String,
+        Float,
         Bool
     };
     Type type = Type::NONE;

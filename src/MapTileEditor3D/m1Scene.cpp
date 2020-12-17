@@ -46,12 +46,11 @@ bool m1Scene::Start()
 UpdateStatus m1Scene::Update()
 {
 	PROFILE_FUNCTION();
-	if (App->input->IsKeyDown(SDL_SCANCODE_ESCAPE))
-		return UpdateStatus::UPDATE_STOP;
 
 	App->render->GetViewport("scene")->Begin();
 
 	if (draw_grid) {
+		oglh::UnBindBuffers();
 		static auto shader1 = App->render->GetShader("grid");
 		shader1->Use();
 		oglh::DrawArrays(6);

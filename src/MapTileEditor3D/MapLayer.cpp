@@ -174,6 +174,79 @@ void Layer::DisplayProperties()
 				break;
 			}
 			ImGui::SameLine();
+			static char changeNameBuffer[30];
+			static auto iterator = i;
+				static const char* types[4] = { "Int", "String", "Float", "Bool" };
+				static int selected = 0;
+			if (ImGui::Button(ICON_FA_PEN)) {
+				//Popup window
+				ImGui::OpenPopup("Edit Property Name");
+				std::strcpy(changeNameBuffer, (*i).first.c_str());
+				iterator = i;
+				selected = (int)(*i).second->type;
+
+				ImGui::SetNextWindowCentered(ImVec2(250.f, 150.f));
+			}
+			if (ImGui::BeginPopupModal("Edit Property Name")) {
+				ImGui::Text("Name:");
+				ImGui::InputText("", changeNameBuffer, 30);
+
+				if (ImGui::BeginCombo("Type", types[selected])) {
+					for (int i = 0; i < 4; ++i)
+						if (ImGui::Selectable(types[i], i == selected))
+							selected = i;
+					ImGui::EndCombo();
+				}
+
+				ImGui::NewLine();
+
+				if (ImGui::Button("Accept")) {
+					auto find = properties.find(std::string(changeNameBuffer));
+					if ((*iterator).second->type != (TypeVar::Type)selected) {
+						delete (*iterator).second;
+						switch ((TypeVar::Type)selected)
+						{
+						case TypeVar::Type::Int:
+							(*iterator).second = new iTypeVar(0);
+							break;
+						case TypeVar::Type::Float:
+							(*iterator).second = new fTypeVar(0.f);
+							break;
+						case TypeVar::Type::String:
+							(*iterator).second = new sTypeVar();
+							break;
+						case TypeVar::Type::Bool:
+							(*iterator).second = new bTypeVar(false);
+							break;
+						default:
+							break;
+						}
+					}
+					if (find == iterator) { // Not changed name
+						ImGui::CloseCurrentPopup();
+					}
+					else {
+						if (find != properties.end()) {
+							delete (*find).second;
+							properties.erase(find);
+						}
+						auto in = properties.extract(iterator);
+						in.key() = changeNameBuffer;
+						properties.insert(std::move(in));
+						ImGui::CloseCurrentPopup();
+						ImGui::EndPopup();
+						ImGui::PopID();
+						break;
+					}
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel")) {
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::EndPopup();
+			}
+			ImGui::SameLine();
 			switch ((*i).second->type)
 			{
 			case TypeVar::Type::String:
@@ -196,6 +269,7 @@ void Layer::DisplayProperties()
 			}
 			ImGui::PopID();
 		}
+		
 		ImGui::EndChild();
 	}
 }
