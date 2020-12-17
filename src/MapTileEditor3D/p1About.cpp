@@ -83,7 +83,9 @@ void p1About::Update()
 	ImGui::BulletText("PCG: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "0.98.1");
 	ImGui::BulletText("mmgr: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.0.0");
 	ImGui::BulletText("MathGeoLib: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.5");
-	//ImGui::BulletText("infoware: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", iware::version);
+	ImGui::BulletText("infoware: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", iware::version);
+	ImGui::BulletText("cpp-base64: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "2.0.0");
+	ImGui::BulletText("zlib: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.2.11");
 	ImGui::BulletText("pugixml: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.10");
 	ImGui::BulletText("par_shapes: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.0");
 	
