@@ -1,4 +1,38 @@
 # Changelog
+## [0.2.1] - 2020-12-18
+### Added
+ * base64 coder and decoder library
+ * Parse map in csv, base64 and base64-zlib compressed
+ * Added properties on map
+ * Edit Name and Type of layer property
+ * Option to export on XML and JSON, with csv, base64 and base64-zlib
+ * x64 support
+ * Load map by clicking it
+ * Load last map used on start
+ * Program Icon
+ * OpenGL class helper
+ * Inspector display some info about files
+ * Pugixml (XML parser)
+
+### Changed
+ * Map paint system
+	 * Now I save the id of the tile and not the position on the tileset
+ * Improved Panel Resources
+	* Icons
+	* Zoom
+	* Navigate through folders
+	* Move files in folders
+	* Open on explorer
+ * CC-BY License to BSD-2 Clause
+ * Filewatcher temporarily disabled due to complexity and bugs
+ * Updated MathGeoLib
+
+### Fixed
+* mmgr memory leak detector thread safe
+
+### Removed
+* Library dependency
+
 ## [0.2.0] - 2020-09-25
 ### Added
 * Panel Layers
@@ -42,6 +76,6 @@
 * Resource system
 * Basic File Watcher structure (not finished)
 * Event System
-* System information logger
+* System information logger (infoware)
 * Paint, save and load a map with only one layer
 * Create and resize map
