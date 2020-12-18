@@ -13,7 +13,7 @@ This project is made by [christt105](https://github.com/christt105). This projec
 
 Repository: [https://github.com/christt105/TileMapEditor3D](https://github.com/christt105/TileMapEditor3D)
 ## Contributing
-I won't accept any pull request until I finish and present my final thesis. After that, I will be delighted to accept any pull request that improves the project.
-You can also test the latest releases and [report bugs](https://github.com/christt105/TileMapEditor3D/issues/new?assignees=&labels=&template=bug_report.md&title=) or [propose features](https://github.com/christt105/TileMapEditor3D/issues/new?assignees=&labels=&template=feature_request.md&title=).
+You can test the [latest release](https://github.com/christt105/TileMapEditor3D/releases/latest) and [report bugs](https://github.com/christt105/TileMapEditor3D/issues/new?assignees=&labels=&template=bug_report.md&title=) or [propose features](https://github.com/christt105/TileMapEditor3D/issues/new?assignees=&labels=&template=feature_request.md&title=).
+I won't accept any pull request until I finish and present my final thesis to not take any risk with the evaluation. After that, I will be delighted to accept any pull request that improves the project.
 ## License
 This project is licensed under [BSD 2-Clause License](https://github.com/christt105/TileMapEditor3D/blob/master/LICENSE) license.
