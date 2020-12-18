@@ -98,7 +98,9 @@ UpdateStatus m1Events::PreUpdate()
 		case Event::Type::SAVE_MAP:
 			App->map_editor->SaveMap();
 			break;
-
+		case Event::Type::EXPORT_MAP:
+			App->map_editor->ExportMap((m1MapEditor::MapTypeExport)(e->info["basic_info"]->iGetValue()), (Layer::DataTypeExport)((iTypeVar*)e->info["datatype"])->value);
+			break;
 		case Event::Type::SAVE_CONFIGURATION:
 			App->SaveConfiguration();
 			break;
@@ -129,10 +131,19 @@ m1Events::Event::Event(): type(m1Events::Event::Type::NONE)
 {
 }
 
+m1Events::Event::Event(Type t) : type(t)
+{
+}
+
 m1Events::Event::Event(Type t, const char* basic_info) : type(t)
 {
 	if (basic_info != NULL)
 		info["basic_info"] = new sTypeVar(basic_info);
+}
+
+m1Events::Event::Event(Type t, int basic_info) : type(t)
+{
+	info["basic_info"] = new iTypeVar(basic_info);
 }
 
 m1Events::Event::~Event()

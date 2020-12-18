@@ -5,6 +5,10 @@
 #include "int2.h"
 #include "Buffer.h"
 
+#include "Globals.h"
+
+#include "Properties.h"
+
 class r1Mesh;
 struct TypeVar;
 
@@ -27,6 +31,17 @@ class Layer {
     friend class m1MapEditor;
     friend class p1Layers;
 public:
+    enum class DataTypeExport {
+        NONE = -1,
+
+        CSV,
+        CSV_NO_NEWLINE,
+        BASE64_NO_COMPRESSION,
+        BASE64_ZLIB,
+
+        MAX
+    };
+
     Layer();
     ~Layer();
 
@@ -43,19 +58,18 @@ public:
 
     void OnInspector();
 
+    std::string Parse(int sizeX, int sizeY, DataTypeExport d) const;
+    void Unparse(int sizeX, int sizeY, const std::string& data);
+
     const char* GetName() const;
     void SetName(const char* n);
 
 private:
-    void CreateProperty();
-    void DisplayProperties();
-
-private:
     static OpenGLBuffers tile;
 
-    unsigned char* tile_data = nullptr;
+    TILE_DATA_TYPE* tile_data = nullptr; //TODO: Research about set id with short or int
 
-    std::unordered_map<std::string, TypeVar*> properties;
+    Properties properties;
 
     std::string name = "Layer";
     char buf[30];

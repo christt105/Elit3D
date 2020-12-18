@@ -13,6 +13,7 @@ public:
 
 		OBJECT,
 		LAYER,
+		EDITOR_MAP,
 
 		PNG,
 		FBX,

@@ -20,10 +20,6 @@
 #include "../MathGeoLibFwd.h"
 #include "../Math/float3.h"
 
-#ifdef MATH_OGRE_INTEROP
-#include <OgreRay.h>
-#endif
-
 MATH_BEGIN_NAMESPACE
 
 /// A ray in 3D space is a line that starts from an origin point and extends to infinity in one direction.
@@ -31,12 +27,12 @@ class Ray
 {
 public:
 	/// Specifies the origin of this ray.
-	float3 pos;
+	vec pos;
 
 	/// The normalized direction vector of this ray. [similarOverload: pos]
 	/** @note For proper functionality, this direction vector needs to always be normalized. If you set to this
 		member manually, remember to make sure you only assign normalized direction vectors. */
-	float3 dir;
+	vec dir;
 
 	/// The default constructor does not initialize any members of this class.
 	/** This means that the values of the members pos and dir are undefined after creating a new Ray using this
@@ -49,7 +45,7 @@ public:
 		@param dir The direction of the ray. This vector must be normalized, this function will not normalize
 			the vector for you (for performance reasons).
 		@see pos, dir. */
-	Ray(const float3 &pos, const float3 &dir);
+	Ray(const vec &pos, const vec &dir);
 
 	/// Converts a Line to a Ray.
 	/** This conversion simply copies the members pos and dir over from the given Line to this Ray.
@@ -72,12 +68,12 @@ public:
 			returned point does not actually lie on this Ray.
 		@return pos + distance * dir.
 		@see pos, dir. */
-	float3 GetPoint(float distance) const;
+	vec GetPoint(float distance) const;
 
 	/// Translates this Ray in world space.
 	/** @param offset The amount of displacement to apply to this Ray, in world space coordinates.
 		@see Transform(). */
-	void Translate(const float3 &offset);
+	void Translate(const vec &offset);
 
 	/// Applies a transformation to this Ray, in-place.
 	/** See Translate(), classes float3x3, float3x4, float4x4, Quat. */
@@ -92,32 +88,37 @@ public:
 		inaccuracies.
 		@return True if this ray contains the given object, up to the given distance threshold.
 		@see class LineSegment, Distance(), ClosestPoint(), Intersects(). */
-	bool Contains(const float3 &point, float distanceThreshold = 1e-3f) const;
+	bool Contains(const vec &point, float distanceThreshold = 1e-3f) const;
 	bool Contains(const LineSegment &lineSegment, float distanceThreshold = 1e-3f) const;
 
 	/// Tests if two rays are equal.
 	/** @return True if this and the given Ray represent the same set of points, up to the given epsilon. */
 	bool Equals(const Ray &otherRay, float epsilon = 1e-3f) const;
 
+	/// Compares whether this Ray and the given Ray are identical bit-by-bit in the underlying representation.
+	/** @note Prefer using this over e.g. memcmp, since there can be SSE-related padding in the structures. */
+	bool BitEquals(const Ray &other) const { return pos.BitEquals(other.pos) && dir.BitEquals(other.dir); }
+
 	/// Computes the distance between this ray and the given object.
 	/** This function finds the nearest pair of points on this and the given object, and computes their distance.
 		If the two objects intersect, or one object is contained inside the other, the returned distance is zero.
 		@param d [out] If specified, receives the parametric distance along this ray that
 			specifies the closest point on this ray to the given object. The value returned here can be negative.
-			This pointer may be null.
 		@see Contains(), Intersects(), ClosestPoint(), GetPoint(). */
-	float Distance(const float3 &point, float *d) const;
-	float Distance(const float3 &point) const;
+	float Distance(const vec &point) const { float d; return Distance(point, d); }
+	float Distance(const vec &point, float &d) const;
 
 	/** @param d2 [out] If specified, receives the parametric distance along the other line that specifies the
-		closest point on that line to this ray. The value returned here can be negative. This pointer may
-		be null. */
-	float Distance(const Ray &other, float *d, float *d2 = 0) const;
-	float Distance(const Ray &other) const;
-	float Distance(const Line &other, float *d, float *d2 = 0) const;
-	float Distance(const Line &other) const;
-	float Distance(const LineSegment &other, float *d, float *d2 = 0) const;
-	float Distance(const LineSegment &other) const;
+		closest point on that line to this ray. The value returned here can be negative. */
+	float Distance(const Ray &other) const { float d, d2; return Distance(other, d, d2); }
+	float Distance(const Ray &other, float &d) const { float d2; return Distance(other, d, d2); }
+	float Distance(const Ray &other, float &d, float &d2) const;
+	float Distance(const Line &other) const { float d, d2; return Distance(other, d, d2); }
+	float Distance(const Line &other, float &d) const { float d2; return Distance(other, d, d2); }
+	float Distance(const Line &other, float &d, float &d2) const;
+	float Distance(const LineSegment &other) const { float d, d2; return Distance(other, d, d2); }
+	float Distance(const LineSegment &other, float &d) const { float d2; return Distance(other, d, d2); }
+	float Distance(const LineSegment &other, float &d, float &d2) const;
 	float Distance(const Sphere &sphere) const;
 	float Distance(const Capsule &capsule) const;
 
@@ -126,15 +127,20 @@ public:
 		the region of intersection.
 		@param d [out] If specified, receives the parametric distance along this ray that
 			specifies the closest point on this ray to the given object. The value returned here can be negative.
-			This pointer may be null.
 		@see Contains(), Distance(), Intersects(), GetPoint(). */
-	float3 ClosestPoint(const float3 &targetPoint, float *d = 0) const;
+	vec ClosestPoint(const vec &targetPoint) const { float d; return ClosestPoint(targetPoint, d); }
+	vec ClosestPoint(const vec &targetPoint, float &d) const;
 	/** @param d2 [out] If specified, receives the parametric distance along the other line that specifies the
-		closest point on that line to this ray. The value returned here can be negative. This pointer may
-		be null. */
-	float3 ClosestPoint(const Ray &other, float *d = 0, float *d2 = 0) const;
-	float3 ClosestPoint(const Line &other, float *d = 0, float *d2 = 0) const;
-	float3 ClosestPoint(const LineSegment &other, float *d = 0, float *d2 = 0) const;
+		closest point on that line to this ray. The value returned here can be negative. */
+	vec ClosestPoint(const Ray &other) const { float d, d2; return ClosestPoint(other, d, d2); }
+	vec ClosestPoint(const Ray &other, float &d) const { float d2; return ClosestPoint(other, d, d2); }
+	vec ClosestPoint(const Ray &other, float &d, float &d2) const;
+	vec ClosestPoint(const Line &other) const { float d, d2; return ClosestPoint(other, d, d2); }
+	vec ClosestPoint(const Line &other, float &d) const { float d2; return ClosestPoint(other, d, d2); }
+	vec ClosestPoint(const Line &other, float &d, float &d2) const;
+	vec ClosestPoint(const LineSegment &other) const { float d, d2; return ClosestPoint(other, d, d2); }
+	vec ClosestPoint(const LineSegment &other, float &d) const { float d2; return ClosestPoint(other, d, d2); }
+	vec ClosestPoint(const LineSegment &other, float &d, float &d2) const;
 
 	/// Tests whether this ray and the given object intersect.	
 	/** Both objects are treated as "solid", meaning that if one of the objects is fully contained inside
@@ -146,13 +152,13 @@ public:
 			may be null.
 		@return True if an intersection occurs or one of the objects is contained inside the other, false otherwise.
 		@see Contains(), Distance(), ClosestPoint(), GetPoint(). */
-	bool Intersects(const Triangle &triangle, float *d, float3 *intersectionPoint) const;
+	bool Intersects(const Triangle &triangle, float *d, vec *intersectionPoint) const;
 	bool Intersects(const Triangle &triangle) const;
 	bool Intersects(const Plane &plane, float *d) const;
 	bool Intersects(const Plane &plane) const;
 	/** @param intersectionNormal [out] If specified, receives the surface normal of the other object at
 		the point of intersection. This pointer may be null. */
-	bool Intersects(const Sphere &s, float3 *intersectionPoint, float3 *intersectionNormal, float *d) const;
+	bool Intersects(const Sphere &s, vec *intersectionPoint, vec *intersectionNormal, float *d) const;
 	bool Intersects(const Sphere &s) const;
 	/** @param dNear [out] If specified, receives the distance along this ray to where the ray enters
 		the bounding box.
@@ -190,7 +196,7 @@ public:
 			of this function gets scaled by the length of this vector.
 		@param outMin [out] Returns the minimum extent of this object along the projection axis.
 		@param outMax [out] Returns the maximum extent of this object along the projection axis. */
-	void ProjectToAxis(const float3 &direction, float &outMin, float &outMax) const;
+	void ProjectToAxis(const vec &direction, float &outMin, float &outMax) const;
 
 	/// Converts this Ray to a LineSegment.
 	/** @param dStart Specifies the position of the first endpoint along this Ray. This parameter may be negative,
@@ -200,21 +206,18 @@ public:
 		@see pos, dir, Ray::Ray, class LineSegment, ToLine(). */
 	LineSegment ToLineSegment(float dStart, float dEnd) const;
 
-#ifdef MATH_ENABLE_STL_SUPPORT
+#if defined(MATH_ENABLE_STL_SUPPORT) || defined(MATH_CONTAINERLIB_SUPPORT)
 	/// Returns a human-readable representation of this Ray.
 	/** The returned string specifies the position and direction of this Ray. */
-	std::string ToString() const;
-#endif
-#ifdef MATH_QT_INTEROP
-	operator QString() const { return toString(); }
-	QString toString() const { return QString::fromStdString(ToString()); }
+	StringT ToString() const;
+	StringT SerializeToString() const;
+
+	/// Returns a string of C++ code that can be used to construct this object. Useful for generating test cases from badly behaving objects.
+	StringT SerializeToCodeString() const;
+	static Ray FromString(const StringT &str) { return FromString(str.c_str()); }
 #endif
 
-#ifdef MATH_OGRE_INTEROP
-	Ray(const Ogre::Ray &other) { pos = other.getOrigin(); dir = other.getDirection(); }
-	operator Ogre::Ray() const { return Ogre::Ray(pos, dir); }
-#endif
-
+	static Ray FromString(const char *str, const char **outEndStr = 0);
 };
 
 /// @note Assumes that transform may contain scaling, and re-normalizes the ray direction
@@ -227,11 +230,6 @@ Ray operator *(const float3x4 &transform, const Ray &ray);
 ///		after the transform.
 Ray operator *(const float4x4 &transform, const Ray &ray);
 Ray operator *(const Quat &transform, const Ray &ray);
-
-#ifdef MATH_QT_INTEROP
-Q_DECLARE_METATYPE(Ray)
-Q_DECLARE_METATYPE(Ray*)
-#endif
 
 #ifdef MATH_ENABLE_STL_SUPPORT
 std::ostream &operator <<(std::ostream &o, const Ray &ray);

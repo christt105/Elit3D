@@ -12,6 +12,9 @@
 #include "TypeVar.h"
 #include "Profiler.h"
 
+#include "ExternalTools/base64/base64.h"
+#include "ExternalTools/zlib/zlib_strings.h"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 OpenGLBuffers Layer::tile = OpenGLBuffers();
@@ -29,11 +32,6 @@ Layer::~Layer()
 		delete[] tile_data;
 		oglh::DeleteTexture(id_tex);
 	}
-
-	for (auto p : properties) {
-		delete p.second;
-	}
-	properties.clear();
 }
 
 void Layer::Draw(const int2& size, int tile_width, int tile_height) const
@@ -50,15 +48,15 @@ void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 
 void Layer::Reset(const int2& size)
 {
-	tile_data = new unsigned char[size.x * size.y * 3];
+	tile_data = new TILE_DATA_TYPE[size.x * size.y];
+	memset(tile_data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
 
-	for (int i = 0; i < size.x * size.y; ++i) {
-		tile_data[i*3    ] = 0;
-		tile_data[i*3 + 1] = 255;
-		tile_data[i*3 + 2] = 0;
-	}
+	unsigned char* tex = new unsigned char[size.x * size.y * 3];
+	memset(tex, 0, sizeof(unsigned char) * size.x * size.y * 3);
 
-	oglh::GenTextureData(id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tile_data);
+	oglh::GenTextureData(id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex);
+
+	delete[] tex;
 }
 
 void Layer::SelectBuffers()
@@ -91,92 +89,70 @@ void Layer::OnInspector()
 	ImGui::Separator();
 
 	if (ImGui::CollapsingHeader("Custom Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
-		CreateProperty();
-		ImGui::Separator();
-		DisplayProperties();
+		properties.Display();
 	}
 }
 
-void Layer::DisplayProperties()
+std::string Layer::Parse(int sizeX, int sizeY, DataTypeExport d) const
 {
-	if (ImGui::BeginChild("##properties")) {
-		for (auto i = properties.begin(); i != properties.end(); ++i) {
-			ImGui::PushID((*i).second);
-			if (ImGui::Button(ICON_FA_TRASH_ALT)) {
-				delete (*i).second;
-				properties.erase(i);
-				ImGui::PopID();
-				break;
-			}
-			ImGui::SameLine();
-			switch ((*i).second->type)
-			{
-			case TypeVar::Type::String:
-				char b[30];
-				strcpy_s(b, 30, static_cast<sTypeVar*>((*i).second)->value.c_str());
-				if (ImGui::InputText((*i).first.c_str(), b, 30))
-					static_cast<sTypeVar*>((*i).second)->value.assign(b);
-				break;
-			case TypeVar::Type::Int:
-				ImGui::InputInt((*i).first.c_str(), &static_cast<iTypeVar*>((*i).second)->value);
-				break;
-			case TypeVar::Type::Float:
-				ImGui::InputFloat((*i).first.c_str(), &static_cast<fTypeVar*>((*i).second)->value);
-				break;
-			case TypeVar::Type::Bool:
-				ImGui::Checkbox((*i).first.c_str(), &static_cast<bTypeVar*>((*i).second)->value);
-				break;
-			default:
-				break;
-			}
-			ImGui::PopID();
+	std::string ret;
+
+	if (d != Layer::DataTypeExport::CSV_NO_NEWLINE)
+		ret = '\n';
+
+	for (int i = sizeY - 1; i >= 0; --i) {
+		for (int j = 0; j < sizeX; ++j) {
+			ret.append(std::to_string(tile_data[i * sizeX + j]) + ','); // TODO: encode 4 bytes array
 		}
-		ImGui::EndChild();
+
+		if (i == 0)
+			ret.pop_back();
+		if (d != Layer::DataTypeExport::CSV_NO_NEWLINE)
+			ret += '\n';
 	}
+
+	switch (d)
+	{
+	case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
+		ret = base64_encode(ret);
+		break;
+	case Layer::DataTypeExport::BASE64_ZLIB:
+		ret = compress_string(ret);
+		ret = base64_encode(ret);
+		break;
+	default:
+		break;
+	}
+
+	return ret;
 }
 
-void Layer::CreateProperty()
+void Layer::Unparse(int sizeX, int sizeY, const std::string& raw_data)
 {
-	static char buffer[30] = { "" };
-	static const char* types[4] = { "Int", "String", "Float", "Bool" };
-	static int selected = 0;
-	ImGui::PushID("##properties name");
-	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.5f);
-	ImGui::InputText("Name", buffer, 30);
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.25f);
-	if (ImGui::BeginCombo("Type", types[selected])) {
-		for (int i = 0; i < 4; ++i)
-			if (ImGui::Selectable(types[i], i == selected))
-				selected = i;
-		ImGui::EndCombo();
-	}
-	ImGui::SameLine();
-	if (ImGui::Button(ICON_FA_PLUS)) {
-		if (!std::string(buffer).empty()) {
-			if (properties.find(buffer) == properties.end()) {
-				switch (selected)
-				{
-				case 0:
-					properties[buffer] = new iTypeVar(0);
-					break;
-				case 1:
-					properties[buffer] = new sTypeVar();
-					break;
-				case 2:
-					properties[buffer] = new fTypeVar(0.f);
-					break;
-				case 3:
-					properties[buffer] = new bTypeVar(false);
-					break;
-				default:
-					break;
-				}
+	std::string data = decompress_string(base64_decode(raw_data));
+	auto i = data.begin();
+	if (*i == '\n')
+		++i;
+	int x = 0;
+	int y = sizeY-1;
+	while (i != data.end()) {
+		std::string n;
+		while (i != data.end() && *i != ',') {
+			if (*i == '\n' && (i + 1) != data.end()) { // Weird way to load cause the origin on textures is Bottom-Left and not Top-Left. TODO?
+				x = 0;
+				--y;
+				break;
 			}
-			strcpy_s(buffer, 30, "");
+			n += *i;
+			i++;
 		}
+		if (!n.empty()) {
+			tile_data[sizeX * y + x] = (TILE_DATA_TYPE)std::stoul(n);
+			++x;
+		}
+		if (i != data.end())
+			i++;
 	}
-	ImGui::PopID();
 }
 
 const char* Layer::GetName() const

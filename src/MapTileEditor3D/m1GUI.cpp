@@ -111,7 +111,6 @@ UpdateStatus m1GUI::PreUpdate()
 
 	if (ImGui::BeginMainMenuBar()) {
 		MainMenuBar();
-
 		ImGui::EndMainMenuBar();
 	}
 
@@ -134,7 +133,9 @@ void m1GUI::MainMenuBar()
 		ImGui::Separator();
 		
 		if (ImGui::MenuItem("Save")) {
+			App->resources->PauseFileWatcher(true);
 			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::SAVE_MAP));
+			App->resources->PauseFileWatcher(false);
 		}
 
 		if (ImGui::MenuItem("Save as... (not implemented)")) {
@@ -143,6 +144,48 @@ void m1GUI::MainMenuBar()
 
 		if (ImGui::MenuItem("Load")) {
 			load_map = true;
+		}
+
+		ImGui::Separator();
+
+		if (ImGui::BeginMenu("Export")) {
+			if (ImGui::BeginMenu("XML")) {
+				if (ImGui::MenuItem("CSV")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::XML);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::CSV);
+					App->events->AddEvent(e);
+				}
+				if (ImGui::MenuItem("Base64 no compression")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::XML);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::BASE64_NO_COMPRESSION);
+					App->events->AddEvent(e);
+				}
+				if (ImGui::MenuItem("Base64 zlib compression")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::XML);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::BASE64_ZLIB);
+					App->events->AddEvent(e);
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("JSON")) {
+				if (ImGui::MenuItem("CSV")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::JSON);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::CSV);
+					App->events->AddEvent(e);
+				}
+				if (ImGui::MenuItem("Base64 no compression")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::JSON);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::BASE64_NO_COMPRESSION);
+					App->events->AddEvent(e);
+				}
+				if (ImGui::MenuItem("Base64 zlib compression")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::JSON);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::BASE64_ZLIB);
+					App->events->AddEvent(e);
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
 		}
 
 		ImGui::EndMenu();
@@ -195,6 +238,11 @@ void m1GUI::MainMenuBar()
 	static bool resize_map = false;
 	static int map_resize[2] = { 10 , 10 };
 	if (ImGui::BeginMenu("Edit")) {
+		if (ImGui::MenuItem("Map")) {
+			r1Map* m = App->map_editor->GetMap();
+			if (m != nullptr)
+				inspector->SetSelected(m, p1Inspector::SelectedType::EDITOR_MAP);
+		}
 		if (ImGui::MenuItem("Resize Map")) {
 			resize_map = true;
 			int2 m = App->map_editor->GetMapSize();

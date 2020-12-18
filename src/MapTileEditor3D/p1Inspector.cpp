@@ -5,6 +5,7 @@
 #include "MapLayer.h"
 #include "m1Resources.h"
 #include "r1Tileset.h"
+#include "r1Map.h"
 
 #include "FileSystem.h"
 
@@ -31,6 +32,9 @@ void p1Inspector::Update()
 			break;
 		case p1Inspector::SelectedType::LAYER:
 			((Layer*)selected)->OnInspector();
+			break;
+		case p1Inspector::SelectedType::EDITOR_MAP:
+			((r1Map*)selected)->OnInspector();
 			break;
 		case p1Inspector::SelectedType::TILESET:
 		case p1Inspector::SelectedType::FBX:

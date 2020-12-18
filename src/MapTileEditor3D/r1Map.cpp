@@ -7,13 +7,17 @@
 #include "Application.h"
 #include "m1GUI.h"
 #include "p1Tileset.h"
+#include "m1Resources.h"
+#include "r1Tileset.h"
 
 #include "MapLayer.h"
 
-#include "ExternalTools/DevIL/il.h"
-#include "ExternalTools/DevIL/ilut.h"
+#include "ExternalTools/DevIL/include/IL/il.h"
+#include "ExternalTools/DevIL/include/IL/ilut.h"
 
 #include "Profiler.h"
+
+#include "ExternalTools/pugixml/pugixml.hpp"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
@@ -31,40 +35,17 @@ void r1Map::Save(const uint64_t& tileset)
 	if (references > 0) {
 		nlohmann::json file;
 		
-		file["properties"] = nlohmann::json::object();
 		file["size"] = { size.x, size.y };
 		file["tileset"] = tileset;
 
+		properties.SaveProperties(file["properties"]);
+
 		for (auto l = layers.begin(); l != layers.end(); ++l) {
 			nlohmann::json lay = nlohmann::json::object();
-			for (int i = 0; i < size.x * size.y * 3; ++i) {
-				lay["data"].push_back((*l)->tile_data[i]);
-			}
+			lay["encoding"] = "base64-zlib";
+			lay["data"] = (*l)->Parse(size.x, size.y, Layer::DataTypeExport::BASE64_ZLIB);
 
-			for (auto p = (*l)->properties.begin(); p != (*l)->properties.end(); ++p) {
-				nlohmann::json prop = nlohmann::json::object();
-				prop["name"] = (*p).first;
-				prop["type"] = (*p).second->type;
-				switch ((*p).second->type)
-				{
-				case TypeVar::Type::Int:
-					prop["value"] = static_cast<iTypeVar*>((*p).second)->value;
-					break;
-				case TypeVar::Type::String:
-					prop["value"] = static_cast<sTypeVar*>((*p).second)->value;
-					break;
-				case TypeVar::Type::Float:
-					prop["value"] = static_cast<fTypeVar*>((*p).second)->value;
-					break;
-				case TypeVar::Type::Bool:
-					prop["value"] = static_cast<bTypeVar*>((*p).second)->value;
-					break;
-				default:
-					break;
-				}
-
-				lay["properties"].push_back(prop);
-			}
+			(*l)->properties.SaveProperties(lay["properties"]);
 
 			lay["name"] = (*l)->GetName();
 			lay["height"] = (*l)->height;
@@ -80,6 +61,123 @@ void r1Map::Save(const uint64_t& tileset)
 	}
 	else {
 		//TODO: attach
+	}
+}
+
+void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor::MapTypeExport t)
+{
+	if (references > 0) {
+		switch (t)
+		{
+		case m1MapEditor::MapTypeExport::XML: {
+			pugi::xml_document doc;
+			pugi::xml_node map = doc.append_child("map");
+
+			map.append_attribute("width").set_value(size.x);
+			map.append_attribute("height").set_value(size.y);
+
+			pugi::xml_node ntileset = map.append_child("tileset");
+			auto tile = (r1Tileset*)App->resources->Get(tileset);
+			if (tile != nullptr) {
+				ntileset.append_attribute("name").set_value(tile->name.c_str());
+				ntileset.append_attribute("tilewidth").set_value(tile->GetWidth());
+				ntileset.append_attribute("tileheight").set_value(tile->GetHeight());
+				ntileset.append_attribute("spacing").set_value(tile->GetSpacing());
+				ntileset.append_attribute("margin").set_value(tile->GetMargin());
+				ntileset.append_attribute("ntiles").set_value(tile->GetNTiles());
+				ntileset.append_attribute("columns").set_value(tile->GetColumns());
+
+				ntileset.append_child("image").append_attribute("src").set_value(tile->path.c_str());
+			}
+
+			pugi::xml_node xmlproperties = map.append_child("properties");
+			properties.SaveProperties(xmlproperties);
+
+			for (auto l = layers.begin(); l != layers.end(); ++l) {
+				pugi::xml_node layer = map.append_child("layer");
+
+				xmlproperties = layer.append_child("properties");
+				(*l)->properties.SaveProperties(xmlproperties);
+
+				layer.append_attribute("name").set_value((*l)->GetName());
+				layer.append_attribute("visible").set_value((*l)->visible);
+				layer.append_attribute("locked").set_value((*l)->locked);
+				layer.append_attribute("height").set_value((*l)->height);
+				layer.append_attribute("opacity").set_value((*l)->opacity);
+				layer.append_attribute("displacementx").set_value((*l)->displacement[0]);
+				layer.append_attribute("displacementy").set_value((*l)->displacement[1]);
+
+				auto data = layer.append_child("data");
+				auto encoding = data.append_attribute("encoding");
+				switch (d)
+				{
+				case Layer::DataTypeExport::CSV:
+				case Layer::DataTypeExport::CSV_NO_NEWLINE:
+					encoding.set_value("csv");
+					break;
+				case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
+					encoding.set_value("base64");
+					break;
+				case Layer::DataTypeExport::BASE64_ZLIB:
+					encoding.set_value("base64-zlib");
+					break;
+				default:
+					break;
+				}
+				data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
+			}
+
+			doc.save_file("Export/Test.xml");
+			break;
+		}
+		case m1MapEditor::MapTypeExport::JSON:
+		{
+			nlohmann::json file;
+
+			file["size"] = { size.x, size.y };
+			auto image = App->resources->Get(tileset);
+			if (image != nullptr)
+				file["tileset"] = image->path; //TODO: object tileset. All info of tileset binded on map file exported
+
+			properties.SaveProperties(file["properties"]);
+
+			for (auto l = layers.begin(); l != layers.end(); ++l) {
+				nlohmann::json lay = nlohmann::json::object();
+
+				switch (d)
+				{
+				case Layer::DataTypeExport::CSV:
+				case Layer::DataTypeExport::CSV_NO_NEWLINE:
+					lay["encoding"] = "csv";
+					//TODO: Parse as array of nnumbers
+					break;
+				case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
+				lay["encoding"] = "base64";
+					break;
+				case Layer::DataTypeExport::BASE64_ZLIB:
+					lay["encoding"] = "base64-zlib";
+					break;
+				default:
+					break;
+				}
+				lay["data"] = (*l)->Parse(size.x, size.y, d);
+
+				(*l)->properties.SaveProperties(lay["properties"]);
+
+				lay["name"] = (*l)->GetName();
+				lay["height"] = (*l)->height;
+				lay["opacity"] = (*l)->opacity;
+				lay["visible"] = (*l)->visible;
+				lay["locked"] = (*l)->locked;
+				lay["displacement"] = { (*l)->displacement[0], (*l)->displacement[1] };
+
+				file["layers"].push_back(lay);
+			}
+
+			FileSystem::SaveJSONFile("Export/Test.json", file);
+			break;
+		}
+		}
 	}
 }
 
@@ -105,6 +203,8 @@ void r1Map::Load()
 
 	App->gui->tileset->SelectTileset(file.value("tileset", 0ULL));
 
+	properties.LoadProperties(file["properties"]);
+
 	LoadLayers(file);
 }
 
@@ -122,44 +222,30 @@ void r1Map::LoadLayers(nlohmann::json& file)
 			layer->displacement[1] = (*l)["displacement"][1];
 		}
 
-		LoadProperties(l, layer);
+		layer->properties.LoadProperties((*l)["properties"]);
 
-		layer->tile_data = new unsigned char[size.x * size.y * 3];
-		int i = 0;
-		for (auto it = (*l)["data"].begin();
-			it != (*l)["data"].end();
-			++it, ++i) {
-			layer->tile_data[i] = *it;
+
+		layer->tile_data = new TILE_DATA_TYPE[size.x * size.y];
+		layer->Unparse(size.x, size.y, (*l).value("data", "0")/*TODO: unparse type (csv, base64, zlib...)*/);
+
+		unsigned char* tex_data = new unsigned char[size.x * size.y * 3];
+		memset(tex_data, 254, sizeof(unsigned char) * size.x * size.y * 3);
+
+		for (int i = 0; i < size.x * size.y; ++i) {
+			if (layer->tile_data[i] != 0) {
+				tex_data[i * 3] = (unsigned char)(layer->tile_data[i] / UCHAR_MAX);
+				tex_data[i * 3 + 1] = 0;
+				tex_data[i * 3 + 2] = (unsigned char)(layer->tile_data[i] % UCHAR_MAX);
+			}
 		}
+
 		glEnable(GL_TEXTURE_2D);
-		oglh::GenTextureData(layer->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, layer->tile_data);
+		oglh::GenTextureData(layer->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex_data);
 		oglh::UnBindTexture();
+		delete[] tex_data;
 
 
 		layers.push_back(layer);
-	}
-}
-
-void r1Map::LoadProperties(const nlohmann::detail::iter_impl<nlohmann::json>& l, Layer* layer)
-{
-	for (auto p = (*l)["properties"].begin(); p != (*l)["properties"].end(); ++p) {
-		switch ((TypeVar::Type)(*p).value("type", 0))
-		{
-		case TypeVar::Type::Int:
-			layer->properties[(*p).value("name", "UNKNOWN")] = new iTypeVar((*p).value("value", 0));
-			break;
-		case TypeVar::Type::Float:
-			layer->properties[(*p).value("name", "UNKNOWN")] = new fTypeVar((*p).value("value", 0.f));
-			break;
-		case TypeVar::Type::Bool:
-			layer->properties[(*p).value("name", "UNKNOWN")] = new bTypeVar((*p).value("value", false));
-			break;
-		case TypeVar::Type::String:
-			layer->properties[(*p).value("name", "UNKNOWN")] = new sTypeVar((*p).value("value", std::string()));
-			break;
-		default:
-			break;
-		}
 	}
 }
 
@@ -169,39 +255,24 @@ void r1Map::Unload()
 		delete l;
 	}
 	layers.clear();
-
-	for (auto p : properties) {
-		delete p.second;
-	}
-	properties.clear();
 }
 
-void r1Map::Resize(int width, int height)
+void r1Map::Resize(int width, int height) // TODO FIX RESIZE
 {
 	PROFILE_AND_LOG("Map Resize");
 
-	unsigned char* empty = new unsigned char[width * height * 3];
-	for (int i = 0; i < width * height * 3; i += 3) {
-		empty[i] = 0;
-		empty[i + 1] = 255;
-		empty[i + 2] = 0;
-	}
-
-
 	for (auto l = layers.begin(); l != layers.end(); ++l) {
-		unsigned char* new_data = new unsigned char[width * height * 3];
-		memcpy(new_data, empty, width * height * 3);
+		TILE_DATA_TYPE* new_data = new TILE_DATA_TYPE[width * height];
+		memset(new_data, 0, sizeof(TILE_DATA_TYPE) * width * height);
 
 		{
 			PROFILE_SECTION("Copy data");
 			for (int i = 0; i < size.x * size.y; ++i) {
 				int2 colrow = int2(i % size.x, (i / size.x));
-				int new_index = (colrow.x + width * colrow.y) * 3;
-				if (new_index < width * height * 3) {
-					int old_index = (colrow.x + size.x * colrow.y) * 3;
-					for (int j = 0; j < 3; ++j) {
-						new_data[new_index + j] = (*l)->tile_data[old_index + j];
-					}
+				if (colrow.x < width && colrow.y < height) {
+					int new_index = (colrow.x + width * colrow.y);
+					int old_index = (colrow.x + size.x * colrow.y);
+					new_data[new_index] = (*l)->tile_data[old_index];
 				}
 			}
 		}
@@ -211,26 +282,34 @@ void r1Map::Resize(int width, int height)
 			delete[](*l)->tile_data;
 			(*l)->tile_data = new_data;
 
+			unsigned char* tex = new unsigned char[width * height * 3];
+			memset(tex, 0, sizeof(unsigned char) * width * height * 3);
+			int tileset_width = App->gui->tileset->GetTilesetSize().x;
+			for (auto i = 0; i < width * height; ++i) {
+				if (new_data[i] != 0) {
+					tex[i * 3] = (unsigned char)(new_data[i] / UCHAR_MAX);
+					tex[i * 3 + 1] = 0;
+					tex[i * 3 + 2] = (unsigned char)(new_data[i] % UCHAR_MAX);
+				}
+			}
+
 			oglh::DeleteTexture((*l)->id_tex);
-			oglh::GenTextureData((*l)->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, width, height, (*l)->tile_data); //TODO: research a faster way to do this
+			oglh::GenTextureData((*l)->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, width, height, tex); //TODO: research a faster way to do this
+			delete[] tex;
 		}
 	}
 	size = { width, height };
-	delete[] empty;
 }
 
-void r1Map::Edit(int layer, int row, int col, char r, char g, char b)
+void r1Map::Edit(int layer, int row, int col, TILE_DATA_TYPE id, unsigned char g, unsigned char b)
 {
 	//cpu
-	unsigned char* loc = layers[layer]->tile_data;
-	loc[(size.x * row + col) * 3] = r;
-	loc[(size.x * row + col) * 3 + 1] = g;
-	loc[(size.x * row + col) * 3 + 2] = b;
+	layers[layer]->tile_data[size.x * row + col] = id;
 
 	//gpu
 	oglh::BindTexture(layers[layer]->id_tex);
 
-	unsigned char bits[3] = { r, g, b };
+	unsigned char bits[3] = { g, 0, b };
 	oglh::TexSubImage2D(col, row, 1, 1, bits);
 
 	oglh::UnBindTexture();
@@ -245,15 +324,27 @@ void r1Map::CreateNewMap(int width, int height, const char* file)
 
 	nlohmann::json data = nlohmann::json::object();
 
-	int byte[3] = { 0, 255, 0 }; // TODO: Save with only one number (gid) & compression?
-
+	std::string tiles;
 	for (int i = 0; i < width * height; ++i) {
-		data["data"].push_back(byte[0]);
-		data["data"].push_back(byte[1]);
-		data["data"].push_back(byte[2]);
+		tiles += "0";
+		if (i != width * height - 1) {
+			tiles += ",";
+		}
 	}
+	data["data"] = tiles;
 
 	map["layers"].push_back(data);
 
 	FileSystem::SaveJSONFile(file, map);
+}
+
+void r1Map::OnInspector()
+{
+	if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen)) {
+		ImGui::Text("Width");  ImGui::SameLine(); ImGui::TextColored(ORANGE, std::to_string(size.x).c_str());
+		ImGui::Text("Height"); ImGui::SameLine(); ImGui::TextColored(ORANGE, std::to_string(size.y).c_str());
+	}
+	if (ImGui::CollapsingHeader("Custom Properties", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen)) {
+		properties.Display();
+	}
 }

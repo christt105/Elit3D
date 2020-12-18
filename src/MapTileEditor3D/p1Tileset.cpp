@@ -141,7 +141,7 @@ void p1Tileset::TileSetInfo(r1Tileset* tile)
 	ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), tile->name.c_str());
 	ImGui::Spacing();
 	if (tex == nullptr) {
-		//LOGW("Deleted texture of the tileset. Add a texture on the panel inspector");
+		//MLOGW("Deleted texture of the tileset. Add a texture on the panel inspector");
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.f, 0.f, 1.f));
 		ImGui::TextWrapped("Image of the tileset deleted. Edit tileset with an existing image.");
 		ImGui::PopStyleColor();
@@ -208,6 +208,16 @@ void p1Tileset::SelectTransparentColor(r1Shader*& shader)
 	}
 }
 
+void p1Tileset::SetColumnUniform(r1Shader*& shader)
+{
+	if (tileset != 0) {
+		auto res = (r1Tileset*)App->resources->Get(tileset);
+		if (res) {
+			shader->SetInt("max_columns", res->columns);
+		}
+	}
+}
+
 int2 p1Tileset::GetTileSelected() const
 {
 	int2 ret = { tile_selected[0], tile_selected[1] };
@@ -215,6 +225,18 @@ int2 p1Tileset::GetTileSelected() const
 	if (tile)
 		ret.y = tile->ntiles / tile->columns - ret.y - 1;
 	return ret;
+}
+
+TILE_DATA_TYPE p1Tileset::GetTileIDSelected() const
+{
+	int2 ret = { tile_selected[0], tile_selected[1] };
+	auto tile = (r1Tileset*)App->resources->Get(tileset);
+	if (tile) {
+		ret.y = tile->ntiles / tile->columns - ret.y - 1;
+
+		return tile->columns * ret.y + ret.x;
+	}
+	return TILE_DATA_TYPE(0);
 }
 
 int p1Tileset::GetTileWidth() const
@@ -238,6 +260,15 @@ int p1Tileset::GetTileHeight() const
 const uint64_t& p1Tileset::GetTileset() const
 {
 	return tileset;
+}
+
+int2 p1Tileset::GetTilesetSize() const
+{
+	auto t = (r1Tileset*)App->resources->Get(tileset);
+	if (t != nullptr) {
+		return { t->columns, t->ntiles / t->columns };
+	}
+	return int2();
 }
 
 void p1Tileset::ModalCreateTileset(bool& modal)

@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "m1MapEditor.h"
+
 #include "int2.h"
 #include "TypeVar.h"
 #include "MapLayer.h"
@@ -18,22 +20,24 @@ public:
     ~r1Map();
 
     void Save(const uint64_t& tileset);
+    void Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor::MapTypeExport t);
     void SaveInImage();
     void Load() override;
     void Unload() override;
     void Resize(int width, int height);
-    void Edit(int layer, int row, int col, char r, char g, char b);
+    void Edit(int layer, int row, int col, TILE_DATA_TYPE id, unsigned char g, unsigned char b);
 
     static void CreateNewMap(int width, int height, const char* path);
 
+    void OnInspector() override;
+
 private:
     void LoadLayers(nlohmann::json& file);
-    void LoadProperties(const nlohmann::detail::iter_impl<nlohmann::json>& l, Layer* layer);
 
 private:
     int2 size = { -1, -1 };
 
-    std::unordered_map<std::string, TypeVar*> properties;
+    Properties properties;
 
     std::vector<Layer*> layers;
 };

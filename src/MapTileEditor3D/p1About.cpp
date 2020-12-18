@@ -10,11 +10,11 @@
 
 #include <SDL_version.h>
 #include "OpenGLHelper.h"
-#include "ExternalTools/DevIL/il.h"
-#include "ExternalTools/DevIL/ilu.h"
-#include "ExternalTools/DevIL/ilut.h"
+#include "ExternalTools/DevIL/include/IL/il.h"
+#include "ExternalTools/DevIL/include/IL/ilu.h"
+#include "ExternalTools/DevIL/include/IL/ilut.h"
 #include "ExternalTools/Assimp/include/version.h"
-#include "ExternalTools/infoware/include/version.hpp"
+//#include "ExternalTools/infoware/include/version.hpp"
 
 
 p1About::p1About(bool start_enabled, bool appear_mainmenubar, bool can_close)
@@ -84,6 +84,9 @@ void p1About::Update()
 	ImGui::BulletText("mmgr: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.0.0");
 	ImGui::BulletText("MathGeoLib: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.5");
 	ImGui::BulletText("infoware: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", iware::version);
+	ImGui::BulletText("cpp-base64: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "2.0.0");
+	ImGui::BulletText("zlib: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.2.11");
+	ImGui::BulletText("pugixml: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.10");
 	ImGui::BulletText("par_shapes: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.0");
 	
 	ImGui::TextWrapped(file_data[2].c_str());

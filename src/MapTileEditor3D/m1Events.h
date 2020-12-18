@@ -31,10 +31,13 @@ public:
 
             RESIZE_MAP,
 
-            SAVE_MAP
+            SAVE_MAP,
+            EXPORT_MAP
         };
         Event();
-        Event(Type t, const char* basic_info = NULL);
+        Event(Type t);
+        Event(Type t, const char* basic_info);
+        Event(Type t, int basic_info);
         ~Event();
 
         Type type = Type::NONE;

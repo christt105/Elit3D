@@ -1,11 +1,13 @@
 #pragma once
 
+#include <string>
+
 struct TypeVar {
     enum class Type {
         NONE = -1,
-        Float,
         Int,
         String,
+        Float,
         Bool
     };
     Type type = Type::NONE;
@@ -13,10 +15,17 @@ struct TypeVar {
     TypeVar() {}
     TypeVar(Type t) : type(t) {}
     virtual ~TypeVar() {}
+
+    float fGetValue();
+    int iGetValue();
+    std::string sGetValue();
+    bool bGetValue();
+
+    static std::string TypeToName(Type t);
 };
 
 struct fTypeVar : public TypeVar {
-    fTypeVar(float n) : value(n), TypeVar(Type::Int) {}
+    fTypeVar(float n) : value(n), TypeVar(Type::Float) {}
     float value = 0.f;
 };
 

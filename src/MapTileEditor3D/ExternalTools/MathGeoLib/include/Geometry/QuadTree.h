@@ -20,9 +20,10 @@
 #ifdef MATH_GRAPHICSENGINE_INTEROP
 #include "Time/Profiler.h"
 #else
-#define PROFILE(x)
+#define MGL_PROFILE(x)
 #endif
 #include "../Math/float2.h"
+#include "../Math/float3.h"
 #include "AABB2D.h"
 #include "../Math/MathTypes.h"
 
@@ -64,7 +65,14 @@ public:
 		/// Indicates the quad of child nodes for this node, or 0xFFFFFFFF if this node is a leaf.
 		u32 childIndex;
 		/// Stores the actual objects in this node/leaf.
+#ifdef MATH_CONTAINERLIB_SUPPORT
+		Array<T> objects;
+#else
 		std::vector<T> objects;
+#endif
+
+		float2 center;
+		float2 radius;
 
 		bool IsLeaf() const { return childIndex == 0xFFFFFFFF; }
 
@@ -85,18 +93,31 @@ public:
 					return;
 				}
 		}
+
+		AABB2D ComputeAABB() const
+		{
+			return AABB2D(center - radius, center + radius);
+		}
+
+		float DistanceSq(const float2 &point) const
+		{
+			float2 centered = point - center;
+			float2 closestPoint = centered.Clamp(-radius, radius);
+			return closestPoint.DistanceSq(centered);
+//			float2 diff = Max(Abs(point - center) - radius, float2(0,0));
+//			return diff.LengthSq();
+		}
 	};
 
 	/// Helper struct used when traversing through the tree.
 	struct TraversalStackItem
 	{
-		AABB2D aabb;
 		Node *node;
 	};
 
 	QuadTree()
 	:rootNodeIndex(-1),
-	boundingAABB(float2(0,0), float2(1,1))
+	boundingAABB(POINT_VEC2D(0,0), POINT_VEC2D(1,1))
 #ifdef QUADTREE_VERBOSE_LOGGING
 	,totalNumObjectsInTree(0)
 #endif
@@ -121,41 +142,6 @@ public:
 	/// @return The bounding rectangle for the whole tree.
 	/// @note This bounding rectangle does not tightly bound the objects themselves, only the root node of the tree.
 	AABB2D BoundingAABB() const { return boundingAABB; }
-
-	/// Calculates the bounding rectangle of the given node.
-	AABB2D ComputeAABB(const Node *node) const
-	{
-		if (!node->parent)
-			return BoundingAABB();
-		AABB2D aabb = ComputeAABB(node->parent);
-		float halfX = (aabb.minPoint.x + aabb.maxPoint.x) * 0.5f;
-		float halfY = (aabb.minPoint.y + aabb.maxPoint.y) * 0.5f;
-		u32 parentChildIndex = node->parent->childIndex;
-		const Node *parentChildBase = &nodes[parentChildIndex];
-		int quadrant = (int)(node - parentChildBase); // The difference between these pointers is always [0-3], denoting the this node is in.
-		switch(quadrant)
-		{
-		case 0:
-			aabb.maxPoint.x = halfX;
-			aabb.maxPoint.y = halfY;
-			return aabb;
-		case 1:
-			aabb.minPoint.x = halfX;
-			aabb.maxPoint.y = halfY;
-			return aabb;
-		case 2:
-			aabb.maxPoint.x = halfX;
-			aabb.minPoint.y = halfY;
-			return aabb;
-		case 3:
-			aabb.minPoint.x = halfX;
-			aabb.minPoint.y = halfY;
-			return aabb;
-		default:
-			assert(false);
-			return aabb; // Dummy to hide compiler warning.
-		}
-	}
 
 	/// @return The topmost node in the tree.
 	Node *Root();
@@ -187,7 +173,7 @@ public:
 	/// node of the tree which intersects the given AABB.
 	/** @param aabb The axis-aligned bounding box to intersect this QuadTree with.
 		@param callback A function or a function object of prototype
-			bool callbackFunction(QuadTree<T> &tree, const AABB2D &queryAABB, QuadTree<T>::Node &node, const AABB2D &nodeAABB);
+			bool callbackFunction(QuadTree<T> &tree, const AABB2D &queryAABB, QuadTree<T>::Node &node);
 		If the callback function returns true, the execution of the query is stopped and this function immediately
 		returns afterwards. If the callback function returns false, the execution of the query continues. */
 	template<typename Func>
@@ -204,13 +190,12 @@ public:
 		to the target point. At any given time, the nodeCallback function may terminate the search by returning true in its callback.
 		@param point The
 		@param nodeCallback A function or a function object of prototype
-		   bool NodeCallbackFunction(QuadTree<T> &tree, const float2 &targetPoint, QuadTree<T>::Node &node, const AABB2D &aabb, float minDistanceSquared);
+		   bool NodeCallbackFunction(QuadTree<T> &tree, const float2 &targetPoint, QuadTree<T>::Node &node, float minDistanceSquared);
 		   If the callback function returns true, the execution of the query is immediately stopped.
 		   If the callback function returns false, the execution of the query continues.
 		   tree points to this QuadTree, in which the query is being performed.
 		   targetPoint is the point passed in the function call to NearestNeighborObjects.
 		   node points to the QuadTree (leaf) node that is being traversed.
-		   aabb specifies the bounding rectangle of node.
 		   minDistanceSquared is the squared minimum distance the objects in this node (and all future nodes to be passed to the
 		   callback) have to the point that is being queried. */
 	template<typename Func>
@@ -221,14 +206,13 @@ public:
 		given target point, and proceeding in distance-sorted order.
 		@param targetPoint The target point to find the nearest neighbors to.
 		@param objectCallback The function object that should be invoked by the query for each object. This function should be of prototype
-		   bool NearestNeighborObjectCallback(QuadTree<T> &tree, const float2 &targetPoint, QuadTree<T>::Node *node, const AABB2D &aabb,
+		   bool NearestNeighborObjectCallback(QuadTree<T> &tree, const float2 &targetPoint, QuadTree<T>::Node *node,
 		                                      float distanceSquared, const T &nearestNeighborObject, int nearestNeighborIndex);
 		   If this function returns true, the execution of the query is immediately stopped.
 		   If the callback function returns false, the execution of the query continues.
 		   tree points to this QuadTree, in which the query is being performed.
 		   targetPoint is the point passed in the function call to NearestNeighborObjects.
 		   node points to the QuadTree (leaf) node where nearestNeighborObject resides in.
-		   aabb specifies the bounding rectangle of node.
 		   distanceSquared is the squared distance between targetPoint and nearestNeighborObject.
 		   nearestNeighborObject gives the next closest object to targetPoint.
 		   nearestNeighborIndex provides a conveniency counter that tells how many nearest neighbors are closer to targetPoint than this object. */
@@ -240,14 +224,18 @@ public:
 	void DebugSanityCheckNode(Node *n);
 
 private:
-	void Add(const T &object, Node *n, AABB2D aabb);
+	void Add(const T &object, Node *n);
 
 	/// Allocates a sequential 4-tuple of QuadtreeNodes, contiguous in memory.
 	int AllocateNodeGroup(Node *parent);
 
-	void SplitLeaf(Node *leaf, const AABB2D &leafAABB);
+	void SplitLeaf(Node *leaf);
 
+//#ifdef MATH_CONTAINERLIB_SUPPORT
+//	Array<Node> nodes;
+//#else
 	std::vector<Node> nodes;
+//#endif
 
 	/// Specifies the index to the root node, or -1 if there is no root (nodes.size() == 0).
 	int rootNodeIndex;

@@ -24,7 +24,11 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
+#ifdef _WIN64
+#pragma comment(lib, "ExternalTools/Assimp/libx64/assimp.lib")
+#else
 #pragma comment(lib, "ExternalTools/Assimp/libx86/assimp-vc141-mtd.lib")
+#endif
 
 r1Model::r1Model(const uint64_t& id) : Resource(Resource::Type::Model, id)
 {
@@ -74,7 +78,7 @@ r1Model::~r1Model()
 	//	}
 
 	//	for (unsigned int i = 0; i < scene->mNumTextures; ++i) { //TODO
-	//		LOGW("Textures import from FBX not done already...");
+	//		MLOGW("Textures import from FBX not done already...");
 	//		/*r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
 	//		m->GenerateFiles(scene->mTextures[i]);
 	//		textures.push_back(m->GetUID());*/

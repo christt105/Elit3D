@@ -20,35 +20,13 @@
 
 #ifdef MATH_SIMD
 
-#include "float4_sse.h"
-
 #ifdef MATH_NEON
-
-#ifdef WIN8PHONE
-#define set_ps_const(w,z,y,x) {{ (u64)ReinterpretAsU32(x) | (((u64)ReinterpretAsU32(y)) << 32), (u64)ReinterpretAsU32(z) | (((u64)ReinterpretAsU32(w)) << 32) }}
-#define set_ps_hex_const(w,z,y,x) {{ (u64)(x) | (((u64)(y)) << 32), (u64)(z) | (((u64)(w)) << 32) }}
-#else
-#define set_ps_const(w,z,y,x) { x, y, z, w }
-#define set_ps_hex_const(w,z,y,x) { ReinterpretAsFloat(x), ReinterpretAsFloat(y), ReinterpretAsFloat(z), ReinterpretAsFloat(w) }
+#include <arm_neon.h>
 #endif
 
-FORCE_INLINE simd4f set_ps(float w, float z, float y, float x)
-{
-//	const ALIGN16 float32_t d[4] = { x, y, z, w };
-//	return vld1q_f32(d);
-	float32x4_t c = set_ps_const(w,z,y,x);
-	return c;
-}
-FORCE_INLINE simd4f set_ps_hex(u32 w, u32 z, u32 y, u32 x)
-{
-//	const ALIGN16 u32 d[4] = { x, y, z, w };
-//	return vld1q_f32((const float*)d);
-	float32x4_t c = set_ps_hex_const(w,z,y,x);
-	return c;
-}
-#else // MATH_SSE
-#define set_ps _mm_set_ps
-#endif // ~MATH_NEON|MATH_SSE
+#include "float4_sse.h"
+
+MATH_BEGIN_NAMESPACE
 
 #ifdef ANDROID
 FORCE_INLINE void vec4_add_float_asm(const void *vec, float f, void *out)
@@ -64,130 +42,41 @@ FORCE_INLINE void vec4_add_float_asm(const void *vec, float f, void *out)
 }
 #endif
 
-FORCE_INLINE simd4f vec4_add_float(simd4f vec, float f)
+FORCE_INLINE simd4f cross_ps(simd4f a, simd4f b)
 {
-#ifdef MATH_SSE
-	return _mm_add_ps(vec, _mm_set1_ps(f));
-#elif defined(MATH_NEON)
-	return vaddq_f32(vec, vdupq_n_f32(f));
-#endif
+	simd4f a_xzy = yzxw_ps(a); // = [a.w, a.x, a.z, a.y]
+	simd4f b_xzy = yzxw_ps(b); // = [b.w, b.x, b.z, b.y]
+
+	simd4f y_yxz = mul_ps(a_xzy, b); // [a.w*b.w, a.z*b.x, a.y*b.z, a.x*b.y]
+
+	return yzxw_ps(msub_ps(b_xzy, a, y_yxz)); // [0, a.x*b.y - a.y*b.x, a.z*b.x - a.x*b.z, a.y*b.z - a.z*b.y]
 }
 
-FORCE_INLINE simd4f vec4_add_vec4(simd4f vec, simd4f vec2)
-{
-#ifdef MATH_SSE
-	return _mm_add_ps(vec, vec2);
-#elif defined(MATH_NEON)
-	return vaddq_f32(vec, vec2);
-#endif
-}
+FORCE_INLINE simd4f dot4_ps(simd4f a, simd4f b);
 
-FORCE_INLINE simd4f vec4_sub_float(simd4f vec, float f)
+FORCE_INLINE void basis_ps(simd4f v, simd4f *outB, simd4f *outC)
 {
-#ifdef MATH_SSE
-	return _mm_sub_ps(vec, _mm_set1_ps(f));
-#elif defined(MATH_NEON)
-	return vsubq_f32(vec, vdupq_n_f32(f));
-#endif
+	// Convert v to nonnegative (here could use mul_ps(v, v) for same effect to avoid loading
+	// memory, but does not seem to have any measurable difference in profiling)
+	simd4f a = abs_ps(v);
+	simd4f a_min = min_ps(a, min_ps(yzxw_ps(a), zxyw_ps(a))); // Horizontal min of x,y,z
+	simd4f q = cmple_ps(a, a_min); // Mask 0xFFFFFFFF to channels that contain the min element.
+	// The mask in q represents a vector (1,0,0), (0,1,0), and (0,0,1) that is the one that's most perpendicular to input vector.
+	simd4f v_xzy = yzxw_ps(v);
+	simd4f q_xzy = yzxw_ps(q);
+	simd4f b_yxz = sub_ps(and_ps(q_xzy, v), and_ps(v_xzy, q));
+	simd4f b = yzxw_ps(b_yxz);
+	simd4f c = msub_ps(b_yxz, v_xzy, zxyw_ps(mul_ps(v, b_yxz)));
+	*outB = mul_ps(b, rsqrt_ps(dot3_ps(b, b)));
+	*outC = mul_ps(c, rsqrt_ps(dot3_ps(c, c)));
 }
-
-FORCE_INLINE simd4f float_sub_vec4(float f, simd4f vec)
-{
-#ifdef MATH_SSE
-	return _mm_sub_ps(_mm_set1_ps(f), vec);
-#elif defined(MATH_NEON)
-	return vsubq_f32(vdupq_n_f32(f), vec);
-#endif
-}
-
-FORCE_INLINE simd4f vec4_sub_vec4(simd4f vec, simd4f vec2)
-{
-#ifdef MATH_SSE
-	return _mm_sub_ps(vec, vec2);
-#elif defined(MATH_NEON)
-	return vsubq_f32(vec, vec2);
-#endif
-}
-
-#ifdef MATH_NEON
-FORCE_INLINE simd4f negate_ps(simd4f vec)
-{
-	///\todo Can this be improved?
-	return float_sub_vec4(0.f, vec);
-}
-#endif
-
-FORCE_INLINE simd4f vec4_mul_float(simd4f vec, float f)
-{
-#ifdef MATH_SSE
-	return _mm_mul_ps(vec, _mm_set1_ps(f));
-#elif defined(MATH_NEON)
-	return vmulq_f32(vec, vdupq_n_f32(f));
-#endif
-}
-
-FORCE_INLINE simd4f vec4_mul_vec4(simd4f vec, simd4f vec2)
-{
-#ifdef MATH_SSE
-	return _mm_mul_ps(vec, vec2);
-#elif defined(MATH_NEON)
-	return vmulq_f32(vec, vec2);
-#endif
-}
-
-FORCE_INLINE simd4f vec4_div_float(simd4f vec, float f)
-{
-#ifdef MATH_SSE
-	return _mm_div_ps(vec, _mm_set1_ps(f));
-#elif defined(MATH_NEON)
-	simd4f v = vdupq_n_f32(f);
-	simd4f rcp = vrecpeq_f32(v);
-	rcp = vmulq_f32(vrecpsq_f32(v, rcp), rcp);
-	return vmulq_f32(vec, rcp);
-#endif
-}
-
-FORCE_INLINE simd4f float_div_vec4(float f, simd4f vec)
-{
-#ifdef MATH_SSE
-	return _mm_div_ps(_mm_set1_ps(f), vec);
-#elif defined(MATH_NEON)
-	simd4f rcp = vrecpeq_f32(vec);
-	rcp = vmulq_f32(vrecpsq_f32(vec, rcp), rcp);
-	return vmulq_f32(vdupq_n_f32(f), rcp);
-#endif
-}
-
-FORCE_INLINE simd4f vec4_recip(simd4f vec)
-{
-#ifdef MATH_SSE
-	__m128 e = _mm_rcp_ps(vec); // Do one iteration of Newton-Rhapson: e_n = 2*e - x*e^2
-	return _mm_sub_ps(_mm_add_ps(e, e), _mm_mul_ps(vec, _mm_mul_ps(e,e)));
-#elif defined(MATH_NEON)
-	simd4f rcp = vrecpeq_f32(vec);
-	rcp = vmulq_f32(vrecpsq_f32(vec, rcp), rcp);
-	return rcp;
-#endif
-}
-
-FORCE_INLINE simd4f vec4_div_vec4(simd4f vec, simd4f vec2)
-{
-#ifdef MATH_SSE
-	return _mm_div_ps(vec, vec2);
-#elif defined(MATH_NEON)
-	simd4f rcp = vrecpeq_f32(vec2);
-	rcp = vmulq_f32(vrecpsq_f32(vec2, rcp), rcp);
-	return vmulq_f32(vec, rcp);
-#endif
-}
-#define div_ps vec4_div_vec4
 
 #ifdef MATH_NEON
 inline std::string ToString(uint8x8x2_t vec)
 {
 	uint8_t *v = (uint8_t*)&vec;
 	char str[256];
-	sprintf(str, "[%02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X | %02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X]", 
+	sprintf(str, "[%02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X | %02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X]",
 		(int)v[15], (int)v[14], (int)v[13], (int)v[12], (int)v[11], (int)v[10], (int)v[9], (int)v[8], (int)v[7], (int)v[6], (int)v[5], (int)v[4], (int)v[3], (int)v[2], (int)v[1], (int)v[0]);
 	return str;
 }
@@ -219,10 +108,22 @@ FORCE_INLINE simd4f vec4_permute(simd4f vec, int i, int j, int k, int l)
 
 #ifdef MATH_NEON
 
-FORCE_INLINE float sum_xyzw_float(simd4f vec)
+FORCE_INLINE simd4f sum_xyzw_ps(simd4f vec)
 {
 	float32x2_t r = vadd_f32(vget_high_f32(vec), vget_low_f32(vec));
-	return vget_lane_f32(vpadd_f32(r, r), 0);
+	r = vpadd_f32(r, r);
+	return vcombine_f32(r, r);
+}
+
+FORCE_INLINE simd4f sum_xyz_ps3(simd4f m)
+{
+	return sum_xyzw_ps(vsetq_lane_f32(0.f, m, 3));
+}
+#define sum_xyz_ps sum_xyz_ps3
+
+FORCE_INLINE float sum_xyzw_float(simd4f vec)
+{
+	return vgetq_lane_f32(sum_xyzw_ps(vec), 0);
 }
 
 FORCE_INLINE float mul_xyzw_float(simd4f vec)
@@ -233,13 +134,6 @@ FORCE_INLINE float mul_xyzw_float(simd4f vec)
 	return vget_lane_f32(mul, 0) * vget_lane_f32(mul, 1); ///\todo Can this be optimized somehow?
 }
 
-FORCE_INLINE simd4f negate3_ps(simd4f vec)
-{
-	const ALIGN16 uint32_t indexData[4] = { 0x80000000UL, 0x80000000UL, 0x80000000UL, 0 };
-	uint64x2_t mask = vld1q_u64((const uint64_t*)indexData);
-	return vreinterpretq_f32_u64(veorq_u64(vreinterpretq_u64_f32(vec), mask));
-}
-
 FORCE_INLINE float sum_xyz_float(simd4f vec)
 {
 	return sum_xyzw_float(vsetq_lane_f32(0.f, vec, 3));
@@ -247,25 +141,27 @@ FORCE_INLINE float sum_xyz_float(simd4f vec)
 
 FORCE_INLINE float dot4_float(simd4f a, simd4f b)
 {
-	simd4f mul = vmulq_f32(a, b);
+	simd4f mul = mul_ps(a, b);
 	return sum_xyzw_float(mul);
 }
 
 FORCE_INLINE float dot3_float(simd4f a, simd4f b)
 {
-	simd4f mul = vmulq_f32(a, b);
+	simd4f mul = mul_ps(a, b);
 	return sum_xyz_float(mul);
 }
 
 FORCE_INLINE simd4f dot4_ps(simd4f a, simd4f b)
 {
-	return vdupq_n_f32(dot4_float(a, b));
+	return set1_ps(dot4_float(a, b));
 }
 
 FORCE_INLINE simd4f dot3_ps(simd4f a, simd4f b)
 {
-	return vdupq_n_f32(dot3_float(a, b));
+	return set1_ps(dot3_float(a, b));
 }
+#define dot3_ps3 dot3_ps
+
 #endif // ~MATH_NEON
 
 #ifdef ANDROID
@@ -319,89 +215,53 @@ FORCE_INLINE simd4f vec3_length_sq_ps(simd4f vec)
 	return dot3_ps(vec, vec);
 }
 
-#ifdef MATH_NEON
-#define SIMD4F_TO_FLOAT(vec) vget_lane_f32(vget_low_f32(vec), 0)
-#define mul_ps(vec, vec2) vmulq_f32(vec, vec2)
-#define add_ps(vec, vec2) vaddq_f32(vec, vec2)
-#define sub_ps(vec, vec2) vsubq_f32(vec, vec2)
-#define set1_ps(vec) vdupq_n_f32(vec)
-#define abs_ps(vec) vabsq_f32(vec)
-#elif defined (MATH_SSE)
-#define SIMD4F_TO_FLOAT(vec) M128_TO_FLOAT(vec)
-#define mul_ps(vec, vec2) _mm_mul_ps(vec, vec2)
-#define add_ps(vec, vec2) _mm_add_ps(vec, vec2)
-#define sub_ps(vec, vec2) _mm_sub_ps(vec, vec2)
-#define set1_ps(vec) _mm_set1_ps(vec)
-#endif
-
-FORCE_INLINE simd4f vec4_rsqrt(simd4f vec)
-{
-#ifdef MATH_SSE
-	__m128 e = _mm_rsqrt_ps(vec); // Initial estimate
-	__m128 e3 = _mm_mul_ps(_mm_mul_ps(e,e), e); // Do one iteration of Newton-Rhapson: e_n = e + 0.5 * (e - x * e^3)
-	return _mm_add_ps(e, _mm_mul_ps(_mm_set1_ps(0.5f), _mm_sub_ps(e, _mm_mul_ps(vec, e3))));
-#elif defined(MATH_NEON)
-	float32x4_t r = vrsqrteq_f32(vec);
-	return vmulq_f32(vrsqrtsq_f32(vmulq_f32(r, r), vec), r);
-#endif
-}
-
-FORCE_INLINE simd4f vec4_sqrt(simd4f vec)
-{
-#ifdef MATH_SSE
-	return _mm_sqrt_ps(vec);
-#else
-	// Fast version, but does not work when x == 0!
-	///\todo Exact sqrt for NEON!
-	return mul_ps(vec, vec4_rsqrt(vec));
-#endif
-}
-
 FORCE_INLINE float vec4_length_float(simd4f vec)
 {
-	return SIMD4F_TO_FLOAT(vec4_sqrt(dot4_ps(vec, vec)));
+	return s4f_x(sqrt_ps(dot4_ps(vec, vec)));
 }
 
 FORCE_INLINE simd4f vec4_length_ps(simd4f vec)
 {
-	return vec4_sqrt(dot4_ps(vec, vec));
+	return sqrt_ps(dot4_ps(vec, vec));
 }
 
 FORCE_INLINE simd4f vec4_normalize(simd4f vec)
 {
-	return mul_ps(vec, vec4_rsqrt(vec4_length_sq_ps(vec)));
+	return mul_ps(vec, rsqrt_ps(vec4_length_sq_ps(vec)));
 }
 
 FORCE_INLINE float vec3_length_float(simd4f vec)
 {
-	return SIMD4F_TO_FLOAT(vec4_sqrt(dot3_ps3(vec, vec)));
+	return s4f_x(sqrt_ps(dot3_ps3(vec, vec)));
 }
 
 FORCE_INLINE simd4f vec3_length_ps(simd4f vec)
 {
-	return vec4_sqrt(dot3_ps(vec, vec));
+	return sqrt_ps(dot3_ps(vec, vec));
 }
 
 FORCE_INLINE simd4f vec3_length_ps3(simd4f vec)
 {
-	return vec4_sqrt(dot3_ps3(vec, vec));
+	return sqrt_ps(dot3_ps3(vec, vec));
 }
 
 FORCE_INLINE simd4f vec3_normalize(simd4f vec)
 {
-	return mul_ps(vec, vec4_rsqrt(vec3_length_sq_ps(vec)));
+	return mul_ps(vec, rsqrt_ps(vec3_length_sq_ps(vec)));
 }
 
 // T should be a 4-vector containing the lerp weight [w,w,w,w] in all channels.
 FORCE_INLINE simd4f vec4_lerp(simd4f a, simd4f b, simd4f t)
 {
 	// a*(1-t) + b*t = a - t*a + t*b = a + t*(b-a)
-	return add_ps(a, mul_ps(t, sub_ps(b, a)));
+	return madd_ps(t, sub_ps(b, a), a);
 }
 
 FORCE_INLINE simd4f vec4_lerp(simd4f a, simd4f b, float t)
 {
 	return vec4_lerp(a, b, set1_ps(t));
 }
+
+MATH_END_NAMESPACE
 
 #endif // ~MATH_SIMD
