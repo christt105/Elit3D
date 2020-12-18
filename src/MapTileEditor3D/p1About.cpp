@@ -18,7 +18,7 @@
 p1About::p1About(bool start_enabled, bool appear_mainmenubar, bool can_close)
 	: Panel("About", start_enabled, appear_mainmenubar, can_close, ICON_FA_QUESTION_CIRCLE)
 {
-	std::string file = FileSystem::OpenTextFile("Configuration/Text/About.txt");
+	std::string file = FileSystem::OpenTextFile("Configuration/Text/About.txt"); //TODO: Markdown [https://github.com/juliettef/imgui_markdown]
 	std::istringstream iss(file);
 	int i = 0;
 	std::string p;
@@ -58,7 +58,7 @@ void p1About::Update()
 		App->ExecuteURL("https://github.com/christt105");
 	}
 	
-	ImGui::TextWrapped("Licensed under CC-BY-4.0, see LICENSE file.");
+	ImGui::TextWrapped("Licensed under BSD 2-Clause License, see LICENSE file.");
 	ImGui::TextWrapped(file_data[0].c_str());
 	ImGui::Spacing();
 	if (ImGui::Button("Repository")) {
