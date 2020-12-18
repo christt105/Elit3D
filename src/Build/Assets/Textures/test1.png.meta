@@ -1,5 +1,8 @@
 {
     "UID": 13430090981542463507,
     "extension": "png",
-    "timestamp": 1601036761
+    "properties": {
+        "tileset": true
+    },
+    "timestamp": 1602096265
 }

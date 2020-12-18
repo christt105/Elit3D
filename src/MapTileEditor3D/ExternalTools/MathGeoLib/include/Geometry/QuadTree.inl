@@ -19,9 +19,6 @@
 
 #include "../Math/MathFunc.h"
 
-//christt105
-#include <algorithm> //to be able to use std::max in line 221
-
 MATH_BEGIN_NAMESPACE
 
 template<typename T>
@@ -36,6 +33,9 @@ void QuadTree<T>::Clear(const float2 &minXY, const float2 &maxXY)
 
 	rootNodeIndex = AllocateNodeGroup(0);
 	assert(Root());
+	Node *root = Root();
+	root->center = (minXY + maxXY) * 0.5f;
+	root->radius = maxXY - root->center;
 
 #ifdef QUADTREE_VERBOSE_LOGGING
 	totalNumObjectsInTree = 0;
@@ -45,7 +45,7 @@ void QuadTree<T>::Clear(const float2 &minXY, const float2 &maxXY)
 template<typename T>
 void QuadTree<T>::Add(const T &object)
 {
-	PROFILE(QuadTree_Add);
+	MGL_PROFILE(QuadTree_Add);
 	Node *n = Root();
 	assert(n && "Error: QuadTree has not been initialized with a root node! Call QuadTree::Clear() to initialize the root node.");
 
@@ -74,7 +74,7 @@ void QuadTree<T>::Add(const T &object)
 				if (objectAABB.maxPoint.y <= boundingAABB.maxPoint.y)
 				{
 					// Object fits the whole root AABB. Can safely add into the existing tree size.
-					Add(object, n, boundingAABB);
+					Add(object, n);
 					return;
 				}
 				else
@@ -126,19 +126,20 @@ void QuadTree<T>::Remove(const T &object)
 }
 
 template<typename T>
-void QuadTree<T>::Add(const T &object, Node *n, AABB2D aabb)
+void QuadTree<T>::Add(const T &object, Node *n)
 {
 	for(;;)
 	{
-		float halfX = (aabb.minPoint.x + aabb.maxPoint.x) * 0.5f;
-		float halfY = (aabb.minPoint.y + aabb.maxPoint.y) * 0.5f;
 		// Traverse the QuadTree to decide which quad to place this object into.
 		assert(MinX(object) <= MaxX(object));
-		bool left = MinX(object) < halfX;
-		bool right = MaxX(object) > halfX;
+		float left = n->center.x - MinX(object); // If left > 0.f, then the object overlaps with the left quadrant.
+		float right = MaxX(object) - n->center.x; // If right > 0.f, then the object overlaps with the right quadrant.
 		assert(MinY(object) <= MaxY(object));
-		bool top = MinY(object) < halfY;
-		bool bottom = MaxY(object) > halfY;
+		float top = n->center.y - MinY(object); // If top > 0.f, then the object overlaps with the top quadrant.
+		float bottom = MaxY(object) - n->center.y; // If bottom > 0.f, then the object overlaps with the bottom quadrant.
+		float leftAndRight = Min(left, right); // If > 0.f, then the object straddles left-right halves.
+		float topAndBottom = Min(top, bottom); // If > 0.f, then the object straddles top-bottom halves.
+		float straddledEitherOne = Max(leftAndRight, topAndBottom); // If > 0.f, then the object is in two or more quadrants.
 
 		// Note: It can happen that !left && !right, or !top && !bottom,
 		// but the if()s below are set up so that right/bottom is taken if no left/top, so that is ok.
@@ -146,43 +147,42 @@ void QuadTree<T>::Add(const T &object, Node *n, AABB2D aabb)
 		// We must put the object onto this node if
 		// a) the object straddled the parent->child split lines.
 		// b) this object is a leaf.
-		if (n->IsLeaf() || (left && right) || (top && bottom))
+		if (straddledEitherOne > 0.f)
 		{
-//			n->bucket.push_back(objectId);
 			n->objects.push_back(object);
 			AssociateQuadTreeNode(object, n);
-			if (n->IsLeaf() && (int)n->objects.size() > minQuadTreeNodeObjectCount && aabb.Width() >= minQuadTreeQuadrantSize && aabb.Height() >= minQuadTreeQuadrantSize)
-				SplitLeaf(n, aabb);
 			return;
 		}
-		if (left)
+		if (n->IsLeaf())
 		{
-			aabb.maxPoint.x = halfX;
-			if (top)
+			n->objects.push_back(object);
+			AssociateQuadTreeNode(object, n);
+			if ((int)n->objects.size() > minQuadTreeNodeObjectCount && Min(n->radius.x, n->radius.y) >= minQuadTreeQuadrantSize)
+				SplitLeaf(n);
+			return;
+		}
+		if (left > 0.f)
+		{
+			if (top > 0.f)
 			{
-				aabb.maxPoint.y = halfY;
 				assert(nodes[n->TopLeftChildIndex()].parent == n);
 				n = &nodes[n->TopLeftChildIndex()];
 			}
 			else
 			{
-				aabb.minPoint.y = halfY;
 				assert(nodes[n->BottomLeftChildIndex()].parent == n);
 				n = &nodes[n->BottomLeftChildIndex()];
 			}
 		}
 		else
 		{
-			aabb.minPoint.x = halfX;
-			if (top)
+			if (top > 0.f)
 			{
-				aabb.maxPoint.y = halfY;
 				assert(nodes[n->TopRightChildIndex()].parent == n);
 				n = &nodes[n->TopRightChildIndex()];
 			}
 			else
 			{
-				aabb.minPoint.y = halfY;
 				assert(nodes[n->BottomRightChildIndex()].parent == n);
 				n = &nodes[n->BottomRightChildIndex()];
 			}
@@ -212,9 +212,24 @@ int QuadTree<T>::AllocateNodeGroup(Node *parent)
 	Node n;
 	n.parent = parent;
 	n.childIndex = 0xFFFFFFFF;
+	// The nodes are in order top-left (--), top-right, bottom-left, bottom-right.
+	if (parent)
+	{
+		n.radius = parent->radius * 0.5f;
+		n.center = parent->center - n.radius;
+	}
 	nodes.push_back(n);
+	if (parent)
+		n.center.x = parent->center.x + n.radius.x;
 	nodes.push_back(n);
+	if (parent)
+	{
+		n.center.x = parent->center.x - n.radius.x;
+		n.center.y = parent->center.y + n.radius.y;
+	}
 	nodes.push_back(n);
+	if (parent)
+		n.center.x = parent->center.x + n.radius.x;
 	nodes.push_back(n);
 #ifdef _DEBUG
 	assert(nodes.capacity() == oldCap); // Limitation: Cannot resize the nodes vector!
@@ -223,15 +238,12 @@ int QuadTree<T>::AllocateNodeGroup(Node *parent)
 }
 
 template<typename T>
-void QuadTree<T>::SplitLeaf(Node *leaf, const AABB2D &leafAABB)
+void QuadTree<T>::SplitLeaf(Node *leaf)
 {
 	assert(leaf->IsLeaf());
 	assert(leaf->childIndex == 0xFFFFFFFF);
 
 	leaf->childIndex = AllocateNodeGroup(leaf);
-
-	float halfX = (leafAABB.minPoint.x + leafAABB.maxPoint.x) * 0.5f;
-	float halfY = (leafAABB.minPoint.y + leafAABB.maxPoint.y) * 0.5f;
 
 	size_t i = 0;
 	while(i < leaf->objects.size())
@@ -240,60 +252,50 @@ void QuadTree<T>::SplitLeaf(Node *leaf, const AABB2D &leafAABB)
 
 		// Traverse the QuadTree to decide which quad to place this object into.
 		assert(MinX(object) <= MaxX(object));
-		bool left = MinX(object) < halfX;
-		bool right = MaxX(object) > halfX;
+		float left = leaf->center.x - MinX(object); // If left > 0.f, then the object overlaps with the left quadrant.
+		float right = MaxX(object) - leaf->center.x; // If right > 0.f, then the object overlaps with the right quadrant.
 		assert(MinY(object) <= MaxY(object));
-		bool top = MinY(object) < halfY;
-		bool bottom = MaxY(object) > halfY;
+		float top = leaf->center.y - MinY(object); // If top > 0.f, then the object overlaps with the top quadrant.
+		float bottom = MaxY(object) - leaf->center.y; // If bottom > 0.f, then the object overlaps with the bottom quadrant.
+		float leftAndRight = Min(left, right); // If > 0.f, then the object straddles left-right halves.
+		float topAndBottom = Min(top, bottom); // If > 0.f, then the object straddles top-bottom halves.
+		float straddledEitherOne = Max(leftAndRight, topAndBottom); // If > 0.f, then the object is in two or more quadrants.
 
 		// Note: It can happen that !left && !right, or !top && !bottom,
 		// but the if()s below are set up so that right/bottom is taken if no left/top, so that is ok.
 
 		// We must leave this object in this node if the object straddled the parent->child split lines.
-		if ((left && right) || (top && bottom))
+		if (straddledEitherOne > 0.f)
 		{
 			++i;
 			continue;
 		}
 
-		AABB2D child;
-		if (left)
+		if (left > 0.f)
 		{
-			child.minPoint.x = leafAABB.minPoint.x;
-			child.maxPoint.x = halfX;
-			if (top)
+			if (top > 0.f)
 			{
-				child.minPoint.y = leafAABB.minPoint.y;
-				child.maxPoint.y = halfY;
-				Add(object, &nodes[leaf->TopLeftChildIndex()], child);
+				Add(object, &nodes[leaf->TopLeftChildIndex()]);
 			}
 			else
 			{
-				child.minPoint.y = halfY;
-				child.maxPoint.y = leafAABB.maxPoint.y;
-				Add(object, &nodes[leaf->BottomLeftChildIndex()], child);
+				Add(object, &nodes[leaf->BottomLeftChildIndex()]);
 			}
 		}
 		else
 		{
-			child.minPoint.x = halfX;
-			child.maxPoint.x = leafAABB.maxPoint.x;
-			if (top)
+			if (top > 0.f)
 			{
-				child.minPoint.y = leafAABB.minPoint.y;
-				child.maxPoint.y = halfY;
-				Add(object, &nodes[leaf->TopRightChildIndex()], child);
+				Add(object, &nodes[leaf->TopRightChildIndex()]);
 			}
 			else
 			{
-				child.minPoint.y = halfY;
-				child.maxPoint.y = leafAABB.maxPoint.y;
-				Add(object, &nodes[leaf->BottomRightChildIndex()], child);
+				Add(object, &nodes[leaf->BottomRightChildIndex()]);
 			}
 		}
 
 		// Remove the object we added to a child from this node.
-		std::swap(leaf->objects[i], leaf->objects.back());
+		leaf->objects[i] = leaf->objects.back();
 		leaf->objects.pop_back();
 	}
 }
@@ -302,12 +304,11 @@ template<typename T>
 template<typename Func>
 inline void QuadTree<T>::AABBQuery(const AABB2D &aabb, Func &callback)
 {
-	PROFILE(QuadTree_AABBQuery);
+	MGL_PROFILE(QuadTree_AABBQuery);
 	std::vector<TraversalStackItem> stack;
 	TraversalStackItem n;
-	n.aabb = BoundingAABB();
 	n.node = Root();
-	if (!n.node || !n.aabb.Intersects(aabb))
+	if (!n.node || !aabb.Intersects(BoundingAABB()))
 		return;
 	stack.push_back(n);
 
@@ -316,56 +317,37 @@ inline void QuadTree<T>::AABBQuery(const AABB2D &aabb, Func &callback)
 		TraversalStackItem i = stack.back();
 		stack.pop_back();
 
-		float halfX = (i.aabb.minPoint.x + i.aabb.maxPoint.x) * 0.5f;
-		float halfY = (i.aabb.minPoint.y + i.aabb.maxPoint.y) * 0.5f;
-
 		// aabb intersects the node's aabb.
 		// Which aabb's of the four child quadrants does it intersect?
 
 		if (i.node->objects.size() > 0)
 		{
-			if (callback(*this, aabb, *i.node, i.aabb))
+			if (callback(*this, aabb, *i.node))
 				return;
 		}
 		if (!i.node->IsLeaf())
 		{
-			if (aabb.minPoint.x <= halfX && aabb.minPoint.y <= halfY)
+			if (aabb.minPoint.x <= i.node->center.x && aabb.minPoint.y <= i.node->center.y)
 			{
 				TraversalStackItem child;
-				child.aabb.minPoint.x = i.aabb.minPoint.x;
-				child.aabb.minPoint.y = i.aabb.minPoint.y;
-				child.aabb.maxPoint.x = halfX;
-				child.aabb.maxPoint.y = halfY;
 				child.node = &nodes[i.node->TopLeftChildIndex()];
 				stack.push_back(child);
 			}
-			if (aabb.maxPoint.x >= halfX && aabb.maxPoint.y >= halfY)
+			if (aabb.maxPoint.x >= i.node->center.x && aabb.maxPoint.y >= i.node->center.y)
 			{
 				TraversalStackItem child;
-				child.aabb.minPoint.x = halfX;
-				child.aabb.minPoint.y = halfY;
-				child.aabb.maxPoint.x = i.aabb.maxPoint.x;
-				child.aabb.maxPoint.y = i.aabb.maxPoint.y;
 				child.node = &nodes[i.node->BottomRightChildIndex()];
 				stack.push_back(child);
 			}
-			if (aabb.minPoint.x <= halfX && aabb.maxPoint.y >= halfY)
+			if (aabb.minPoint.x <= i.node->center.x && aabb.maxPoint.y >= i.node->center.y)
 			{
 				TraversalStackItem child;
-				child.aabb.minPoint.x = i.aabb.minPoint.x;
-				child.aabb.minPoint.y = halfY;
-				child.aabb.maxPoint.x = halfX;
-				child.aabb.maxPoint.y = i.aabb.maxPoint.y;
 				child.node = &nodes[i.node->BottomLeftChildIndex()];
 				stack.push_back(child);
 			}
-			if (aabb.maxPoint.x >= halfX && aabb.minPoint.y <= halfY)
+			if (aabb.maxPoint.x >= i.node->center.x && aabb.minPoint.y <= i.node->center.y)
 			{
 				TraversalStackItem child;
-				child.aabb.minPoint.x = halfX;
-				child.aabb.minPoint.y = i.aabb.minPoint.y;
-				child.aabb.maxPoint.x = i.aabb.maxPoint.x;
-				child.aabb.maxPoint.y = halfY;
 				child.node = &nodes[i.node->TopRightChildIndex()];
 				stack.push_back(child);
 			}
@@ -379,7 +361,7 @@ class FindCollidingPairs
 public:
 	Func *collisionCallback;
 
-	bool operator ()(QuadTree<T> & /*tree*/, const AABB2D &queryAABB, typename QuadTree<T>::Node &node, const AABB2D & /*nodeAABB*/)
+	bool operator ()(QuadTree<T> & /*tree*/, const AABB2D &queryAABB, typename QuadTree<T>::Node &node)
 	{
 		for(size_t i = 0; i < node.objects.size(); ++i)
 		{
@@ -415,7 +397,7 @@ template<typename T>
 template<typename Func>
 inline void QuadTree<T>::CollidingPairsQuery(const AABB2D &aabb, Func &callback)
 {
-	PROFILE(QuadTree_CollidingPairsQuery);
+	MGL_PROFILE(QuadTree_CollidingPairsQuery);
 	FindCollidingPairs<T, Func> func;
 	func.collisionCallback = &callback;
 	AABBQuery(aabb, func);
@@ -426,14 +408,26 @@ struct TraversalNode
 {
 	/// The squared distance of this node to the query point.
 	float d;
-	/// Stores the 2D bounding rectangle of this node.
-	AABB2D aabb;
 	typename QuadTree<T>::Node *node;
+
+	struct TriCmp { float operator()(const TraversalNode &a, const TraversalNode &b) { return b.d - a.d; } };
+	struct EqualCmp { bool operator()(const TraversalNode &a, const TraversalNode &b) { return b.d == a.d; } };
 
 	/// We compare in reverse order, since we want the node with the smallest distance to be visited first,
 	/// and MaxHeap stores the node that compares largest in the root.
 	bool operator <(const TraversalNode &t) const { return d > t.d; }
 	bool operator ==(const TraversalNode &t) const { return d == t.d; }
+
+	static void Swap(TraversalNode &a, TraversalNode &b)
+	{
+		float x = a.d;
+		a.d = b.d;
+		b.d = x;
+		typename QuadTree<T>::Node *temp = a.node;
+		a.node = b.node;
+		b.node = temp;
+//		std::swap(a, b);
+	}
 };
 
 #ifdef MATH_CONTAINERLIB_SUPPORT
@@ -441,62 +435,65 @@ template<typename T>
 template<typename Func>
 inline void QuadTree<T>::NearestNeighborNodes(const float2 &point, Func &leafCallback)
 {
-	MaxHeap<TraversalNode<T> > queue;
-	TraversalNode<T> t;
-	t.d = 0.f;
-	t.aabb = BoundingAABB();
-	t.node = Root();
-	queue.Insert(t);
+	MaxHeap<TraversalNode<T>, typename TraversalNode<T>::TriCmp, typename TraversalNode<T>::EqualCmp > queue;
+
+	{
+		TraversalNode<T> &rootNode = queue.BeginInsert();
+		rootNode.d = 0.f;
+		rootNode.node = Root();
+		queue.FinishInsert();
+	}
 
 	while(queue.Size() > 0)
 	{
-		t = queue.Front();
-		queue.PopFront();
+		const TraversalNode<T> &t = queue.Front();
 
 		if (t.node->objects.size() > 0)
 		{
-			bool stopIteration = leafCallback(*this, point, *t.node, t.aabb, t.d);
+			bool stopIteration = leafCallback(*this, point, *t.node, t.d);
 			if (stopIteration)
 				return;
 		}
-		
+
 		if (!t.node->IsLeaf())
 		{
-			TraversalNode<T> n;
-
-			float halfX = (t.aabb.minPoint.x + t.aabb.maxPoint.x) * 0.5f;
-			float halfY = (t.aabb.minPoint.y + t.aabb.maxPoint.y) * 0.5f;
-
-			// Insert bottom-left child node to the traversal queue.
-			n.aabb.minPoint.x = t.aabb.minPoint.x;
-			n.aabb.maxPoint.x = halfX;
-			n.aabb.minPoint.y = halfY;
-			n.aabb.maxPoint.y = t.aabb.maxPoint.y;
-			n.node = &nodes[t.node->BottomLeftChildIndex()];
-			n.d = n.aabb.DistanceSq(point);
-			queue.Insert(n);
-
-			// Insert bottom-right child node to the traversal queue.
-			n.aabb.minPoint.x = halfX;
-			n.aabb.maxPoint.x = t.aabb.maxPoint.x;
-			n.node = &nodes[t.node->BottomRightChildIndex()];
-			n.d = n.aabb.DistanceSq(point);
-			queue.Insert(n);
-
-			// Insert top-right child node to the traversal queue.
-			n.aabb.minPoint.y = t.aabb.minPoint.y;
-			n.aabb.maxPoint.y = halfY;
-			n.node = &nodes[t.node->TopRightChildIndex()];
-			n.d = n.aabb.DistanceSq(point);
-			queue.Insert(n);
+			typename QuadTree<T>::Node *childNode = &nodes[t.node->childIndex];
+			queue.PopFront();
 
 			// Insert top-left child node to the traversal queue.
-			n.aabb.minPoint.x = t.aabb.minPoint.x;
-			n.aabb.maxPoint.x = halfX;
-			n.node = &nodes[t.node->TopLeftChildIndex()];
-			n.d = n.aabb.DistanceSq(point);
-			queue.Insert(n);
+			{
+				TraversalNode<T> &n = queue.BeginInsert();
+				n.node = childNode; // t.node->TopLeftChildIndex()
+				n.d = n.node->DistanceSq(point);
+				queue.FinishInsert();
+			}
+
+			// Insert top-right child node to the traversal queue.
+			{
+				TraversalNode<T> &n = queue.BeginInsert();
+				n.node = childNode + 1; // t.node->TopRightChildIndex()
+				n.d = n.node->DistanceSq(point);
+				queue.FinishInsert();
+			}
+
+			// Insert bottom-left child node to the traversal queue.
+			{
+				TraversalNode<T> &n = queue.BeginInsert();
+				n.node = childNode + 2; // t.node->BottomLeftChildIndex()
+				n.d = n.node->DistanceSq(point);
+				queue.FinishInsert();
+			}
+
+			// Insert bottom-right child node to the traversal queue.
+			{
+				TraversalNode<T> &n = queue.BeginInsert();
+				n.node = childNode + 3; // t.node->BottomRightChildIndex()
+				n.d = n.node->DistanceSq(point);
+				queue.FinishInsert();
+			}
 		}
+		else
+			queue.PopFront();
 	}
 }
 
@@ -518,19 +515,30 @@ struct NearestNeighborObjectSearch
 		/// The squared distance of this node to the query point.
 		float d;
 
-		/// Stores the 2D bounding rectangle of this node.
-		AABB2D aabb;
-		typename QuadTree<T>::Node *node;
+//		typename QuadTree<T>::Node *node;
 
 		T *object;
+
+		struct TriCmp { float operator()(const NearestObject &a, const NearestObject &b) { return b.d - a.d; } };
+		struct EqualCmp { bool operator()(const NearestObject &a, const NearestObject &b) { return b.d == a.d; } };
 
 		/// We compare in reverse order, since we want the object with the smallest distance to be visited first,
 		/// and MaxHeap stores the object that compares largest in the root.
 		bool operator <(const NearestObject &t) const { return d > t.d; }
 		bool operator ==(const NearestObject &t) const { return d == t.d; }
+
+		static void Swap(NearestObject &a, NearestObject &b)
+		{
+			float x = a.d;
+			a.d = b.d;
+			b.d = x;
+			T *o = a.object;
+			a.object = b.object;
+			b.object = o;
+		}
 	};
 
-	MaxHeap<NearestObject> queue;
+	MaxHeap<NearestObject, typename NearestObject::TriCmp, typename NearestObject::EqualCmp> queue;
 
 	int numObjectsOutputted;
 
@@ -538,22 +546,21 @@ struct NearestNeighborObjectSearch
 	int numNodesVisited;
 #endif
 
-	bool operator ()(QuadTree<T> &tree, const float2 &point, typename QuadTree<T>::Node &leaf, const AABB2D &aabb, float minDistanceSquared)
+	bool operator ()(QuadTree<T> &tree, const float2 &point, typename QuadTree<T>::Node &leaf, float minDistanceSquared)
 	{
 #ifdef QUADTREE_VERBOSE_LOGGING
 		++numNodesVisited;
 #endif
-
 		// Output all points that are closer than the next closest AABB node.
 		while(queue.Size() > 0 && queue.Front().d <= minDistanceSquared)
 		{
 			const NearestObject &nextNearestPoint = queue.Front();
-			bool shouldStopIteration = (*objectCallback)(tree, point, nextNearestPoint.node, nextNearestPoint.aabb, nextNearestPoint.d, *nextNearestPoint.object, numObjectsOutputted++);
+			bool shouldStopIteration = (*objectCallback)(tree, point, 0 /*nextNearestPoint.node*/, nextNearestPoint.d, *nextNearestPoint.object, numObjectsOutputted++);
 			if (shouldStopIteration)
 			{
 #ifdef QUADTREE_VERBOSE_LOGGING
 				int numPoints = tree.NumObjects();
-				LOGI("Visited %d/%d (%.2f%%) of QuadTree nodes (tree height: %d). Saw %d/%d (%.2f%%) points of the QuadTree before outputting %d points.",
+				MLOGI("Visited %d/%d (%.2f%%) of QuadTree nodes (tree height: %d). Saw %d/%d (%.2f%%) points of the QuadTree before outputting %d points.",
 					numNodesVisited, tree.NumNodes(), 100.f * numNodesVisited / tree.NumNodes(), -1/*tree.TreeHeight()*/,
 					(int)queue.Size() + numObjectsOutputted, numPoints, ((int)queue.Size() + numObjectsOutputted) * 100.f / numPoints,
 					numObjectsOutputted);
@@ -567,12 +574,10 @@ struct NearestNeighborObjectSearch
 		// Queue up all points in the new AABB node.
 		for(size_t i = 0; i < leaf.objects.size(); ++i)
 		{
-			NearestObject obj;
+			NearestObject &obj = queue.BeginInsert();
 			obj.d = leaf.objects[i].DistanceSq(point);
-			obj.aabb = aabb;
-			obj.node = &leaf;
 			obj.object = &leaf.objects[i];
-			queue.Insert(obj);
+			queue.FinishInsert();
 		}
 
 		return false;
@@ -656,15 +661,34 @@ void QuadTree<T>::GrowImpl(int quadrantForRoot)
 			AssociateQuadTreeNode(oldRoot->objects[i], oldRoot);
 	}
 
-
 	int oldRootNodeIndex = rootNodeIndex;
 	rootNodeIndex = AllocateNodeGroup(0);
 	Node *newRoot = &nodes[rootNodeIndex];
+	newRoot->center = (boundingAABB.minPoint + boundingAABB.maxPoint) * 0.5f;
+	newRoot->radius = boundingAABB.maxPoint - newRoot->center;
 	newRoot->childIndex = oldRootNodeIndex;
-	nodes[newRoot->TopLeftChildIndex()].parent = newRoot;
-	nodes[newRoot->TopRightChildIndex()].parent = newRoot;
-	nodes[newRoot->BottomLeftChildIndex()].parent = newRoot;
-	nodes[newRoot->BottomRightChildIndex()].parent = newRoot;
+
+	Node *n = &nodes[newRoot->TopLeftChildIndex()];
+	n->parent = newRoot;
+	n->radius = newRoot->radius * 0.5f;
+	n->center = newRoot->center - n->radius;
+
+	n = &nodes[newRoot->TopRightChildIndex()];
+	n->parent = newRoot;
+	n->radius = newRoot->radius * 0.5f;
+	n->center.x = newRoot->center.x + n->radius.x;
+	n->center.y = newRoot->center.y - n->radius.y;
+
+	n = &nodes[newRoot->BottomLeftChildIndex()];
+	n->parent = newRoot;
+	n->radius = newRoot->radius * 0.5f;
+	n->center.x = newRoot->center.x - n->radius.x;
+	n->center.y = newRoot->center.y + n->radius.y;
+
+	n = &nodes[newRoot->BottomRightChildIndex()];
+	n->parent = newRoot;
+	n->radius = newRoot->radius * 0.5f;
+	n->center = newRoot->center + n->radius;
 
 	DebugSanityCheckNode(Root());
 }
@@ -740,16 +764,16 @@ void QuadTree<T>::DebugSanityCheckNode(Node *n)
 	assert(n != Root() || !n->parent); // If not root, must have a parent.
 
 	// Must have a good AABB.
-	AABB2D aabb = ComputeAABB(n);
+	AABB2D aabb = n->ComputeAABB();
 	assert(aabb.IsFinite());
 	assert(aabb.minPoint.x <= aabb.maxPoint.x);
 	assert(aabb.minPoint.y <= aabb.maxPoint.y);
 
-	LOGI("Node AABB: %s.", aabb.ToString().c_str());
+	MLOGI("Node AABB: %s.", aabb.ToString().c_str());
 	// Each object in this node must be contained in this node.
 	for(size_t i = 0; i < n->objects.size(); ++i)
 	{
-		LOGI("Object AABB: %s.", GetAABB2D(n->objects[i]).ToString().c_str());
+		MLOGI("Object AABB: %s.", GetAABB2D(n->objects[i]).ToString().c_str());
 
 		assert(aabb.Contains(GetAABB2D(n->objects[i])));
 	}
@@ -757,15 +781,17 @@ void QuadTree<T>::DebugSanityCheckNode(Node *n)
 	// Parent <-> child links must be valid.
 	if (!n->IsLeaf())
 	{
-		assert(nodes[n->TopLeftChildIndex()].parent == n);
-		assert(nodes[n->TopRightChildIndex()].parent == n);
-		assert(nodes[n->BottomLeftChildIndex()].parent == n);
-		assert(nodes[n->BottomRightChildIndex()].parent == n);
+		for(int i = 0; i < 4; ++i)
+		{
+			Node *child = &nodes[n->TopLeftChildIndex()+i];
+			assert(child->parent == n);
 
-		DebugSanityCheckNode(&nodes[n->TopLeftChildIndex()]);
-		DebugSanityCheckNode(&nodes[n->TopRightChildIndex()]);
-		DebugSanityCheckNode(&nodes[n->BottomLeftChildIndex()]);
-		DebugSanityCheckNode(&nodes[n->BottomRightChildIndex()]);
+			// Must contain all its child nodes.
+			assert(aabb.Contains(child->center));
+			assert(aabb.Contains(child->ComputeAABB()));
+
+			DebugSanityCheckNode(child);
+		}
 	}
 #else
 	MARK_UNUSED(n);

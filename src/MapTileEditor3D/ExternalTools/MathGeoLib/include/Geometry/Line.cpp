@@ -40,61 +40,48 @@
 
 MATH_BEGIN_NAMESPACE
 
-/// A helper function to compute the line-line closest point.
-/** This code is adapted from http://paulbourke.net/geometry/lineline3d/ .
-	dmnop = (xm - xn)(xo - xp) + (ym - yn)(yo - yp) + (zm - zn)(zo - zp).
-	@param v An array of four floats: [0]: line 0 start. [1]: line 0 end. [2]: line 1 start. [3]: line 1 end.
-	@param m An index in the range [0, 3].
-	@param n An index in the range [0, 3].
-	@param o An index in the range [0, 3].
-	@param p An index in the range [0, 3]. */
-float Dmnop(const float3 *v, int m, int n, int o, int p)
-{
-	return (v[m].x - v[n].x) * (v[o].x - v[p].x) + (v[m].y - v[n].y) * (v[o].y - v[p].y) + (v[m].z - v[n].z) * (v[o].z - v[p].z);
-}
-
 /// Computes the closest point pair on two lines.
 /** The first line is specified by two points start0 and end0. The second line is specified by
 	two points start1 and end1.
 	The implementation of this function follows http://paulbourke.net/geometry/lineline3d/ .
-	@param start0 The starting point of the first line.
-	@param end0 The ending point of the first line.
-	@param start1 The starting point of the second line.
-	@param end1 The ending point of the second line.
-	@param d [out] If specified, receives the normalized distance of the closest point along the first line.
-		This pointer may be left null.
-	@param d2 [out] If specified, receives the normalized distance of the closest point along the second line.
-		This pointer may be left null.
+	@param v0 The starting point of the first line.
+	@param v10 The direction vector of the first line. This can be unnormalized.
+	@param v2 The starting point of the second line.
+	@param v32 The direction vector of the second line. This can be unnormalized.
+	@param d [out] Receives the normalized distance of the closest point along the first line.
+	@param d2 [out] Receives the normalized distance of the closest point along the second line.
 	@return Returns the closest point on line start0<->end0 to the second line.
 	@note This is a low-level utility function. You probably want to use ClosestPoint() or Distance() instead.
 	@see ClosestPoint(), Distance(). */
-float3 Line::ClosestPointLineLine(float3 start0, float3 end0, float3 start1, float3 end1, float *d, float *d2)
+void Line::ClosestPointLineLine(const vec &v0, const vec &v10, const vec &v2, const vec &v32, float &d, float &d2)
 {
-	const float3 v[4] = { start0, end0, start1, end1 };
-
-	float d0232 = Dmnop(v,0,2,3,2);
-	float d3210 = Dmnop(v,3,2,1,0);
-	float d3232 = Dmnop(v,3,2,3,2);
-	float mu = (d0232 * d3210 - Dmnop(v,0,2,1,0)*d3232) / (Dmnop(v,1,0,1,0)*Dmnop(v,3,2,3,2) - Dmnop(v,3,2,1,0)*Dmnop(v,3,2,1,0));
-	if (d)
-		*d = mu;
-
-	if (d2)
-		*d2 = (d0232 + mu * d3210) / d3232;
-
-	return start0 + mu * (end0 - start0);
+	assume(!v10.IsZero());
+	assume(!v32.IsZero());
+	vec v02 = v0 - v2;
+	float d0232 = v02.Dot(v32);
+	float d3210 = v32.Dot(v10);
+	float d3232 = v32.Dot(v32);
+	assume(d3232 != 0.f); // Don't call with a zero direction vector.
+	float d0210 = v02.Dot(v10);
+	float d1010 = v10.Dot(v10);
+	float denom = d1010*d3232 - d3210*d3210;
+	if (denom != 0.f)
+		d = (d0232*d3210 - d0210*d3232) / denom;
+	else
+		d = 0.f;
+	d2 = (d0232 + d * d3210) / d3232;
 }
 
-Line::Line(const float3 &pos_, const float3 &dir_)
+Line::Line(const vec &pos_, const vec &dir_)
 :pos(pos_), dir(dir_)
 {
-	assume(dir.IsNormalized());
+	assume2(dir.IsNormalized(), dir, dir.LengthSq());
 }
 
 Line::Line(const Ray &ray)
 :pos(ray.pos), dir(ray.dir)
 {
-	assume(dir.IsNormalized());
+	assume2(dir.IsNormalized(), dir, dir.LengthSq());
 }
 
 Line::Line(const LineSegment &lineSegment)
@@ -107,13 +94,13 @@ bool Line::IsFinite() const
 	return pos.IsFinite() && dir.IsFinite();
 }
 
-float3 Line::GetPoint(float d) const
+vec Line::GetPoint(float d) const
 {
-	assert(dir.IsNormalized());
+	assume2(dir.IsNormalized(), dir, dir.LengthSq());
 	return pos + d * dir;
 }
 
-void Line::Translate(const float3 &offset)
+void Line::Translate(const vec &offset)
 {
 	pos += offset;
 }
@@ -126,14 +113,14 @@ void Line::Transform(const float3x3 &transform)
 
 void Line::Transform(const float3x4 &transform)
 {
-	pos = transform.TransformPos(pos);
-	dir = transform.TransformDir(dir);
+	pos = transform.MulPos(pos);
+	dir = transform.MulDir(dir);
 }
 
 void Line::Transform(const float4x4 &transform)
 {
-	pos = transform.TransformPos(pos);
-	dir = transform.TransformDir(dir);
+	pos = transform.MulPos(pos);
+	dir = transform.MulDir(dir);
 }
 
 void Line::Transform(const Quat &transform)
@@ -142,7 +129,7 @@ void Line::Transform(const Quat &transform)
 	dir = transform.Transform(dir);
 }
 
-bool Line::Contains(const float3 &point, float distanceThreshold) const
+bool Line::Contains(const vec &point, float distanceThreshold) const
 {
 	return ClosestPoint(point).DistanceSq(point) <= distanceThreshold;
 }
@@ -159,57 +146,36 @@ bool Line::Contains(const LineSegment &lineSegment, float epsilon) const
 
 bool Line::Equals(const Line &line, float epsilon) const
 {
-	assume(dir.IsNormalized());
-	assume(line.dir.IsNormalized());
+	assume2(dir.IsNormalized(), dir, dir.LengthSq());
+	assume2(line.dir.IsNormalized(), line.dir, line.dir.LengthSq());
 	// If the point of the other line is on this line, and the two lines point to the same, or exactly reverse directions,
 	// they must be equal.
 	return Contains(line.pos, epsilon) && EqualAbs(Abs(dir.Dot(line.dir)), 1.f, epsilon);
 }
 
-float Line::Distance(const float3 &point, float *d) const
+float Line::Distance(const vec &point, float &d) const
 {
 	return ClosestPoint(point, d).Distance(point);
 }
 
-float Line::Distance(const Ray &other, float *d, float *d2) const
+float Line::Distance(const Ray &other, float &d, float &d2) const
 {
-	float u2;
-	float3 c = ClosestPoint(other, d, &u2);
-	if (d2) *d2 = u2;
-	return c.Distance(other.GetPoint(u2));
+	vec c = ClosestPoint(other, d, d2);
+	return c.Distance(other.GetPoint(d2));
 }
 
-float Line::Distance(const Ray &other) const
+float Line::Distance(const Line &other, float &d, float &d2) const
 {
-	return Distance(other, 0, 0);
+	vec c = ClosestPoint(other, d, d2);
+	return c.Distance(other.GetPoint(d2));
 }
 
-float Line::Distance(const Line &other, float *d, float *d2) const
+float Line::Distance(const LineSegment &other, float &d, float &d2) const
 {
-	float u2;
-	float3 c = ClosestPoint(other, d, &u2);
-	if (d2) *d2 = u2;
-	return c.Distance(other.GetPoint(u2));
-}
-
-float Line::Distance(const Line &other) const
-{
-	return Distance(other, 0, 0);
-}
-
-float Line::Distance(const LineSegment &other, float *d, float *d2) const
-{
-	float u2;
-	float3 c = ClosestPoint(other, d, &u2);
-	if (d2) *d2 = u2;
-	mathassert(u2 >= 0.f);
-	mathassert(u2 <= 1.f);
-	return c.Distance(other.GetPoint(u2));
-}
-
-float Line::Distance(const LineSegment &other) const
-{
-	return Distance(other, 0, 0);
+	vec c = ClosestPoint(other, d, d2);
+	mathassert(d2 >= 0.f);
+	mathassert(d2 <= 1.f);
+	return c.Distance(other.GetPoint(d2));
 }
 
 float Line::Distance(const Sphere &other) const
@@ -222,7 +188,7 @@ float Line::Distance(const Capsule &other) const
 	return Max(0.f, Distance(other.l) - other.r);
 }
 
-bool Line::Intersects(const Triangle &triangle, float *d, float3 *intersectionPoint) const
+bool Line::Intersects(const Triangle &triangle, float *d, vec *intersectionPoint) const
 {
 	return triangle.Intersects(*this, d, intersectionPoint);
 }
@@ -232,7 +198,7 @@ bool Line::Intersects(const Plane &plane, float *d) const
 	return plane.Intersects(*this, d);
 }
 
-bool Line::Intersects(const Sphere &s, float3 *intersectionPoint, float3 *intersectionNormal, float *d) const
+bool Line::Intersects(const Sphere &s, vec *intersectionPoint, vec *intersectionNormal, float *d) const
 {
 	return s.Intersects(*this, intersectionPoint, intersectionNormal, d) > 0;
 }
@@ -282,79 +248,63 @@ bool Line::IntersectsDisc(const Circle &disc) const
 	return disc.IntersectsDisc(*this);
 }
 
-float3 Line::ClosestPoint(const float3 &targetPoint, float *d) const
+vec Line::ClosestPoint(const vec &targetPoint, float &d) const
 {
-	float u = Dot(targetPoint - pos, dir);
-	if (d)
-		*d = u;
-	return GetPoint(u);
+	d = Dot(targetPoint - pos, dir);
+	return GetPoint(d);
 }
 
-float3 Line::ClosestPoint(const Ray &other, float *d, float *d2) const
+vec Line::ClosestPoint(const Ray &other, float &d, float &d2) const
 {
-	float t2;
-	float3 closestPoint = ClosestPointLineLine(pos, pos + dir, other.pos, other.pos + other.dir, d, &t2);
-	if (t2 <= 0.f)
-	{
-		if (d2)
-			*d2 = 0.f;
-		return ClosestPoint(other.pos, d);
-	}
+	ClosestPointLineLine(pos, dir, other.pos, other.dir, d, d2);
+	if (d2 >= 0.f)
+		return GetPoint(d);
 	else
 	{
-		if (d2)
-			*d2 = t2;
-		return closestPoint;
+		d2 = 0.f;
+		return ClosestPoint(other.pos, d);
 	}
 }
 
-float3 Line::ClosestPoint(const Line &other, float *d, float *d2) const
+vec Line::ClosestPoint(const Line &other, float &d, float &d2) const
 {
-	return ClosestPointLineLine(pos, pos + dir, other.pos, other.pos + other.dir, d, d2);
+	ClosestPointLineLine(pos, dir, other.pos, other.dir, d, d2);
+	return GetPoint(d);
 }
 
-float3 Line::ClosestPoint(const LineSegment &other, float *d, float *d2) const
+vec Line::ClosestPoint(const LineSegment &other, float &d, float &d2) const
 {
-	float t2;
-	float3 closestPoint = ClosestPointLineLine(pos, pos + dir, other.a, other.b, d, &t2);
-	if (t2 <= 0.f)
+	ClosestPointLineLine(pos, dir, other.a, other.b - other.a, d, d2);
+	if (d2 < 0.f)
 	{
-		if (d2)
-			*d2 = 0.f;
+		d2 = 0.f;
 		return ClosestPoint(other.a, d);
 	}
-	else if (t2 >= 1.f)
+	else if (d2 > 1.f)
 	{
-		if (d2)
-			*d2 = 1.f;
+		d2 = 1.f;
 		return ClosestPoint(other.b, d);
 	}
 	else
-	{
-		if (d2)
-			*d2 = t2;
-		return closestPoint;
-	}
+		return GetPoint(d);
 }
 
-float3 Line::ClosestPoint(const Triangle &triangle, float *outU, float *outV, float *outD) const
+vec Line::ClosestPoint(const Triangle &triangle, float &d) const
 {
-	///\todo Optimize this function!
-	float3 closestPointTriangle = triangle.ClosestPoint(*this);
-	if (outU || outV)
-	{
-		float2 uv = triangle.BarycentricUV(closestPointTriangle);
-		if (outU)
-			*outU = uv.x;
-		if (outV)
-			*outV = uv.y;
-	}
-	return ClosestPoint(closestPointTriangle, outD);
+	vec closestPointTriangle = triangle.ClosestPoint(*this);
+	return ClosestPoint(closestPointTriangle, d);
 }
 
-bool Line::AreCollinear(const float3 &p1, const float3 &p2, const float3 &p3, float epsilon)
+vec Line::ClosestPoint(const Triangle &triangle, float &d, float2 &outBarycentricUV) const
 {
-	return float3::AreCollinear(p1, p2, p3, epsilon);
+	vec closestPointTriangle = triangle.ClosestPoint(*this);
+	outBarycentricUV = triangle.BarycentricUV(closestPointTriangle);
+	return ClosestPoint(closestPointTriangle, d);
+}
+
+bool Line::AreCollinear(const vec &p1, const vec &p2, const vec &p3, float epsilon)
+{
+	return vec::AreCollinear(p1, p2, p3, epsilon);
 }
 
 Ray Line::ToRay() const
@@ -367,7 +317,7 @@ LineSegment Line::ToLineSegment(float d) const
 	return LineSegment(pos, GetPoint(d));
 }
 
-void Line::ProjectToAxis(const float3 &direction, float &outMin, float &outMax) const
+void Line::ProjectToAxis(const vec &direction, float &outMin, float &outMax) const
 {
 	// Most of the time, the projection of a line spans the whole 1D axis.
 	// As a special case, if the line is perpendicular to the direction vector in question,
@@ -406,14 +356,35 @@ Line operator *(const Quat &transform, const Line &l)
 	return Line(transform * l.pos, transform * l.dir);
 }
 
-#ifdef MATH_ENABLE_STL_SUPPORT
-std::string Line::ToString() const
+#if defined(MATH_ENABLE_STL_SUPPORT) || defined(MATH_CONTAINERLIB_SUPPORT)
+StringT Line::ToString() const
 {
 	char str[256];
-	sprintf_s(str, 256, "Line(pos:(%.2f, %.2f, %.2f) dir:(%.2f, %.2f, %.2f))",
-		pos.x, pos.y, pos.z, dir.x, dir.y, dir.z);
+	sprintf(str, "Line(Pos:(%.2f, %.2f, %.2f) Dir:(%.3f, %.3f, %.3f))", pos.x, pos.y, pos.z, dir.x, dir.y, dir.z);
 	return str;
 }
+
+StringT Line::SerializeToString() const
+{
+	char str[256];
+	char *s = SerializeFloat(pos.x, str); *s = ','; ++s;
+	s = SerializeFloat(pos.y, s); *s = ','; ++s;
+	s = SerializeFloat(pos.z, s); *s = ','; ++s;
+	s = SerializeFloat(dir.x, s); *s = ','; ++s;
+	s = SerializeFloat(dir.y, s); *s = ','; ++s;
+	s = SerializeFloat(dir.z, s);
+	assert(s+1 - str < 256);
+	MARK_UNUSED(s);
+	return str;
+}
+
+StringT Line::SerializeToCodeString() const
+{
+	return "Line(" + pos.SerializeToCodeString() + "," + dir.SerializeToCodeString() + ")";
+}
+#endif
+
+#if defined(MATH_ENABLE_STL_SUPPORT)
 
 std::ostream &operator <<(std::ostream &o, const Line &line)
 {
@@ -422,5 +393,21 @@ std::ostream &operator <<(std::ostream &o, const Line &line)
 }
 
 #endif
+
+Line Line::FromString(const char *str, const char **outEndStr)
+{
+	assume(str);
+	if (!str)
+		return Line(vec::nan, vec::nan);
+	Line l;
+	MATH_SKIP_WORD(str, "Line(");
+	MATH_SKIP_WORD(str, "Pos:(");
+	l.pos = PointVecFromString(str, &str);
+	MATH_SKIP_WORD(str, " Dir:(");
+	l.dir = DirVecFromString(str, &str);
+	if (outEndStr)
+		*outEndStr = str;
+	return l;
+}
 
 MATH_END_NAMESPACE

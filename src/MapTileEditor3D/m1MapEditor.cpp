@@ -4,6 +4,7 @@
 #include "m1GUI.h"
 #include "p1Tileset.h"
 #include "p1Layers.h"
+#include "p1Inspector.h"
 #include "Viewport.h"
 
 #include "m1Render3D.h"
@@ -14,6 +15,9 @@
 #include "m1Resources.h"
 #include "r1Texture.h"
 #include "r1Map.h"
+
+#include "ExternalTools/MathGeoLib/include/Geometry/Plane.h"
+#include "ExternalTools/MathGeoLib/include/Geometry/Ray.h"
 
 #include "m1Input.h"
 
@@ -42,6 +46,12 @@ bool m1MapEditor::Start()
 	panel_tileset = App->gui->tileset;
 	panel_layers = App->gui->layers;
 
+	nlohmann::json locals = FileSystem::OpenJSONFile("Configuration/locals.json");
+	if (locals.find("last_map_used") != locals.end()) {
+		if (locals.value("last_map_used", 0ULL) != 0ULL)
+			LoadMap(locals.value("last_map_used", 0ULL));
+	}
+
 	return true;
 }
 
@@ -56,6 +66,11 @@ UpdateStatus m1MapEditor::Update()
 		shader->Use();
 
 		auto m = (r1Map*)App->resources->Get(map);
+		if (m == nullptr) {
+			map = 0ULL;
+			panel_tileset->SelectTileset(0ULL);
+			return UpdateStatus::UPDATE_CONTINUE;
+		}
 
 		Layer::SelectBuffers();
 		oglh::ActiveTexture(0);
@@ -66,14 +81,14 @@ UpdateStatus m1MapEditor::Update()
 			shader->SetInt2("ntilesMap", m->size);
 			oglh::ActiveTexture(1);
 			shader->SetInt("tilemap", 1);
+			panel_tileset->SetColumnUniform(shader);
 
 			auto layers = m->layers;
 			std::sort(layers.begin(), layers.end(), Layer::HeightOrder); //TODO not every frame
 
 			for (auto layer : layers) {
 				if (layer->visible) {
-					layer->Prepare();
-					layer->Update(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
+					layer->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
 				}
 			}
 
@@ -115,20 +130,31 @@ void m1MapEditor::SaveImageMap() const
 void m1MapEditor::LoadMap(const uint64_t& id)
 {
 	if (map != id) {
-		if (map != 0ULL) {
-			auto m = (r1Map*)App->resources->Get(map);
-			m->Detach();
-		}
-		map = id;
 		auto m = (r1Map*)App->resources->Get(id);
-		m->Attach();
+		if (m != nullptr) {
+			if (map != 0ULL) {
+				auto m = (r1Map*)App->resources->Get(map);
+				m->Detach();
+			}
+			map = id;
+			m->Attach();
+
+			nlohmann::json locals;
+			locals["last_map_used"] = id;
+			FileSystem::SaveJSONFile("Configuration/locals.json", locals);
+
+			App->gui->inspector->SetSelected(m, p1Inspector::SelectedType::EDITOR_MAP);
+		}
+		else {
+			LOGW("map with id %" PRIu64 " could not be loaded, not in resources", id);
+		}
 	}
 }
 
 void m1MapEditor::ReLoadMap()
 {
 	auto m = (r1Map*)App->resources->Get(map);
-	App->resources->ReimportResource(m->assets_path.c_str());
+	App->resources->ReimportResource(m->path.c_str());
 }
 
 void m1MapEditor::MousePicking(const Ray& ray)
@@ -142,26 +168,22 @@ void m1MapEditor::MousePicking(const Ray& ray)
 			float t = 0.f;
 			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[index]->height, ray.pos, ray.dir, t) && t > 0.f) {
 				float3 position = ray.GetPoint(t);
-				int2 tile = panel_tileset->GetTileSelected();
-				if (tile.x != -1 && tile.y != -1) {
+				TILE_DATA_TYPE tile_id = panel_tileset->GetTileIDSelected();
+				if (tile_id != 0) {
 
 					// tile.y = A * 256 + B
-					char A = 0;
-					char B = 0;
+					unsigned char A = 0;
+					unsigned char B = 0;
 
-					A = tile.y / 256;
-					B = tile.y % 256;
+					A = tile_id / UCHAR_MAX;
+					B = tile_id % UCHAR_MAX;
 
-					int col = (int)floor(position.z);
-					int row = (int)floor(-position.x);
+					auto col = (int)floor(position.z-0.5f);
+					auto row = (int)floor(position.x);
 
-					if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
-						if (m->layers[index]->tile_data[(m->size.x * col + row) * 3] != tile.x ||
-							m->layers[index]->tile_data[(m->size.x * col + row) * 3 + 1] != A ||
-							m->layers[index]->tile_data[(m->size.x * col + row) * 3 + 2] != B)
-						{
-							m->Edit(index, col, row, tile.x, A, B);
-						}
+					if (row < m->size.x && col < m->size.y && (col > -1 && row > -1) 
+						&& m->layers[index]->tile_data[(m->size.x * col + row)] != tile_id) {
+						m->Edit(index, col, row, tile_id, A, B);
 					}
 				}
 			}
@@ -209,6 +231,11 @@ bool m1MapEditor::ValidMap() const
 	return map != 0ULL;
 }
 
+r1Map* m1MapEditor::GetMap() const
+{
+	return (r1Map*)App->resources->Get(map);
+}
+
 bool m1MapEditor::GetLayers(std::vector<Layer*>* &vec) const
 {
 	auto m = (r1Map*)App->resources->Get(map);
@@ -218,4 +245,10 @@ bool m1MapEditor::GetLayers(std::vector<Layer*>* &vec) const
 	vec = &m->layers;
 
 	return true;
+}
+
+void m1MapEditor::ExportMap(MapTypeExport t, Layer::DataTypeExport d) const
+{
+	if (map != 0)
+		((r1Map*)App->resources->Get(map))->Export(panel_tileset->GetTileset(), d, t);
 }

@@ -19,21 +19,13 @@
 
 #include "../MathBuildConfig.h"
 #include "SSEMath.h"
+#include "float4.h"
 
 #ifdef MATH_ENABLE_STL_SUPPORT
 #include "myassert.h"
 #endif
 #include "../MathGeoLibFwd.h"
 #include "MatrixProxy.h"
-#include "CoordinateAxisConvention.h"
-
-#ifdef MATH_OGRE_INTEROP
-#include <OgreMatrix4.h>
-#endif
-
-#ifdef MATH_QT_INTEROP
-#include <QMatrix4x4>
-#endif
 
 MATH_BEGIN_NAMESPACE
 
@@ -61,8 +53,8 @@ MATH_BEGIN_NAMESPACE
 	The elements for a single row of the matrix hold successive memory addresses. This is the same memory layout as
 	 with C++ multidimensional arrays.
 
-	Contrast this with column-major storage, in which the elements are packed in the memory in
-	order m[0][0], m[1][0], m[2][0], m[3][0], m[0][1], m[1][1], ...
+ 	If preprocessor #define MATH_COLMAJOR_MATRICES is set, column-major storage is used instead, in which the elements
+ 	are packed in the memory in order m[0][0], m[1][0], m[2][0], m[3][0], m[0][1], m[1][1], ...
 	There the elements for a single column of the matrix hold successive memory addresses.
 	This is exactly opposite from the standard C++ multidimensional arrays, since if you have e.g.
 	int v[10][10], then v[0][9] comes in memory right before v[1][0]. ( [0][0], [0][1], [0][2], ... [1][0], [1][1], ...) */
@@ -77,18 +69,53 @@ public:
 
 	/// Stores the data in this matrix in row-major format.
 	/** [noscript] */
-#if defined(MATH_SIMD)
 	union
 	{
+#ifdef MATH_COLMAJOR_MATRICES
+		float v[Cols][Rows];
+#ifdef MATH_AVX
+		__m256 col2[2];
 #endif
+#if defined(MATH_SIMD)
+		simd4f col[4];
+#endif
+#else
 		float v[Rows][Cols];
 #ifdef MATH_AVX
 		__m256 row2[2];
 #endif
 #if defined(MATH_SIMD)
 		simd4f row[4];
-	};
 #endif
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4201) // warning C4201: nonstandard extension used: nameless struct/union
+#endif
+		// Alias into the array of elements to allow accessing items from this matrix directly for convenience.
+		// This gives human-readable names to the individual matrix elements:
+		struct
+		{
+#ifdef MATH_COLMAJOR_MATRICES
+			float  scaleX, shearYx, shearZx, shearWx;
+			float shearXy,  scaleY, shearZy, shearWy;
+			float shearXz, shearYz,  scaleZ, shearWz;
+			float       x,       y,       z,       w;
+#else
+			float  scaleX, shearXy, shearXz, x;
+			float shearYx,  scaleY, shearYz, y;
+			float shearZx, shearZy,  scaleZ, z;
+			float shearWx, shearWy, shearWz, w;
+#endif
+		};
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+		// where scaleX/Y/Z specify how much principal axes are scaled by, x/y/z specify translation (position) on the axes,
+		// w specifies the homogeneous divide factor,
+		// and shearAb specify how much shearing occurs towards axis A from axis b (when vector is multiplied via M*v convention)
+	};
 
 	/// A constant matrix that has zeroes in all its entries.
 	static const float4x4 zero;
@@ -104,7 +131,7 @@ public:
 
 	/// A compile-time constant float4x4 which has NaN in each element.
 	/// For this constant, each element has the value of quiet NaN, or Not-A-Number.
-	/// @note Never compare a float4x4 to this value! Due to how IEEE floats work, for each float x, both the expression "x == nan" and "x != nan" returns false!
+	/// @note Never compare a float4x4 to this value! Due to how IEEE floats work, "nan == nan" returns false!
 	///	   That is, nothing is equal to NaN, not even NaN itself!
 	static const float4x4 nan;
 
@@ -112,11 +139,7 @@ public:
 	/** [opaque-qtscript] */
 	float4x4() {}
 
-#ifdef MATH_EXPLICIT_COPYCTORS
-	/// The copy-ctor for float4x4 is the trivial copy-ctor, but it is explicitly written to be able to automatically
-	/// pick up this function for QtScript bindings.
-	float4x4(const float4x4 &rhs) { Set(rhs); }
-#endif
+	float4x4(const float4x4 &rhs) = default;//{ Set(rhs); }
 
 	/// Constructs a new float4x4 by explicitly specifying all the matrix elements.
 	/// The elements are specified in row-major format, i.e. the first row first followed by the second and third row.
@@ -191,6 +214,7 @@ public:
 		@return A new rotation matrix R for which R*sourceDirection == targetDirection. */
 	static float4x4 RotateFromTo(const float3 &sourceDirection, const float3 &targetDirection, const float3 &centerPoint);
 	static float4x4 RotateFromTo(const float3 &sourceDirection, const float3 &targetDirection);
+	static float4x4 RotateFromTo(const float4 &sourceDirection, const float4 &targetDirection);
 
 	/// Returns a random 4x4 matrix with each entry randomized between the range [minElem, maxElem].
 	/** Warning: The matrices returned by this function do not represent well-formed 3D transformations.
@@ -287,19 +311,35 @@ public:
 
 	/// Identical to D3DXMatrixOrthoLH, except transposed to account for Matrix * vector convention used in MathGeoLib.
 	/// See http://msdn.microsoft.com/en-us/library/windows/desktop/bb205346(v=vs.85).aspx
+	/// @note Use the M*v multiplication order to project points with this matrix.
 	static float4x4 D3DOrthoProjLH(float nearPlaneDistance, float farPlaneDistance, float horizontalViewportSize, float verticalViewportSize);
 	/// Identical to D3DXMatrixOrthoRH, except transposed to account for Matrix * vector convention used in MathGeoLib.
 	/// See http://msdn.microsoft.com/en-us/library/windows/desktop/bb205349(v=vs.85).aspx
+	/// @note Use the M*v multiplication order to project points with this matrix.
 	static float4x4 D3DOrthoProjRH(float nearPlaneDistance, float farPlaneDistance, float horizontalViewportSize, float verticalViewportSize);
+
 	/// Identical to D3DXMatrixPerspectiveLH, except transposed to account for Matrix * vector convention used in MathGeoLib.
 	/// See http://msdn.microsoft.com/en-us/library/windows/desktop/bb205352(v=vs.85).aspx
+	/// @note Use the M*v multiplication order to project points with this matrix.
 	static float4x4 D3DPerspProjLH(float nearPlaneDistance, float farPlaneDistance, float horizontalViewportSize, float verticalViewportSize);
 	/// Identical to D3DXMatrixPerspectiveRH, except transposed to account for Matrix * vector convention used in MathGeoLib.
 	/// See http://msdn.microsoft.com/en-us/library/windows/desktop/bb205355(v=vs.85).aspx
+	/// @note Use the M*v multiplication order to project points with this matrix.
 	static float4x4 D3DPerspProjRH(float nearPlaneDistance, float farPlaneDistance, float horizontalViewportSize, float verticalViewportSize);
 
+	/// Computes a left-handled orthographic projection matrix for OpenGL.
+	/// @note Use the M*v multiplication order to project points with this matrix.
+	static float4x4 OpenGLOrthoProjLH(float nearPlaneDistance, float farPlaneDistance, float horizontalViewportSize, float verticalViewportSize);
+	/// Computes a right-handled orthographic projection matrix for OpenGL.
+	/// @note Use the M*v multiplication order to project points with this matrix.
+	static float4x4 OpenGLOrthoProjRH(float nearPlaneDistance, float farPlaneDistance, float horizontalViewportSize, float verticalViewportSize);
+
+	/// Computes a left-handed perspective projection matrix for OpenGL.
+	/// @note Use the M*v multiplication order to project points with this matrix.
+	static float4x4 OpenGLPerspProjLH(float nearPlaneDistance, float farPlaneDistance, float horizontalViewportSize, float verticalViewportSize);
 	/// Identical to http://www.opengl.org/sdk/docs/man/xhtml/gluPerspective.xml , except uses viewport sizes instead of FOV to set up the
 	/// projection matrix.
+	/// @note Use the M*v multiplication order to project points with this matrix.
 	static float4x4 OpenGLPerspProjRH(float nearPlaneDistance, float farPlaneDistance, float horizontalViewportSize, float verticalViewportSize);
 
 	/// Creates a new float4x4 that performs orthographic projection. [indexTitle: OrthographicProjection/YZ/XZ/XY]
@@ -320,9 +360,31 @@ public:
 		@note MatrixProxy is a temporary helper class. Do not store references to it, but always
 		directly dereference it with the [] operator.
 		For example, m[0][3] Returns the last element on the first row, which is the amount
-		of translation in the x-direction. */
-	MatrixProxy<Cols> &operator[](int row);
-	const MatrixProxy<Cols> &operator[](int row) const;
+	 	of translation in the x-direction. This is true independent of
+	 	whether MATH_COLMAJOR_MATRICES is set, i.e. the notation is always m[y][x]. */
+	FORCE_INLINE MatrixProxy<Rows, Cols> &operator[](int row)
+	{
+		assume(row >= 0);
+		assume(row < Rows);
+
+#ifdef MATH_COLMAJOR_MATRICES
+		return *(reinterpret_cast<MatrixProxy<Rows, Cols>*>(&v[0][row]));
+#else
+		return *(reinterpret_cast<MatrixProxy<Rows, Cols>*>(v[row]));
+#endif
+	}
+	
+	FORCE_INLINE const MatrixProxy<Rows, Cols> &operator[](int row) const
+	{
+		assume(row >= 0);
+		assume(row < Rows);
+
+#ifdef MATH_COLMAJOR_MATRICES
+		return *(reinterpret_cast<const MatrixProxy<Rows, Cols>*>(&v[0][row]));
+#else
+		return *(reinterpret_cast<const MatrixProxy<Rows, Cols>*>(v[row]));
+#endif
+	}
 
 	/// Returns the given element. [noscript]
 	/** This function returns the element of this matrix at (row, col)==(i, j)==(y, x).
@@ -331,6 +393,21 @@ public:
 	float &At(int row, int col);
 	CONST_WIN32 float At(int row, int col) const;
 
+#ifdef MATH_COLMAJOR_MATRICES
+	/// Returns the given column. [noscript]
+	/** @param col The zero-based index [0, 3] of the column to get. */
+	float4 &Col(int col);
+	const float4 &Col(int col) const;
+	/// Returns the three first entries of the given row. [similarOverload: Col] [hideIndex]
+	float3 &Col3(int col); ///< [noscript]
+	const float3 &Col3(int col) const;
+	
+	/// Returns the given row.
+	/** @param row The zero-based index [0, 3] of the row to get. */
+	CONST_WIN32 float4 Row(int row) const;
+	/// Returns the three first entries of the given row. [similarOverload: Row] [hideIndex]
+	CONST_WIN32 float3 Row3(int row) const;
+#else
 	/// Returns the given row. [noscript]
 	/** @param row The zero-based index [0, 3] of the row to get. */
 	float4 &Row(int row);
@@ -344,6 +421,7 @@ public:
 	CONST_WIN32 float4 Col(int col) const;
 	/// Returns the three first entries of the given column. [similarOverload: Column] [hideIndex]
 	CONST_WIN32 float3 Col3(int col) const;
+#endif
 
 	/// Returns the main diagonal.
 	/** The main diagonal consists of the elements at m[0][0], m[1][1], m[2][2] and m[3][3]. */
@@ -367,9 +445,15 @@ public:
 	CONST_WIN32 float3x3 Float3x3Part() const;
 
 	/// Returns the upper-left 3-by-4 part. [noscript]
-	/// @note The float3x4 and float4x4 are bit-compatible, so this function simply casts.
+	/// @note If not building with MATH_COLMAJOR_MATRICES, the float3x4 and float4x4 are bit-compatible, so this function simply casts.
+#ifdef MATH_COLMAJOR_MATRICES
+	CONST_WIN32 float3x4 Float3x4Part() const;
+#else
 	float3x4 &Float3x4Part();
 	const float3x4 &Float3x4Part() const;
+#endif
+
+	void SetFloat3x4Part(const float3x4 &float3x4Part);
 
 	/// Returns the translation part.
 	/** The translation part is stored in the fourth column of this matrix.
@@ -414,9 +498,8 @@ public:
 	/// @return A pointer to the upper-left element. The data is contiguous in memory.
 	/// ptr[0] gives the element [0][0], ptr[1] is [0][1], ptr[2] is [0][2].
 	/// ptr[4] == [1][0], ptr[5] == [1][1], ..., and finally, ptr[15] == [3][3].
-	float *ptr();
-	/// @return A pointer to the upper-left element . The data is contiguous in memory.
-	const float *ptr() const;
+	FORCE_INLINE float *ptr() { return &v[0][0]; }
+	FORCE_INLINE const float *ptr() const { return &v[0][0]; }
 
 	/// Sets the three first elements of the given row. The fourth element is left unchanged.
 	/** @param row The index of the row to set, in the range [0-3].
@@ -489,6 +572,7 @@ public:
 		All other entries are left untouched. */
 	void SetTranslatePart(float tx, float ty, float tz);
 	void SetTranslatePart(const float3 &offset);
+	void SetTranslatePart(const float4 &offset);
 
 	/// Sets the 3-by-3 part of this matrix to perform rotation about the positive X axis which passes through
 	/// the origin. Leaves all other entries of this matrix untouched. [similarOverload: SetRotatePart] [hideIndex]
@@ -588,7 +672,7 @@ public:
 	/// @note The remaining entries of this matrix are set to identity.
 	float4x4 &operator =(const float3x4 &rhs);
 
-	float4x4 &operator =(const float4x4 &rhs);
+	// float4x4 &operator =(const float4x4 &rhs);
 
 	float4x4 &operator =(const TranslateOp &rhs);
 
@@ -628,7 +712,7 @@ public:
 
 	/// Inverts this matrix using the generic Gauss's method.
 	/// @return Returns true on success, false otherwise.
-	bool Inverse(float epsilon = 1e-3f);
+	bool Inverse(float epsilon = 1e-6f);
 
 	/// Returns an inverted copy of this matrix.
 	/// If this matrix does not have an inverse, returns the matrix that was the result of running
@@ -715,34 +799,44 @@ public:
 	void Pivot();
 
 	/// Transforms the given point vector by this matrix M , i.e. returns M * (x, y, z, 1).
+	/** The suffix "Pos" in this function means that the w component of the input vector is assumed to be 1, i.e. the input
+		vector represents a point (a position). */
 	float3 TransformPos(const float3 &pointVector) const;
 	float3 TransformPos(float x, float y, float z) const;
+	float4 TransformPos(const float4 &vector) const { return Transform(vector); }
 
 	/// Transforms the given direction vector by this matrix M , i.e. returns M * (x, y, z, 0).
+	/** The suffix "Dir" in this function just means that the w component of the input vector is assumed to be 0, i.e. the
+		input vector represents a direction. The input vector does not need to be normalized. */
 	float3 TransformDir(const float3 &directionVector) const;
 	float3 TransformDir(float x, float y, float z) const;
+	float4 TransformDir(const float4 &vector) const { return Transform(vector); }
 
 	/// Transforms the given 4-vector by this matrix M, i.e. returns M * (x, y, z, w).
 	/// Does not perform a perspective divide afterwards, so remember to divide by w afterwards
 	/// at some point, if this matrix contained a projection.
 	float4 Transform(const float4 &vector) const;
 
-	/// Performs a batch transform of the given point vector array.
+	/// Performs a batch transform of the given array of point vectors.
+	/** The suffix "Pos" in this function just means that the w components of each input vector are assumed to be 1, i.e. the
+		input vectors represent points (positions).
+		@param strideBytes If specified, represents the distance in bytes between subsequent vector elements. If stride is not
+			specified, the vectors are assumed to be tightly packed in memory. */
 	void TransformPos(float3 *pointArray, int numPoints) const;
-
-	/// Performs a batch transform of the given point vector array.
 	void TransformPos(float3 *pointArray, int numPoints, int strideBytes) const;
 
-	/// Performs a batch transform of the given direction vector array.
+	/// Performs a batch transform of the given array of direction vectors.
+	/** The suffix "Dir" in this function just means that the w components of each input vector are assumed to be 0, i.e. the
+		input vectors represent directions. The input vectors do not need to be normalized.
+		@param strideBytes If specified, represents the distance in bytes between subsequent vector elements. If stride is not
+			specified, the vectors are assumed to be tightly packed in memory. */
 	void TransformDir(float3 *dirArray, int numVectors) const;
-
-	/// Performs a batch transform of the given direction vector array.
 	void TransformDir(float3 *dirArray, int numVectors, int strideBytes) const;
 
 	/// Performs a batch transform of the given float4 array.
+	/** @param strideBytes If specified, represents the distance in bytes between subsequent vector elements. If stride is not
+			specified, the vectors are assumed to be tightly packed in memory. */
 	void Transform(float4 *vectorArray, int numVectors) const;
-
-	/// Performs a batch transform of the given float4 array.
 	void Transform(float4 *vectorArray, int numVectors, int strideBytes) const;
 
 	/// Treats the float3x3 as a 4-by-4 matrix with the last row and column as identity, and multiplies the two matrices.
@@ -848,11 +942,12 @@ public:
 	/// matrix differs from [0 0 0 1].
 	bool ContainsProjection(float epsilon = 1e-3f) const;
 
-#ifdef MATH_ENABLE_STL_SUPPORT
+#if defined(MATH_ENABLE_STL_SUPPORT) || defined(MATH_CONTAINERLIB_SUPPORT)
 	/// Returns a string representation of form "(m00, m01, m02, m03; m10, m11, m12, m13; ... )".
-	std::string ToString() const;
+	StringT ToString() const;
+	StringT SerializeToString() const;
 
-	std::string ToString2() const;
+	StringT ToString2() const;
 #endif
 
 	/// Extracts the rotation part of this matrix into Euler rotation angles (in radians). [indexTitle: ToEuler***]
@@ -899,26 +994,17 @@ public:
 	void Decompose(float3 &translate, float3x4 &rotate, float3 &scale) const;
 	void Decompose(float3 &translate, float4x4 &rotate, float3 &scale) const;
 
-#ifdef MATH_OGRE_INTEROP
-	float4x4(const Ogre::Matrix4 &m) { Set(&m[0][0]); }
-	operator Ogre::Matrix4() { return Ogre::Matrix4(v[0][0], v[0][1], v[0][2], v[0][3], v[1][0], v[1][1], v[1][2], v[1][3], v[2][0], v[2][1], v[2][2], v[2][3], v[3][0], v[3][1], v[3][2], v[3][3]); }
-#endif
-
-#ifdef MATH_QT_INTEROP
-	float4x4(const QMatrix4x4 &m) { Set(m(0,0), m(0,1), m(0,2), m(0,3), m(1,0), m(1,1), m(1,2), m(1,3), m(2,0), m(2,1), m(2,2), m(2,3), m(3,0), m(3,1), m(3,2), m(3,3)); }
-	operator QMatrix4x4() const { return QMatrix4x4(v[0][0], v[0][1], v[0][2], v[0][3], v[1][0], v[1][1], v[1][2], v[1][3], v[2][0], v[2][1], v[2][2], v[2][3], v[3][0], v[3][1], v[3][2], v[3][3]); }
-	operator QString() const { return toString(); }
-	QString toString() const { return ToString2().c_str(); }
-	QMatrix4x4 ToQMatrix4x4() const { return (QMatrix4x4)*this; }
-	static float4x4 FromQMatrix4x4(const QMatrix4x4 &m) { return (float4x4)m; }
-#endif
+	/// Computes a new matrix with each element of this matrix replaced with their absolute value.
+	float4x4 Abs() const;
 
 	float4x4 Mul(const float3x3 &rhs) const;
 	float4x4 Mul(const float3x4 &rhs) const;
 	float4x4 Mul(const float4x4 &rhs) const;
 	float4x4 Mul(const Quat &rhs) const;
 	float3 MulPos(const float3 &pointVector) const;
+	inline float4 MulPos(const float4 &pointVector) const { assume(!EqualAbs(pointVector.w, 0.f)); return Mul(pointVector); }
 	float3 MulDir(const float3 &directionVector) const;
+	inline float4 MulDir(const float4 &directionVector) const { assume(EqualAbs(directionVector.w, 0.f)); return Mul(directionVector); }
 	float4 Mul(const float4 &vector) const;
 };
 
@@ -936,11 +1022,6 @@ float4x4 operator *(const float3x3 &lhs, const float4x4 &rhs);
 /// of multiplication is against the convention of this math system. Please use the M * v notation instead.
 /// (Remember that M * v != v * M in general).
 float4 operator *(const float4 &lhs, const float4x4 &rhs);
-
-#ifdef MATH_QT_INTEROP
-Q_DECLARE_METATYPE(float4x4)
-Q_DECLARE_METATYPE(float4x4*)
-#endif
 
 #ifdef MATH_SIMD
 template<>

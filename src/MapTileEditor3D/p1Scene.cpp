@@ -51,7 +51,7 @@ void p1Scene::Update()
 		ImVec2 window_size = ImGui::GetContentRegionAvail() + ImVec2(16, 16);
 		viewport->UpdateSize((int)window_size.x, (int)window_size.y); // TODO: Extract to a viewport function
 		//App->camera->frustum.verticalFov = DegToRad(60.f);
-		App->camera->frustum.horizontalFov = 2.f * atanf(tanf(App->camera->frustum.verticalFov * 0.5f) * (window_size.x / window_size.y));
+		//App->camera->frustum.horizontalFov = 2.f * atanf(tanf(App->camera->frustum.verticalFov * 0.5f) * (window_size.x / window_size.y));
 		viewport->Update();
 
 		viewport->Blit();
@@ -67,24 +67,30 @@ void p1Scene::Update()
 
 void p1Scene::ShowCreateMap()
 {
+	static bool popup_create = false;
+	static bool popup_load = false;
 	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f);
 	if (ImGui::Button("Create Map", ImVec2(100.f, 20.f))) {
 		ImGui::OpenPopup("Create Map");
+		popup_create = true;
 	}
 	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f + ImVec2(45.f, 25.f));
 	ImGui::Text("or");
 	ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImGui::GetWindowSize() * 0.5f + ImVec2(0.f, 40.f));
 	if (ImGui::Button("Load Map", ImVec2(100.f, 20.f))) {
 		ImGui::OpenPopup("Load Map");
+		popup_load = true;
 	}
 	ImGui::SetNextWindowSize(ImVec2(350.f, 250.f), ImGuiCond_Always);
 	ImGui::SetNextWindowPos(ImVec2((float)App->window->GetWidth() * 0.5f - 350.f * 0.5f, (float)App->window->GetHeight() * 0.5f - 250.f * 0.5f));
-	if (ImGui::BeginPopupModal("Create Map", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove)) {
+	if (ImGui::BeginPopupModal("Create Map", &popup_create, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove)) {
 		PopUpCreateMap();
 		ImGui::EndPopup();
 	}
 
-	if (ImGui::BeginPopupModal("Load Map", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove)) {
+	ImGui::SetNextWindowSize(ImVec2(350.f, 250.f), ImGuiCond_Always);
+	ImGui::SetNextWindowPos(ImVec2((float)App->window->GetWidth() * 0.5f - 350.f * 0.5f, (float)App->window->GetHeight() * 0.5f - 250.f * 0.5f));
+	if (ImGui::BeginPopupModal("Load Map", &popup_load)) {
 		PopUpLoadMap();
 		ImGui::EndPopup();
 	}
@@ -103,10 +109,22 @@ void p1Scene::PopUpCreateMap()
 	ImGui::NewLine();
 
 	if (ImGui::Button("Save")) {
-		r1Map::CreateNewMap(size[0], size[1], ("./Assets/Maps/" + std::string(name) + ".scene").c_str());
-		auto m = App->resources->CreateResource<r1Map>(("./Assets/Maps/" + std::string(name) + ".scene").c_str());
-		App->map_editor->LoadMap(m->GetUID());
-		ImGui::CloseCurrentPopup();
+		if (!std::string(name).empty()) {
+			std::string path = ("./Assets/Maps/" + std::string(name) + ".scene");
+			if (App->resources->FindByPath(path.c_str()) != 0ULL) {
+				int repeat = 0;
+				while (App->resources->FindByPath(path.c_str()) != 0ULL) {
+					path = "./Assets/Maps/" + std::string(name) + "(" + std::to_string(repeat++) + ")" + ".scene";
+				}
+			}
+			App->resources->PauseFileWatcher(true);
+			r1Map::CreateNewMap(size[0], size[1], path.c_str());
+			auto m = App->resources->CreateResource<r1Map>(path.c_str());
+			App->resources->GenerateMeta(path.c_str());
+			App->map_editor->LoadMap(m->GetUID());
+			App->resources->PauseFileWatcher(false);
+			ImGui::CloseCurrentPopup();
+		}
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Cancel")) {
@@ -128,7 +146,7 @@ void p1Scene::PopUpLoadMap()
 void p1Scene::MenuBar()
 {
 	if (ImGui::BeginMenuBar()) {
-		if (App->camera->frustum.type == FrustumType::PerspectiveFrustum) {
+		/*if (App->camera->frustum.type == FrustumType::PerspectiveFrustum) {
 			if (ImGui::Button("2D")) {
 				App->camera->frustum.front = -float3::unitY;
 				App->camera->frustum.up = float3::unitX;
@@ -142,7 +160,7 @@ void p1Scene::MenuBar()
 				App->camera->frustum.type = FrustumType::PerspectiveFrustum;
 				App->camera->SetFov();
 			}
-		}
+		}*/
 
 		ImGui::EndMenuBar();
 	}

@@ -27,26 +27,22 @@ public:
 
 	Uint64 GetUID() const;
 
-	virtual void GenerateFiles();
-
 	void Attach();
 	void Detach();
 
-	virtual void GenerateFilesLibrary() {}
-
 	virtual void OnInspector() {} //TODO: 
 
-	Resource::Type GetType();
-	std::string GetStrType();
+	Resource::Type GetType() const;
+	std::string GetStrType() const;
 	
 public:
 	std::string name;
-	std::string assets_path;
-	std::string library_path;
+	std::string path; //e.g. "./Assets/Models/test/cat.png"
 	std::string extension;
 
 protected:
 	virtual void Load() {}
+	virtual void LoadVars() {}
 	virtual void Unload() {}
 
 	Uint64 uid = 0ULL;

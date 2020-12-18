@@ -6,13 +6,15 @@
 #include "FileSystem.h"
 #include "m1GUI.h"
 
+#include "OSUtils.h"
+
 #include <SDL_version.h>
 #include "OpenGLHelper.h"
-#include "ExternalTools/DevIL/il.h"
-#include "ExternalTools/DevIL/ilu.h"
-#include "ExternalTools/DevIL/ilut.h"
+#include "ExternalTools/DevIL/include/IL/il.h"
+#include "ExternalTools/DevIL/include/IL/ilu.h"
+#include "ExternalTools/DevIL/include/IL/ilut.h"
 #include "ExternalTools/Assimp/include/version.h"
-#include "ExternalTools/infoware/include/version.hpp"
+//#include "ExternalTools/infoware/include/version.hpp"
 
 
 p1About::p1About(bool start_enabled, bool appear_mainmenubar, bool can_close)
@@ -55,18 +57,18 @@ void p1About::Update()
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Made by "); ImGui::SameLine();
 	if (ImGui::Button(ICON_FA_GITHUB" christt105")) {
-		App->ExecuteURL("https://github.com/christt105");
+		OSUtils::ExecuteURL("https://github.com/christt105");
 	}
 	
 	ImGui::TextWrapped("Licensed under CC-BY-4.0, see LICENSE file.");
 	ImGui::TextWrapped(file_data[0].c_str());
 	ImGui::Spacing();
 	if (ImGui::Button("Repository")) {
-		App->ExecuteURL("https://github.com/christt105/MapTileEditor-3D");
+		OSUtils::ExecuteURL("https://github.com/christt105/MapTileEditor-3D");
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Wiki")) {
-		App->ExecuteURL("https://github.com/christt105/MapTileEditor-3D/wiki");
+		OSUtils::ExecuteURL("https://github.com/christt105/MapTileEditor-3D/wiki");
 	}
 
 	ImGui::TextWrapped(file_data[1].c_str());
@@ -82,14 +84,17 @@ void p1About::Update()
 	ImGui::BulletText("mmgr: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.0.0");
 	ImGui::BulletText("MathGeoLib: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.5");
 	ImGui::BulletText("infoware: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", iware::version);
+	ImGui::BulletText("cpp-base64: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "2.0.0");
+	ImGui::BulletText("zlib: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.2.11");
+	ImGui::BulletText("pugixml: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.10");
 	ImGui::BulletText("par_shapes: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.0");
 	
 	ImGui::TextWrapped(file_data[2].c_str());
 	if (ImGui::Button("christt105.github.io")) {
-		App->ExecuteURL("https://christt105.github.io");
+		OSUtils::ExecuteURL("https://christt105.github.io");
 	}
 	ImGui::TextWrapped("Also, you can visit my dev-blog if you are interested in the development of the project:");
 	if (ImGui::Button("christt105.github.io/dev-blog")) {
-		App->ExecuteURL("https://christt105.github.io/dev-blog");
+		OSUtils::ExecuteURL("https://christt105.github.io/dev-blog");
 	}
 }

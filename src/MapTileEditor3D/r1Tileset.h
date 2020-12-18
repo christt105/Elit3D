@@ -9,8 +9,17 @@ public:
 	~r1Tileset();
 
 	void Load() override;
+	void LoadVars() override;
+	void Unload() override;
+
+	int GetWidth() const;
+	int GetHeight() const;
+	int GetMargin() const;
+	int GetSpacing() const;
+	int GetNTiles() const;
+	int GetColumns() const;
 	
-	uint64_t GetTextureUID();
+	uint64_t GetTextureUID() const;
 
 	void OnInspector() override;
 

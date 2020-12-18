@@ -43,23 +43,23 @@ m1GUI::~m1GUI()
 bool m1GUI::Init(const nlohmann::json& node)
 {
 	PROFILE_FUNCTION();
-	configuration = new p1Configuration();
-	about = new p1About(false, false);
-	objects = new p1Objects();
-	inspector = new p1Inspector();
-	console = new p1Console();
-	scene = new p1Scene(true, false, false);
-	resources = new p1Resources();
-	tileset = new p1Tileset();
-	layers = new p1Layers();
-	dbg_resources = new p1DebugResources(false, false);
+	configuration	= new p1Configuration();
+	about			= new p1About(false, false);
+	objects			= new p1Objects();
+	inspector		= new p1Inspector();
+	console			= new p1Console();
+	scene			= new p1Scene(true, false, false);
+	project			= new p1Project();
+	tileset			= new p1Tileset();
+	layers			= new p1Layers();
+	dbg_resources	= new p1DebugResources(false, false);
 
 	panels.push_back(objects);
 	panels.push_back(configuration);
 	panels.push_back(inspector);
 	panels.push_back(about);
 	panels.push_back(console);
-	panels.push_back(resources);
+	panels.push_back(project);
 	panels.push_back(scene);
 	panels.push_back(tileset);
 	panels.push_back(layers);
@@ -81,7 +81,7 @@ bool m1GUI::Start()
 
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiDockNodeFlags_PassthruCentralNode;
-	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	io.ConfigDockingWithShift = true;
 
 	// merge in icons from Font Awesome
@@ -111,7 +111,6 @@ UpdateStatus m1GUI::PreUpdate()
 
 	if (ImGui::BeginMainMenuBar()) {
 		MainMenuBar();
-
 		ImGui::EndMainMenuBar();
 	}
 
@@ -124,17 +123,69 @@ void m1GUI::MainMenuBar()
 {
 	PROFILE_FUNCTION();
 	static bool create_map = false;
+	static bool load_map = false;
+
 	if (ImGui::BeginMenu("File")) {
 		if (ImGui::MenuItem("New Map")) {
 			create_map = true;
 		}
+
+		ImGui::Separator();
 		
 		if (ImGui::MenuItem("Save")) {
+			App->resources->PauseFileWatcher(true);
+			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::SAVE_MAP));
+			App->resources->PauseFileWatcher(false);
+		}
+
+		if (ImGui::MenuItem("Save as... (not implemented)")) {
 			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::SAVE_MAP));
 		}
 
 		if (ImGui::MenuItem("Load")) {
-			App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::SAVE_MAP));
+			load_map = true;
+		}
+
+		ImGui::Separator();
+
+		if (ImGui::BeginMenu("Export")) {
+			if (ImGui::BeginMenu("XML")) {
+				if (ImGui::MenuItem("CSV")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::XML);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::CSV);
+					App->events->AddEvent(e);
+				}
+				if (ImGui::MenuItem("Base64 no compression")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::XML);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::BASE64_NO_COMPRESSION);
+					App->events->AddEvent(e);
+				}
+				if (ImGui::MenuItem("Base64 zlib compression")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::XML);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::BASE64_ZLIB);
+					App->events->AddEvent(e);
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("JSON")) {
+				if (ImGui::MenuItem("CSV")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::JSON);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::CSV);
+					App->events->AddEvent(e);
+				}
+				if (ImGui::MenuItem("Base64 no compression")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::JSON);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::BASE64_NO_COMPRESSION);
+					App->events->AddEvent(e);
+				}
+				if (ImGui::MenuItem("Base64 zlib compression")) {
+					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::JSON);
+					e->info["datatype"] = new iTypeVar((int)Layer::DataTypeExport::BASE64_ZLIB);
+					App->events->AddEvent(e);
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
 		}
 
 		ImGui::EndMenu();
@@ -148,11 +199,37 @@ void m1GUI::MainMenuBar()
 			ImGui::InputInt2("Size", size);
 
 			if (ImGui::Button("Create")) {
-				auto m = App->resources->CreateResource<r1Map>(("./Assets/Maps/" + std::string(buf) + ".scene").c_str());
-				r1Map::CreateNewMap(size[0], size[1], m->assets_path.c_str());
-				App->resources->GenerateMeta(m->assets_path.c_str());
-				memset(buf, 0, 50);
-				create_map = false;
+				if (!std::string(buf).empty()) {
+					std::string path = ("./Assets/Maps/" + std::string(buf) + ".scene");
+					if (App->resources->FindByPath(path.c_str()) != 0ULL) {
+						int repeat = 0;
+						while (App->resources->FindByPath(path.c_str()) != 0ULL) {
+							path = "./Assets/Maps/" + std::string(buf) + "(" + std::to_string(repeat++) + ")" + ".scene";
+						}
+					}
+					App->resources->PauseFileWatcher(true);
+					r1Map::CreateNewMap(size[0], size[1], path.c_str());
+					auto m = App->resources->CreateResource<r1Map>(path.c_str());
+					App->resources->GenerateMeta(path.c_str());
+					App->map_editor->LoadMap(m->GetUID());
+					App->resources->PauseFileWatcher(false);
+					memset(buf, 0, 50);
+					create_map = false;
+				}
+			}
+
+			ImGui::End();
+		}
+
+	if(load_map)
+		if (ImGui::Begin("Load Map", &load_map)) {
+			auto maps = App->resources->GetVectorOf(Resource::Type::Map);
+
+			for (auto i = maps.begin(); i != maps.end(); ++i) {
+				if (ImGui::Button((*i)->name.c_str())) {
+					App->map_editor->LoadMap((*i)->GetUID());
+					load_map = false;
+				}
 			}
 
 			ImGui::End();
@@ -161,6 +238,11 @@ void m1GUI::MainMenuBar()
 	static bool resize_map = false;
 	static int map_resize[2] = { 10 , 10 };
 	if (ImGui::BeginMenu("Edit")) {
+		if (ImGui::MenuItem("Map")) {
+			r1Map* m = App->map_editor->GetMap();
+			if (m != nullptr)
+				inspector->SetSelected(m, p1Inspector::SelectedType::EDITOR_MAP);
+		}
 		if (ImGui::MenuItem("Resize Map")) {
 			resize_map = true;
 			int2 m = App->map_editor->GetMapSize();
@@ -257,6 +339,17 @@ UpdateStatus m1GUI::PostUpdate()
 	PROFILE_FUNCTION();
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+		SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+	}
 
 	return UpdateStatus::UPDATE_CONTINUE;
 }

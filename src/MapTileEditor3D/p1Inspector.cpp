@@ -5,6 +5,7 @@
 #include "MapLayer.h"
 #include "m1Resources.h"
 #include "r1Tileset.h"
+#include "r1Map.h"
 
 #include "FileSystem.h"
 
@@ -32,7 +33,13 @@ void p1Inspector::Update()
 		case p1Inspector::SelectedType::LAYER:
 			((Layer*)selected)->OnInspector();
 			break;
+		case p1Inspector::SelectedType::EDITOR_MAP:
+			((r1Map*)selected)->OnInspector();
+			break;
 		case p1Inspector::SelectedType::TILESET:
+		case p1Inspector::SelectedType::FBX:
+		case p1Inspector::SelectedType::MAP:
+		case p1Inspector::SelectedType::PNG:
 		{
 			auto r = App->resources->FindGet(((std::string*)selected)->c_str(), false);
 			if (r)
@@ -46,20 +53,6 @@ void p1Inspector::Update()
 
 void p1Inspector::SetSelected(void* ptr, SelectedType t)
 {
-	if (loaded) {
-		App->resources->FindGet(((std::string*)selected)->c_str(), false)->Detach();
-		loaded = false;
-	}
-
 	selected = ptr;
 	type = t;
-
-	if (type == SelectedType::TILESET) {
-		auto r = App->resources->FindGet(((std::string*)selected)->c_str(), false);
-		if (r->references == 0) {
-			r->Attach();
-			loaded = true;
-		}
-	}
-
 }

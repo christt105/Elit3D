@@ -898,6 +898,9 @@ CODE
 #pragma GCC diagnostic ignored "-Wclass-memaccess"          // [__GNUC__ >= 8] warning: 'memset/memcpy' clearing/writing an object of type 'xxxx' with no trivial copy-assignment; use assignment or value-initialization instead
 #endif
 
+#include "../../Application.h"
+#include "../../m1Window.h"
+
 // Debug options
 #define IMGUI_DEBUG_NAV_SCORING     0   // Display navigation scoring preview when hovering items. Display last moving direction matches when holding CTRL
 #define IMGUI_DEBUG_NAV_RECTS       0   // Display the reference navigation rectangle for each window
@@ -7194,6 +7197,13 @@ void ImGui::SetNextWindowSize(const ImVec2& size, ImGuiCond cond)
     g.NextWindowData.Flags |= ImGuiNextWindowDataFlags_HasSize;
     g.NextWindowData.SizeVal = size;
     g.NextWindowData.SizeCond = cond ? cond : ImGuiCond_Always;
+}
+
+void ImGui::SetNextWindowCentered(const ImVec2& size, ImGuiCond cond)
+{
+    ImVec2 window(App->window->GetWidth(), App->window->GetHeight());
+    SetNextWindowSize(size, cond);
+    SetNextWindowPos(ImVec2(window.x * 0.5f - size.x * 0.5f, window.y * 0.5f - size.y * 0.5f), cond);
 }
 
 void ImGui::SetNextWindowSizeConstraints(const ImVec2& size_min, const ImVec2& size_max, ImGuiSizeCallback custom_callback, void* custom_callback_user_data)

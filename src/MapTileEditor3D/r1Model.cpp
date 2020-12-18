@@ -24,7 +24,11 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
+#ifdef _WIN64
+#pragma comment(lib, "ExternalTools/Assimp/libx64/assimp.lib")
+#else
 #pragma comment(lib, "ExternalTools/Assimp/libx86/assimp-vc141-mtd.lib")
+#endif
 
 r1Model::r1Model(const uint64_t& id) : Resource(Resource::Type::Model, id)
 {
@@ -34,86 +38,77 @@ r1Model::~r1Model()
 {
 }
 
-void r1Model::GenerateFiles()
-{
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(assets_path.c_str(), aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_FlipUVs);
-	
-	if (scene != nullptr && scene->mRootNode != nullptr) {
-		std::vector<uint64_t> meshes;
-		std::vector<uint64_t> textures;
+//void r1Model::GenerateFiles()
+//{
+	//Assimp::Importer importer;
+	//const aiScene* scene = importer.ReadFile(path.c_str(), aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_FlipUVs);
+	//
+	//if (scene != nullptr && scene->mRootNode != nullptr) {
+	//	std::vector<uint64_t> meshes;
+	//	std::vector<uint64_t> textures;
 
-		double factor = 0.0;
-		if (scene->mMetaData->Get("UnitScaleFactor", factor)) {
-			LOG("SCALE FACTOR: %f", factor);
-		}
+	//	double factor = 0.0;
+	//	if (scene->mMetaData->Get("UnitScaleFactor", factor)) {
+	//		LOG("SCALE FACTOR: %f", factor);
+	//	}
 
-		for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
-			r1Mesh* m = App->resources->CreateResource<r1Mesh>(assets_path.c_str(), 0Ui64, false);
-			m->GenerateFiles(scene->mMeshes[i]);
-			meshes.push_back(m->GetUID());
-		}
+	//	for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
+	//		r1Mesh* m = App->resources->CreateResource<r1Mesh>(path.c_str(), 0Ui64, false);
+	//		m->GenerateFiles(scene->mMeshes[i]);
+	//		meshes.push_back(m->GetUID());
+	//	}
 
-		for (unsigned int i = 0; i < scene->mNumMaterials; ++i) { //TODO
-			const aiMaterial* mat = scene->mMaterials[i];
-			unsigned int n_tex = mat->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE);
-			for (unsigned int i = 0; i < n_tex; ++i) {
-				aiString path;
-				if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS) {
-					if (FileSystem::IsFileInFolder(FileSystem::GetNameFile(path.C_Str(), true).c_str(), "Assets/", true)) {
-						auto res = App->resources->Get(App->resources->FindByName(FileSystem::GetNameFile(path.C_Str(), false).c_str()));
-						if (res != nullptr)
-							textures.push_back(res->GetUID());
-					}
-				}
-			}
+	//	for (unsigned int i = 0; i < scene->mNumMaterials; ++i) { //TODO
+	//		const aiMaterial* mat = scene->mMaterials[i];
+	//		unsigned int n_tex = mat->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE);
+	//		for (unsigned int i = 0; i < n_tex; ++i) {
+	//			aiString path;
+	//			if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS) {
+	//				if (FileSystem::IsFileInFolder(FileSystem::GetNameFile(path.C_Str(), true).c_str(), "Assets/", true)) {
+	//					auto res = App->resources->Get(App->resources->FindByName(FileSystem::GetNameFile(path.C_Str(), false).c_str()));
+	//					if (res != nullptr)
+	//						textures.push_back(res->GetUID());
+	//				}
+	//			}
+	//		}
 
-			/*r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
-			m->GenerateFiles(scene->mTextures[i]);
-			textures.push_back(m->GetUID());*/
-		}
+	//		/*r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
+	//		m->GenerateFiles(scene->mTextures[i]);
+	//		textures.push_back(m->GetUID());*/
+	//	}
 
-		for (unsigned int i = 0; i < scene->mNumTextures; ++i) { //TODO
-			LOGW("Textures import from FBX not done already...");
-			/*r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
-			m->GenerateFiles(scene->mTextures[i]);
-			textures.push_back(m->GetUID());*/
-		}
+	//	for (unsigned int i = 0; i < scene->mNumTextures; ++i) { //TODO
+	//		MLOGW("Textures import from FBX not done already...");
+	//		/*r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
+	//		m->GenerateFiles(scene->mTextures[i]);
+	//		textures.push_back(m->GetUID());*/
+	//	}
 
-		Node object = FillNodeHierarchy(scene->mRootNode, meshes, textures);
-		nlohmann::json model;
+	//	Node object = FillNodeHierarchy(scene->mRootNode, meshes, textures);
+	//	nlohmann::json model;
 
-		for (auto i = meshes.begin(); i != meshes.end(); ++i) {
-			model["Meshes"].push_back(*i);
-		}
+	//	for (auto i = meshes.begin(); i != meshes.end(); ++i) {
+	//		model["Meshes"].push_back(*i);
+	//	}
 
-		for (auto i = textures.begin(); i != textures.end(); ++i) {
-			model["Textures"].push_back(*i);
-		}
+	//	for (auto i = textures.begin(); i != textures.end(); ++i) {
+	//		model["Textures"].push_back(*i);
+	//	}
 
-		model["Hierarchy"] = object.Parse();
+	//	model["Hierarchy"] = object.Parse();
 
-		FileSystem::SaveJSONFile(library_path.c_str(), model);
-	}
-}
-
-void r1Model::GenerateFilesLibrary()
-{
-	nlohmann::json model = FileSystem::OpenJSONFile(library_path.c_str());
-
-	for (auto i = model["Meshes"].begin(); i != model["Meshes"].end(); ++i) {
-		App->resources->CreateResource<r1Mesh>("", *i);
-	}
-}
+	//	FileSystem::SaveJSONFile(library_path.c_str(), model);
+	//}
+//}
 
 Object* r1Model::CreateObject()
 {
 	Object* obj = App->objects->CreateEmptyObject();
 	obj->SetName(name.c_str());
 
-	nlohmann::json jobj = FileSystem::OpenJSONFile(library_path.c_str());
+	/*nlohmann::json jobj = FileSystem::OpenJSONFile(library_path.c_str());
 
-	CreateChildren(jobj["Hierarchy"], obj);
+	CreateChildren(jobj["Hierarchy"], obj);*/
 	
 	return obj;
 }
@@ -145,9 +140,7 @@ void r1Model::CreateChildren(nlohmann::json& jobj, Object* parent)
 
 void r1Model::Load()
 {
-	nlohmann::json model = FileSystem::OpenJSONFile(library_path.c_str());
-
-	
+	//nlohmann::json model = FileSystem::OpenJSONFile(library_path.c_str());
 }
 
 void r1Model::Unload()
