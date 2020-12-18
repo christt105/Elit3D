@@ -16,6 +16,11 @@ struct TypeVar {
     TypeVar(Type t) : type(t) {}
     virtual ~TypeVar() {}
 
+    float fGetValue();
+    int iGetValue();
+    std::string sGetValue();
+    bool bGetValue();
+
     static std::string TypeToName(Type t);
 };
 

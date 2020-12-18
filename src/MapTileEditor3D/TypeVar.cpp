@@ -21,3 +21,23 @@ std::string TypeVar::TypeToName(Type t)
 		break;
 	}
 }
+
+float TypeVar::fGetValue()
+{
+	return dynamic_cast<fTypeVar*>(this)->value;
+}
+
+int TypeVar::iGetValue()
+{
+	return dynamic_cast<iTypeVar*>(this)->value;
+}
+
+std::string TypeVar::sGetValue()
+{
+	return dynamic_cast<sTypeVar*>(this)->value;
+}
+
+bool TypeVar::bGetValue()
+{
+	return dynamic_cast<bTypeVar*>(this)->value;
+}

@@ -64,67 +64,120 @@ void r1Map::Save(const uint64_t& tileset)
 	}
 }
 
-void r1Map::ExportXML(const uint64_t& tileset, Layer::DataTypeExport d)
+void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor::MapTypeExport t)
 {
 	if (references > 0) {
-		pugi::xml_document doc;
-		pugi::xml_node map = doc.append_child("map");
+		switch (t)
+		{
+		case m1MapEditor::MapTypeExport::XML: {
+			pugi::xml_document doc;
+			pugi::xml_node map = doc.append_child("map");
 
-		map.append_attribute("width").set_value(size.x);
-		map.append_attribute("height").set_value(size.y);
+			map.append_attribute("width").set_value(size.x);
+			map.append_attribute("height").set_value(size.y);
 
-		pugi::xml_node ntileset = map.append_child("tileset");
-		auto tile = (r1Tileset*)App->resources->Get(tileset);
-		if (tile != nullptr) {
-			ntileset.append_attribute("name").set_value(tile->name.c_str());
-			ntileset.append_attribute("tilewidth").set_value(tile->GetWidth());
-			ntileset.append_attribute("tileheight").set_value(tile->GetHeight());
-			ntileset.append_attribute("spacing").set_value(tile->GetSpacing());
-			ntileset.append_attribute("margin").set_value(tile->GetMargin());
-			ntileset.append_attribute("ntiles").set_value(tile->GetNTiles());
-			ntileset.append_attribute("columns").set_value(tile->GetColumns());
+			pugi::xml_node ntileset = map.append_child("tileset");
+			auto tile = (r1Tileset*)App->resources->Get(tileset);
+			if (tile != nullptr) {
+				ntileset.append_attribute("name").set_value(tile->name.c_str());
+				ntileset.append_attribute("tilewidth").set_value(tile->GetWidth());
+				ntileset.append_attribute("tileheight").set_value(tile->GetHeight());
+				ntileset.append_attribute("spacing").set_value(tile->GetSpacing());
+				ntileset.append_attribute("margin").set_value(tile->GetMargin());
+				ntileset.append_attribute("ntiles").set_value(tile->GetNTiles());
+				ntileset.append_attribute("columns").set_value(tile->GetColumns());
 
-			ntileset.append_child("image").append_attribute("src").set_value(tile->path.c_str());
-		}
-		;
-		pugi::xml_node xmlproperties = map.append_child("properties");
-		properties.SaveProperties(xmlproperties);
-
-		for (auto l = layers.begin(); l != layers.end(); ++l) {
-			pugi::xml_node layer = map.append_child("layer");
-
-			xmlproperties = layer.append_child("properties");
-			(*l)->properties.SaveProperties(xmlproperties);
-
-			layer.append_attribute("name").set_value((*l)->GetName());
-			layer.append_attribute("visible").set_value((*l)->visible);
-			layer.append_attribute("locked").set_value((*l)->locked);
-			layer.append_attribute("height").set_value((*l)->height);
-			layer.append_attribute("opacity").set_value((*l)->opacity);
-			layer.append_attribute("displacementx").set_value((*l)->displacement[0]);
-			layer.append_attribute("displacementy").set_value((*l)->displacement[1]);
-
-			auto data = layer.append_child("data");
-			auto encoding = data.append_attribute("encoding");
-			switch (d)
-			{
-			case Layer::DataTypeExport::CSV:
-			case Layer::DataTypeExport::CSV_NO_NEWLINE:
-				encoding.set_value("csv");
-				break;
-			case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
-				encoding.set_value("base64");
-				break;
-			case Layer::DataTypeExport::BASE64_ZLIB:
-				encoding.set_value("base64-zlib");
-				break;
-			default:
-				break;
+				ntileset.append_child("image").append_attribute("src").set_value(tile->path.c_str());
 			}
-			data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
-		}
 
-		doc.save_file("Export/Test.xml");
+			pugi::xml_node xmlproperties = map.append_child("properties");
+			properties.SaveProperties(xmlproperties);
+
+			for (auto l = layers.begin(); l != layers.end(); ++l) {
+				pugi::xml_node layer = map.append_child("layer");
+
+				xmlproperties = layer.append_child("properties");
+				(*l)->properties.SaveProperties(xmlproperties);
+
+				layer.append_attribute("name").set_value((*l)->GetName());
+				layer.append_attribute("visible").set_value((*l)->visible);
+				layer.append_attribute("locked").set_value((*l)->locked);
+				layer.append_attribute("height").set_value((*l)->height);
+				layer.append_attribute("opacity").set_value((*l)->opacity);
+				layer.append_attribute("displacementx").set_value((*l)->displacement[0]);
+				layer.append_attribute("displacementy").set_value((*l)->displacement[1]);
+
+				auto data = layer.append_child("data");
+				auto encoding = data.append_attribute("encoding");
+				switch (d)
+				{
+				case Layer::DataTypeExport::CSV:
+				case Layer::DataTypeExport::CSV_NO_NEWLINE:
+					encoding.set_value("csv");
+					break;
+				case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
+					encoding.set_value("base64");
+					break;
+				case Layer::DataTypeExport::BASE64_ZLIB:
+					encoding.set_value("base64-zlib");
+					break;
+				default:
+					break;
+				}
+				data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
+			}
+
+			doc.save_file("Export/Test.xml");
+			break;
+		}
+		case m1MapEditor::MapTypeExport::JSON:
+		{
+			nlohmann::json file;
+
+			file["size"] = { size.x, size.y };
+			auto image = App->resources->Get(tileset);
+			if (image != nullptr)
+				file["tileset"] = image->path; //TODO: object tileset. All info of tileset binded on map file exported
+
+			properties.SaveProperties(file["properties"]);
+
+			for (auto l = layers.begin(); l != layers.end(); ++l) {
+				nlohmann::json lay = nlohmann::json::object();
+
+				switch (d)
+				{
+				case Layer::DataTypeExport::CSV:
+				case Layer::DataTypeExport::CSV_NO_NEWLINE:
+					lay["encoding"] = "csv";
+					//TODO: Parse as array of nnumbers
+					break;
+				case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
+				lay["encoding"] = "base64";
+					break;
+				case Layer::DataTypeExport::BASE64_ZLIB:
+					lay["encoding"] = "base64-zlib";
+					break;
+				default:
+					break;
+				}
+				lay["data"] = (*l)->Parse(size.x, size.y, d);
+
+				(*l)->properties.SaveProperties(lay["properties"]);
+
+				lay["name"] = (*l)->GetName();
+				lay["height"] = (*l)->height;
+				lay["opacity"] = (*l)->opacity;
+				lay["visible"] = (*l)->visible;
+				lay["locked"] = (*l)->locked;
+				lay["displacement"] = { (*l)->displacement[0], (*l)->displacement[1] };
+
+				file["layers"].push_back(lay);
+			}
+
+			FileSystem::SaveJSONFile("Export/Test.json", file);
+			break;
+		}
+		}
 	}
 }
 

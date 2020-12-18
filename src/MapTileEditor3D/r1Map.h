@@ -20,7 +20,7 @@ public:
     ~r1Map();
 
     void Save(const uint64_t& tileset);
-    void ExportXML(const uint64_t& tileset, Layer::DataTypeExport d);
+    void Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor::MapTypeExport t);
     void SaveInImage();
     void Load() override;
     void Unload() override;
