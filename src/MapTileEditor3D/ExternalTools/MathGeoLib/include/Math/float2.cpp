@@ -1,4 +1,4 @@
-/* Copyright Jukka Jylänki
+/* Copyright Jukka JylÃ¤nki
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -13,11 +13,15 @@
    limitations under the License. */
 
 /** @file float2.cpp
-	@author Jukka Jylänki
+	@author Jukka JylÃ¤nki
 	@brief */
 #include "float2.h"
+#include "float2.inl"
 #include "float3.h"
 #include "float4.h"
+#include "float3x3.h"
+#include "float3x4.h"
+#include "float4x4.h"
 #include "MathFunc.h"
 #include "../Algorithm/Random/LCG.h"
 #include "assume.h"
@@ -49,44 +53,8 @@ float2::float2(float scalar)
 float2::float2(const float *data)
 {
 	assume(data);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (!data)
-		return;
-#endif
 	x = data[0];
 	y = data[1];
-}
-
-float *float2::ptr()
-{
-	return &x;
-}
-
-const float *float2::ptr() const
-{
-	return &x;
-}
-
-CONST_WIN32 float float2::At(int index) const
-{
-	assume(index >= 0);
-	assume(index < Size);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (index < 0 || index >= Size)
-		return FLOAT_NAN;
-#endif
-	return ptr()[index];
-}
-
-float &float2::At(int index)
-{
-	assume(index >= 0);
-	assume(index < Size);
-#ifndef MATH_ENABLE_INSECURE_OPTIMIZATIONS
-	if (index < 0 || index >= Size)
-		return ptr()[0];
-#endif
-	return ptr()[index];
 }
 
 float2 float2::Swizzled(int i, int j) const
@@ -116,8 +84,10 @@ float float2::Length() const
 
 void float2::SetFromPolarCoordinates(float theta, float length)
 {
-	x = Cos(theta) * length;
-	y = Sin(theta) * length;
+	float sin, cos;
+	SinCos(theta, sin, cos);
+	x = cos * length;
+	y = sin * length;
 }
 
 float2 float2::FromPolarCoordinates(float theta, float length)
@@ -192,12 +162,12 @@ float2 float2::ScaledToLength(float newLength) const
 
 bool float2::IsNormalized(float epsilonSq) const
 {
-	return fabs(LengthSq()-1.f) <= epsilonSq;
+	return MATH_NS::Abs(LengthSq()-1.f) <= epsilonSq;
 }
 
 bool float2::IsZero(float epsilonSq) const
 {
-	return fabs(LengthSq()) <= epsilonSq;
+	return LengthSq() <= epsilonSq;
 }
 
 bool float2::IsFinite() const
@@ -205,9 +175,10 @@ bool float2::IsFinite() const
 	return MATH_NS::IsFinite(x) && MATH_NS::IsFinite(y);
 }
 
-bool float2::IsPerpendicular(const float2 &other, float epsilon) const
+bool float2::IsPerpendicular(const float2 &other, float epsilonSq) const
 {
-	return fabs(Dot(other)) <= epsilon;
+	float dot = Dot(other);
+	return dot*dot <= epsilonSq * LengthSq() * other.LengthSq();
 }
 
 bool float2::Equals(const float2 &rhs, float epsilon) const
@@ -220,12 +191,20 @@ bool float2::Equals(float x_, float y_, float epsilon) const
 	return EqualAbs(x, x_, epsilon) && EqualAbs(y, y_, epsilon);
 }
 
+bool float2::BitEquals(const float2 &other) const
+{
+	return ReinterpretAsU32(x) == ReinterpretAsU32(other.x) &&
+		ReinterpretAsU32(y) == ReinterpretAsU32(other.y);
+}
+
 /// It is too performance-heavy to set the locale in each serialization and deserialization function call.
 /// Therefore expect the user to has a proper locale set up for the application at startup. This is assert()ed
 /// at debug runs.
 bool IsNeutralCLocale()
 {
-#ifndef ANDROID ///\todo error: 'struct lconv' has no member named 'decimal_point'
+	// Android NDK locale.h does not have struct lconv or localeconv() implemented, and only contains stub 
+	// symbols with a comment 'MISSING FROM BIONIC - DEFINED TO MAKE libstdc++-v3 happy'
+#ifndef ANDROID
 	lconv *lc = localeconv();
 	if (strcmp(lc->decimal_point, "."))
 		return false;
@@ -233,38 +212,47 @@ bool IsNeutralCLocale()
 	return true;
 }
 
-#ifdef MATH_ENABLE_STL_SUPPORT
-std::string float2::ToString() const
+#if defined(MATH_ENABLE_STL_SUPPORT) || defined(MATH_CONTAINERLIB_SUPPORT)
+StringT float2::ToString() const
 {
 	char str[256];
-	sprintf_s(str, 256, "(%f, %f)", x, y);
-	return std::string(str);
+	sprintf(str, "(%f, %f)", x, y);
+	return str;
 }
 
-std::string float2::SerializeToString() const
+StringT float2::SerializeToString() const
 {
-	assert(IsNeutralCLocale());
 	char str[256];
-	sprintf_s(str, 256, "%f %f", x, y);
-	return std::string(str);
+	char *s = SerializeFloat(x, str); *s = ','; ++s;
+	s = SerializeFloat(y, s);
+	assert(s+1 - str < 256);
+	MARK_UNUSED(s);
+	return str;
+}
+
+StringT float2::SerializeToCodeString() const
+{
+	return "float2(" + SerializeToString() + ")";
 }
 #endif
 
-float2 float2::FromString(const char *str)
+float2 float2::FromString(const char *str, const char **outEndStr)
 {
 	assert(IsNeutralCLocale());
 	assume(str);
 	if (!str)
 		return float2::nan;
-	if (*str == '(')
-		++str;
+	MATH_SKIP_WORD(str, "float2");
+	MATH_SKIP_WORD(str, "(");
 	float2 f;
-	f.x = (float)strtod(str, const_cast<char**>(&str));
-	while(*str == ' ' || *str == '\t')
+	f.x = DeserializeFloat(str, &str);
+	f.y = DeserializeFloat(str, &str);
+	if (*str == ')')
 		++str;
-	if (*str == ',' || *str == ';')
+	if (*str == ',')
 		++str;
-	f.y = (float)strtod(str, const_cast<char**>(&str));
+	if (outEndStr)
+		*outEndStr = str;
 	return f;
 }
 
@@ -280,7 +268,7 @@ float float2::ProductOfElements() const
 
 float float2::AverageOfElements() const
 {
-	return (x + y) / 2.f;
+	return (x + y) * 0.5f;
 }
 
 float float2::MinElement() const
@@ -305,7 +293,7 @@ int float2::MaxElementIndex() const
 
 float2 float2::Abs() const
 {
-	return float2(fabs(x), fabs(y));
+	return float2(MATH_NS::Abs(x), MATH_NS::Abs(y));
 }
 
 float2 float2::Neg() const
@@ -320,22 +308,22 @@ float2 float2::Recip() const
 
 float2 float2::Min(float floor) const
 {
-	return float2(MATH_NS::Min(x, floor),  MATH_NS::Min(x, floor));
+	return float2(MATH_NS::Min(x, floor),  MATH_NS::Min(y, floor));
 }
 
 float2 float2::Min(const float2 &floor) const
 {
-	return float2(MATH_NS::Min(x, floor.x),  MATH_NS::Min(x, floor.x));
+	return float2(MATH_NS::Min(x, floor.x),  MATH_NS::Min(y, floor.y));
 }
 
 float2 float2::Max(float ceil) const
 {
-	return float2(MATH_NS::Max(x, ceil),  MATH_NS::Max(x, ceil));
+	return float2(MATH_NS::Max(x, ceil),  MATH_NS::Max(y, ceil));
 }
 
 float2 float2::Max(const float2 &ceil) const
 {
-	return float2(MATH_NS::Max(x, ceil.x),  MATH_NS::Max(x, ceil.x));
+	return float2(MATH_NS::Max(x, ceil.x),  MATH_NS::Max(y, ceil.y));
 }
 
 float2 float2::Clamp(const float2 &floor, const float2 &ceil) const
@@ -377,12 +365,12 @@ float2 float2::Perp() const
 
 float float2::PerpDot(const float2 &rhs) const
 {
-	return -y * rhs.x + x * rhs.y;
+	return x * rhs.y - y * rhs.x;
 }
 
 float2 float2::Reflect(const float2 &normal) const
 {
-	assume(normal.IsNormalized());
+	assume2(normal.IsNormalized(), normal.SerializeToCodeString(), normal.Length());
 	return 2.f * this->ProjectToNorm(normal) - *this;
 }
 
@@ -510,19 +498,6 @@ bool float2::OrientedCCW(const float2 &a, const float2 &b, const float2 &c)
 	return (a.x-c.x)*(b.y-c.y) - (a.y-c.y)*(b.x-c.x) >= 0.f;
 }
 
-class SortByPolarAngle
-{
-public:
-	float2 perspective;
-
-	bool operator()(const float2 &a, const float2 &b) const
-	{
-		float2 A = a - perspective;
-		float2 B = b - perspective;
-		return A.x*B.y < B.x*A.y;
-	}
-};
-
 #ifdef MATH_ENABLE_STL_SUPPORT
 void float2::ConvexHull(const float2 *pointArray, int numPoints, std::vector<float2> &outConvexHull)
 {
@@ -535,138 +510,119 @@ void float2::ConvexHull(const float2 *pointArray, int numPoints, std::vector<flo
 }
 #endif
 
-#ifdef MATH_ENABLE_STL_SUPPORT
 /** This function implements the Graham's Scan algorithm for finding the convex hull of
 	a 2D point set. The running time is O(nlogn). For details, see
 	"Introduction to Algorithms, 2nd ed.", by Cormen, Leiserson, Rivest, p.824, or
 	a lecture by Shai Simonson: http://www.aduni.org/courses/algorithms/index.php?view=cw , lecture 02-13-01. */
-int float2::ConvexHullInPlace(float2 *points, int nPoints)
+int float2::ConvexHullInPlace(float2 *p, int n)
 {
-	if (nPoints <= 3)
-		return nPoints;
-	// Find the lowest point of the set.
-	float2 *lowest = &points[0];
-	for(int i = 1; i < nPoints; ++i)
-		if (points[i].y < lowest->y)
-			lowest = &points[i];
-	Swap(*lowest, points[0]);
-	SortByPolarAngle pred;
-	pred.perspective = points[0];
-	std::sort(&points[1], &points[nPoints], pred);
-	int nPointsInHull = 2; // Two first points are in the hull without checking.
-	for(int i = 2; i < nPoints; ++i)
-	{
-		// The last two added points determine a line, check which side of that line the next point to be added lies in.
-		float2 lineA = points[nPointsInHull-1] - points[nPointsInHull-2];
-		float2 lineB = points[i] - points[nPointsInHull-2];
-		float lineALen = lineA.LengthSq();
-		float lineBLen = lineB.LengthSq();
-		bool dropLastPointFromHull = false;
-		if (lineALen >= 1e-5f)
-			lineA /= Sqrt(lineALen);
-		else
-			dropLastPointFromHull = true;
-		if (lineBLen >= 1e-5f)
-			lineB /= Sqrt(lineBLen);
-		float2 normal = float2(-lineA.y, lineA.x);
-		if (dropLastPointFromHull ||  MATH_NS::Dot(normal, lineB) > 0.f || (MATH_NS::Dot(normal,lineB) > -1e-4f && lineBLen >= lineALen))// || (Length2(points[i] - points[nPointsInHull-1]) <= 1e-5f)) // lineB is to the left of lineA?
-		{
-			// Points[n-1] is not part of the convex hull. Drop that point and decrement i to reprocess the current point.
-			// (It may be that the current point will cause lots of points to drop out of the convex hull.
-			if (nPointsInHull > 2)
-			{
-				--nPointsInHull;
-				--i;
-			}
-			else
-				points[nPointsInHull-1] = points[i];
-		}
-		else
-			points[nPointsInHull++] = points[i];
-	}
-
-	// The array points now stores the convex hull. For robustness,
-	// prune all duplicate and redundant points from the hull (due to floating point imprecisions).
-	for(int i = 0; i < nPointsInHull && nPointsInHull > 3; ++i)
-	{
-		// Remove any adjacent points that are too close.
-		if (points[i].Equals(points[(i+1)%nPointsInHull]))
-		{
-			for(int j = i; j+1 < nPointsInHull; ++j)
-				points[j] = points[j+1];
-			--nPointsInHull;
-			--i;
-			continue;
-		}
-
-		// Remove any adjacent points that are on the same line.
-		float2 dirA = points[(i+1)%nPointsInHull] - points[i];
-		dirA.Normalize();
-		float2 dirB = points[i] - points[(i+nPointsInHull-1)%nPointsInHull];
-		dirB.Normalize();
-		if (MATH_NS::Dot(dirA, dirB) >= 1.f - 1e-3f)
-		{
-			for(int j = i; j+1 < nPointsInHull; ++j)
-				points[j] = points[j+1];
-			--nPointsInHull;
-			--i;
-			continue;
-		}
-	}
-
-	return nPointsInHull;
+	return float2_ConvexHullInPlace<float2>(p, n);
 }
-#endif
 
-float float2::MinAreaRect(const float2 *pts, int numPoints, float2 &center, float2 &uDir, float2 &vDir, float &minU, float &maxU, float &minV, float &maxV)
+bool float2::ConvexHullContains(const float2 *convexHull, int numPointsInConvexHull, const float2 &point)
 {
-	assume(pts || numPoints == 0);
-	if (!pts)
-		return 0.f;
-	float minArea = FLT_MAX;
-
-	// Loop through all edges formed by pairs of points.
-	for(int i = 0, j = numPoints -1; i < numPoints; j = i, ++i)
+	int j = numPointsInConvexHull-1;
+	for(int i = 0; i < numPointsInConvexHull; ++i)
 	{
-		// The edge formed by these two points.
-		float2 e0 = pts[i] - pts[j];
-		float len = e0.Normalize();
-		if (len == 0)
-			continue; // the points are duplicate, skip this axis.
+		if (PerpDot2D(convexHull[j], convexHull[i], point) <= -1e-5f)
+			return false;
 
-		float2 e1 = e0.Rotated90CCW();
+		j = i;
+	}
+	return true;
+}
 
-		// Find the most extreme points along the coordinate frame { e0, e1 }.
+#define NEXT_P(ptr) ((ptr)+1 < (pEnd) ? (ptr)+1 : (p))
 
-		///@todo Examine. A bug in the book? All the following are initialized to 0!.
-		float min0 = FLOAT_INF;
-		float min1 = FLOAT_INF;
-		float max0 = -FLOAT_INF;
-		float max1 = -FLOAT_INF;
-		for(int k = 0; k < numPoints; ++k)
-		{
-			float2 d = pts[k] - pts[j];
-			float dot =  MATH_NS::Dot(d, e0);
-			if (dot < min0) min0 = dot;
-			if (dot > max0) max0 = dot;
-			dot =  MATH_NS::Dot(d, e1);
-			if (dot < min1) min1 = dot;
-			if (dot > max1) max1 = dot;
-		}
-		float area = (max0 - min0) * (max1 - min1);
+float float2::MinAreaRectInPlace(float2 *p, int n, float2 &center, float2 &uDir, float2 &vDir, float &minU, float &maxU, float &minV, float &maxV)
+{
+	assume(p || n == 0);
+	if (!p || n <= 0)
+	{
+		center = uDir = vDir = float2::nan;
+		minU = maxU = minV = maxV = FLOAT_NAN;
+		return FLOAT_NAN;
+	}
 
+	// As a preparation, need to compute the convex hull so that points are CCW-oriented,
+	// and this also greatly reduces the number of points for performance.
+	n = float2::ConvexHullInPlace(p, n);
+	assert(n > 0);
+	if (n == 1)
+	{
+		center = p[0];
+		uDir = float2(1,0);
+		vDir = float2(0,1);
+		minU = maxU = center.x;
+		minV = maxV = center.y;
+		return 0.f;
+	}
+
+	// e[i] point to the antipodal point pairs: e[0] and e[2] are pairs, so are e[1] and e[3].
+	float2 *e[4] = { p, p, p, p };
+
+	// Compute the initial AABB rectangle antipodal points for the rotating calipers method.
+	// Order the initial vertices minX -> minY -> maxX -> maxY to establish
+	// a counter-clockwise orientation.
+	for(int i = 1; i < n; ++i)
+	{
+		if (p[i].x < e[0]->x) e[0] = &p[i];
+		else if (p[i].x > e[2]->x) e[2] = &p[i];
+		if (p[i].y < e[1]->y) e[1] = &p[i];
+		else if (p[i].y > e[3]->y) e[3] = &p[i];
+	}
+
+	// Direction vector of the edge that the currently tested rectangle is in contact with.
+	// This specifies the reference frame for the rectangle, and this is the direction the
+	// convex hull points toward at the antipodal point e[0].
+	float2 ed = -float2::unitY;
+	float minArea = FLOAT_INF; // Track the area of the best rectangle seen so far.
+	const float2 * const pEnd = p + n; // For wraparound testing in NEXT_P().
+
+	// These track directions the convex hull is pointing towards at each antipodal point.
+	float2 d[4];
+	d[0] = (*NEXT_P(e[0]) - *e[0]).Normalized();
+	d[1] = (*NEXT_P(e[1]) - *e[1]).Normalized();
+	d[2] = (*NEXT_P(e[2]) - *e[2]).Normalized();
+	d[3] = (*NEXT_P(e[3]) - *e[3]).Normalized();
+
+	// Rotate the calipers 90 degrees to see through each possible edge that might support
+	// the bounding rectangle.
+	while(ed.y <= 0.f)
+	{
+		// Compute how much each edge can at most rotate before hitting the next vertex in the convex hull.
+		float cosA0 =  ed.Dot(d[0]);
+		float cosA1 =  ed.PerpDot(d[1]);
+		float cosA2 = -ed.Dot(d[2]);
+		float cosA3 = -ed.PerpDot(d[3]);
+
+		float maxCos = MATH_NS::Max(MATH_NS::Max(cosA0, cosA1), MATH_NS::Max(cosA2, cosA3));
+		// Pick the smallest angle (largest cosine of that angle) and increment the antipodal point index to travel the edge.
+		if (cosA0 >= maxCos)      { ed = d[0];                e[0] = NEXT_P(e[0]); d[0] = (*NEXT_P(e[0]) - *e[0]).Normalized(); }
+		else if (cosA1 >= maxCos) { ed = d[1].Rotated90CW();  e[1] = NEXT_P(e[1]); d[1] = (*NEXT_P(e[1]) - *e[1]).Normalized(); }
+		else if (cosA2 >= maxCos) { ed = -d[2];               e[2] = NEXT_P(e[2]); d[2] = (*NEXT_P(e[2]) - *e[2]).Normalized(); }
+		else                      { ed = d[3].Rotated90CCW(); e[3] = NEXT_P(e[3]); d[3] = (*NEXT_P(e[3]) - *e[3]).Normalized(); }
+
+		// Check if the area of the new rectangle is smaller than anything seen so far.
+		float minu = ed.PerpDot(*e[0]);
+		float maxu = ed.PerpDot(*e[2]);
+		float minv = ed.Dot(*e[1]);
+		float maxv = ed.Dot(*e[3]);
+
+		float area = MATH_NS::Abs((maxu-minu) * (maxv-minv));
 		if (area < minArea)
 		{
+			vDir = ed;
 			minArea = area;
-			center = pts[j] + 0.5f * ((min0 + max0) * e0 + (min1 + max1) * e1);
-			uDir = e0;
-			vDir = e1;
-			minU = min0;
-			maxU = max0;
-			minV = min1;
-			maxV = max1;
+			minU = MATH_NS::Min(minu, maxu);
+			maxU = MATH_NS::Max(minu, maxu);
+			minV = MATH_NS::Min(minv, maxv);
+			maxV = MATH_NS::Max(minv, maxv);
 		}
 	}
+	uDir = vDir.Rotated90CCW();
+	center = 0.5f * (uDir * (minU+maxU) + vDir * (minV+maxV));
+
 	return minArea;
 }
 
@@ -723,9 +679,12 @@ float2 float2::operator /(float scalar) const
 	return float2(x * invScalar, y * invScalar);
 }
 
-float2 operator /(float scalar, const float2 &rhs)
+float2 &float2::operator =(const float2 &rhs)
 {
-	return float2(scalar / rhs.x, scalar / rhs.y);
+	x = rhs.x;
+	y = rhs.y;
+	
+	return *this;
 }
 
 float2 &float2::operator +=(const float2 &rhs)
@@ -799,6 +758,12 @@ std::ostream &operator <<(std::ostream &out, const float2 &rhs)
 	return out;
 }
 #endif
+
+float2 Mul2D(const float3x3 &transform, const float2 &v) { return transform.Transform(v.x, v.y, 0.f).xy(); }
+float2 MulPos2D(const float3x4 &transform, const float2 &v) { return transform.Transform(float4(v.x, v.y, 0.f, 1.f)).xy(); }
+float2 MulPos2D(const float4x4 &transform, const float2 &v) { return transform.Transform(float4(v.x, v.y, 0.f, 1.f)).xy(); }
+float2 MulDir2D(const float3x4 &transform, const float2 &v) { return transform.Transform(float4(v.x, v.y, 0.f, 0.f)).xy(); }
+float2 MulDir2D(const float4x4 &transform, const float2 &v) { return transform.Transform(float4(v.x, v.y, 0.f, 0.f)).xy(); }
 
 const float2 float2::zero = float2(0, 0);
 const float2 float2::one = float2(1, 1);

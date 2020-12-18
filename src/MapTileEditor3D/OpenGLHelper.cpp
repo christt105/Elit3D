@@ -65,6 +65,29 @@ void oglh::_HandleError(const char* func)
 	}
 }
 
+int oglh::WrapEnumToGLEnum(Wrap w)
+{
+	switch (w)
+	{
+	case oglh::ClampToEdge:
+		return GL_CLAMP_TO_EDGE;
+	case oglh::MirroredRepeat:
+		return GL_MIRRORED_REPEAT;
+	case oglh::ClampToBorder:
+		return GL_CLAMP_TO_BORDER;
+	default:
+		return GL_REPEAT;
+	}
+}
+
+int oglh::FilterEnumToGLEnum(Filter f)
+{
+	if (f == oglh::Nearest)
+		return GL_NEAREST;
+	else
+		return GL_LINEAR;
+}
+
 void oglh::ActiveTexture(int val)
 {
 	glActiveTexture(GL_TEXTURE0 + val);
@@ -77,7 +100,7 @@ void oglh::BindTexture(unsigned int id)
 	HANDLE_ERROR();
 }
 
-void oglh::TexSubImage2D(int x, int y, int width, int height, unsigned char* pixels)
+void oglh::TexSubImage2D(int x, int y, int width, int height, const unsigned char* pixels)
 {
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	HANDLE_ERROR();
@@ -171,7 +194,7 @@ void oglh::GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type
 	HANDLE_ERROR();
 }
 
-void oglh::GenElementBuffer(unsigned int& id, unsigned int size, unsigned int* data)
+void oglh::GenElementBuffer(unsigned int& id, unsigned int size, const unsigned int* data)
 {
 	glGenBuffers(1, &id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
@@ -179,30 +202,19 @@ void oglh::GenElementBuffer(unsigned int& id, unsigned int size, unsigned int* d
 	HANDLE_ERROR();
 }
 
-void oglh::GenTextureData(unsigned int& id, bool repeat, bool nearest, unsigned int size_x, unsigned int size_y, const unsigned char* data)
+void oglh::GenTextureData(unsigned int& id, Wrap wrap, Filter filter, unsigned int size_x, unsigned int size_y, const unsigned char* data)
 {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
 
 	HANDLE_ERROR();
-	
-	if (repeat) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	}
-	else {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); //TODO: Allow more
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	}
 
-	if (nearest) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
-	else {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, WrapEnumToGLEnum(wrap));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, WrapEnumToGLEnum(wrap));
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilterEnumToGLEnum(filter));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilterEnumToGLEnum(filter));
+
 	HANDLE_ERROR();
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, size_x, size_y, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -214,27 +226,15 @@ void oglh::GenTextureData(unsigned int& id, bool repeat, bool nearest, unsigned 
 	HANDLE_ERROR();
 }
 
-void oglh::SetTextureProperties(unsigned int id, bool repeat, bool nearest)
+void oglh::SetTextureProperties(unsigned int id, Wrap wrap, Filter filter)
 {
 	glBindTexture(GL_TEXTURE_2D, id);
 
-	if (repeat) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	}
-	else {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); //TODO: Allow more
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	}
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, WrapEnumToGLEnum(wrap));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, WrapEnumToGLEnum(wrap));
 
-	if (nearest) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
-	else {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilterEnumToGLEnum(filter));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilterEnumToGLEnum(filter));
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

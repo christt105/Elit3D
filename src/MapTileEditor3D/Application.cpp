@@ -1,8 +1,5 @@
 #include "Application.h"
 
-#include <Windows.h>
-#include <shellapi.h>
-
 #include "Logger.h"
 
 #include "m1Input.h"
@@ -203,12 +200,6 @@ float Application::GetDt() const
 unsigned int Application::GetFrames() const
 {
 	return frame_count;
-}
-
-void Application::ExecuteURL(const char* url)
-{
-	// TODO: set it for linux and mac
-	ShellExecute(0, 0, url, 0, 0, SW_SHOW);
 }
 
 void Application::SaveConfiguration()

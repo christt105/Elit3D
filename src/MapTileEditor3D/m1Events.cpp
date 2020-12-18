@@ -4,6 +4,7 @@
 #include "Application.h"
 
 #include "m1Resources.h"
+#include "FileWatch.h"
 
 #include "m1MapEditor.h"
 #include "ExternalTools/MathGeoLib/include/Math/float3.h"
@@ -23,34 +24,72 @@ m1Events::~m1Events()
 UpdateStatus m1Events::PreUpdate()
 {
 	PROFILE_FUNCTION();
+	std::unique_lock<std::mutex> lock(App->resources->GetFileWatcher()->mtx);
 	while (!events.empty()) {
 		auto e = events.top();
 		switch (e->type)
 		{
 		case Event::Type::FILE_CREATED:
 			// Generate metadata and generate library
+			LOG("File %s created", ((sTypeVar*)e->info["basic_info"])->value.c_str());
+			if (FileSystem::GetFileExtension(((sTypeVar*)e->info["basic_info"])->value.c_str()).compare("meta") != 0)
+				App->resources->NewResource(((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FILE_MOVED:
+		{
 			// Check if metadata is within and change resource assets path
+			LOG("File %s moved", ((sTypeVar*)e->info["to"])->value.c_str());
+			uint64_t r = App->resources->FindByPath(((sTypeVar*)(e->info["from"]))->value.c_str());
+			if (r != 0ULL) {
+				Resource* res = App->resources->Get(r);
+				if (res != nullptr) {
+					res->path.assign(((sTypeVar*)(e->info["to"]))->value);
+				}
+				else
+					LOGE("FileWatcher: resource with id %ull not found to move", r);
+			}
+			else {
+				LOGE("FileWatcher: resource with path %s not found to move", ((sTypeVar*)(e->info["from"]))->value.c_str());
+			}
 			break;
+		}
 		case Event::Type::FILE_REMOVED:
 			// Remove from library and from resources map
+			LOG("File %s removed", ((sTypeVar*)e->info["basic_info"])->value.c_str());
+			App->resources->DeleteResource(App->resources->FindByPath(((sTypeVar*)e->info["basic_info"])->value.c_str()));
 			break;
 		case Event::Type::FILE_RENAMED:
+		{
 			//Change metadata name file and resources assets path
+			LOG("File %s renamed", ((sTypeVar*)(e->info["to"]))->value.c_str());
+			uint64_t r = App->resources->FindByPath(((sTypeVar*)(e->info["from"]))->value.c_str());
+			if (r != 0ULL) {
+				Resource* res = App->resources->Get(r);
+				if (res != nullptr) {
+					res->path.assign(((sTypeVar*)(e->info["to"]))->value);
+				}
+				else
+					LOGE("FileWatcher: resource with id %ull not found to move", r);
+			}
+			else {
+				LOGE("FileWatcher: resource with path %s not found to move", ((sTypeVar*)(e->info["from"]))->value.c_str());
+			}
 			break;
+		}
 		case Event::Type::FILE_MODIFIED:
 			App->resources->ReimportResource(((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FOLDER_CREATED:
 			//Check for resources inside
+			LOG("Folder %s created", ((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 		case Event::Type::FOLDER_MOVED:
-		case Event::Type::FOLDER_RENAMED:
 			// Change resources assets path
+			LOG("Folder %s moved", ((sTypeVar*)e->info["to"])->value.c_str());
 			break;
 		case Event::Type::FOLDER_REMOVED:
 			// delete all resources inside folder
+			LOG("Folder %s removed", ((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 
 		case Event::Type::RESIZE_MAP:
@@ -59,7 +98,9 @@ UpdateStatus m1Events::PreUpdate()
 		case Event::Type::SAVE_MAP:
 			App->map_editor->SaveMap();
 			break;
-
+		case Event::Type::EXPORT_MAP:
+			App->map_editor->ExportMap((m1MapEditor::MapTypeExport)(e->info["basic_info"]->iGetValue()), (Layer::DataTypeExport)((iTypeVar*)e->info["datatype"])->value);
+			break;
 		case Event::Type::SAVE_CONFIGURATION:
 			App->SaveConfiguration();
 			break;
@@ -70,6 +111,7 @@ UpdateStatus m1Events::PreUpdate()
 			App->LoadConfiduration("Configuration/Configuration_default.json");
 			break;
 		default:
+			LOG("Event with type %i not handled", (int)e->type);
 			break;
 		}
 		delete e;
@@ -81,6 +123,7 @@ UpdateStatus m1Events::PreUpdate()
 
 void m1Events::AddEvent(Event* e)
 {
+	std::unique_lock<std::mutex> lock(App->resources->GetFileWatcher()->mtx);
 	events.push(e);
 }
 
@@ -88,10 +131,19 @@ m1Events::Event::Event(): type(m1Events::Event::Type::NONE)
 {
 }
 
+m1Events::Event::Event(Type t) : type(t)
+{
+}
+
 m1Events::Event::Event(Type t, const char* basic_info) : type(t)
 {
 	if (basic_info != NULL)
 		info["basic_info"] = new sTypeVar(basic_info);
+}
+
+m1Events::Event::Event(Type t, int basic_info) : type(t)
+{
+	info["basic_info"] = new iTypeVar(basic_info);
 }
 
 m1Events::Event::~Event()

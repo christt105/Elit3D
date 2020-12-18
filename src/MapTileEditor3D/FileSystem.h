@@ -27,9 +27,6 @@ public:
 class FileSystem
 {
 public:
-	FileSystem();
-	~FileSystem();
-
 	static nlohmann::json	OpenJSONFile(const char* path);
 	static void				SaveJSONFile(const char* path, const nlohmann::json& file);
 	static std::string		OpenTextFile(const char* path);
@@ -43,24 +40,28 @@ public:
 
 	static bool CreateFolder(const char* path);
 	static bool fDeleteFile(const char* path);
+	static bool DeleteFolder(const char* path);
 	static bool CopyTo(const char* source, const char* dst);
+	static bool MoveTo(const char* source, const char* dst);
 
 	static bool IsFileInFolder(const char* file, const char* folder, bool recursive = false);
 
 	static std::string GetFileExtension(const char* file, bool with_dot = false);
 	static std::string GetNameFile(const char* file, bool with_extension = false);
 	static std::string GetFolder(const char* path);
+	static std::string GetNameFolder(const char* path, bool with_slash = true);
+	static std::string GetParentFolder(const char* path);
+	static std::string GetFullPath(const char* path);
 
 	static Folder* GetPtrFolder(const char* folder);
 	static Folder* GetRootFolder();
+	static Folder* RegenerateRootFolder();
 
 	static void DeleteRoot();
 
 private:
-	static Folder* _GetFilesRecursive(const char* path);
+	static Folder* GetFolders(const char* path);
 
 private:
-	static void GetFiles(Folder* parent);
-
 	static Folder* root;
 };

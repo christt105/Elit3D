@@ -1,6 +1,8 @@
 #pragma once
 #include "Panel.h"
 
+#include "Globals.h"
+
 class r1Shader;
 class r1Texture;
 class r1Tileset;
@@ -39,12 +41,15 @@ public:
 	void SelectTileset(const uint64_t& uid);
 
 	void SelectTransparentColor(r1Shader*& shader);
+	void SetColumnUniform(r1Shader*& shader);
 
 	int2 GetTileSelected() const;
+	TILE_DATA_TYPE GetTileIDSelected() const;
 	int GetTileWidth() const;
 	int GetTileHeight() const;
 
 	const uint64_t& GetTileset() const;
+	int2 GetTilesetSize() const;
 
 private:
 	void ModalCreateTileset(bool& modal);

@@ -12,15 +12,7 @@
 
 namespace fs = std::filesystem;
 
-Folder* FileSystem::root = FileSystem::_GetFilesRecursive("./");
-
-FileSystem::FileSystem() 
-{
-}
-
-FileSystem::~FileSystem()
-{
-}
+Folder* FileSystem::root = FileSystem::GetFolders("./");
 
 nlohmann::json FileSystem::OpenJSONFile(const char* path)
 {
@@ -115,11 +107,22 @@ bool FileSystem::CreateFolder(const char* path)
 bool FileSystem::fDeleteFile(const char* path)
 {
     std::error_code err;
-    if (fs::remove(path, err) != 0) {
+    if (!fs::remove(path, err)) {
         LOGW("Could not delete %s, error: %s", path, err.message().c_str());
         return false;
     }
     
+    return true;
+}
+
+bool FileSystem::DeleteFolder(const char* path)
+{
+    std::error_code err;
+    if (!fs::remove_all(path, err)) {
+        LOGW("Could not delete %s, error: %s", path, err.message().c_str());
+        return false;
+    }
+
     return true;
 }
 
@@ -132,6 +135,13 @@ bool FileSystem::CopyTo(const char* source, const char* dst)
     return err.value() == 0;
 }
 
+bool FileSystem::MoveTo(const char* source, const char* dst)
+{
+    if (CopyTo(source, dst))
+        return fDeleteFile(source);
+    return false;
+}
+
 bool FileSystem::IsFileInFolder(const char* file, const char* folder, bool recursive)
 {
     auto f = GetPtrFolder(folder);
@@ -141,11 +151,27 @@ bool FileSystem::IsFileInFolder(const char* file, const char* folder, bool recur
     return false;
 }
 
-Folder* FileSystem::_GetFilesRecursive(const char* path)
+Folder* FileSystem::GetFolders(const char* path)
 {
     Folder* parent = new Folder(path, nullptr);
+    std::stack<Folder*> stack;
+    stack.push(parent);
 
-    GetFiles(parent);
+    while (!stack.empty()) {
+        Folder* folder = stack.top();
+        stack.pop();
+
+        for (const auto& entry : fs::directory_iterator(folder->full_path)) {
+            if (entry.is_directory()) {
+                Folder* f = new Folder((entry.path().u8string() + '/').c_str(), folder);
+                stack.push(f);
+                folder->folders.push_back(f);
+            }
+            else {
+                folder->files[entry.path().filename().string()] = LastTimeWrite((folder->full_path + entry.path().filename().string()).c_str());
+            }
+        }
+    }
 
     return parent;
 }
@@ -226,6 +252,62 @@ std::string FileSystem::GetFolder(const char* path)
     return ret;
 }
 
+std::string FileSystem::GetNameFolder(const char* path, bool with_slash)
+{
+    std::string ret;
+    std::string p(path);
+
+    bool first_slash = false;
+    for (auto i = p.rbegin(); i != p.rend(); ++i) {
+        if (*i == '/' || *i == '//' || *i == '\\') {
+            if (first_slash) {
+                first_slash = true;
+                if (with_slash)
+                    ret.push_back(*i);
+            }
+            else
+                break;
+        }
+        else {
+            ret.push_back(*i);
+        }
+    }
+    std::reverse(ret.begin(), ret.end());
+    return ret;
+}
+
+std::string FileSystem::GetParentFolder(const char* path)
+{
+    std::string p(path);
+    std::string ret;
+
+    bool end_of_file = false;
+    bool first_slash = true;
+    for (auto i = p.rbegin(); i != p.rend(); ++i) {
+        if (!end_of_file) {
+            if (*i == '/' || *i == '//' || *i == '\\') {
+                if (first_slash) {
+                    first_slash = false;
+                }
+                else {
+                    end_of_file = true;
+                }
+            }
+        }
+        else {
+            ret.push_back(*i);
+        }
+    }
+
+    std::reverse(ret.begin(), ret.end());
+    return ret;
+}
+
+std::string FileSystem::GetFullPath(const char* path)
+{
+    return fs::absolute(path).string();
+}
+
 Folder* FileSystem::GetPtrFolder(const char* folder)
 {
     if (root->full_path.compare(folder) == 0)
@@ -233,18 +315,18 @@ Folder* FileSystem::GetPtrFolder(const char* folder)
 
     std::stack<Folder*> s;
     s.push(root);
+    std::string sfolder = std::string("./") + folder;
 
     while (s.empty() == false) {
-        /*
-        TODO: find by aproximation if want "Assets/Maps/" don't look on "Configuration/"
-        */
         auto f = s.top();
         s.pop();
         for (auto i = f->folders.begin(); i != f->folders.end(); ++i) {
-            if ((*i)->full_path.compare(std::string("./") + folder) == 0)
+            if ((*i)->full_path.compare(sfolder) == 0) {
                 return *i;
-            //if ((std::string("./") + folder).findfirstof(f))
-            s.push(*i);
+            }
+            if (sfolder.find((*i)->full_path) != std::string::npos) {
+                s.push(*i);
+            }
         }
     }
     LOGW("Folder %s not found", folder);
@@ -256,23 +338,16 @@ Folder* FileSystem::GetRootFolder()
     return root;
 }
 
+Folder* FileSystem::RegenerateRootFolder()
+{
+    //TODO: don't delete all folders
+    delete root;
+    return root = FileSystem::GetFolders("./");
+}
+
 void FileSystem::DeleteRoot()
 {
     delete root;
-}
-
-void FileSystem::GetFiles(Folder* parent)
-{
-    for (const auto& entry : fs::directory_iterator(parent->full_path)) {
-        if (entry.is_directory()) {
-            Folder* f = new Folder((entry.path().u8string() + '/').c_str(), parent);
-            GetFiles(f);
-            parent->folders.push_back(f);
-        }
-        else {
-            parent->files[entry.path().filename().string()] = LastTimeWrite((parent->full_path + entry.path().filename().string()).c_str());
-        }
-    }
 }
 
 Folder::Folder(const char* n, Folder* parent) :full_path(n), parent(parent)

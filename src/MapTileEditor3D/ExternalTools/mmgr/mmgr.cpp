@@ -90,6 +90,7 @@
 #include <time.h>
 #include <stdarg.h>
 #include <new>
+#include <mutex>
 
 #ifndef	_WIN32
 #include <unistd.h>
@@ -181,7 +182,7 @@ static	const	unsigned int	paddingSize            = 4;
 
 #ifdef	WIN32
 	#ifdef	_DEBUG
-	#define	m_assert(x) if ((x) == false) __asm { int 3 }
+	#define	m_assert(x) assert(x) 
 	#else
 	#define	m_assert(x) {}
 	#endif
@@ -253,6 +254,9 @@ static		unsigned int	reservoirBufferSize    = 0;
 static const	char		*memoryLogFile         = "Export/memory.log";
 static const	char		*memoryLeakLogFile     = "Export/memleaks.log";
 static		void		doCleanupLogOnFirstRun();
+
+static std::mutex mtx;
+#define LOCK std::unique_lock<std::mutex> lock(mtx)
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Local functions only
@@ -535,7 +539,6 @@ static	void	dumpAllocations(FILE *fp)
 static	void	dumpLeakReport()
 {
 	// Open the report file
-#ifndef GAME_BUILD
 	FILE	*fp = fopen(memoryLeakLogFile, "w+b");
 
 	// If you hit this assert, then the memory report generator is unable to log information to a file (can't open the file for
@@ -565,7 +568,6 @@ static	void	dumpLeakReport()
 		fprintf(fp, "Congratulations! No memory leaks found!\r\n");
 
 		// We can finally free up our own memory allocations
-//#endif
 		if (reservoirBuffer)
 		{
 			for (unsigned int i = 0; i < reservoirBufferSize; i++)
@@ -577,7 +579,6 @@ static	void	dumpLeakReport()
 			reservoirBufferSize = 0;
 			reservoir = NULL;
 		}
-//#ifndef GAME_BUILD
 	}
 	fprintf(fp, "\r\n");
 
@@ -587,7 +588,6 @@ static	void	dumpLeakReport()
 	}
 
 	fclose(fp);
-#endif
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -1045,6 +1045,7 @@ void	operator delete[](void *reportedAddress)
 
 void	*m_allocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int allocationType, const size_t reportedSize)
 {
+	LOCK;
 	try
 	{
 		#ifdef TEST_MEMORY_MANAGER
@@ -1224,6 +1225,7 @@ void	*m_allocator(const char *sourceFile, const unsigned int sourceLine, const c
 
 void	*m_reallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int reallocationType, const size_t reportedSize, void *reportedAddress)
 {
+	LOCK;
 	try
 	{
 		#ifdef TEST_MEMORY_MANAGER
@@ -1423,6 +1425,7 @@ void	*m_reallocator(const char *sourceFile, const unsigned int sourceLine, const
 
 void	m_deallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int deallocationType, const void *reportedAddress)
 {
+	LOCK;
 	try
 	{
 		#ifdef TEST_MEMORY_MANAGER
@@ -1445,9 +1448,9 @@ void	m_deallocator(const char *sourceFile, const unsigned int sourceLine, const 
 
 			// If you hit this assert, you tried to deallocate RAM that wasn't allocated by this memory manager.
 			/*mmgr is non thread safe :( */
-#if MMGR_ASSERT
+
 			m_assert(au != NULL);
-#endif
+
 			if (au == NULL) throw "Request to deallocate RAM that was never allocated";
 
 			// If you hit this assert, then the allocation unit that is about to be deallocated is damaged. But you probably
@@ -1689,7 +1692,6 @@ void	m_dumpAllocUnit(const sAllocUnit *allocUnit, const char *prefix)
 void	m_dumpMemoryReport(const char *filename, const bool overwrite)
 {
 	// Open the report file
-#ifndef GAME_BUILD
 	FILE	*fp = NULL;
 	
 	if (overwrite)	fp = fopen(filename, "w+b");
@@ -1749,7 +1751,6 @@ void	m_dumpMemoryReport(const char *filename, const bool overwrite)
 	dumpAllocations(fp);
 
 	fclose(fp);
-#endif
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------

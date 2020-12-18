@@ -16,6 +16,7 @@
 	@author Jukka Jylänki
 	@brief Common mathematical functions. */
 #include "MathFunc.h"
+#include "Swap.h"
 #include "SSEMath.h"
 #ifdef MATH_ENABLE_STL_SUPPORT
 #include <utility>
@@ -24,14 +25,32 @@
 
 #include "myassert.h"
 #include "float2.h"
+#include "float4.h"
+#ifdef MATH_WITH_GRISU3
+#include "grisu3.h"
+#endif
 
 #ifdef WIN32
-#include <Windows.h>
+#include "../Math/InclWindows.h"
+#endif
+
+#ifdef MATH_SSE2
+#include "sse_mathfun.h"
+#endif
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <emscripten/em_math.h>
 #endif
 
 MATH_BEGIN_NAMESPACE
 
-bool mathBreakOnAssume = false;
+bool mathBreakOnAssume =
+#ifdef MATH_STARTUP_BREAK_ON_ASSUME
+	true;
+#else
+	false;
+#endif
 
 void SetMathBreakOnAssume(bool isEnabled)
 {
@@ -46,78 +65,278 @@ bool MathBreakOnAssume()
 
 bool AssumeFailed()
 {
+#ifndef OPTIMIZED_RELEASE
 	if (mathBreakOnAssume)
 	{
 #if defined(WIN32) && !defined(WIN8RT) // Win8 metro apps don't have DebugBreak.
 		DebugBreak();
+#elif defined(__EMSCRIPTEN__)
+		emscripten_debugger();
+// TODO: Test locally on Linux GCC and enable
+//#elif defined(__clang__) && __has_builtin(__builtin_debugtrap)
+//		__builtin_debugtrap();
 #endif
 	}
+#endif
+	// If your debugger is breaking in this function, it means that an assume() failure has occurred,
+	// or a MLOGE()/MLOGW() failure has occurred, and building with trap-to-debugger enabled. Navigate
+	// up the callstack to find the offending code that raised the error.
 	return mathBreakOnAssume;
 }
 
+#if defined(__EMSCRIPTEN__) && !defined(MATH_USE_SINCOS_LOOKUPTABLE)
+// On Emscripten using lookup tables has been profiled to be significantly faster.
+#define MATH_USE_SINCOS_LOOKUPTABLE
+#endif
+
+#define MAX_CIRCLE_ANGLE           65536
+#define HALF_MAX_CIRCLE_ANGLE     (MAX_CIRCLE_ANGLE/2)
+#define QUARTER_MAX_CIRCLE_ANGLE  (MAX_CIRCLE_ANGLE/4)
+#define MASK_MAX_CIRCLE_ANGLE     (MAX_CIRCLE_ANGLE - 1)
+#define PI                        3.14159265358979323846f
+
+#ifdef MATH_USE_SINCOS_LOOKUPTABLE
+
+// A lookup table implementation adapted from http://www.flipcode.com/archives/Fast_Trigonometry_Functions_Using_Lookup_Tables.shtml
+static float fast_cossin_table[MAX_CIRCLE_ANGLE];           // Declare table of fast cosinus and sinus
+
+class Init_fast_cossin_table
+{
+public:
+	Init_fast_cossin_table()
+	{
+		// Build cossin table
+		for(int i = 0; i < MAX_CIRCLE_ANGLE; i++)
+#ifdef __EMSCRIPTEN__
+			fast_cossin_table[i] = (float)emscripten_math_sin((double)i * PI / HALF_MAX_CIRCLE_ANGLE);
+#else
+			fast_cossin_table[i] = (float)sin((double)i * PI / HALF_MAX_CIRCLE_ANGLE);
+#endif
+	}
+};
+Init_fast_cossin_table static_initializer;
+
+static inline float sin_lookuptable(float n)
+{
+	int i = (int)(n * (HALF_MAX_CIRCLE_ANGLE / PI));
+	if (i < 0) return -fast_cossin_table[(-i) & MASK_MAX_CIRCLE_ANGLE];
+	else return fast_cossin_table[i & MASK_MAX_CIRCLE_ANGLE];
+}
+
+static inline float cos_lookuptable(float n)
+{
+	int i = (int)(n * (HALF_MAX_CIRCLE_ANGLE / PI));
+	if (i < 0) return fast_cossin_table[(QUARTER_MAX_CIRCLE_ANGLE - i) & MASK_MAX_CIRCLE_ANGLE];
+	else return fast_cossin_table[(QUARTER_MAX_CIRCLE_ANGLE + i) & MASK_MAX_CIRCLE_ANGLE];
+}
+
+static inline void sincos_lookuptable(float n, float &sinOut, float &cosOut)
+{
+	int i = (int)(n * (HALF_MAX_CIRCLE_ANGLE / PI));
+	i = (i >= 0) ? (i & MASK_MAX_CIRCLE_ANGLE) : (MAX_CIRCLE_ANGLE - ((-i) & MASK_MAX_CIRCLE_ANGLE));
+	sinOut = fast_cossin_table[i];
+	cosOut = fast_cossin_table[(QUARTER_MAX_CIRCLE_ANGLE + i) & MASK_MAX_CIRCLE_ANGLE];
+}
+
+static inline void sincos_lookuptable_u16ScaledRadians(u16 u16ScaledRadians, float &sinOut, float &cosOut)
+{
+	sinOut = fast_cossin_table[u16ScaledRadians];
+	cosOut = fast_cossin_table[(u16)(QUARTER_MAX_CIRCLE_ANGLE + u16ScaledRadians)];
+}
+
+#endif
+
+#ifdef MATH_SSE2
+static const __m128 pi2 = _mm_set1_ps(2.f*pi);
+#endif
+
 float Sin(float angleRadians)
 {
+#ifdef MATH_USE_SINCOS_LOOKUPTABLE
+	return sin_lookuptable(angleRadians);
+#elif defined(MATH_SSE2)
+	// Do range reduction by 2pi before calling sin - this enchances precision of sin_ps a lot
+	return s4f_x(sin_ps(modf_ps(setx_ps(angleRadians), pi2)));
+#else
 	return sinf(angleRadians);
+#endif
 }
 
 float Cos(float angleRadians)
 {
+#ifdef MATH_USE_SINCOS_LOOKUPTABLE
+	return cos_lookuptable(angleRadians);
+#elif defined(MATH_SSE2)
+	// Do range reduction by 2pi before calling cos - this enchances precision of cos_ps a lot
+	return s4f_x(cos_ps(modf_ps(setx_ps(angleRadians), pi2)));
+#else
 	return cosf(angleRadians);
+#endif
 }
 
 float Tan(float angleRadians)
 {
+#ifdef __EMSCRIPTEN__
+	// Use Math.tan() for minimal code size
+	return emscripten_math_tan(angleRadians);
+#else
 	return tanf(angleRadians);
+#endif
 }
 
-float2 SinCos(float angleRadians)
+void SinCos(float angleRadians, float &outSin, float &outCos)
 {
-	return float2(sinf(angleRadians), cosf(angleRadians));
+#ifdef MATH_USE_SINCOS_LOOKUPTABLE
+	return sincos_lookuptable(angleRadians, outSin, outCos);
+#elif defined(MATH_SSE2)
+	__m128 angle = modf_ps(setx_ps(angleRadians), pi2);
+	__m128 sin, cos;
+	sincos_ps(angle, &sin, &cos);
+	outSin = s4f_x(sin);
+	outCos = s4f_x(cos);
+#else
+	outSin = Sin(angleRadians);
+	outCos = Cos(angleRadians);
+#endif
+}
+
+void SinCosU16ScaledRadians(u16 u16ScaledRadians, float &outSin, float &outCos)
+{
+#ifdef MATH_USE_SINCOS_LOOKUPTABLE
+	return sincos_lookuptable_u16ScaledRadians(u16ScaledRadians, outSin, outCos);
+#elif defined(MATH_SSE2)
+	float angleRadians = u16ScaledRadians * (PI / HALF_MAX_CIRCLE_ANGLE);
+	__m128 angle = modf_ps(setx_ps(angleRadians), pi2);
+	__m128 sin, cos;
+	sincos_ps(angle, &sin, &cos);
+	outSin = s4f_x(sin);
+	outCos = s4f_x(cos);
+#else
+	float angleRadians = u16ScaledRadians * (PI / HALF_MAX_CIRCLE_ANGLE);
+	outSin = Sin(angleRadians);
+	outCos = Cos(angleRadians);
+#endif
+}
+
+void SinCos2(const float4 &angleRadians, float4 &outSin, float4 &outCos)
+{
+#ifdef MATH_SSE2
+	__m128 angle = modf_ps(angleRadians.v, pi2);
+	sincos_ps(angle, &outSin.v, &outCos.v);
+#else
+	SinCos(angleRadians.x, outSin.x, outCos.x);
+	SinCos(angleRadians.y, outSin.y, outCos.y);
+#endif
+}
+
+void SinCos3(const float4 &angleRadians, float4 &outSin, float4 &outCos)
+{
+#ifdef MATH_SSE2
+	__m128 angle = modf_ps(angleRadians.v, pi2);
+	sincos_ps(angle, &outSin.v, &outCos.v);
+#else
+	SinCos(angleRadians.x, outSin.x, outCos.x);
+	SinCos(angleRadians.y, outSin.y, outCos.y);
+	SinCos(angleRadians.z, outSin.z, outCos.z);
+#endif
+}
+
+void SinCos4(const float4 &angleRadians, float4 &outSin, float4 &outCos)
+{
+#ifdef MATH_SSE2
+	__m128 angle = modf_ps(angleRadians.v, pi2);
+	sincos_ps(angle, &outSin.v, &outCos.v);
+#else
+	SinCos(angleRadians.x, outSin.x, outCos.x);
+	SinCos(angleRadians.y, outSin.y, outCos.y);
+	SinCos(angleRadians.z, outSin.z, outCos.z);
+	SinCos(angleRadians.w, outSin.w, outCos.w);
+#endif
 }
 
 float Asin(float x)
 {
+#ifdef __EMSCRIPTEN__
+	// Use Math.asin() for minimal code size
+	return emscripten_math_asin(x);
+#else
 	return asinf(x);
+#endif
 }
 
 float Acos(float x)
 {
+#ifdef __EMSCRIPTEN__
+	// Use Math.acos() for minimal code size
+	return emscripten_math_acos(x);
+#else
 	return acosf(x);
+#endif
 }
 
 float Atan(float x)
 {
+#ifdef __EMSCRIPTEN__
+	// Use Math.atan() for minimal code size
+	return emscripten_math_atan(x);
+#else
 	return atanf(x);
+#endif
 }
 
 float Atan2(float y, float x)
 {
+#ifdef __EMSCRIPTEN__
+	// Use Math.atan2() for minimal code size
+	return emscripten_math_atan2(y, x);
+#else
 	return atan2f(y, x);
+#endif
 }
 
 float Sinh(float x)
 {
+#ifdef __EMSCRIPTEN__
+	// Use Math.sinh() for minimal code size
+	return emscripten_math_sinh(x);
+#else
 	return sinhf(x);
+#endif
 }
 
 float Cosh(float x)
 {
+#ifdef __EMSCRIPTEN__
+	// Use Math.atan() for minimal code size
+	return emscripten_math_cosh(x);
+#else
 	return coshf(x);
+#endif
 }
 
 float Tanh(float x)
 {
+#ifdef __EMSCRIPTEN__
+	// Use Math.tanh() for minimal code size
+	return emscripten_math_tanh(x);
+#else
 	return tanhf(x);
+#endif
 }
 
-bool IsPow2(unsigned int number)
+bool IsPow2(u32 number)
 {
 	return (number & (number-1)) == 0;
 }
 
-unsigned int RoundUpPow2(unsigned int x)
+bool IsPow2(u64 number)
 {
-	assert(sizeof(unsigned int) <= 4);
+	return (number & (number-1)) == 0;
+}
+
+u32 RoundUpPow2(u32 x)
+{
+	assert(sizeof(u32) == 4);
 	--x;
 	x |= x >> 1;
 	x |= x >> 2;
@@ -129,9 +348,24 @@ unsigned int RoundUpPow2(unsigned int x)
 	return x;
 }
 
-unsigned int RoundDownPow2(unsigned int x)
+u64 RoundUpPow2(u64 x)
 {
-	assert(sizeof(unsigned int) <= 4);
+	assert(sizeof(u64) == 8);
+	--x;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	x |= x >> 32;
+	++x;
+
+	return x;
+}
+
+u32 RoundDownPow2(u32 x)
+{
+	assert(sizeof(u32) == 4);
 	x |= x >> 1;
 	x |= x >> 2;
 	x |= x >> 4;
@@ -140,7 +374,25 @@ unsigned int RoundDownPow2(unsigned int x)
 	return x - (x >> 1);
 }
 
+u64 RoundDownPow2(u64 x)
+{
+	assert(sizeof(u64) == 8);
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	x |= x >> 32;
+	return x - (x >> 1);
+}
+
 int RoundIntUpToMultipleOfPow2(int x, int n)
+{
+	assert(IsPow2(n));
+	return (x + n-1) & ~(n-1);
+}
+
+s64 RoundIntUpToMultipleOfPow2(s64 x, s64 n)
 {
 	assert(IsPow2(n));
 	return (x + n-1) & ~(n-1);
@@ -238,7 +490,7 @@ float LerpMod(float a, float b, float mod, float t)
 
 float InvLerp(float a, float b, float x)
 {
-	assume(Abs(b-a) > eps);
+	assume(Abs(b-a) > 1e-5f);
 	return (x - a) / (b - a);
 }
 
@@ -247,7 +499,7 @@ float Step(float y, float x)
 	return (x >= y) ? 1.f : 0.f;
 }
 
-float SmoothStep(float min, float max, float x)
+float Ramp(float min, float max, float x)
 {
 	return x <= min ? 0.f : (x >= max ? 1.f : (x - min) / (max - min));
 }
@@ -368,6 +620,137 @@ float PowInt(float base, int exponent)
 		return 1.f / PowUInt(base, (u32)-exponent);
 	else
 		return PowUInt(base, (u32)exponent);
+}
+
+char *SerializeFloat(float f, char *dstStr)
+{
+	if (!IsNan(f))
+	{
+#ifdef MATH_WITH_GRISU3
+		int numChars = dtoa_grisu3((double)f, dstStr);
+		return dstStr + numChars;
+#else
+		return dstStr + sprintf(dstStr, "%.17g", f);
+#endif
+	}
+	else
+	{
+		u32 u = ReinterpretAsU32(f);
+		int numChars = sprintf(dstStr, "NaN(%8X)", (unsigned int)u);
+		return dstStr + numChars;
+	}
+}
+
+float DeserializeFloat(const char *str, const char **outEndStr)
+{
+	if (!str)
+		return FLOAT_NAN;
+	while(*str > 0 && *str <= ' ')
+		++str;
+	if (*str == 0)
+		return FLOAT_NAN;
+	if (MATH_NEXT_WORD_IS(str, "NaN("))
+	{
+		str += strlen("NaN("); //MATH_SKIP_WORD(str, "NaN(");
+		u32 x;
+		int n = sscanf(str, "%X", (unsigned int *)&x);
+		if (n != 1)
+			return FLOAT_NAN;
+		while(*str != 0)
+		{
+			++str;
+			if (*str == ')')
+			{
+				++str;
+				break;
+			}
+		}
+		if (outEndStr)
+			*outEndStr = str;
+		return ReinterpretAsFloat(x);
+	}
+	float f;
+
+	if (!strncmp(str, "-inf", 4)) { f = -FLOAT_INF; str += 4; }
+	else if (!strncmp(str, "inf", 3)) { f = FLOAT_INF; str += 3; }
+	else f = (float)strtod(str, const_cast<char**>(&str));
+
+	while(*str > 0 && *str <= ' ')
+		++str;
+	if (*str == ',' || *str == ';')
+		++str;
+	while(*str > 0 && *str <= ' ')
+		++str;
+	if (outEndStr)
+		*outEndStr = str;
+	return f;
+}
+
+int hexstr_to_u64(const char *str, uint64_t *u)
+{
+	assert(u);
+	*u = 0;
+	const char *s = str;
+	for(int i = 0; i <= 16; ++i)
+	{
+		char ch = *s;
+		if (ch >= '0' && ch <= '9')
+			*u = 16 * *u + ch - '0';
+		else if (ch >= 'a' && ch <= 'f')
+			*u = 16 * *u + 10 + ch - 'a';
+		else if (ch >= 'A' && ch <= 'F')
+			*u = 16 * *u + 10 + ch - 'A';
+		else
+			break;
+		++s;
+	}
+	return (int)(s - str);
+}
+
+double DeserializeDouble(const char *str, const char **outEndStr)
+{
+	if (!str)
+		return (double)FLOAT_NAN;
+	while(*str > 0 && *str <= ' ')
+		++str;
+	if (*str == 0)
+		return (double)FLOAT_NAN;
+	if (MATH_NEXT_WORD_IS(str, "NaN("))
+	{
+		str += strlen("NaN("); //MATH_SKIP_WORD(str, "NaN(");
+
+		// Read 64-bit unsigned hex representation of the NaN. TODO: Make this more efficient without using sscanf.
+		uint64_t u;
+		int nChars = hexstr_to_u64(str, &u);
+		str += nChars;
+		while(*str != 0)
+		{
+			++str;
+			if (*str == ')')
+			{
+				++str;
+				break;
+			}
+		}
+		if (outEndStr)
+			*outEndStr = str;
+		return ReinterpretAsDouble(u);
+	}
+	double f;
+	
+	if (!strncmp(str, "-inf", 4)) { f = (double)-FLOAT_INF; str += 4; }
+	else if (!strncmp(str, "inf", 3)) { f = (double)FLOAT_INF; str += 3; }
+	else f = strtod(str, const_cast<char**>(&str));
+
+	while(*str > 0 && *str <= ' ')
+		++str;
+	if (*str == ',' || *str == ';')
+		++str;
+	while(*str > 0 && *str <= ' ')
+		++str;
+	if (outEndStr)
+		*outEndStr = str;
+	return f;
 }
 
 MATH_END_NAMESPACE

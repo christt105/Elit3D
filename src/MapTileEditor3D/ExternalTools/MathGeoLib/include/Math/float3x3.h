@@ -25,15 +25,6 @@
 #include "../MathGeoLibFwd.h"
 #include "MatrixProxy.h"
 #include "../Math/float3.h"
-#include "CoordinateAxisConvention.h"
-
-#ifdef MATH_OGRE_INTEROP
-#include <OgreMatrix3.h>
-#endif
-
-#ifdef MATH_BULLET_INTEROP
-#include "../../../Bullet/include/LinearMath/btMatrix3x3.h"
-#endif
 
 MATH_BEGIN_NAMESPACE
 
@@ -61,8 +52,8 @@ MATH_BEGIN_NAMESPACE
 	The elements for a single row of the matrix hold successive memory addresses. This is the same memory layout as
 	 with C++ multidimensional arrays.
 
-	Contrast this with column-major storage, in which the elements are packed in the memory in
-	order m[0][0], m[1][0], m[2][0], m[3][0], m[0][1], m[1][1], ...
+ 	If preprocessor #define MATH_COLMAJOR_MATRICES is set, column-major storage is used instead, in which the elements
+ 	are packed in the memory in order m[0][0], m[1][0], m[2][0], m[3][0], m[0][1], m[1][1], ...
 	There the elements for a single column of the matrix hold successive memory addresses.
 	This is exactly opposite from the standard C++ multidimensional arrays, since if you have e.g.
 	int v[10][10], then v[0][9] comes in memory right before v[1][0]. ( [0][0], [0][1], [0][2], ... [1][0], [1][1], ...) */
@@ -76,7 +67,38 @@ public:
 	enum { Cols = 3 };
 
 	/// Stores the data in this matrix in row-major format. [noscript]
-	float v[Rows][Cols];
+	union
+	{
+#ifdef MATH_COLMAJOR_MATRICES
+		float v[Cols][Rows];
+#else
+		float v[Rows][Cols];
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4201) // warning C4201: nonstandard extension used: nameless struct/union
+#endif
+		// Alias into the array of elements to allow accessing items from this matrix directly for convenience.
+		// This gives human-readable names to the individual matrix elements:
+		struct
+		{
+#ifdef MATH_COLMAJOR_MATRICES
+			float  scaleX, shearYx, shearZx;
+			float shearXy,  scaleY, shearZy;
+			float shearXz, shearYz,  scaleZ;
+#else
+			float  scaleX, shearXy, shearXz;
+			float shearYx,  scaleY, shearYz;
+			float shearZx, shearZy,  scaleZ;
+#endif
+		};
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+		// where scaleX/Y/Z specify how much principal axes are scaled by,
+		// and shearAb specify how much shearing occurs towards axis A from axis b (when vector is multiplied via M*v convention)
+	};
 
 	/// A constant matrix that has zeroes in all its entries.
 	static const float3x3 zero;
@@ -91,19 +113,15 @@ public:
 
 	/// A compile-time constant float3x3 which has NaN in each element.
 	/// For this constant, each element has the value of quiet NaN, or Not-A-Number.
-	/// @note Never compare a float3x3 to this value! Due to how IEEE floats work, for each float x, both the expression "x == nan" and "x != nan" returns false!
-	///	   That is, nothing is equal to NaN, not even NaN itself!
+	/// @note Never compare a float3x3 to this value! Due to how IEEE floats work, "nan == nan" returns false!
+	///    That is, nothing is equal to NaN, not even NaN itself!
 	static const float3x3 nan;
 
 	/// Creates a new float3x3 with uninitialized member values.
 	/** [opaque-qtscript] */
 	float3x3() {}
 
-#ifdef MATH_EXPLICIT_COPYCTORS
-	/// The copy-ctor for float3x3 is the trivial copy-ctor, but it is explicitly written to be able to automatically
-	/// pick up this function for QtScript bindings.
 	float3x3(const float3x3 &rhs) { Set(rhs); }
-#endif
 
 	/// Constructs a new float3x3 by explicitly specifying all the matrix elements.
 	/// The elements are specified in row-major format, i.e. the first row first followed by the second and third row.
@@ -263,9 +281,31 @@ public:
 		@note You can use the index notation to set elements of the matrix, e.g. m[0][1] = 5.f;
 		@note MatrixProxy is a temporary helper class. Do not store references to it, but always
 		directly dereference it with the [] operator.
-		For example, m[0][2] Returns the last element on the first row. */
-	MatrixProxy<Cols> &operator[](int row);
-	const MatrixProxy<Cols> &operator[](int row) const;
+		For example, m[0][2] Returns the last element on the first row. This is true independent of
+	 	whether MATH_COLMAJOR_MATRICES is set, i.e. the notation is always m[y][x]. */
+	FORCE_INLINE MatrixProxy<Rows, Cols> &operator[](int row)
+	{
+		assume(row >= 0);
+		assume(row < Rows);
+		
+#ifdef MATH_COLMAJOR_MATRICES
+		return *(reinterpret_cast<MatrixProxy<Rows, Cols>*>(&v[0][row]));
+#else
+		return *(reinterpret_cast<MatrixProxy<Rows, Cols>*>(v[row]));
+#endif
+	}
+	
+	FORCE_INLINE const MatrixProxy<Rows, Cols> &operator[](int row) const
+	{
+		assume(row >= 0);
+		assume(row < Rows);
+		
+#ifdef MATH_COLMAJOR_MATRICES
+		return *(reinterpret_cast<const MatrixProxy<Rows, Cols>*>(&v[0][row]));
+#else
+		return *(reinterpret_cast<const MatrixProxy<Rows, Cols>*>(v[row]));
+#endif
+	}
 
 	/// Returns the given element. [noscript]
 	/** This function returns the element of this matrix at (row, col)==(i, j)==(y, x).
@@ -276,6 +316,18 @@ public:
 
 	/// Returns the given row. [noscript]
 	/** @param row The zero-based index [0, 2] of the row to get. */
+#ifdef MATH_COLMAJOR_MATRICES
+	CONST_WIN32 float3 Row(int row) const;
+	CONST_WIN32 float3 Row3(int row) const { return Row(row); }
+	
+	/// Returns the given column.
+	/** @param col The zero-based index [0, 2] of the column to get. */
+	float3 &Col(int col);
+	const float3 &Col(int col) const;
+
+	float3 &Col3(int col) { return Col(col); }
+	const float3 &Col3(int col) const { return Col(col); }
+#else
 	float3 &Row(int row);
 	const float3 &Row(int row) const;
 
@@ -286,7 +338,7 @@ public:
 	/** @param col The zero-based index [0, 2] of the column to get. */
 	CONST_WIN32 float3 Col(int col) const;
 	CONST_WIN32 float3 Col3(int col) const { return Col(col); }
-
+#endif
 	/// Returns the main diagonal.
 	/** The main diagonal consists of the elements at m[0][0], m[1][1], m[2][2]. */
 	CONST_WIN32 float3 Diagonal() const;
@@ -329,9 +381,8 @@ public:
 	/// @return A pointer to the upper-left element. The data is contiguous in memory.
 	/// ptr[0] gives the element [0][0], ptr[1] is [0][1], ptr[2] is [0][2].
 	/// ptr[4] == [1][0], ptr[5] == [1][1], ..., and finally, ptr[15] == [3][3].
-	float *ptr();
-	/// @return A pointer to the upper-left element . The data is contiguous in memory.
-	const float *ptr() const;
+	FORCE_INLINE float *ptr() { return &v[0][0]; }
+	FORCE_INLINE const float *ptr() const { return &v[0][0]; }
 
 	/// Sets the values of the given row.
 	/** @param row The index of the row to set, in the range [0-2].
@@ -411,11 +462,13 @@ public:
 	/// Returns the adjugate of this matrix.
 //	float3x3 Adjugate() const;
 
+	/// Inverts this matrix using numerically stable Gaussian elimination.
+	/// @return Returns true on success, false otherwise.
+	bool Inverse(float epsilon = 1e-6f);
+
 	/// Inverts this matrix using Cramer's rule.
 	/// @return Returns true on success, false otherwise.
-	bool Inverse(float epsilon = 1e-3f);
-
-	bool InverseFast(float epsilon = 1e-3f);
+	bool InverseFast(float epsilon = 1e-6f);
 
 	/// Solves the linear equation Ax=b.
 	/** The matrix A in the equations is this matrix. */
@@ -611,11 +664,12 @@ public:
 	/// Returns true if this float3x3 is equal to the given float3x3, up to given per-element epsilon.
 	bool Equals(const float3x3 &other, float epsilon = 1e-3f) const;
 
-#ifdef MATH_ENABLE_STL_SUPPORT
+#if defined(MATH_ENABLE_STL_SUPPORT) || defined(MATH_CONTAINERLIB_SUPPORT)
 	/// Returns "(m00, m01, m02; m10, m11, m12; m20, m21, m22)".
-	std::string ToString() const;
+	StringT ToString() const;
+	StringT SerializeToString() const;
 
-	std::string ToString2() const;
+	StringT ToString2() const;
 #endif
 
 	/// Extracts the rotation part of this matrix into Euler rotation angles (in radians). [indexTitle: ToEuler***]
@@ -663,24 +717,22 @@ public:
 	float4x4 Mul(const float4x4 &rhs) const;
 	float3x3 Mul(const Quat &rhs) const;
 	float3 Mul(const float3 &rhs) const;
+	float4 Mul(const float4 &rhs) const
+	{
+		return float4(Mul(rhs.xyz()), rhs.w);
+	}
 	float3 MulPos(const float3 &rhs) const { return Mul(rhs); }
+	float4 MulPos(const float4 &rhs) const
+	{
+		assume(!EqualAbs(rhs.w, 0.f));
+		return Mul(rhs);
+	}
 	float3 MulDir(const float3 &rhs) const { return Mul(rhs); }
-
-#ifdef MATH_OGRE_INTEROP
-	float3x3(const Ogre::Matrix3 &m) { Set(&m[0][0]); }
-	operator Ogre::Matrix3() { return Ogre::Matrix3(v[0][0], v[0][1], v[0][2], v[1][0], v[1][1], v[1][2], v[2][0], v[2][1], v[2][2]); }
-#endif
-
-#ifdef MATH_BULLET_INTEROP
-	float3x3(const btMatrix3x3 &m) { Set(m[0][0], m[0][1], m[0][2], m[1][0], m[1][1], m[1][2], m[2][0], m[2][1], m[2][2]); }
-	operator btMatrix3x3() const { return btMatrix3x3(v[0][0], v[0][1], v[0][2], v[1][0], v[1][1], v[1][2], v[2][0], v[2][1], v[2][2]); }
-#endif
-
-#ifdef MATH_QT_INTEROP
-	operator QString() const { return toString(); }
-	QString toString() const { return ToString2().c_str(); }
-#endif
-
+	float4 MulDir(const float4 &rhs) const
+	{
+		assume(EqualAbs(rhs.w, 0.f));
+		return Mul(rhs);
+	}
 };
 
 #ifdef MATH_ENABLE_STL_SUPPORT
@@ -701,10 +753,5 @@ float3 operator *(const float3 &lhs, const float3x3 &rhs);
 /// (Remember that M * v != v * M in general).
 /// This function ignores the w component of the given input vector. This component is assumed to be either 0 or 1.
 float4 operator *(const float4 &lhs, const float3x3 &rhs);
-
-#ifdef MATH_QT_INTEROP
-Q_DECLARE_METATYPE(float3x3)
-Q_DECLARE_METATYPE(float3x3*)
-#endif
 
 MATH_END_NAMESPACE
