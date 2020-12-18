@@ -121,6 +121,9 @@
     <Filter Include="External Libraries\zlib\dependencies">
       <UniqueIdentifier>{59b821ed-f15c-42af-8e4e-d1cf3814a01c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="icon">
+      <UniqueIdentifier>{2f6fd91d-6524-49bd-9631-d3d60454f43f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -1229,6 +1232,9 @@
     <ClInclude Include="p1Layers.h">
       <Filter>Panels</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>icon</Filter>
+    </ClInclude>
     <ClInclude Include="OSUtils.h">
       <Filter>Tools\System</Filter>
     </ClInclude>
@@ -1576,5 +1582,15 @@
     <None Include="ExternalTools\MathGeoLib\include\emscripten\library_system.js">
       <Filter>External Libraries\MathGeoLib\emscripten</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\icon.ico">
+      <Filter>icon</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MapTileEditor3D.rc">
+      <Filter>icon</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
