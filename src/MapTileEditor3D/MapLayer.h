@@ -59,6 +59,7 @@ public:
     void OnInspector();
 
     std::string Parse(int sizeX, int sizeY, DataTypeExport d) const;
+    nlohmann::json Parse(int sizeX, int sizeY) const;
     void Unparse(int sizeX, int sizeY, const std::string& data);
 
     const char* GetName() const;

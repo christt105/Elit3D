@@ -149,18 +149,19 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 				case Layer::DataTypeExport::CSV:
 				case Layer::DataTypeExport::CSV_NO_NEWLINE:
 					lay["encoding"] = "csv";
-					//TODO: Parse as array of nnumbers
+					lay["data"] = (*l)->Parse(size.x, size.y);
 					break;
 				case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
-				lay["encoding"] = "base64";
+					lay["encoding"] = "base64";
+					lay["data"] = (*l)->Parse(size.x, size.y, d);
 					break;
 				case Layer::DataTypeExport::BASE64_ZLIB:
 					lay["encoding"] = "base64-zlib";
+					lay["data"] = (*l)->Parse(size.x, size.y, d);
 					break;
 				default:
 					break;
 				}
-				lay["data"] = (*l)->Parse(size.x, size.y, d);
 
 				(*l)->properties.SaveProperties(lay["properties"]);
 

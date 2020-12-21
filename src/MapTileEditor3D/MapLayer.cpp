@@ -127,6 +127,19 @@ std::string Layer::Parse(int sizeX, int sizeY, DataTypeExport d) const
 	return ret;
 }
 
+nlohmann::json Layer::Parse(int sizeX, int sizeY) const
+{
+	nlohmann::json ret;
+
+	for (int i = sizeY - 1; i >= 0; --i) {
+		for (int j = 0; j < sizeX; ++j) {
+			ret.push_back(tile_data[i * sizeX + j]); // TODO: encode 4 bytes array
+		}
+	}
+
+	return ret;
+}
+
 void Layer::Unparse(int sizeX, int sizeY, const std::string& raw_data)
 {
 	std::string data = decompress_string(base64_decode(raw_data));
