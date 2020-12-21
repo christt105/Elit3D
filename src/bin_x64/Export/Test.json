@@ -1,0 +1,52 @@
+{
+    "layers": [
+        {
+            "data": "eNrjMrGw0CEGc40qpKtCLgByTVGD",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "visible": true
+        },
+        {
+            "data": "eNrjMtDBhFwDIGhiYQzEJigYWdrcFIjNUDAXmk5zC5xKsOiGYi4ACsUuwg==",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "visible": true
+        },
+        {
+            "data": "eNrjMtDBhFwQytDAEpswDBoaWKALGxoYQlnm5hBxmCKcpsAFgToMiFRKnCAXAJQhJk0=",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "visible": true
+        }
+    ],
+    "properties": null,
+    "size": [
+        10,
+        10
+    ],
+    "tileset": "./Assets/Tilesets/test.tileset"
+}

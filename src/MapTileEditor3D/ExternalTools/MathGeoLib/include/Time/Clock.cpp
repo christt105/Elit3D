@@ -22,7 +22,7 @@
 #include <sys/time.h>
 #endif
 
-#if WIN32 || _WIN64
+#if _WIN32 || _WIN64
 #include "../Math/InclWindows.h"
 #endif
 
@@ -40,7 +40,7 @@
 
 MATH_BEGIN_NAMESPACE
 
-#ifdef WIN32
+#ifdef _WIN32
 u64 Clock::ddwTimerFrequency;
 #endif
 
@@ -57,7 +57,7 @@ void Clock::InitClockData()
 	if (appStartTime == 0)
 		appStartTime = Tick();
 
-#ifdef WIN32
+#ifdef _WIN32
 	if (!QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&ddwTimerFrequency)))
 	{
 		MLOGE("The system doesn't support high-resolution timers!");
@@ -109,7 +109,7 @@ void Clock::Sleep(int milliseconds)
 
 int Clock::Year()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	SYSTEMTIME s;
 	GetSystemTime(&s);
 	return s.wYear;
@@ -121,7 +121,7 @@ int Clock::Year()
 
 int Clock::Month()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	SYSTEMTIME s;
 	GetSystemTime(&s);
 	return s.wMonth;
@@ -133,7 +133,7 @@ int Clock::Month()
 
 int Clock::Day()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	SYSTEMTIME s;
 	GetSystemTime(&s);
 	return s.wDay;
@@ -145,7 +145,7 @@ int Clock::Day()
 
 int Clock::Hour()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	SYSTEMTIME s;
 	GetSystemTime(&s);
 	return s.wHour;
@@ -157,7 +157,7 @@ int Clock::Hour()
 
 int Clock::Min()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	SYSTEMTIME s;
 	GetSystemTime(&s);
 	return s.wMinute;
@@ -169,7 +169,7 @@ int Clock::Min()
 
 int Clock::Sec()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	SYSTEMTIME s;
 	GetSystemTime(&s);
 	return s.wSecond;
@@ -181,7 +181,7 @@ int Clock::Sec()
 
 unsigned long Clock::SystemTime()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	return (unsigned long)GetTickCount64();
 #else
 	return TickU32();
@@ -214,7 +214,7 @@ tick_t Clock::Tick()
 	return (tick_t)(((double)emscripten_get_now()) * 1e3);
 #endif
 
-#elif defined(WIN32)
+#elif defined(_WIN32)
 	LARGE_INTEGER ddwTimer;
 	BOOL success = QueryPerformanceCounter(&ddwTimer);
 	assume(success != 0);
@@ -237,7 +237,7 @@ tick_t Clock::Tick()
 
 unsigned long Clock::TickU32()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	LARGE_INTEGER ddwTimer;
 	BOOL success = QueryPerformanceCounter(&ddwTimer);
 	assume(success != 0);
@@ -260,7 +260,7 @@ tick_t Clock::TicksPerSec()
 	return 1000000ULL; // 1e6 == microseconds.
 #endif
 
-#elif defined(WIN32)
+#elif defined(_WIN32)
 	return ddwTimerFrequency;
 #elif defined(__APPLE__)
 	return ticksPerSecond;

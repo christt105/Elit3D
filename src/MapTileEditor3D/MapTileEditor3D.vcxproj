@@ -96,7 +96,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;glew32.lib;glew32s.lib;opengl32.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -126,7 +126,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include;$(SolutionDir)MapTileEditor3D\ExternalTools\DevIL\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -136,7 +136,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;Shell32.lib;SDL2.lib;SDL2main.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;glew32.lib;glew32s.lib;opengl32.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

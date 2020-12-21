@@ -1,0 +1,32 @@
+System and Hardware information by infoware v0.5.5
+
+OS:
+	Name: Windows NT
+	Full Name: Microsoft Windows 10 Pro
+	Version: 10.0.18362 build 1110
+CPU:
+	Model: Intel(R) Core(TM) i5-4460  CPU @ 3.20GHz
+	Number Cores: 4
+	Architecture: x64
+	Endianness: Little-Endian
+
+RAM: 8053MB
+
+GPU:
+	OpenGL version: 4.6.0 NVIDIA 456.71
+	Graphics Card:
+		Vendor: NVIDIA Corporation
+		Model: GeForce GTX 960/PCIe/SSE2
+Displays:
+
+	Display #0
+		Resolution: 1920x1080
+		DPI: 96
+		Color Depth: 32
+		Refresh Rate: 60Hz
+
+	Display #1
+		Resolution: 1920x1080
+		DPI: 96
+		Color Depth: 32
+		Refresh Rate: 60Hz
