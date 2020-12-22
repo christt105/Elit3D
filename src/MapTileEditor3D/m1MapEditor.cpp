@@ -4,6 +4,7 @@
 #include "m1GUI.h"
 #include "p1Tileset.h"
 #include "p1Layers.h"
+#include "p1Tools.h"
 #include "p1Inspector.h"
 #include "Viewport.h"
 
@@ -45,6 +46,7 @@ bool m1MapEditor::Start()
 	
 	panel_tileset = App->gui->tileset;
 	panel_layers = App->gui->layers;
+	panel_tools = App->gui->tools;
 
 	nlohmann::json locals = FileSystem::OpenJSONFile("Configuration/locals.json");
 	if (locals.find("last_map_used") != locals.end()) {
@@ -168,23 +170,44 @@ void m1MapEditor::MousePicking(const Ray& ray)
 			float t = 0.f;
 			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[index]->height, ray.pos, ray.dir, t) && t > 0.f) {
 				float3 position = ray.GetPoint(t);
-				TILE_DATA_TYPE tile_id = panel_tileset->GetTileIDSelected();
-				if (tile_id != 0) {
+				auto col = (int)floor(position.z - 0.5f);
+				auto row = (int)floor(position.x);
 
-					// tile.y = A * 256 + B
-					unsigned char A = 0;
-					unsigned char B = 0;
+				if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
+					switch (panel_tools->GetSelectedTool())
+					{
+					case p1Tools::Tools::BRUSH: {
+						TILE_DATA_TYPE tile_id = panel_tileset->GetTileIDSelected();
+						if (tile_id != 0) {
 
-					A = tile_id / UCHAR_MAX;
-					B = tile_id % UCHAR_MAX;
+							// tile.y = A * 256 + B
+							unsigned char A = 0;
+							unsigned char B = 0;
 
-					auto col = (int)floor(position.z-0.5f);
-					auto row = (int)floor(position.x);
+							A = tile_id / UCHAR_MAX;
+							B = tile_id % UCHAR_MAX;
 
-					if (row < m->size.x && col < m->size.y && (col > -1 && row > -1) 
-						&& m->layers[index]->tile_data[(m->size.x * col + row)] != tile_id) {
-						m->Edit(index, col, row, tile_id, A, B);
+							if (m->layers[index]->tile_data[(m->size.x * col + row)] != tile_id) {
+								m->Edit(index, col, row, tile_id, A, B);
+							}
+						}
+						break;
 					}
+					case p1Tools::Tools::ERASER:
+						if (m->layers[index]->tile_data[(m->size.x * col + row)] != 0) {
+							m->Edit(index, col, row, 0, 0, 0);
+						}
+						break;
+					case p1Tools::Tools::EYEDROPPER:
+						break;
+					case p1Tools::Tools::BUCKET:
+						break;
+					case p1Tools::Tools::RECTANGLE:
+						break;
+					default:
+						break;
+					}
+					
 				}
 			}
 		}
