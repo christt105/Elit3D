@@ -22,6 +22,7 @@
 #include "p1Tileset.h"
 #include "p1Layers.h"
 #include "p1DebugResources.h"
+#include "p1Tools.h"
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5Brands.h"
@@ -53,6 +54,7 @@ bool m1GUI::Init(const nlohmann::json& node)
 	tileset			= new p1Tileset();
 	layers			= new p1Layers();
 	dbg_resources	= new p1DebugResources(false, false);
+	tools			= new p1Tools(true, false, false);
 
 	panels.push_back(objects);
 	panels.push_back(configuration);
@@ -63,6 +65,7 @@ bool m1GUI::Init(const nlohmann::json& node)
 	panels.push_back(scene);
 	panels.push_back(tileset);
 	panels.push_back(layers);
+	panels.push_back(tools);
 	panels.push_back(dbg_resources);
 
 	return true;

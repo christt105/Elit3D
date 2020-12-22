@@ -268,6 +268,7 @@
     <ClCompile Include="p1Resources.cpp" />
     <ClCompile Include="p1Scene.cpp" />
     <ClCompile Include="p1Tileset.cpp" />
+    <ClCompile Include="p1Tools.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="Profiler.cpp" />
     <ClCompile Include="Properties.cpp" />
@@ -618,6 +619,7 @@
     <ClInclude Include="p1Resources.h" />
     <ClInclude Include="p1Scene.h" />
     <ClInclude Include="p1Tileset.h" />
+    <ClInclude Include="p1Tools.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="Profiler.h" />
     <ClInclude Include="Properties.h" />

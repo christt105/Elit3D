@@ -489,6 +489,9 @@
     <ClCompile Include="Properties.cpp">
       <Filter>Tools\Map</Filter>
     </ClCompile>
+    <ClCompile Include="p1Tools.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -1537,6 +1540,9 @@
     </ClInclude>
     <ClInclude Include="Properties.h">
       <Filter>Tools\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="p1Tools.h">
+      <Filter>Panels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

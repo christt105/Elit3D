@@ -52,6 +52,8 @@ void p1Configuration::Update()
 
 	if (ImGui::CollapsingHeader("Camera Control", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::Text("Camera Position: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", App->camera->frustum.Pos().ToString().c_str());
+		ImGui::Text("Camera Front Axis: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", App->camera->frustum.Front().ToString().c_str());
+		ImGui::Text("Camera Up Axis: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", App->camera->frustum.Up().ToString().c_str());
 		ImGui::SliderFloat("Pan Speed", &App->camera->pan_speed, 0.1f, 2.f);
 		ImGui::SliderFloat("Orbit Speed", &App->camera->orbit_speed, 0.01f, 0.5f);
 		ImGui::SliderFloat("Zoom Speed", &App->camera->zoom_speed, 1.f, 100.f);
