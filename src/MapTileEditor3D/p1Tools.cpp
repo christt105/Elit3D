@@ -37,6 +37,34 @@ void p1Tools::Update()
 		if (i != (--tools.end()))
 			ImGui::SameLine();
 	}
+
+	static const char* charShapes[] = { ICON_FA_SQUARE, ICON_FA_CIRCLE };
+
+	switch (selectedTool)
+	{
+	case p1Tools::Tools::BRUSH:
+	case p1Tools::Tools::ERASER:
+	case p1Tools::Tools::RECTANGLE:
+		ImGui::SameLine();
+		ImGui::Text("|");
+		ImGui::SameLine();
+		if (selectedTool != p1Tools::Tools::RECTANGLE) {
+			ImGui::SetNextItemWidth(130.f);
+			ImGui::InputInt("Size", &brushSize, 1, 5);
+			ImGui::SameLine();
+		}
+		ImGui::SetNextItemWidth(50.f);
+		if (ImGui::BeginCombo("Shape", charShapes[(int)shape])) {
+			for (int i = 0; i < 2; ++i)
+				if (ImGui::Selectable(charShapes[i], i == (int)shape)) {
+					shape = (Shape)i;
+				}
+			ImGui::EndCombo();
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 p1Tools::Tools p1Tools::GetSelectedTool() const

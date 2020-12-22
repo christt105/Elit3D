@@ -16,6 +16,11 @@ public:
 
         MAX
     };
+
+    enum class Shape {
+        RECTANGLE,
+        CIRCLE
+    };
     p1Tools(bool start_active, bool appear_mainmenubar, bool can_close);
     ~p1Tools();
 
@@ -27,5 +32,8 @@ public:
 
 private:
     std::map<Tools, std::string> tools;
+
+    int brushSize = 1;
+    Shape shape = Shape::RECTANGLE;
 };
 
