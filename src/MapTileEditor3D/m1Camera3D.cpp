@@ -87,6 +87,11 @@ UpdateStatus m1Camera3D::PreUpdate()
 	shader->Use();
 	shader->SetMat4("view", frustum.ViewMatrix());
 	shader->SetMat4("projection", frustum.ProjectionMatrix());
+
+	shader = App->render->GetShader("selectTile");
+	shader->Use();
+	shader->SetMat4("view", frustum.ViewMatrix());
+	shader->SetMat4("projection", frustum.ProjectionMatrix());
 	
 	return UpdateStatus::UPDATE_CONTINUE;
 }

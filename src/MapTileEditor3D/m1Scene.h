@@ -20,8 +20,6 @@ public:
 private:
 	p1Scene* panel_scene = nullptr;
 
-	int2 last_mouse_click;
-
 public:
 	bool draw_grid = true;
 };

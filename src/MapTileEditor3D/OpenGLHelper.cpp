@@ -194,6 +194,15 @@ void oglh::GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type
 	HANDLE_ERROR();
 }
 
+void oglh::SetArrayBuffer(unsigned int& id, unsigned int size, unsigned int type_size, unsigned int element_size, const float* data, unsigned int attrib_index, unsigned int attrib_size)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, id);
+	glBufferData(GL_ARRAY_BUFFER, type_size * size * element_size, data, GL_STATIC_DRAW);
+	glVertexAttribPointer(attrib_index, attrib_size, GL_FLOAT, GL_FALSE, 0, (void*)0); // TODO: allow other than GL_FLOAT
+	glEnableVertexAttribArray(attrib_index);
+	HANDLE_ERROR();
+}
+
 void oglh::GenElementBuffer(unsigned int& id, unsigned int size, const unsigned int* data)
 {
 	glGenBuffers(1, &id);

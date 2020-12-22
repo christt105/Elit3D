@@ -16,9 +16,11 @@
 #include "m1Resources.h"
 #include "r1Texture.h"
 #include "r1Map.h"
+#include "r1Mesh.h"
 
 #include "ExternalTools/MathGeoLib/include/Geometry/Plane.h"
 #include "ExternalTools/MathGeoLib/include/Geometry/Ray.h"
+#include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
 #include "m1Input.h"
 
@@ -53,6 +55,9 @@ bool m1MapEditor::Start()
 		if (locals.value("last_map_used", 0ULL) != 0ULL)
 			LoadMap(locals.value("last_map_used", 0ULL));
 	}
+
+	auto r = (r1Mesh*)App->resources->EGet(m1Resources::EResourceType::TILE);
+	r->Attach();
 
 	return true;
 }
@@ -159,6 +164,78 @@ void m1MapEditor::ReLoadMap()
 	App->resources->ReimportResource(m->path.c_str());
 }
 
+void m1MapEditor::Mouse(const Ray& ray)
+{
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m) {
+		if (App->gui->tileset->SelectTex()) {
+			int index = panel_layers->GetSelected();
+			float t = 0.f;
+			auto r = (r1Mesh*)App->resources->EGet(m1Resources::EResourceType::TILE);
+			if (index < (int)m->layers.size() && index > -1) {
+				if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[index]->height, ray.pos, ray.dir, t) && t > 0.f) {
+					float3 position = ray.GetPoint(t);
+					auto col = (int)floor(position.z);
+					auto row = (int)floor(position.x);
+
+					oglh::ActiveTexture(0);
+					//select tileset
+
+					static r1Shader* shader = App->render->GetShader("selectTile");
+					shader->Use();
+					shader->SetInt2("tileSelected", panel_tileset->GetTileSelected());
+					shader->SetMat4("model", float4x4::FromTRS(float3(row, m->layers[index]->height, col), Quat::identity, float3::one));
+
+					oglh::BindBuffers(r->VAO, r->vertices.id, r->indices.id);
+					oglh::DrawElements(r->indices.size);
+					if (App->input->IsMouseButtonPressed(1)) {
+						if (m->layers[index]->locked)
+							return;
+						
+
+						if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
+							switch (panel_tools->GetSelectedTool())
+							{
+							case p1Tools::Tools::BRUSH: {
+								TILE_DATA_TYPE tile_id = panel_tileset->GetTileIDSelected();
+								if (tile_id != 0) {
+
+									// tile.y = A * 256 + B
+									unsigned char A = 0;
+									unsigned char B = 0;
+
+									A = tile_id / UCHAR_MAX;
+									B = tile_id % UCHAR_MAX;
+
+									if (m->layers[index]->tile_data[(m->size.x * col + row)] != tile_id) {
+										m->Edit(index, col, row, tile_id, A, B);
+									}
+								}
+								break;
+							}
+							case p1Tools::Tools::ERASER:
+								if (m->layers[index]->tile_data[(m->size.x * col + row)] != 0) {
+									m->Edit(index, col, row, 0, 0, 0);
+								}
+								break;
+							case p1Tools::Tools::EYEDROPPER:
+								break;
+							case p1Tools::Tools::BUCKET:
+								break;
+							case p1Tools::Tools::RECTANGLE:
+								break;
+							default:
+								break;
+							}
+
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 void m1MapEditor::MousePicking(const Ray& ray)
 {
 	auto m = (r1Map*)App->resources->Get(map);
@@ -170,7 +247,7 @@ void m1MapEditor::MousePicking(const Ray& ray)
 			float t = 0.f;
 			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[index]->height, ray.pos, ray.dir, t) && t > 0.f) {
 				float3 position = ray.GetPoint(t);
-				auto col = (int)floor(position.z - 0.5f);
+				auto col = (int)floor(position.z);
 				auto row = (int)floor(position.x);
 
 				if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {

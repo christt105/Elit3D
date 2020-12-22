@@ -37,6 +37,7 @@ public:
     void LoadMap(const uint64_t& id);
     void ReLoadMap();
 
+    void Mouse(const Ray& ray);
     void MousePicking(const Ray& ray);
     void ResizeMap(int width, int height);
     int2 GetMapSize() const;
@@ -56,5 +57,7 @@ private:
     p1Tileset*  panel_tileset = nullptr;
     p1Layers*   panel_layers = nullptr;
     p1Tools*    panel_tools = nullptr;
+
+    int tilesetIndex = -1;
 };
 

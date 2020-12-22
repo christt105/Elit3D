@@ -52,6 +52,11 @@ std::string int2::ToString() const
 	return std::string("(" + std::to_string(x) + ", " + std::to_string(y) + ")");
 }
 
+int2 int2::operator+(const int2& c) const
+{
+	return int2(x - c.x, y - c.y);
+}
+
 int2 int2::operator-(const int2& c) const
 {
 	return int2(x - c.x, y - c.y);

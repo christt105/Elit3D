@@ -191,6 +191,9 @@ void p1Tileset::SelectTileset(const uint64_t& uid)
 			auto shader = App->render->GetShader("tilemap");
 			shader->Use();
 			shader->SetInt2("ntilesAtlas", { t->columns, t->ntiles / t->columns });
+			shader = App->render->GetShader("selectTile");
+			shader->Use();
+			shader->SetInt2("ntilesAtlas", { t->columns, t->ntiles / t->columns });
 		}
 	}
 }

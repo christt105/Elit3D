@@ -28,7 +28,7 @@ public:
     void Update() override;
     Tools GetSelectedTool() const;
 
-    Tools selectedTool = Tools::NONE;
+    Tools selectedTool = Tools::BRUSH;
 
 private:
     std::map<Tools, std::string> tools;

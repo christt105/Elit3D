@@ -28,6 +28,7 @@ public:
 
 	int2 GetPosition() const;
 	int2 GetSize() const;
+	int2 GetMousePosition() const;
 
 	virtual void Save(nlohmann::json& node) {}
 

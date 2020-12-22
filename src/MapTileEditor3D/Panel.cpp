@@ -1,5 +1,8 @@
 #include "Panel.h"
 
+#include "Application.h"
+#include "m1Input.h"
+
 Panel::Panel(const char* name, bool start_active, bool appear_mainmenubar, bool can_close, const char* icon)
 	: name(name), active(start_active), appear_in_mainmenubar(appear_mainmenubar), can_be_closed(can_close), icon(icon)
 {
@@ -41,4 +44,13 @@ int2 Panel::GetPosition() const
 int2 Panel::GetSize() const
 {
 	return size;
+}
+
+int2 Panel::GetMousePosition() const
+{	
+	int2 window;
+
+	App->input->GetMousePosition(&window.x, &window.y);
+
+	return window - position ;
 }
