@@ -185,14 +185,12 @@ void m1MapEditor::Mouse(const Ray& ray)
 					shader->Use();
 					shader->SetInt2("tileSelected", panel_tileset->GetTileSelected());
 					shader->SetMat4("model", float4x4::FromTRS(float3(row, m->layers[index]->height, col), Quat::identity, float3::one));
+					shader->SetInt("tool", (int)panel_tools->GetSelectedTool());
+					shader->SetBool("locked", m->layers[index]->locked);
 
 					oglh::BindBuffers(r->VAO, r->vertices.id, r->indices.id);
 					oglh::DrawElements(r->indices.size);
-					if (App->input->IsMouseButtonPressed(1)) {
-						if (m->layers[index]->locked)
-							return;
-						
-
+					if (App->input->IsMouseButtonPressed(1) && !m->layers[index]->locked) {
 						if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
 							switch (panel_tools->GetSelectedTool())
 							{
@@ -227,7 +225,6 @@ void m1MapEditor::Mouse(const Ray& ray)
 							default:
 								break;
 							}
-
 						}
 					}
 				}
