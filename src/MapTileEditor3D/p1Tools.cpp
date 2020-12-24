@@ -71,3 +71,8 @@ p1Tools::Tools p1Tools::GetSelectedTool() const
 {
 	return selectedTool;
 }
+
+int p1Tools::GetToolSize() const
+{
+	return brushSize;
+}

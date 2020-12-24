@@ -124,7 +124,7 @@ void m1Camera3D::CameraMovement()
 
 	if (App->gui->scene->IsOnHover()) {
 		if (App->input->IsMouseButtonPressed(SDL_BUTTON_RIGHT)) {
-			if (App->input->IsMouseButtonDown(SDL_BUTTON_RIGHT)) {
+			if (App->input->IsMouseButtonDown(SDL_BUTTON_RIGHT) || lastRight.x == -1.f || lastRight.y == -1.f) {
 				lastRight = float2((float)App->input->GetMouseX(), (float)App->input->GetMouseY());
 			}
 			float2 current = float2((float)App->input->GetMouseX(), (float)App->input->GetMouseY());
@@ -142,7 +142,7 @@ void m1Camera3D::CameraMovement()
 		}
 		if (App->input->IsMouseButtonPressed(SDL_BUTTON_MIDDLE)) {
 			ImGui::SetMouseCursor(ImGuiMouseCursor_::ImGuiMouseCursor_ResizeAll);
-			if (App->input->IsMouseButtonDown(SDL_BUTTON_MIDDLE)) {
+			if (App->input->IsMouseButtonDown(SDL_BUTTON_MIDDLE) || lastMiddle.x == -1.f || lastMiddle.y == -1.f) {
 				lastMiddle = float2((float)App->input->GetMouseX(), (float)App->input->GetMouseY());
 			}
 			float2 current = float2((float)App->input->GetMouseX(), (float)App->input->GetMouseY());

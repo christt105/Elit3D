@@ -28,6 +28,8 @@ public:
     void Update() override;
     Tools GetSelectedTool() const;
 
+    int GetToolSize() const;
+
     Tools selectedTool = Tools::BRUSH;
 
 private:
