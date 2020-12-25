@@ -50,7 +50,10 @@ void p1Tools::Update()
 		ImGui::SameLine();
 		if (selectedTool != p1Tools::Tools::RECTANGLE) {
 			ImGui::SetNextItemWidth(130.f);
-			ImGui::InputInt("Size", &brushSize, 1, 5);
+			if (ImGui::InputInt("Size", &brushSize, 1, 5)) {
+				if (brushSize < 1)
+					brushSize = 1;
+			}
 			ImGui::SameLine();
 		}
 		ImGui::SetNextItemWidth(50.f);

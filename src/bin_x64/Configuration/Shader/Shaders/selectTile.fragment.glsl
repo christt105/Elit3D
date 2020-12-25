@@ -7,7 +7,7 @@ uniform sampler2D Texture;
 uniform ivec2 tileSelected;
 uniform ivec2 ntilesAtlas;
 
-uniform int tool;
+uniform int tool;	// 0: Brush | 1: Eraser ...
 uniform bool locked;
 uniform int brushSize = 1;
 
