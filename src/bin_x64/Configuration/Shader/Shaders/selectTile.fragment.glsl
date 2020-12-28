@@ -73,39 +73,25 @@ void main()
 	}
 	else {
 		float r = float(brushSize) * 0.5;
-		vec2 uv = (TexCoord);
+		vec2 uv = TexCoord;
 		if (brushSize % 2 == 0) {
 			uv -= 0.5;
 		}
-		else {
-
-		}
 		uv *= float(brushSize);
-		vec2 p = floor(uv);
-		
-		vec2 middle = vec2(0.0, 0.0);
-			p += 0.5;
+
+		vec2 p = floor(uv) + 0.5;
 		if (brushSize % 2 != 0) {
-			p -= 0.5 * brushSize;
-			float range = 0.5/brushSize;
-			//middle -= vec2(range, range);
+			p -= 0.5 * float(brushSize);
 		}
 
-		vec2 c = p - middle;
-		if (c.x*c.x+c.y*c.y <= r*r) {
-			FragColor = vec4(p.xy, r, 1.0);
+		if (p.x*p.x+p.y*p.y <= r*r) {
+			vec2 coord = TexCoord * brushSize;
+			coord = coord - floor(coord);
+			vec2 atlasPos = (coord + tileSelected) / ntilesAtlas;
+			FragColor = vec4(texture(Texture, atlasPos).xyz, 0.75);
 		}
 		else {
 			discard;
 		}
-		/*vec2 uv = TexCoord * brushSize;
-		vec2 l = vec2(0.45, 0.45);
-		vec2 u = vec2(0.55, 0.55);
-		if(uv.x >= (floor(uv) +l).x && uv.x <= (floor(uv) + u).x
-			&&
-			uv.y >= (floor(uv) + l).y && uv.y <= (floor(uv) + u).y)
-			FragColor = red;
-		else
-			FragColor = green;*/
 	}
 }
