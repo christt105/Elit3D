@@ -20,7 +20,7 @@
 p1About::p1About(bool start_enabled, bool appear_mainmenubar, bool can_close)
 	: Panel("About", start_enabled, appear_mainmenubar, can_close, ICON_FA_QUESTION_CIRCLE)
 {
-	std::string file = FileSystem::OpenTextFile("Configuration/Text/About.txt"); //TODO: Markdown [https://github.com/juliettef/imgui_markdown]
+	std::string file = FileSystem::OpenTextFile("../../Configuration/Text/About.txt"); //TODO: Markdown [https://github.com/juliettef/imgui_markdown]
 	std::istringstream iss(file);
 	int i = 0;
 	std::string p;

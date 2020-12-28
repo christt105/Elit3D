@@ -34,7 +34,7 @@ public:
 	r1Shader* GetShader(const char* name);
 
 private:
-	void loadShaders();
+	void LoadShaders();
 
 private:
 	SDL_GLContext context = nullptr;

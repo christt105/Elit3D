@@ -325,8 +325,8 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 	if (ImGui::Button("Create")) {
 		nlohmann::json jsontileset;
 
-		if (!FileSystem::Exists("Assets/Tilesets"))
-			FileSystem::CreateFolder("Assets/Tilesets/");
+		if (!FileSystem::Exists("../../Assets/Tilesets"))
+			FileSystem::CreateFolder("../../Assets/Tilesets/");
 
 		jsontileset["Image"] = data.imageUID;
 

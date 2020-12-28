@@ -15,7 +15,7 @@ Profiler::~Profiler()
 
 void Profiler::Begin()
 {
-	output.open("Export/profile.json");
+	output.open("../../Export/profile.json");
 	InsertHeader();
 }
 

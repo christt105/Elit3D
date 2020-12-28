@@ -197,14 +197,14 @@ void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 void m1Resources::GenerateLibrary()
 {
 	PROFILE_FUNCTION();
-	ImportFiles(FileSystem::GetPtrFolder("Assets/"));
+	ImportFiles(FileSystem::GetPtrFolder("../../Assets/"));
 }
 
 void m1Resources::LoadEngineResources()
 {
 	PROFILE_FUNCTION();
 
-	auto models = FileSystem::GetPtrFolder("Configuration/EngineResources/3DModels/");
+	auto models = FileSystem::GetPtrFolder("../../Configuration/EngineResources/3DModels/");
 
 	for (auto i = models->files.begin(); i != models->files.end(); ++i) {
 		r1Mesh* m = new r1Mesh(0ULL);
@@ -221,7 +221,7 @@ void m1Resources::LoadEngineResources()
 		}
 	}
 
-	auto textures = FileSystem::GetPtrFolder("Configuration/EngineResources/Textures/");
+	auto textures = FileSystem::GetPtrFolder("../../Configuration/EngineResources/Textures/");
 
 	for (auto i = textures->files.begin(); i != textures->files.end(); ++i) {
 		r1Texture* t = new r1Texture(0ULL);
@@ -296,7 +296,7 @@ void m1Resources::ImportFiles(const Folder* parent)
 void m1Resources::StartFileWatcher()
 {
 	filewatch = new FileWatch();
-	filewatch->Subscribe("Assets/"); //TODO: don't create events when own program save a file
+	filewatch->Subscribe("../../Assets/"); //TODO: don't create events when own program save a file
 
 	filewatch->StartWatching();
 }

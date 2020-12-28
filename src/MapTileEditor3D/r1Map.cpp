@@ -127,7 +127,7 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 				data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
 			}
 
-			doc.save_file("Export/Test.xml");
+			doc.save_file("../../Export/Test.xml");
 			break;
 		}
 		case m1MapEditor::MapTypeExport::JSON:
@@ -175,7 +175,7 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 				file["layers"].push_back(lay);
 			}
 
-			FileSystem::SaveJSONFile("Export/Test.json", file);
+			FileSystem::SaveJSONFile("../../Export/Test.json", file);
 			break;
 		}
 		}
@@ -184,14 +184,14 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 
 void r1Map::SaveInImage()
 {
-	if (!FileSystem::Exists("Export/"))
-		FileSystem::CreateFolder("Export/");
-	if (!FileSystem::Exists("Export/Debug/"))
-		FileSystem::CreateFolder("Export/Debug/");
+	if (!FileSystem::Exists("../../Export/"))
+		FileSystem::CreateFolder("../../Export/");
+	if (!FileSystem::Exists("../../Export/Debug/"))
+		FileSystem::CreateFolder("../../Export/Debug/");
 
 	ilEnable(IL_FILE_OVERWRITE);
 	for (auto i = layers.begin(); i != layers.end(); ++i) {
-		ilutGLSaveImage((char*)("Export/Debug/MAP_IMAGE_LAYER_" + name + std::to_string(i - layers.begin()) + ".png").c_str(), layers[i - layers.begin()]->id_tex);
+		ilutGLSaveImage((char*)("../../Export/Debug/MAP_IMAGE_LAYER_" + name + std::to_string(i - layers.begin()) + ".png").c_str(), layers[i - layers.begin()]->id_tex); // TODO: crash on application quit
 	}
 }
 

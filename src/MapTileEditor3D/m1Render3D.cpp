@@ -74,7 +74,7 @@ bool m1Render3D::Init(const nlohmann::json& node)
 
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
-    loadShaders();
+    LoadShaders();
 
 	return ret;
 }
@@ -142,17 +142,17 @@ r1Shader* m1Render3D::GetShader(const char* name)
     return (p == programs.end()) ? nullptr : (*p).second;
 }
 
-void m1Render3D::loadShaders()
+void m1Render3D::LoadShaders()
 {
     //load all shaders
-    Folder* fshaders = FileSystem::GetPtrFolder("Configuration/Shader/Shaders/");
+    Folder* fshaders = FileSystem::GetPtrFolder("../../Configuration/Shader/Shaders/");
 
     for (auto shader : fshaders->files) {
         shaders[shader.first] = r1Shader::Compile(fshaders->full_path + shader.first);
     }
 
     //link
-    std::string link = FileSystem::OpenTextFile("Configuration/Shader/shaders_link.txt");
+    std::string link = FileSystem::OpenTextFile("../../Configuration/Shader/shaders_link.txt");
 
     std::istringstream iss(link);
 

@@ -12,7 +12,7 @@
 
 namespace fs = std::filesystem;
 
-Folder* FileSystem::root = FileSystem::GetFolders("./");
+Folder* FileSystem::root = FileSystem::GetFolders("../../");
 
 nlohmann::json FileSystem::OpenJSONFile(const char* path)
 {
@@ -315,7 +315,7 @@ Folder* FileSystem::GetPtrFolder(const char* folder)
 
     std::stack<Folder*> s;
     s.push(root);
-    std::string sfolder = std::string("./") + folder;
+    std::string sfolder = folder;
 
     while (s.empty() == false) {
         auto f = s.top();
@@ -342,7 +342,7 @@ Folder* FileSystem::RegenerateRootFolder()
 {
     //TODO: don't delete all folders
     delete root;
-    return root = FileSystem::GetFolders("./");
+    return root = FileSystem::GetFolders("../../");
 }
 
 void FileSystem::DeleteRoot()
