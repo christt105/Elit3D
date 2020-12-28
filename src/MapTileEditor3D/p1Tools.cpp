@@ -79,3 +79,8 @@ int p1Tools::GetToolSize() const
 {
 	return brushSize;
 }
+
+p1Tools::Shape p1Tools::GetToolShape() const
+{
+	return shape;
+}

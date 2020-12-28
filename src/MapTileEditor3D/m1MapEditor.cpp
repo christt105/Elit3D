@@ -190,6 +190,7 @@ void m1MapEditor::Mouse(const Ray& ray)
 					shader->SetInt("tool", (int)panel_tools->GetSelectedTool());
 					shader->SetBool("locked", m->layers[index]->locked);
 					shader->SetInt("brushSize", brushSize);
+					shader->SetInt("brushShape", (int)panel_tools->GetToolShape());
 
 					oglh::BindBuffers(r->VAO, r->vertices.id, r->indices.id);
 					oglh::DrawElements(r->indices.size);

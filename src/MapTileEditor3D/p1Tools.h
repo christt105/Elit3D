@@ -29,6 +29,7 @@ public:
     Tools GetSelectedTool() const;
 
     int GetToolSize() const;
+    Shape GetToolShape() const;
 
     Tools selectedTool = Tools::BRUSH;
 
