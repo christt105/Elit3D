@@ -242,6 +242,15 @@ TILE_DATA_TYPE p1Tileset::GetTileIDSelected() const
 	return TILE_DATA_TYPE(0);
 }
 
+void p1Tileset::SetTileIDSelected(TILE_DATA_TYPE id)
+{
+	auto tile = (r1Tileset*)App->resources->Get(tileset);
+	if (tile) {
+		tile_selected[0] = id % tile->columns;
+		tile_selected[1] = id / tile->columns;
+	}
+}
+
 int p1Tileset::GetTileWidth() const
 {
 	auto t = (r1Tileset*)App->resources->Get(tileset);

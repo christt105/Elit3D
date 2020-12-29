@@ -302,16 +302,42 @@ void r1Map::Resize(int width, int height) // TODO FIX RESIZE
 	size = { width, height };
 }
 
-void r1Map::Edit(int layer, int row, int col, TILE_DATA_TYPE id, unsigned char g, unsigned char b)
+void r1Map::Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape, TILE_DATA_TYPE id, unsigned char g, unsigned char b)
 {
-	//cpu
-	layers[layer]->tile_data[size.x * row + col] = id;
-
-	//gpu
 	oglh::BindTexture(layers[layer]->id_tex);
-
 	unsigned char bits[3] = { g, 0, b };
-	oglh::TexSubImage2D(col, row, 1, 1, bits);
+
+	switch (tool)
+	{
+	case p1Tools::Tools::BRUSH:
+		switch (shape)
+		{
+		case p1Tools::Shape::RECTANGLE:
+			for (int i = (brushSize % 2 == 0) ? row - brushSize / 2 + 1 : row - brushSize / 2; i < row + brushSize / 2 + 1; ++i) {
+				for (int j = (brushSize % 2 == 0) ? col - brushSize / 2 + 1 : col - brushSize / 2; j < col + brushSize / 2 + 1; ++j) {
+					int index = size.x * i + j;
+					if (index >= 0 && index < size.x * size.y) {
+						layers[layer]->tile_data[index] = id;
+						oglh::TexSubImage2D(j, i, 1, 1, bits); //TODO: TexSubImage2d of all rectangle
+					}
+				}
+			}
+			break;
+		case p1Tools::Shape::CIRCLE:
+			break;
+		default:
+			break;
+		}
+		break;
+	case p1Tools::Tools::BUCKET:
+		break;
+	case p1Tools::Tools::EYEDROPPER:
+		break;
+	case p1Tools::Tools::RECTANGLE:
+		break;
+	default:
+		break;
+	}
 
 	oglh::UnBindTexture();
 }
@@ -348,4 +374,37 @@ void r1Map::OnInspector()
 	if (ImGui::CollapsingHeader("Custom Properties", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen)) {
 		properties.Display();
 	}
+}
+
+bool r1Map::CheckBoundaries(const int2& point, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape) const
+{
+	switch (tool)
+	{
+	case p1Tools::Tools::BRUSH:
+	case p1Tools::Tools::ERASER:
+		if (brushSize % 2 != 0) {
+			if (point.x + brushSize / 2 >= 0 &&
+				point.x - brushSize / 2 < size.x &&
+				point.y + brushSize / 2 >= 0 &&
+				point.y - brushSize / 2 < size.y)
+				return true;
+		}
+		else {
+			if (point.x + brushSize / 2 >= 0 &&
+				point.x - brushSize / 2 + 1 < size.x &&
+				point.y + brushSize / 2 >= 0 &&
+				point.y - brushSize / 2 + 1 < size.y)
+				return true;
+		}
+		break;
+	case p1Tools::Tools::BUCKET:
+		break;
+	case p1Tools::Tools::EYEDROPPER:
+		break;
+	case p1Tools::Tools::RECTANGLE:
+		break;
+	default:
+		break;
+	}
+	return false;
 }

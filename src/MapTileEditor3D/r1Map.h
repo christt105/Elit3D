@@ -9,6 +9,7 @@
 #include "int2.h"
 #include "TypeVar.h"
 #include "MapLayer.h"
+#include "p1Tools.h"
 #include "ExternalTools/JSON/json.hpp"
 
 class r1Map :
@@ -25,11 +26,13 @@ public:
     void Load() override;
     void Unload() override;
     void Resize(int width, int height);
-    void Edit(int layer, int row, int col, TILE_DATA_TYPE id, unsigned char g, unsigned char b);
+    void Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape, TILE_DATA_TYPE id, unsigned char g, unsigned char b);
 
     static void CreateNewMap(int width, int height, const char* path);
 
     void OnInspector() override;
+
+    bool CheckBoundaries(const int2& point, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape) const;
 
 private:
     void LoadLayers(nlohmann::json& file);

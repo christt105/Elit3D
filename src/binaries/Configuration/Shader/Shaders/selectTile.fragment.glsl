@@ -21,28 +21,11 @@ vec4 orange = vec4(0.9, 0.470, 0.0, 1.0);
 vec4 red = vec4(1.0, 0.0, 0.0, 1.0);
 vec4 green = vec4(0.0, 1.0, 0.0, 1.0);
 
-void main()
-{
-	if (brushShape == 0) {
-  		minRangeBorder = minRangeBorder / brushSize;
-		//Calculate the position of the atlas
-		vec2 coord = TexCoord * brushSize;
-		coord = coord - floor(coord);
-		vec2 atlasPos = (coord + tileSelected) / ntilesAtlas;
-		if (TexCoord.x < minRangeBorder || TexCoord.x > 1.0 - minRangeBorder || TexCoord.y < minRangeBorder || TexCoord.y > 1.0 - minRangeBorder) {
-			if (tool == 0) {
-				if (locked) {
-					FragColor = red;
-				}
-				else {
-					FragColor = green;
-				}
-    		}
-			else {
-				FragColor = orange;
-			}
-		}
-		else {
+void DrawTexturedTile() {
+	//Calculate the position of the atlas
+			vec2 coord = TexCoord * brushSize;
+			coord = coord - floor(coord);
+			vec2 atlasPos = (coord + tileSelected) / ntilesAtlas;
 			if (locked) {
 				if (tool == 0) {
 					if (tileSelected.x == -1.0) {
@@ -69,6 +52,27 @@ void main()
 					FragColor = vec4(orange.xyz, 0.2);
 				}
 			}
+}
+
+void main()
+{
+	if (brushShape == 0) {
+  		minRangeBorder = minRangeBorder / brushSize;
+		if (TexCoord.x < minRangeBorder || TexCoord.x > 1.0 - minRangeBorder || TexCoord.y < minRangeBorder || TexCoord.y > 1.0 - minRangeBorder) {
+			if (tool == 0) {
+				if (locked) {
+					FragColor = red;
+				}
+				else {
+					FragColor = green;
+				}
+    		}
+			else {
+				FragColor = orange;
+			}
+		}
+		else {
+			DrawTexturedTile();
 		}
 	}
 	else {
@@ -84,14 +88,8 @@ void main()
 			p -= 0.5 * float(brushSize);
 		}
 
-		if (p.x*p.x+p.y*p.y < r*r) {
-			vec2 coord = TexCoord * brushSize;
-			coord = coord - floor(coord);
-			vec2 atlasPos = (coord + tileSelected) / ntilesAtlas;
-			FragColor = vec4(texture(Texture, atlasPos).xyz, 0.75);
-		}
-		else if (p.x*p.x+p.y*p.y < r*r) {
-			FragColor = red;
+		if (p.x*p.x+p.y*p.y <= r*r) {
+			DrawTexturedTile();
 		}
 		else {
 			discard;

@@ -102,7 +102,7 @@ void oglh::BindTexture(unsigned int id)
 
 void oglh::TexSubImage2D(int x, int y, int width, int height, const unsigned char* pixels)
 {
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 	HANDLE_ERROR();
 }
 
@@ -226,7 +226,7 @@ void oglh::GenTextureData(unsigned int& id, Wrap wrap, Filter filter, unsigned i
 
 	HANDLE_ERROR();
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, size_x, size_y, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size_x, size_y, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

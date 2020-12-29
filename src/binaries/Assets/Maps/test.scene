@@ -1,7 +1,7 @@
 {
     "layers": [
         {
-            "data": "eNrjMrGw0CEGc40qpKtCLgByTVGD",
+            "data": "eNrjMjGy0DExN0PFIDFkbGGhw0VdhaZGpCgEEhgSWDCmQhAfhslTaGFBpkKcbiROIRcAycNPTw==",
             "displacement": [
                 0,
                 0
@@ -26,7 +26,7 @@
             "name": "Layer",
             "opacity": 1.0,
             "properties": null,
-            "visible": true
+            "visible": false
         },
         {
             "data": "eNrjMtDBhFwQytDAEpswDBoaWKALGxoYQlnm5hBxmCKcpsAFgToMiFRKnCAXAJQhJk0=",
@@ -40,7 +40,7 @@
             "name": "Layer",
             "opacity": 1.0,
             "properties": null,
-            "visible": true
+            "visible": false
         }
     ],
     "properties": null,

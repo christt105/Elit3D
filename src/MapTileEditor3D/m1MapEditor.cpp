@@ -182,21 +182,23 @@ void m1MapEditor::Mouse(const Ray& ray)
 					//select tileset
 
 					int brushSize = panel_tools->GetToolSize();
+					p1Tools::Tools tool = panel_tools->GetSelectedTool();
+					p1Tools::Shape shape = panel_tools->GetToolShape();
 
 					static r1Shader* shader = App->render->GetShader("selectTile");
 					shader->Use();
 					shader->SetInt2("tileSelected", panel_tileset->GetTileSelected());
 					shader->SetMat4("model", float4x4::FromTRS(float3(row - brushSize + 1 + brushSize / 2, m->layers[index]->height, col-brushSize+1 + brushSize/2), Quat::identity, float3(brushSize, 1.f, brushSize)));
-					shader->SetInt("tool", (int)panel_tools->GetSelectedTool());
+					shader->SetInt("tool", (int)tool);
 					shader->SetBool("locked", m->layers[index]->locked);
 					shader->SetInt("brushSize", brushSize);
-					shader->SetInt("brushShape", (int)panel_tools->GetToolShape());
+					shader->SetInt("brushShape", (int)shape);
 
 					oglh::BindBuffers(r->VAO, r->vertices.id, r->indices.id);
 					oglh::DrawElements(r->indices.size);
 					if (App->input->IsMouseButtonPressed(1) && !m->layers[index]->locked) {
-						if (row < m->size.x && col < m->size.y && (col > -1 && row > -1)) {
-							switch (panel_tools->GetSelectedTool())
+						if (m->CheckBoundaries({ row, col }, brushSize, tool, shape)) {
+							switch (tool)
 							{
 							case p1Tools::Tools::BRUSH: {
 								TILE_DATA_TYPE tile_id = panel_tileset->GetTileIDSelected();
@@ -209,18 +211,15 @@ void m1MapEditor::Mouse(const Ray& ray)
 									A = tile_id / UCHAR_MAX;
 									B = tile_id % UCHAR_MAX;
 
-									if (m->layers[index]->tile_data[(m->size.x * col + row)] != tile_id) {
-										m->Edit(index, col, row, tile_id, A, B);
-									}
+									m->Edit(index, col, row, brushSize, tool, shape, tile_id, A, B);
 								}
 								break;
 							}
 							case p1Tools::Tools::ERASER:
-								if (m->layers[index]->tile_data[(m->size.x * col + row)] != 0) {
-									m->Edit(index, col, row, 0, 0, 0);
-								}
+								m->Edit(index, col, row, brushSize, tool, shape, 0, 0, 0);
 								break;
 							case p1Tools::Tools::EYEDROPPER:
+								panel_tileset->SetTileIDSelected(m->layers[index]->tile_data[(m->size.x * col + row)]);
 								break;
 							case p1Tools::Tools::BUCKET:
 								break;
