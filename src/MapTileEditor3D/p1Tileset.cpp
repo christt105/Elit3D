@@ -247,7 +247,7 @@ void p1Tileset::SetTileIDSelected(TILE_DATA_TYPE id)
 	auto tile = (r1Tileset*)App->resources->Get(tileset);
 	if (tile) {
 		tile_selected[0] = id % tile->columns;
-		tile_selected[1] = id / tile->columns;
+		tile_selected[1] = (id / tile->columns - tile->ntiles/tile->columns + 1) * -1;
 	}
 }
 

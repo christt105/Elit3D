@@ -219,7 +219,7 @@ void m1MapEditor::Mouse(const Ray& ray)
 								m->Edit(index, col, row, brushSize, tool, shape, 0, 0, 0);
 								break;
 							case p1Tools::Tools::EYEDROPPER:
-								panel_tileset->SetTileIDSelected(m->layers[index]->tile_data[(m->size.x * col + row)]);
+								panel_tileset->SetTileIDSelected(m->layers[index]->tile_data[m->size.x * col + row]);
 								break;
 							case p1Tools::Tools::BUCKET:
 								break;
