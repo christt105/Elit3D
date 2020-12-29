@@ -313,12 +313,14 @@ void r1Map::Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool
 		switch (shape)
 		{
 		case p1Tools::Shape::RECTANGLE:
-			for (int i = (brushSize % 2 == 0) ? row - brushSize / 2 + 1 : row - brushSize / 2; i < row + brushSize / 2 + 1; ++i) {
-				for (int j = (brushSize % 2 == 0) ? col - brushSize / 2 + 1 : col - brushSize / 2; j < col + brushSize / 2 + 1; ++j) {
-					int index = size.x * i + j;
-					if (index >= 0 && index < size.x * size.y) {
-						layers[layer]->tile_data[index] = id;
-						oglh::TexSubImage2D(j, i, 1, 1, bits); //TODO: TexSubImage2d of all rectangle
+			for (int i = (brushSize % 2 == 0) ? col - brushSize / 2 + 1 : col - brushSize / 2; i < col + brushSize / 2 + 1; ++i) {
+				for (int j = (brushSize % 2 == 0) ? row - brushSize / 2 + 1 : row - brushSize / 2; j < row + brushSize / 2 + 1; ++j) {
+					if (i >= 0 && j >= 0 && i < size.x && j < size.y) {
+						int index = size.x * j + i;
+						if (index >= 0 && layers[layer]->tile_data[index] != id && index < size.x * size.y) {
+							layers[layer]->tile_data[index] = id;
+							oglh::TexSubImage2D(i, j, 1, 1, bits); //TODO: TexSubImage2d of all rectangle
+						}
 					}
 				}
 			}
@@ -382,29 +384,12 @@ bool r1Map::CheckBoundaries(const int2& point, int brushSize, p1Tools::Tools too
 	{
 	case p1Tools::Tools::BRUSH:
 	case p1Tools::Tools::ERASER:
-		if (brushSize % 2 != 0) {
-			if (point.x + brushSize / 2 >= 0 &&
-				point.x - brushSize / 2 < size.x &&
-				point.y + brushSize / 2 >= 0 &&
-				point.y - brushSize / 2 < size.y)
-				return true;
-		}
-		else {
-			if (point.x + brushSize / 2 >= 0 &&
-				point.x - brushSize / 2 + 1 < size.x &&
-				point.y + brushSize / 2 >= 0 &&
-				point.y - brushSize / 2 + 1 < size.y)
-				return true;
-		}
-		break;
-	case p1Tools::Tools::BUCKET:
-		break;
-	case p1Tools::Tools::EYEDROPPER:
-		break;
-	case p1Tools::Tools::RECTANGLE:
-		break;
+		return point.x + brushSize / 2 >= 0 &&
+			((brushSize % 2 != 0) ? point.x - brushSize / 2 : point.x - brushSize / 2 + 1) < size.x &&
+			point.y + brushSize / 2 >= 0 &&
+			((brushSize % 2 != 0) ? point.y - brushSize / 2 : point.y - brushSize / 2 + 1) < size.y;
 	default:
-		break;
+		return point.x >= 0 && point.y >= 0 && point.x < size.x&& point.y < size.y;
 	}
 	return false;
 }
