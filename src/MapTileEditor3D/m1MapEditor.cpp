@@ -90,10 +90,7 @@ UpdateStatus m1MapEditor::Update()
 			shader->SetInt("tilemap", 1);
 			panel_tileset->SetColumnUniform(shader);
 
-			auto layers = m->layers;
-			std::sort(layers.begin(), layers.end(), Layer::HeightOrder); //TODO not every frame
-
-			for (auto layer : layers) {
+			for (auto layer : m->layers) {
 				if (layer->visible) {
 					layer->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
 				}
@@ -254,6 +251,13 @@ int2 m1MapEditor::GetMapSize() const
 	if (m)
 		return m->size;
 	return int2(-1, -1);
+}
+
+void m1MapEditor::ReorderLayers()
+{
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m != nullptr)
+		std::sort(m->layers.begin(), m->layers.end(), Layer::HeightOrder);
 }
 
 void m1MapEditor::AddLayer()

@@ -15,6 +15,7 @@ public:
     void Update() override;
 
     int GetSelected() const;
+    void SetSelected(int i);
 
 private:
     void DisplayLayers(std::vector<Layer*>* layers);

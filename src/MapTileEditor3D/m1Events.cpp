@@ -95,6 +95,9 @@ UpdateStatus m1Events::PreUpdate()
 		case Event::Type::RESIZE_MAP:
 			App->map_editor->ResizeMap(((iTypeVar*)e->info["width"])->value, ((iTypeVar*)e->info["height"])->value);
 			break;
+		case Event::Type::REORDER_LAYERS:
+			App->map_editor->ReorderLayers();
+			break;
 		case Event::Type::SAVE_MAP:
 			App->map_editor->SaveMap();
 			break;

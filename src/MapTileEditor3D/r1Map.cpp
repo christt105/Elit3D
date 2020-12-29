@@ -7,6 +7,7 @@
 #include "Application.h"
 #include "m1GUI.h"
 #include "p1Tileset.h"
+#include "p1Layers.h"
 #include "m1Resources.h"
 #include "r1Tileset.h"
 
@@ -245,9 +246,11 @@ void r1Map::LoadLayers(nlohmann::json& file)
 		oglh::UnBindTexture();
 		delete[] tex_data;
 
-
 		layers.push_back(layer);
 	}
+
+	std::sort(layers.begin(), layers.end(), Layer::HeightOrder);
+	App->gui->layers->SetSelected(0);
 }
 
 void r1Map::Unload()
@@ -258,7 +261,7 @@ void r1Map::Unload()
 	layers.clear();
 }
 
-void r1Map::Resize(int width, int height) // TODO FIX RESIZE
+void r1Map::Resize(int width, int height)
 {
 	PROFILE_AND_LOG("Map Resize");
 
@@ -310,6 +313,7 @@ void r1Map::Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool
 	switch (tool)
 	{
 	case p1Tools::Tools::BRUSH:
+	case p1Tools::Tools::ERASER:
 		switch (shape)
 		{
 		case p1Tools::Shape::RECTANGLE:

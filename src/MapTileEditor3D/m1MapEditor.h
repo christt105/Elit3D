@@ -38,9 +38,10 @@ public:
     void ReLoadMap();
 
     void Mouse(const Ray& ray);
-    void MousePicking(const Ray& ray);
     void ResizeMap(int width, int height);
     int2 GetMapSize() const;
+
+    void ReorderLayers();
 
     void AddLayer();
     void EraseLayer(int index);

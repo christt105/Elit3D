@@ -2,6 +2,7 @@
 
 #include "Application.h"
 #include "m1MapEditor.h"
+#include "m1Events.h"
 
 #include "m1GUI.h"
 #include "p1Inspector.h"
@@ -113,6 +114,7 @@ void p1Layers::Buttons(std::vector<Layer*>*& layers)
 		auto tmp = (*layers)[selected];
 		(*layers)[selected] = (*layers)[selected - 1];
 		(*layers)[--selected] = tmp;
+		App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::REORDER_LAYERS));
 	}
 
 	if (disabled) {
@@ -132,6 +134,7 @@ void p1Layers::Buttons(std::vector<Layer*>*& layers)
 		auto tmp = (*layers)[selected];
 		(*layers)[selected] = (*layers)[selected + 1];
 		(*layers)[++selected] = tmp;
+		App->events->AddEvent(new m1Events::Event(m1Events::Event::Type::REORDER_LAYERS));
 	}
 	if (disabled) {
 		ImGui::PopItemFlag();
@@ -142,4 +145,9 @@ void p1Layers::Buttons(std::vector<Layer*>*& layers)
 int p1Layers::GetSelected() const
 {
 	return selected;
+}
+
+void p1Layers::SetSelected(int i)
+{
+	selected = i;
 }
