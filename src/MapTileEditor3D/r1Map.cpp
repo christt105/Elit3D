@@ -341,39 +341,39 @@ void r1Map::Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool
 		PROFILE_AND_LOG("Bucket");
 		bool* visited = new bool[size.x * size.y];
 		memset(visited, false, size.x * size.y);
-		std::queue<Node> queue;
+		std::queue<std::pair<int, int>> queue;
 		visited[size.x * row + col] = true;
-		queue.push(Node(col,row));
+		queue.push({col, row});
 		int baseIndex = layers[layer]->tile_data[size.x * row + col];
 
 		while (!queue.empty()) {
 			auto t = queue.front(); queue.pop();
-			layers[layer]->tile_data[size.x * t.y + t.x] = id;
-			oglh::TexSubImage2D(t.x, t.y, 1, 1, bits);
+			layers[layer]->tile_data[size.x * t.second + t.first] = id;
+			oglh::TexSubImage2D(t.first, t.second, 1, 1, bits);
 			
-			if (t.x + 1 >= 0 && t.y >= 0 && t.x + 1 < size.x && t.y < size.y &&
-				!visited[size.x * t.y + t.x + 1] &&
-				layers[layer]->tile_data[size.x * t.y + t.x + 1] == baseIndex) {
-				visited[size.x * t.y + t.x + 1] = true;
-				queue.push({ t.x + 1, t.y });
+			if (t.first + 1 >= 0 && t.second >= 0 && t.first + 1 < size.x && t.second < size.y &&
+				!visited[size.x * t.second + t.first + 1] &&
+				layers[layer]->tile_data[size.x * t.second + t.first + 1] == baseIndex) {
+				visited[size.x * t.second + t.first + 1] = true;
+				queue.push({ t.first + 1, t.second });
 			}
-			if (t.x - 1 >= 0 && t.y >= 0 && t.x - 1 < size.x && t.y < size.y &&
-				!visited[size.x * t.y + t.x - 1] &&
-				layers[layer]->tile_data[size.x * t.y + t.x - 1] == baseIndex) {
-				visited[size.x * t.y + t.x - 1] = true;
-				queue.push({ t.x - 1, t.y });
+			if (t.first - 1 >= 0 && t.second >= 0 && t.first - 1 < size.x && t.second < size.y &&
+				!visited[size.x * t.second + t.first - 1] &&
+				layers[layer]->tile_data[size.x * t.second + t.first - 1] == baseIndex) {
+				visited[size.x * t.second + t.first - 1] = true;
+				queue.push({ t.first - 1, t.second });
 			}
-			if (t.x >= 0 && t.y + 1 >= 0 && t.x < size.x && t.y + 1 < size.y &&
-				!visited[size.x * (t.y + 1) + t.x] &&
-				layers[layer]->tile_data[size.x * (t.y + 1) + t.x] == baseIndex) {
-				visited[size.x * (t.y + 1) + t.x] = true;
-				queue.push({ t.x, t.y + 1 });
+			if (t.first >= 0 && t.second + 1 >= 0 && t.first < size.x && t.second + 1 < size.y &&
+				!visited[size.x * (t.second + 1) + t.first] &&
+				layers[layer]->tile_data[size.x * (t.second + 1) + t.first] == baseIndex) {
+				visited[size.x * (t.second + 1) + t.first] = true;
+				queue.push({ t.first, t.second + 1 });
 			}
-			if (t.x >= 0 && t.y - 1 >= 0 && t.x < size.x && t.y - 1 < size.y &&
-				!visited[size.x * (t.y - 1) + t.x] &&
-				layers[layer]->tile_data[size.x * (t.y - 1) + t.x] == baseIndex) {
-				visited[size.x * (t.y - 1) + t.x] = true;
-				queue.push({ t.x, t.y - 1 });
+			if (t.first >= 0 && t.second - 1 >= 0 && t.first < size.x && t.second - 1 < size.y &&
+				!visited[size.x * (t.second - 1) + t.first] &&
+				layers[layer]->tile_data[size.x * (t.second - 1) + t.first] == baseIndex) {
+				visited[size.x * (t.second - 1) + t.first] = true;
+				queue.push({ t.first, t.second - 1 });
 			}
 		}
 		delete[] visited;
@@ -399,14 +399,10 @@ void r1Map::CreateNewMap(int width, int height, const char* file)
 
 	nlohmann::json data = nlohmann::json::object();
 
-	std::string tiles;
-	for (int i = 0; i < width * height; ++i) {
-		tiles += "0";
-		if (i != width * height - 1) {
-			tiles += ",";
-		}
-	}
-	data["data"] = tiles;
+	Layer layer;
+	layer.Reset({ width, height });	
+
+	data["data"] = layer.Parse(width, height, Layer::DataTypeExport::BASE64_ZLIB);
 
 	map["layers"].push_back(data);
 

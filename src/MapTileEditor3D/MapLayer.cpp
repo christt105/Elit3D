@@ -48,6 +48,8 @@ void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 
 void Layer::Reset(const int2& size)
 {
+	if (tile_data != nullptr)
+		delete[] tile_data;
 	tile_data = new TILE_DATA_TYPE[size.x * size.y];
 	memset(tile_data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
 

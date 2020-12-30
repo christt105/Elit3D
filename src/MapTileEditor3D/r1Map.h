@@ -12,16 +12,6 @@
 #include "p1Tools.h"
 #include "ExternalTools/JSON/json.hpp"
 
-struct Node {
-    Node(int x, int y) : x(x), y(y) {}
-    int x;
-    int y;
-
-    inline bool operator==(const Node& n) const {
-        return x == n.x && y == n.y;
-    }
-};
-
 class r1Map :
     public Resource
 {

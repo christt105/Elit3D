@@ -199,17 +199,19 @@ void m1MapEditor::Mouse(const Ray& ray)
 							{
 							case p1Tools::Tools::BUCKET:
 							case p1Tools::Tools::BRUSH: {
-								TILE_DATA_TYPE tile_id = panel_tileset->GetTileIDSelected();
-								if (tile_id != 0) {
+								if (!App->input->IsMouseButtonUp(1)) {
+									TILE_DATA_TYPE tile_id = panel_tileset->GetTileIDSelected();
+									if (tile_id != 0) {
 
-									// tile.y = A * 256 + B
-									unsigned char A = 0;
-									unsigned char B = 0;
+										// tile.y = A * 256 + B
+										unsigned char A = 0;
+										unsigned char B = 0;
 
-									A = tile_id / UCHAR_MAX;
-									B = tile_id % UCHAR_MAX;
+										A = tile_id / UCHAR_MAX;
+										B = tile_id % UCHAR_MAX;
 
-									m->Edit(index, col, row, brushSize, tool, shape, tile_id, A, B);
+										m->Edit(index, col, row, brushSize, tool, shape, tile_id, A, B);
+									}
 								}
 								break;
 							}
@@ -217,10 +219,12 @@ void m1MapEditor::Mouse(const Ray& ray)
 								m->Edit(index, col, row, brushSize, tool, shape, 0, 0, 0);
 								break;
 							case p1Tools::Tools::EYEDROPPER:
-								for (auto i = m->layers.rbegin(); i != m->layers.rend(); ++i) {
-									if ((*i)->visible && (*i)->tile_data[m->size.x * col + row] != 0) {
-										panel_tileset->SetTileIDSelected((*i)->tile_data[m->size.x * col + row]);
-										break;
+								if (App->input->IsMouseButtonUp(1)) {
+									for (auto i = m->layers.rbegin(); i != m->layers.rend(); ++i) {
+										if ((*i)->visible && (*i)->tile_data[m->size.x * col + row] != 0) {
+											panel_tileset->SetTileIDSelected((*i)->tile_data[m->size.x * col + row]);
+											break;
+										}
 									}
 								}
 								break;
