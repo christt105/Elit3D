@@ -197,6 +197,7 @@ void m1MapEditor::Mouse(const Ray& ray)
 						if (m->CheckBoundaries({ row, col }, brushSize, tool, shape)) {
 							switch (tool)
 							{
+							case p1Tools::Tools::BUCKET:
 							case p1Tools::Tools::BRUSH: {
 								TILE_DATA_TYPE tile_id = panel_tileset->GetTileIDSelected();
 								if (tile_id != 0) {
@@ -222,8 +223,6 @@ void m1MapEditor::Mouse(const Ray& ray)
 										break;
 									}
 								}
-								break;
-							case p1Tools::Tools::BUCKET:
 								break;
 							case p1Tools::Tools::RECTANGLE:
 								break;

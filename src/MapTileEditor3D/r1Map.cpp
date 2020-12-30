@@ -1,5 +1,7 @@
 #include "r1Map.h"
 
+#include <queue>
+
 #include "FileSystem.h"
 
 #include "OpenGLHelper.h"
@@ -335,8 +337,48 @@ void r1Map::Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool
 			break;
 		}
 		break;
-	case p1Tools::Tools::BUCKET:
+	case p1Tools::Tools::BUCKET: {
+		PROFILE_AND_LOG("Bucket");
+		bool* visited = new bool[size.x * size.y];
+		memset(visited, false, size.x * size.y);
+		std::queue<Node> queue;
+		visited[size.x * row + col] = true;
+		queue.push(Node(col,row));
+		int baseIndex = layers[layer]->tile_data[size.x * row + col];
+
+		while (!queue.empty()) {
+			auto t = queue.front(); queue.pop();
+			layers[layer]->tile_data[size.x * t.y + t.x] = id;
+			oglh::TexSubImage2D(t.x, t.y, 1, 1, bits);
+			
+			if (t.x + 1 >= 0 && t.y >= 0 && t.x + 1 < size.x && t.y < size.y &&
+				!visited[size.x * t.y + t.x + 1] &&
+				layers[layer]->tile_data[size.x * t.y + t.x + 1] == baseIndex) {
+				visited[size.x * t.y + t.x + 1] = true;
+				queue.push({ t.x + 1, t.y });
+			}
+			if (t.x - 1 >= 0 && t.y >= 0 && t.x - 1 < size.x && t.y < size.y &&
+				!visited[size.x * t.y + t.x - 1] &&
+				layers[layer]->tile_data[size.x * t.y + t.x - 1] == baseIndex) {
+				visited[size.x * t.y + t.x - 1] = true;
+				queue.push({ t.x - 1, t.y });
+			}
+			if (t.x >= 0 && t.y + 1 >= 0 && t.x < size.x && t.y + 1 < size.y &&
+				!visited[size.x * (t.y + 1) + t.x] &&
+				layers[layer]->tile_data[size.x * (t.y + 1) + t.x] == baseIndex) {
+				visited[size.x * (t.y + 1) + t.x] = true;
+				queue.push({ t.x, t.y + 1 });
+			}
+			if (t.x >= 0 && t.y - 1 >= 0 && t.x < size.x && t.y - 1 < size.y &&
+				!visited[size.x * (t.y - 1) + t.x] &&
+				layers[layer]->tile_data[size.x * (t.y - 1) + t.x] == baseIndex) {
+				visited[size.x * (t.y - 1) + t.x] = true;
+				queue.push({ t.x, t.y - 1 });
+			}
+		}
+		delete[] visited;
 		break;
+	}
 	case p1Tools::Tools::EYEDROPPER:
 		break;
 	case p1Tools::Tools::RECTANGLE:
