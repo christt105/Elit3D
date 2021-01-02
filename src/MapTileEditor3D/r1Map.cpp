@@ -331,8 +331,47 @@ void r1Map::Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool
 				}
 			}
 			break;
-		case p1Tools::Shape::CIRCLE:
-			break;
+		case p1Tools::Shape::CIRCLE: {
+			if (brushSize % 2 != 0) {
+				float r = brushSize * 0.5f;
+				float r2 = r * r;
+				for (int i = (brushSize % 2 == 0) ? col - brushSize / 2 + 1 : col - r; i < col + r + 1; ++i) {
+					for (int j = (brushSize % 2 == 0) ? row - brushSize / 2 + 1 : row - r; j < row + r + 1; ++j) {
+						if (i >= 0 && j >= 0 && i < size.x && j < size.y) {
+							if (((float)i - col) * ((float)i - col) + ((float)j - row) * ((float)j - row) <= r2) {
+								int index = size.x * j + i;
+								if (index >= 0 && layers[layer]->tile_data[index] != id && index < size.x * size.y) {
+									layers[layer]->tile_data[index] = id;
+									oglh::TexSubImage2D(i, j, 1, 1, bits); //TODO: TexSubImage2d of all rectangle
+								}
+							}
+						}
+					}
+				}
+			}
+			else {
+				float r = brushSize * 0.5f;
+				float r2 = r * r;
+				LOG("col: %i | row: %i | r: %f | r2: %f", col, row, r, r2);
+				for (int i = -r+1; i <= r; ++i) {
+					for (int j = -r+1; j <= r; ++j) {
+						float f = ((float)i-0.5f)* ((float)i - 0.5f) + ((float)j - 0.5f) * ((float)j - 0.5f);
+						LOG("i: %i, j: %i, f: %.2f", i, j, f);
+						if (f <= r2) {
+							int ix = col + i;
+							int jx = row + j;
+							if (ix >= 0 && jx >= 0 && ix < size.x && jx < size.y) {
+								int index = size.x * jx + ix;
+								if (index >= 0 && layers[layer]->tile_data[index] != id && index < size.x * size.y) {
+									layers[layer]->tile_data[index] = id;
+									oglh::TexSubImage2D(ix, jx, 1, 1, bits); //TODO: TexSubImage2d of all rectangle
+								}
+							}
+						}
+					}
+				}
+			}
+			break; }
 		default:
 			break;
 		}
