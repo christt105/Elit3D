@@ -232,14 +232,16 @@ int2 p1Tileset::GetTileSelected() const
 
 TILE_DATA_TYPE p1Tileset::GetTileIDSelected() const
 {
-	int2 ret = { tile_selected[0], tile_selected[1] };
-	auto tile = (r1Tileset*)App->resources->Get(tileset);
-	if (tile) {
-		ret.y = tile->ntiles / tile->columns - ret.y - 1;
+	if (tile_selected[0] != -1 || tile_selected[1] != -1) {
+		int2 ret = { tile_selected[0], tile_selected[1] };
+		auto tile = (r1Tileset*)App->resources->Get(tileset);
+		if (tile) {
+			ret.y = tile->ntiles / tile->columns - ret.y - 1;
 
-		return tile->columns * ret.y + ret.x;
+			return tile->columns * ret.y + ret.x;
+		}
 	}
-	return TILE_DATA_TYPE(0);
+	return (TILE_DATA_TYPE)INVALID_TILE;
 }
 
 void p1Tileset::SetTileIDSelected(TILE_DATA_TYPE id)
