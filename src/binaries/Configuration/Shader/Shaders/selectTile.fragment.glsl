@@ -27,7 +27,7 @@ void DrawTexturedTile() {
 			coord = coord - floor(coord);
 			vec2 atlasPos = (coord + tileSelected) / ntilesAtlas;
 			if (locked) {
-				if (tool == 0) {
+				if (tool == 0 || tool == 2) {
 					if (tileSelected.x == -1.0) {
 						discard;
 					}
@@ -40,7 +40,7 @@ void DrawTexturedTile() {
 				}
 			}
 			else {
-				if (tool == 0) {
+				if (tool == 0 || tool == 2) {
 					if (tileSelected.x == -1.0) {
 						discard;
 					}
@@ -59,7 +59,7 @@ void main()
 	if (brushShape == 0) {
   		minRangeBorder = minRangeBorder / brushSize;
 		if (TexCoord.x < minRangeBorder || TexCoord.x > 1.0 - minRangeBorder || TexCoord.y < minRangeBorder || TexCoord.y > 1.0 - minRangeBorder) {
-			if (tool == 0) {
+			if (tool == 0 || tool == 2 || tool == 3) {
 				if (locked) {
 					FragColor = red;
 				}
@@ -72,7 +72,8 @@ void main()
 			}
 		}
 		else {
-			DrawTexturedTile();
+			if(tool != 3)
+				DrawTexturedTile();
 		}
 	}
 	else {

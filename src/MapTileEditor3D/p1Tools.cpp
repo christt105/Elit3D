@@ -77,10 +77,24 @@ p1Tools::Tools p1Tools::GetSelectedTool() const
 
 int p1Tools::GetToolSize() const
 {
-	return brushSize;
+	switch (selectedTool)
+	{
+	case p1Tools::Tools::BRUSH:
+	case p1Tools::Tools::ERASER:
+		return brushSize;
+	default:
+		return 1;
+	}
 }
 
 p1Tools::Shape p1Tools::GetToolShape() const
 {
-	return shape;
+	switch (selectedTool)
+	{
+	case p1Tools::Tools::BRUSH:
+	case p1Tools::Tools::ERASER:
+		return shape;
+	default:
+		return Shape::RECTANGLE;
+	}
 }
