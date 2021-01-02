@@ -61,6 +61,11 @@ void Layer::Reset(const int2& size)
 	delete[] tex;
 }
 
+void Layer::SelectTex() const
+{
+	oglh::BindTexture(id_tex);
+}
+
 void Layer::SelectBuffers()
 {
 	oglh::BindBuffers(tile.VAO, tile.vertices.id, tile.indices.id);

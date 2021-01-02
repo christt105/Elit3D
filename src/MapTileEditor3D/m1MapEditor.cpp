@@ -185,11 +185,31 @@ void m1MapEditor::Mouse(const Ray& ray)
 					static r1Shader* shader = App->render->GetShader("selectTile");
 					shader->Use();
 					shader->SetInt2("tileSelected", panel_tileset->GetTileSelected());
-					shader->SetMat4("model", float4x4::FromTRS(float3(row - brushSize + 1 + brushSize / 2, m->layers[index]->height, col-brushSize+1 + brushSize/2), Quat::identity, float3(brushSize, 1.f, brushSize)));
+					if (tool != p1Tools::Tools::BUCKET) {
+						shader->SetMat4("model", 
+							float4x4::FromTRS(
+								float3(row - brushSize + 1 + brushSize / 2, m->layers[index]->height, col - brushSize + 1 + brushSize / 2), 
+								Quat::identity, 
+								float3(brushSize, 1.f, brushSize)));
+					}
+					else {
+						shader->SetMat4("model",
+							float4x4::FromTRS(
+								float3::zero,
+								Quat::identity,
+								float3(m->size.x, 1.f, m->size.y)));
+					}
 					shader->SetInt("tool", (int)tool);
 					shader->SetBool("locked", m->layers[index]->locked);
 					shader->SetInt("brushSize", brushSize);
 					shader->SetInt("brushShape", (int)shape);
+					if (tool == p1Tools::Tools::BUCKET) {
+						oglh::ActiveTexture(1);
+						shader->SetInt("TextureMap", 1);
+						m->layers[index]->SelectTex();
+						shader->SetVec2("sizeMap", { (float)m->size.x, (float)m->size.y });
+						shader->SetVec2("mousePos", { (float)row, (float)col });
+					}
 
 					oglh::BindBuffers(r->VAO, r->vertices.id, r->indices.id);
 					oglh::DrawElements(r->indices.size);
@@ -234,6 +254,10 @@ void m1MapEditor::Mouse(const Ray& ray)
 								break;
 							}
 						}
+					}
+					if (tool == p1Tools::Tools::BUCKET) {
+						oglh::UnBindTexture();
+						oglh::ActiveTexture(0);
 					}
 				}
 			}

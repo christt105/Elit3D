@@ -90,6 +90,22 @@ void r1Shader::SetInt2(const char* name, const int2& value)
     }
 }
 
+void r1Shader::SetVec2(const char* name, const float2& value)
+{
+    auto it = uniform_cache.find(name);
+    if (it != uniform_cache.end())
+        glUniform2fv((*it).second, 1, value.ptr());
+    else {
+        int loc = glGetUniformLocation(id, name);
+        if (loc != -1) {
+            uniform_cache[name] = loc;
+            glUniform3fv(loc, 1, value.ptr());
+        }
+        else
+            LOGW("Variable %s not found in %s shader", name, identifier.c_str());
+    }
+}
+
 void r1Shader::SetVec3(const char* name, const float3& value)
 {
     auto it = uniform_cache.find(name);
