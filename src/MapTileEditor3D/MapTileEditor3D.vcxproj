@@ -302,6 +302,7 @@
     <ClInclude Include="ExternalTools\DevIL\include\IL\ilu_region.h" />
     <ClInclude Include="ExternalTools\DevIL\include\IL\il_wrap.h" />
     <ClInclude Include="ExternalTools\ImGui\IconsFontAwesome5\IconsFontAwesome5Brands.h" />
+    <ClInclude Include="ExternalTools\imgui_markdown\imgui_markdown.h" />
     <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\cpu.hpp" />
     <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\cpuid.hpp" />
     <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\memory.hpp" />

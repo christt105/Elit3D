@@ -1,11 +1,13 @@
 #0
+Made by Christian Martínez De La Rosa (christt105)
+    * [Github](www.github.com/christt105)
+    * [Personal web](https://christt105.github.io/)
 
-This is a program made for my final degree project.
+Licensed under BSD 2-Clause License, see LICENSE file.
 
-You can find more information in the github repository and in the wiki page.
-#1
+This is a program made for my final degree project. You can find more information in the github [repository](https://github.com/christt105/TileMapEditor3D) and in the [wiki](https://github.com/christt105/MapTileEditor-3D/wiki) page.
 
 Tools used:
-#2
+#1
 
-To know more about my other projects, check out my website: 
+If you want to know more about me and my other projects don't forget to check out my [website](https://christt105.github.io/) and my [blog](https://christt105.github.io/dev-blog).

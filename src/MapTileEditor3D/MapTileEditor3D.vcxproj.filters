@@ -124,6 +124,9 @@
     <Filter Include="icon">
       <UniqueIdentifier>{2f6fd91d-6524-49bd-9631-d3d60454f43f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External Libraries\ImGui\markdown">
+      <UniqueIdentifier>{38c3c35d-27fd-41d3-9a27-413caa3de730}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -1543,6 +1546,9 @@
     </ClInclude>
     <ClInclude Include="p1Tools.h">
       <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTools\imgui_markdown\imgui_markdown.h">
+      <Filter>External Libraries\ImGui\markdown</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
