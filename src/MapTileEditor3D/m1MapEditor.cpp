@@ -86,6 +86,7 @@ UpdateStatus m1MapEditor::Update()
 			panel_tileset->SelectTransparentColor(shader);
 			shader->SetInt("tileAtlas", 0); // for now we only can draw a map with a single texture (TODO)
 			shader->SetInt2("ntilesMap", m->size);
+			shader->SetBool("debugPaint", App->debug.draw_debug_map);
 			oglh::ActiveTexture(1);
 			shader->SetInt("tilemap", 1);
 			panel_tileset->SetColumnUniform(shader);

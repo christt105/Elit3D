@@ -288,6 +288,10 @@ void m1GUI::MainMenuBar()
 			App->debug.draw_mouse_pick_line = !App->debug.draw_mouse_pick_line;
 		}
 
+		if (ImGui::MenuItem("Debug Map Paint", "", App->debug.draw_debug_map)) {
+			App->debug.draw_debug_map = !App->debug.draw_debug_map;
+		}
+
 		if (ImGui::MenuItem("Resources", "", dbg_resources->GetActive())) {
 			dbg_resources->SetActive(!dbg_resources->GetActive());
 		}

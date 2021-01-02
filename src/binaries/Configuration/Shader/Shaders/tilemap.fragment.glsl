@@ -14,6 +14,7 @@ uniform vec3 transparentColor;
 uniform int max_columns = 1;
 
 uniform bool tilemap_selected = false;
+uniform bool debugPaint = false;
 
 uniform float alpha = 1.0;
 
@@ -22,6 +23,10 @@ out vec4 FragColor;
 void main()
 {   
     if (tilemap_selected) {
+        if(debugPaint) {
+            FragColor = texture(tilemap, TexCoord);
+            return;
+        }
         //Get the pixel information from the texture of the map that indicates de column and the row of the tileset
         vec4 mapId = texture(tilemap, TexCoord) * 255.0; // * 255 because it returns a normalized value [0, 1]
 
