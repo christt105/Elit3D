@@ -22,6 +22,7 @@
 #include "p1Tileset.h"
 #include "p1Layers.h"
 #include "p1DebugResources.h"
+#include "p1Tools.h"
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5Brands.h"
@@ -53,6 +54,7 @@ bool m1GUI::Init(const nlohmann::json& node)
 	tileset			= new p1Tileset();
 	layers			= new p1Layers();
 	dbg_resources	= new p1DebugResources(false, false);
+	tools			= new p1Tools(true, false, false);
 
 	panels.push_back(objects);
 	panels.push_back(configuration);
@@ -63,6 +65,7 @@ bool m1GUI::Init(const nlohmann::json& node)
 	panels.push_back(scene);
 	panels.push_back(tileset);
 	panels.push_back(layers);
+	panels.push_back(tools);
 	panels.push_back(dbg_resources);
 
 	return true;
@@ -200,11 +203,11 @@ void m1GUI::MainMenuBar()
 
 			if (ImGui::Button("Create")) {
 				if (!std::string(buf).empty()) {
-					std::string path = ("./Assets/Maps/" + std::string(buf) + ".scene");
+					std::string path = ("../../Assets/Maps/" + std::string(buf) + ".scene");
 					if (App->resources->FindByPath(path.c_str()) != 0ULL) {
 						int repeat = 0;
 						while (App->resources->FindByPath(path.c_str()) != 0ULL) {
-							path = "./Assets/Maps/" + std::string(buf) + "(" + std::to_string(repeat++) + ")" + ".scene";
+							path = "../../Assets/Maps/" + std::string(buf) + "(" + std::to_string(repeat++) + ")" + ".scene";
 						}
 					}
 					App->resources->PauseFileWatcher(true);
@@ -283,6 +286,10 @@ void m1GUI::MainMenuBar()
 	if (ImGui::BeginMenu("Debugging")) {
 		if (ImGui::MenuItem("Show Mouse Pick Line", "", App->debug.draw_mouse_pick_line)) {
 			App->debug.draw_mouse_pick_line = !App->debug.draw_mouse_pick_line;
+		}
+
+		if (ImGui::MenuItem("Debug Map Paint", "", App->debug.draw_debug_map)) {
+			App->debug.draw_debug_map = !App->debug.draw_debug_map;
 		}
 
 		if (ImGui::MenuItem("Resources", "", dbg_resources->GetActive())) {

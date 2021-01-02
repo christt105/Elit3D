@@ -21,6 +21,7 @@ public:
 
 	std::string ToString() const;
 
+	int2 operator+(const int2& c) const;
 	int2 operator-(const int2& c) const;
 
 public:

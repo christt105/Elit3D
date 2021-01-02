@@ -62,18 +62,18 @@ UpdateStatus m1Scene::Update()
 	static float3 xd0 = float3::zero;
 	static float3 xd1 = float3::one;
 	if (panel_scene->IsOnHover()) {
-		App->input->GetMousePosition(&last_mouse_click.x, &last_mouse_click.y);
-		int2 mouse_pos = last_mouse_click - panel_scene->GetPosition() - int2(0, 16 + 15);
-		mouse_pos.y = panel_scene->GetSize().y - mouse_pos.y;
-		float2 mouse_perc(2 * ((float)mouse_pos.x) / ((float)panel_scene->GetSize().x) - 1, 2 * ((float)mouse_pos.y) / ((float)panel_scene->GetSize().y) - 1);
+		int2 mouse_panel = panel_scene->GetMousePosition();
+		int2 size_panel = panel_scene->GetSize();
+		mouse_panel.y = size_panel.y - mouse_panel.y;
+		float2 mouse_perc(2 * ((float)mouse_panel.x) / ((float)size_panel.x) - 1, 2 * ((float)mouse_panel.y) / ((float)size_panel.y) - 1);
+
+		auto ray = App->camera->frustum.UnProject(mouse_perc);
+		App->map_editor->Mouse(ray);
+		shader->Use();
 
 		if (App->input->IsMouseButtonPressed(1)) {
-
-			auto ray = App->camera->frustum.UnProject(mouse_perc.x, mouse_perc.y);
-
-			App->map_editor->MousePicking(ray);
 			xd0 = ray.pos;
-			xd1 = ray.pos + ray.dir * 50.f;
+			xd1 = ray.pos + ray.dir * 250.f;
 		}
 	}
 

@@ -6,11 +6,11 @@
 struct Folder;
 class FileWatch;
 
-#define ASSETS_PATH "Assets/"
-#define ASSETS_TEXTURES_PATH "Assets/Textures/"
-#define ASSETS_MODELS_PATH "Assets/Models/"
-#define ASSETS_TILESETS_PATH "Assets/Tilesets/"
-#define ASSETS_MAPS_PATH "Assets/Maps/"
+#define ASSETS_PATH "../../Assets/"
+#define ASSETS_TEXTURES_PATH "../../Assets/Textures/"
+#define ASSETS_MODELS_PATH "../../Assets/Models/"
+#define ASSETS_TILESETS_PATH "../../Assets/Tilesets/"
+#define ASSETS_MAPS_PATH "../../Assets/Maps/"
 
 class m1Resources :
 	public Module

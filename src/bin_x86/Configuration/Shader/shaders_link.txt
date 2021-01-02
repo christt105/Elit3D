@@ -1,3 +1,0 @@
-default default.vertex.glsl default.fragment.glsl
-tilemap default.vertex.glsl tilemap.fragment.glsl
-grid grid.vertex.glsl grid.fragment.glsl

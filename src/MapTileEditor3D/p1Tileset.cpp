@@ -191,6 +191,9 @@ void p1Tileset::SelectTileset(const uint64_t& uid)
 			auto shader = App->render->GetShader("tilemap");
 			shader->Use();
 			shader->SetInt2("ntilesAtlas", { t->columns, t->ntiles / t->columns });
+			shader = App->render->GetShader("selectTile");
+			shader->Use();
+			shader->SetInt2("ntilesAtlas", { t->columns, t->ntiles / t->columns });
 		}
 	}
 }
@@ -229,14 +232,25 @@ int2 p1Tileset::GetTileSelected() const
 
 TILE_DATA_TYPE p1Tileset::GetTileIDSelected() const
 {
-	int2 ret = { tile_selected[0], tile_selected[1] };
+	if (tile_selected[0] != -1 || tile_selected[1] != -1) {
+		int2 ret = { tile_selected[0], tile_selected[1] };
+		auto tile = (r1Tileset*)App->resources->Get(tileset);
+		if (tile) {
+			ret.y = tile->ntiles / tile->columns - ret.y - 1;
+
+			return tile->columns * ret.y + ret.x;
+		}
+	}
+	return (TILE_DATA_TYPE)INVALID_TILE;
+}
+
+void p1Tileset::SetTileIDSelected(TILE_DATA_TYPE id)
+{
 	auto tile = (r1Tileset*)App->resources->Get(tileset);
 	if (tile) {
-		ret.y = tile->ntiles / tile->columns - ret.y - 1;
-
-		return tile->columns * ret.y + ret.x;
+		tile_selected[0] = id % tile->columns;
+		tile_selected[1] = (id / tile->columns - tile->ntiles/tile->columns + 1) * -1;
 	}
-	return TILE_DATA_TYPE(0);
 }
 
 int p1Tileset::GetTileWidth() const
@@ -322,8 +336,8 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 	if (ImGui::Button("Create")) {
 		nlohmann::json jsontileset;
 
-		if (!FileSystem::Exists("Assets/Tilesets"))
-			FileSystem::CreateFolder("Assets/Tilesets/");
+		if (!FileSystem::Exists("../../Assets/Tilesets"))
+			FileSystem::CreateFolder("../../Assets/Tilesets/");
 
 		jsontileset["Image"] = data.imageUID;
 

@@ -28,8 +28,8 @@ public:
 	void Load(const nlohmann::json& node) override;
 
 private:
-	float2 lastRight;
-	float2 lastMiddle;
+	float2 lastRight = { -1.f, -1.f };
+	float2 lastMiddle = { -1.f, -1.f };;
 
 	float FOV = 60.f;
 

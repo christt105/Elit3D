@@ -3,6 +3,7 @@
 #include <unordered_map>
 
 #include "ExternalTools/MathGeoLib/include/Math/float4x4.h"
+#include "ExternalTools/MathGeoLib/include/Math/float2.h"
 
 class int2;
 
@@ -24,6 +25,7 @@ public:
 	void SetInt  (const char* name, int value);
 	void SetFloat(const char* name, float value);
 	void SetInt2 (const char* name, const int2& value);
+	void SetVec2 (const char* name, const float2& value);
 	void SetVec3 (const char* name, const float3& value);
 	void SetMat4 (const char* name, const float4x4& value);
 

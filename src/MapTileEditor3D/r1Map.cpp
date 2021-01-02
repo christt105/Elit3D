@@ -1,5 +1,7 @@
 #include "r1Map.h"
 
+#include <queue>
+
 #include "FileSystem.h"
 
 #include "OpenGLHelper.h"
@@ -7,6 +9,7 @@
 #include "Application.h"
 #include "m1GUI.h"
 #include "p1Tileset.h"
+#include "p1Layers.h"
 #include "m1Resources.h"
 #include "r1Tileset.h"
 
@@ -127,7 +130,7 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 				data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
 			}
 
-			doc.save_file("Export/Test.xml");
+			doc.save_file("../../Export/Test.xml");
 			break;
 		}
 		case m1MapEditor::MapTypeExport::JSON:
@@ -149,18 +152,19 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 				case Layer::DataTypeExport::CSV:
 				case Layer::DataTypeExport::CSV_NO_NEWLINE:
 					lay["encoding"] = "csv";
-					//TODO: Parse as array of nnumbers
+					lay["data"] = (*l)->Parse(size.x, size.y);
 					break;
 				case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
-				lay["encoding"] = "base64";
+					lay["encoding"] = "base64";
+					lay["data"] = (*l)->Parse(size.x, size.y, d);
 					break;
 				case Layer::DataTypeExport::BASE64_ZLIB:
 					lay["encoding"] = "base64-zlib";
+					lay["data"] = (*l)->Parse(size.x, size.y, d);
 					break;
 				default:
 					break;
 				}
-				lay["data"] = (*l)->Parse(size.x, size.y, d);
 
 				(*l)->properties.SaveProperties(lay["properties"]);
 
@@ -174,7 +178,7 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 				file["layers"].push_back(lay);
 			}
 
-			FileSystem::SaveJSONFile("Export/Test.json", file);
+			FileSystem::SaveJSONFile("../../Export/Test.json", file);
 			break;
 		}
 		}
@@ -183,14 +187,14 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 
 void r1Map::SaveInImage()
 {
-	if (!FileSystem::Exists("Export/"))
-		FileSystem::CreateFolder("Export/");
-	if (!FileSystem::Exists("Export/Debug/"))
-		FileSystem::CreateFolder("Export/Debug/");
+	if (!FileSystem::Exists("../../Export/"))
+		FileSystem::CreateFolder("../../Export/");
+	if (!FileSystem::Exists("../../Export/Debug/"))
+		FileSystem::CreateFolder("../../Export/Debug/");
 
 	ilEnable(IL_FILE_OVERWRITE);
 	for (auto i = layers.begin(); i != layers.end(); ++i) {
-		ilutGLSaveImage((char*)("Export/Debug/MAP_IMAGE_LAYER_" + name + std::to_string(i - layers.begin()) + ".png").c_str(), layers[i - layers.begin()]->id_tex);
+		ilutGLSaveImage((char*)("../../Export/Debug/MAP_IMAGE_LAYER_" + name + std::to_string(i - layers.begin()) + ".png").c_str(), layers[i - layers.begin()]->id_tex); // TODO: crash on application quit
 	}
 }
 
@@ -244,9 +248,11 @@ void r1Map::LoadLayers(nlohmann::json& file)
 		oglh::UnBindTexture();
 		delete[] tex_data;
 
-
 		layers.push_back(layer);
 	}
+
+	std::sort(layers.begin(), layers.end(), Layer::HeightOrder);
+	App->gui->layers->SetSelected(0);
 }
 
 void r1Map::Unload()
@@ -257,7 +263,7 @@ void r1Map::Unload()
 	layers.clear();
 }
 
-void r1Map::Resize(int width, int height) // TODO FIX RESIZE
+void r1Map::Resize(int width, int height)
 {
 	PROFILE_AND_LOG("Map Resize");
 
@@ -301,16 +307,104 @@ void r1Map::Resize(int width, int height) // TODO FIX RESIZE
 	size = { width, height };
 }
 
-void r1Map::Edit(int layer, int row, int col, TILE_DATA_TYPE id, unsigned char g, unsigned char b)
+void r1Map::Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape, TILE_DATA_TYPE id, unsigned char g, unsigned char b)
 {
-	//cpu
-	layers[layer]->tile_data[size.x * row + col] = id;
-
-	//gpu
 	oglh::BindTexture(layers[layer]->id_tex);
-
 	unsigned char bits[3] = { g, 0, b };
-	oglh::TexSubImage2D(col, row, 1, 1, bits);
+
+	switch (tool)
+	{
+	case p1Tools::Tools::BRUSH:
+	case p1Tools::Tools::ERASER:
+		switch (shape)
+		{
+		case p1Tools::Shape::RECTANGLE:
+			for (int i = (brushSize % 2 == 0) ? col - brushSize / 2 + 1 : col - brushSize / 2; i < col + brushSize / 2 + 1; ++i) {
+				for (int j = (brushSize % 2 == 0) ? row - brushSize / 2 + 1 : row - brushSize / 2; j < row + brushSize / 2 + 1; ++j) {
+					if (i >= 0 && j >= 0 && i < size.x && j < size.y) {
+						int index = size.x * j + i;
+						if (index >= 0 && layers[layer]->tile_data[index] != id && index < size.x * size.y) {
+							layers[layer]->tile_data[index] = id;
+							oglh::TexSubImage2D(i, j, 1, 1, bits); //TODO: TexSubImage2d of all rectangle
+						}
+					}
+				}
+			}
+			break;
+		case p1Tools::Shape::CIRCLE: {
+			float r = (float)brushSize * 0.5f;
+			float r2 = r * r;
+			for (int i = (brushSize % 2 == 0) ? col - r + 1 : col - r; i < col + r + 1; ++i) {
+				for (int j = (brushSize % 2 == 0) ? row - r + 1 : row - r; j < row + r + 1; ++j) {
+					if (i >= 0 && j >= 0 && i < size.x && j < size.y) {
+						float check = (brushSize % 2 == 0) ?
+							((float)i - col - 0.5f) * ((float)i - col - 0.5f) + ((float)j - row - 0.5f) * ((float)j - row - 0.5f)
+							:
+							((float)i - col) * ((float)i - col) + ((float)j - row) * ((float)j - row);
+						if (check <= r2) {
+							int index = size.x * j + i;
+							if (index >= 0 && layers[layer]->tile_data[index] != id && index < size.x * size.y) {
+								layers[layer]->tile_data[index] = id;
+								oglh::TexSubImage2D(i, j, 1, 1, bits); //TODO: TexSubImage2d of all rectangle
+							}
+						}
+					}
+				}
+			}
+			break; }
+		default:
+			break;
+		}
+		break;
+	case p1Tools::Tools::BUCKET: {
+		PROFILE_AND_LOG("Bucket");
+		bool* visited = new bool[size.x * size.y];
+		memset(visited, false, size.x * size.y);
+		std::queue<std::pair<int, int>> queue;
+		visited[size.x * row + col] = true;
+		queue.push({col, row});
+		int baseIndex = layers[layer]->tile_data[size.x * row + col];
+
+		while (!queue.empty()) {
+			auto t = queue.front(); queue.pop();
+			layers[layer]->tile_data[size.x * t.second + t.first] = id;
+			oglh::TexSubImage2D(t.first, t.second, 1, 1, bits);
+			
+			if (t.first + 1 >= 0 && t.second >= 0 && t.first + 1 < size.x && t.second < size.y &&
+				!visited[size.x * t.second + t.first + 1] &&
+				layers[layer]->tile_data[size.x * t.second + t.first + 1] == baseIndex) {
+				visited[size.x * t.second + t.first + 1] = true;
+				queue.push({ t.first + 1, t.second });
+			}
+			if (t.first - 1 >= 0 && t.second >= 0 && t.first - 1 < size.x && t.second < size.y &&
+				!visited[size.x * t.second + t.first - 1] &&
+				layers[layer]->tile_data[size.x * t.second + t.first - 1] == baseIndex) {
+				visited[size.x * t.second + t.first - 1] = true;
+				queue.push({ t.first - 1, t.second });
+			}
+			if (t.first >= 0 && t.second + 1 >= 0 && t.first < size.x && t.second + 1 < size.y &&
+				!visited[size.x * (t.second + 1) + t.first] &&
+				layers[layer]->tile_data[size.x * (t.second + 1) + t.first] == baseIndex) {
+				visited[size.x * (t.second + 1) + t.first] = true;
+				queue.push({ t.first, t.second + 1 });
+			}
+			if (t.first >= 0 && t.second - 1 >= 0 && t.first < size.x && t.second - 1 < size.y &&
+				!visited[size.x * (t.second - 1) + t.first] &&
+				layers[layer]->tile_data[size.x * (t.second - 1) + t.first] == baseIndex) {
+				visited[size.x * (t.second - 1) + t.first] = true;
+				queue.push({ t.first, t.second - 1 });
+			}
+		}
+		delete[] visited;
+		break;
+	}
+	case p1Tools::Tools::EYEDROPPER:
+		break;
+	case p1Tools::Tools::RECTANGLE:
+		break;
+	default:
+		break;
+	}
 
 	oglh::UnBindTexture();
 }
@@ -324,14 +418,10 @@ void r1Map::CreateNewMap(int width, int height, const char* file)
 
 	nlohmann::json data = nlohmann::json::object();
 
-	std::string tiles;
-	for (int i = 0; i < width * height; ++i) {
-		tiles += "0";
-		if (i != width * height - 1) {
-			tiles += ",";
-		}
-	}
-	data["data"] = tiles;
+	Layer layer;
+	layer.Reset({ width, height });	
+
+	data["data"] = layer.Parse(width, height, Layer::DataTypeExport::BASE64_ZLIB);
 
 	map["layers"].push_back(data);
 
@@ -347,4 +437,20 @@ void r1Map::OnInspector()
 	if (ImGui::CollapsingHeader("Custom Properties", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen)) {
 		properties.Display();
 	}
+}
+
+bool r1Map::CheckBoundaries(const int2& point, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape) const
+{
+	switch (tool)
+	{
+	case p1Tools::Tools::BRUSH:
+	case p1Tools::Tools::ERASER:
+		return point.x + brushSize / 2 >= 0 &&
+			((brushSize % 2 != 0) ? point.x - brushSize / 2 : point.x - brushSize / 2 + 1) < size.x &&
+			point.y + brushSize / 2 >= 0 &&
+			((brushSize % 2 != 0) ? point.y - brushSize / 2 : point.y - brushSize / 2 + 1) < size.y;
+	default:
+		return point.x >= 0 && point.y >= 0 && point.x < size.x&& point.y < size.y;
+	}
+	return false;
 }

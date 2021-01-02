@@ -3,8 +3,7 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-src/bin_x64/Export/
-src/bin_x86/Export/
+src/binaries/Export/
 
 # User-specific files
 *.rsuser

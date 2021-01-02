@@ -30,6 +30,7 @@ public:
             LOAD_DEFAULT_CONFIGURATION,
 
             RESIZE_MAP,
+            REORDER_LAYERS,
 
             SAVE_MAP,
             EXPORT_MAP

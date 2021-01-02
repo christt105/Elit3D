@@ -48,6 +48,8 @@ void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 
 void Layer::Reset(const int2& size)
 {
+	if (tile_data != nullptr)
+		delete[] tile_data;
 	tile_data = new TILE_DATA_TYPE[size.x * size.y];
 	memset(tile_data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
 
@@ -57,6 +59,11 @@ void Layer::Reset(const int2& size)
 	oglh::GenTextureData(id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex);
 
 	delete[] tex;
+}
+
+void Layer::SelectTex() const
+{
+	oglh::BindTexture(id_tex);
 }
 
 void Layer::SelectBuffers()
@@ -122,6 +129,19 @@ std::string Layer::Parse(int sizeX, int sizeY, DataTypeExport d) const
 		break;
 	default:
 		break;
+	}
+
+	return ret;
+}
+
+nlohmann::json Layer::Parse(int sizeX, int sizeY) const
+{
+	nlohmann::json ret;
+
+	for (int i = sizeY - 1; i >= 0; --i) {
+		for (int j = 0; j < sizeX; ++j) {
+			ret.push_back(tile_data[i * sizeX + j]); // TODO: encode 4 bytes array
+		}
 	}
 
 	return ret;

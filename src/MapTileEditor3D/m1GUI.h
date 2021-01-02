@@ -12,10 +12,11 @@ class p1Project;
 class p1Tileset;
 class p1DebugResources;
 class p1Layers;
+class p1Tools;
 
 struct ImFont;
 
-#define ORANGE ImVec4(1.f, 0.6470f, 0.f, 1.f)
+#define ORANGE ImVec4(0.9f, 0.470f, 0.f, 1.f)
 
 class m1GUI :
 	public Module
@@ -49,6 +50,7 @@ public: //TODO private
 	p1Project*			project = nullptr;
 	p1Tileset*			tileset = nullptr;
 	p1Layers*			layers = nullptr;
+	p1Tools*			tools = nullptr;
 	
 	p1DebugResources* dbg_resources = nullptr;
 

@@ -10,6 +10,7 @@ class Object;
 class p1Scene;
 class p1Tileset;
 class p1Layers;
+class p1Tools;
 
 class m1MapEditor :
     public Module
@@ -36,9 +37,11 @@ public:
     void LoadMap(const uint64_t& id);
     void ReLoadMap();
 
-    void MousePicking(const Ray& ray);
+    void Mouse(const Ray& ray);
     void ResizeMap(int width, int height);
     int2 GetMapSize() const;
+
+    void ReorderLayers();
 
     void AddLayer();
     void EraseLayer(int index);
@@ -52,7 +55,10 @@ public:
 private:
     uint64_t map = 0ULL;
     
-    p1Tileset* panel_tileset = nullptr;
-    p1Layers* panel_layers = nullptr;
+    p1Tileset*  panel_tileset = nullptr;
+    p1Layers*   panel_layers = nullptr;
+    p1Tools*    panel_tools = nullptr;
+
+    int tilesetIndex = -1;
 };
 

@@ -51,6 +51,7 @@ public:
 
     void Draw(const int2& size, int tile_width, int tile_height) const;
     void Reset(const int2& size);
+    void SelectTex() const;
 
     static void SelectBuffers();
     static void DrawTile(const int2& size);
@@ -59,6 +60,7 @@ public:
     void OnInspector();
 
     std::string Parse(int sizeX, int sizeY, DataTypeExport d) const;
+    nlohmann::json Parse(int sizeX, int sizeY) const;
     void Unparse(int sizeX, int sizeY, const std::string& data);
 
     const char* GetName() const;

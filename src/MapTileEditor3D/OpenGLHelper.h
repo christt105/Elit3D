@@ -137,6 +137,17 @@ public:
 	static void GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type_size, unsigned int element_size, const float* data, unsigned int attrib_index, unsigned int attrib_size);
 	/**
 	 * Generates a Vertex Array Buffer
+	 * @param id Buffer id container
+	 * @param size Number of the elements. e.g. A buffer of a 3D triangle size will be 3 because it has 3 points.
+	 * @param type_size Size of the element. typeof(type)
+	 * @param element_size Size of the element. e.g. A buffer of a 3D triangle size will be 3 because it is composed of 3 floats(x, y, z).
+	 * @param data Pointer to the data.
+	 * @param attrib_index Set Attribute Pointer id.
+	 * @param attrib_size Attribute Pointer size.
+	*/
+	static void SetArrayBuffer(unsigned int& id, unsigned int size, unsigned int type_size, unsigned int element_size, const float* data, unsigned int attrib_index, unsigned int attrib_size);
+	/**
+	 * Generates a Vertex Array Buffer
 	 * @param[out] id Buffer id container
 	 * @param size Number of the elements.
 	 * @param data Pointer to the data.
