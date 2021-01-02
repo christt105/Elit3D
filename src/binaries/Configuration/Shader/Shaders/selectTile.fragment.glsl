@@ -35,7 +35,7 @@ void DrawTexturedTile()
 	{
 		if (tool == 0 || tool == 2)
 		{
-			if (tileSelected.x == -1.0)
+			if (tileSelected.x == -1)
 			{
 				discard;
 			}
@@ -141,6 +141,10 @@ void main()
 	else
 	{
 		//BUCKET
+		DrawTexturedTile();
+		return;
+
+		//TODO: FIX
 		vec2 mapPos = mousePos;
 		if (mousePos.x < sizeMap.x - 1)
 			mapPos.x += 1.0;

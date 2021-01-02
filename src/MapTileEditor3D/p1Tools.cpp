@@ -16,7 +16,7 @@ void p1Tools::Start()
 	tools[Tools::ERASER] = ICON_FA_ERASER;
 	tools[Tools::BUCKET] = ICON_FA_FILL_DRIP;
 	tools[Tools::EYEDROPPER] = ICON_FA_EYE_DROPPER;
-	tools[Tools::RECTANGLE] = ICON_FA_SQUARE;
+	//tools[Tools::RECTANGLE] = ICON_FA_SQUARE;
 }
 
 void p1Tools::Update()

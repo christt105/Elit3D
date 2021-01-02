@@ -186,20 +186,20 @@ void m1MapEditor::Mouse(const Ray& ray)
 					static r1Shader* shader = App->render->GetShader("selectTile");
 					shader->Use();
 					shader->SetInt2("tileSelected", panel_tileset->GetTileSelected());
-					if (tool != p1Tools::Tools::BUCKET) {
+					//if (tool != p1Tools::Tools::BUCKET) { TODO: Fix
 						shader->SetMat4("model", 
 							float4x4::FromTRS(
 								float3(row - brushSize + 1 + brushSize / 2, m->layers[index]->height, col - brushSize + 1 + brushSize / 2), 
 								Quat::identity, 
 								float3(brushSize, 1.f, brushSize)));
-					}
+					/*}
 					else {
 						shader->SetMat4("model",
 							float4x4::FromTRS(
 								float3::zero,
 								Quat::identity,
 								float3(m->size.x, 1.f, m->size.y)));
-					}
+					}*/
 					shader->SetInt("tool", (int)tool);
 					shader->SetBool("locked", m->layers[index]->locked);
 					shader->SetInt("brushSize", brushSize);
