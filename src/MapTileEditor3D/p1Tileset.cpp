@@ -319,7 +319,7 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 
 	float width = 150.f;
 	ImGui::SetNextItemWidth(width);
-	ImGui::InputInt("Tile width", data.tile_size);
+	ImGui::InputInt("Tile width", &data.tile_size[0]);
 	ImGui::SetNextItemWidth(width);
 	ImGui::InputInt("Tile height", &data.tile_size[1]);
 	ImGui::SetNextItemWidth(width);
@@ -359,7 +359,7 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 		jsontileset["transparent color"]["g"] = data.transparent_color[1];
 		jsontileset["transparent color"]["b"] = data.transparent_color[2];
 
-		std::string path("./Assets/Tilesets/" + std::string(data.buf_name) + ".tileset");
+		std::string path("../../Assets/Tilesets/" + std::string(data.buf_name) + ".tileset");
 		FileSystem::SaveJSONFile(path.c_str(), jsontileset);
 		uint64_t meta = App->resources->GenerateMeta(path.c_str());
 		r1Tileset* res = App->resources->CreateResource<r1Tileset>(path.c_str(), meta);
@@ -392,6 +392,7 @@ void p1Tileset::ModalSelectImageTileset()
 		if (!((r1Texture*)(*i))->tileset)
 			continue;
 
+		ImGui::PushID(*i);
 		ImGui::BeginGroup();
 		if (ImGui::Selectable("##tilesetimage")) {
 			data.imageUID = (*i)->GetUID();
@@ -404,6 +405,7 @@ void p1Tileset::ModalSelectImageTileset()
 
 			ImGui::CloseCurrentPopup();
 			ImGui::EndGroup();
+			ImGui::PopID();
 			break;
 		}
 		ImGui::SameLine();
@@ -413,6 +415,7 @@ void p1Tileset::ModalSelectImageTileset()
 		ImGui::SameLine();
 		ImGui::Text((*i)->name.c_str());
 		ImGui::EndGroup();
+		ImGui::PopID();
 	}
 
 	ImGui::EndPopup();

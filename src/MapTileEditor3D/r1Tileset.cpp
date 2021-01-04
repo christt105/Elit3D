@@ -32,7 +32,7 @@ void r1Tileset::LoadVars()
 	texture_uid = json.value("Image", 0ULL);
 
 	width = json["tile"].value("width", 32);
-	height = json["tile"].value("hright", 32);
+	height = json["tile"].value("height", 32);
 	margin = json["tile"].value("margin", 0);
 	spacing = json["tile"].value("spacing", 0);
 
