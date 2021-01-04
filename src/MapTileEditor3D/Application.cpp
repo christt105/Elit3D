@@ -37,18 +37,6 @@ bool Application::Init()
 
 	framerate_last_second_timer.Start();
 
-	/*char currDir[MAX_PATH];
-	if (GetCurrentDirectoryA(MAX_PATH, currDir) == 0) {
-		LOGE("GetCurrentDirectory Error(%d)", GetLastError());
-	}
-	std::string sCurrDir = currDir;
-	std::string newDir(sCurrDir.c_str(), sCurrDir.size() - sizeof("/dll/xXX") + 1);
-	if (SetCurrentDirectoryA(newDir.c_str()) == 0) {
-		LOGE("SetCurrentDirectoryA Error(%d)", GetLastError());
-	}
-
-	FileSystem::RegenerateRootFolder();*/
-
 	//Create instances of modules
 	input = new m1Input();
 	window = new m1Window();

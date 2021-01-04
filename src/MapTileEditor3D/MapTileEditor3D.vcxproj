@@ -95,8 +95,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;glew32.lib;glew32s.lib;opengl32.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\Assimp\libx86</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -113,8 +113,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx64;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;glew32.lib;glew32s.lib;opengl32.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx64;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx64;$(SolutionDir)MapTileEditor3D\ExternalTools\Assimp\libx64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -135,8 +135,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;glew32.lib;glew32s.lib;opengl32.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx86;$(SolutionDir)MapTileEditor3D\ExternalTools\Assimp\libx86</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -157,8 +157,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx64;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;glew32.lib;glew32s.lib;opengl32.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\libx64;$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\libx64;$(SolutionDir)MapTileEditor3D\ExternalTools\Assimp\libx64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp.lib;gdi32.lib;version.lib;Ole32.lib;OleAut32.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
