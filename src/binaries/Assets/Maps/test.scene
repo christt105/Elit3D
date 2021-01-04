@@ -9,13 +9,27 @@
             "encoding": "base64-zlib",
             "height": 0.0,
             "locked": false,
-            "name": "Layer",
+            "name": "Background",
             "opacity": 1.0,
             "properties": null,
             "visible": true
         },
         {
-            "data": "eNrjMtDBDbkGsaSJhTEQm+DApmiKzU2B2AwHtgRr4EIz19wCjxYQNodrwWs6ihYuAIhWQ8Q=",
+            "data": "eNrjMtDBDblMLCzxSRvgl8SuGyJqYmmIrB+m1MSSKDOQ7AcZBDHBGIhNcGBTqGlw403MTYHYDAe2BGvhMkA12dwCjxYQNodrwWs6ihYuAAR0R8M=",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": true,
+            "name": "Dirt",
+            "opacity": 1.0,
+            "properties": null,
+            "visible": true
+        },
+        {
+            "data": "eNrjMtAx0DE2NAJiY6IxF05NBhZAbIoV49ZkaKJjgAQhCg1MsJhihqkQFxxsklwA5/hBHQ==",
             "displacement": [
                 0,
                 0
@@ -23,7 +37,21 @@
             "encoding": "base64-zlib",
             "height": 0.0,
             "locked": false,
-            "name": "Layer",
+            "name": "Water",
+            "opacity": 1.0,
+            "properties": null,
+            "visible": true
+        },
+        {
+            "data": "eNrjMtDBDbkok7QwxidrboohbmhggWw0jEu5swwNDFGlDQ0sdbBbgs9wLgBf+TUR",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Items",
             "opacity": 1.0,
             "properties": null,
             "visible": true
@@ -40,7 +68,7 @@
             "name": "Layer",
             "opacity": 1.0,
             "properties": null,
-            "visible": true
+            "visible": false
         }
     ],
     "properties": null,
