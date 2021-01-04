@@ -90,9 +90,9 @@ void Logger::Log(int i, const char file[], const char func[], int line, const ch
 void Logger::ExportLog()
 {
 	std::ofstream file;
-	if (!FileSystem::Exists("../../Export/"))
-		FileSystem::CreateFolder("../../Export/");
-	file.open("../../Export/Log.txt");
+	if (!FileSystem::Exists("Export/"))
+		FileSystem::CreateFolder("Export/");
+	file.open("Export/Log.txt");
 	
 	file << txt.c_str();
 

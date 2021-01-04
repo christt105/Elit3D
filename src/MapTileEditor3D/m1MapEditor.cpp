@@ -50,7 +50,7 @@ bool m1MapEditor::Start()
 	panel_layers = App->gui->layers;
 	panel_tools = App->gui->tools;
 
-	nlohmann::json locals = FileSystem::OpenJSONFile("../../Configuration/locals.json");
+	nlohmann::json locals = FileSystem::OpenJSONFile("Configuration/locals.json");
 	if (locals.find("last_map_used") != locals.end()) {
 		if (locals.value("last_map_used", 0ULL) != 0ULL)
 			LoadMap(locals.value("last_map_used", 0ULL));
@@ -146,7 +146,7 @@ void m1MapEditor::LoadMap(const uint64_t& id)
 
 			nlohmann::json locals;
 			locals["last_map_used"] = id;
-			FileSystem::SaveJSONFile("../../Configuration/locals.json", locals);
+			FileSystem::SaveJSONFile("Configuration/locals.json", locals);
 
 			App->gui->inspector->SetSelected(m, p1Inspector::SelectedType::EDITOR_MAP);
 		}

@@ -116,25 +116,17 @@ void Markdown(const std::string& markdown_)
 p1About::p1About(bool start_enabled, bool appear_mainmenubar, bool can_close)
 	: Panel("About", start_enabled, appear_mainmenubar, can_close, ICON_FA_QUESTION_CIRCLE)
 {
-	std::string file = FileSystem::OpenTextFile("../../Configuration/Text/About.txt"); //TODO: Markdown [https://github.com/juliettef/imgui_markdown]
+	std::string file = FileSystem::OpenTextFile("Configuration/Text/About.txt"); //TODO: Markdown [https://github.com/juliettef/imgui_markdown]
 	std::istringstream iss(file);
-	int i = 0;
 	std::string p;
-	bool start = false;
 	for (std::string line; std::getline(iss, line); )
 	{
-		if (line.find("#" + std::to_string(i)) != std::string::npos) {
-			if (i++ == 0) {
-				start = true;
-			}
-			else {
-				file_data.push_back(p);
-				p.clear();
-			}
+		if (line.find("---") != std::string::npos) {
+			file_data.push_back(p);
+			p.clear();
 		}
 		else {
-			if (start)
-				p.append(line + '\n');
+			p.append(line + '\n');
 		}
 	}
 
@@ -149,7 +141,7 @@ p1About::~p1About()
 
 void p1About::Update()
 {
-	ImGui::TextWrapped("%s v.%s\n\n", App->GetName(), App->GetVersion());
+	ImGui::TextWrapped("%s v%s\n\n", App->GetName(), App->GetVersion());
 	Markdown(file_data[0]);
 
 	SDL_version sdl;
@@ -157,17 +149,46 @@ void p1About::Update()
 	ImGui::BulletText("SDL: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%d.%d.%d", sdl.major, sdl.minor, sdl.patch);
 	ImGui::BulletText("OpenGL: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", oglh::GetVersion().c_str());
 	ImGui::BulletText("ImGui: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", ImGui::GetVersion());
+	ImGui::BulletText("ImGui markdown");
 	ImGui::BulletText("JSON for Modern C++: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%i.%i.%i", NLOHMANN_JSON_VERSION_MAJOR, NLOHMANN_JSON_VERSION_MINOR, NLOHMANN_JSON_VERSION_PATCH);
 	ImGui::BulletText("DevIL: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", ilGetString(IL_VERSION_NUM));
 	ImGui::BulletText("Assimp: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%u.%u.%u", aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionRevision());
-	ImGui::BulletText("PCG: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "0.98.1");
-	ImGui::BulletText("mmgr: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.0.0");
-	ImGui::BulletText("MathGeoLib: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.5");
+	ImGui::BulletText("PCG");
+	ImGui::BulletText("mmgr");
+	ImGui::BulletText("MathGeoLib");
 	ImGui::BulletText("infoware: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", iware::version);
-	ImGui::BulletText("cpp-base64: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "2.0.0");
+	ImGui::BulletText("cpp-base64");
 	ImGui::BulletText("zlib: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.2.11");
 	ImGui::BulletText("pugixml: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.10");
-	ImGui::BulletText("par_shapes: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "1.0");
+	ImGui::BulletText("par_shapes");
 	
 	Markdown(file_data[1].c_str());
+
+	if (ImGui::CollapsingHeader("License")) {
+		ImGui::Text("BSD 2-Clause License\n"
+			"\n"
+			"Copyright (c) 2020, Christian Martínez de la Rosa (christt105)\n"
+			"All rights reserved.\n"
+			"\n"
+			"Redistribution and use in source and binary forms, with or without\n"
+			"modification, are permitted provided that the following conditions are met:\n"
+			"\n"
+			"1. Redistributions of source code must retain the above copyright notice, this\n"
+			"   list of conditions and the following disclaimer.\n"
+			"\n"
+			"2. Redistributions in binary form must reproduce the above copyright notice,\n"
+			"   this list of conditions and the following disclaimer in the documentation\n"
+			"   and/or other materials provided with the distribution.\n"
+			"\n"
+			"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\n"
+			"AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n"
+			"IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n"
+			"DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\n"
+			"FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\n"
+			"DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n"
+			"SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\n"
+			"CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\n"
+			"OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"
+			"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n");
+	}
 }

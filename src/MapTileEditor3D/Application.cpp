@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include <Windows.h>
+
 #include "Logger.h"
 
 #include "m1Input.h"
@@ -64,7 +66,7 @@ bool Application::Init()
 	modules.push_back(gui);
 	modules.push_back(render);
 
-	nlohmann::json conf = FileSystem::OpenJSONFile("../../Configuration/Configuration.json");
+	nlohmann::json conf = FileSystem::OpenJSONFile("Configuration/Configuration.json");
 
 	if (conf.is_null())
 		LOGNE("Configuration.json not found");
@@ -213,7 +215,7 @@ void Application::SaveConfiguration()
 		(*m)->Save(conf[(*m)->name]);
 	}
 
-	FileSystem::SaveJSONFile("../../Configuration/Configuration.json", conf);
+	FileSystem::SaveJSONFile("Configuration/Configuration.json", conf);
 }
 
 void Application::LoadConfiduration(const char* file)

@@ -3,7 +3,7 @@
 // for use with https://github.com/FortAwesome/Font-Awesome/blob/master/webfonts/fa-brands-400.ttf
 #pragma once
 
-#define FONT_ICON_FILE_NAME_FAB "../../Configuration/Fonts/fa-brands-400.ttf"
+#define FONT_ICON_FILE_NAME_FAB "Configuration/Fonts/fa-brands-400.ttf"
 
 #define ICON_MIN_FAB 0xe007
 #define ICON_MAX_FAB 0xf8e8
