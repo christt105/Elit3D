@@ -19,6 +19,7 @@
 
 ### Fixed
 * When select a tileset with height different to 32px it always load 32px
+* Create and select a tilesetwithour filewatcher
 
 ## [0.2.1] - 2020-12-18
 ### Added
