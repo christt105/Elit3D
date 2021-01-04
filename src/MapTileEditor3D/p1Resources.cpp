@@ -17,7 +17,7 @@
 p1Project::p1Project(bool start_enabled, bool appear_mainmenubar, bool can_close)
 	: Panel("Project", start_enabled, appear_mainmenubar, can_close, ICON_FA_FOLDER_OPEN)
 {
-	root = FileSystem::FileSystem::GetPtrFolder("../../Assets/");
+	root = FileSystem::FileSystem::GetPtrFolder("Assets/");
 	selected = root;
 }
 

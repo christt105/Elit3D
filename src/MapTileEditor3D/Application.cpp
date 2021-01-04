@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include <Windows.h>
+
 #include "Logger.h"
 
 #include "m1Input.h"
@@ -35,6 +37,18 @@ bool Application::Init()
 
 	framerate_last_second_timer.Start();
 
+	/*char currDir[MAX_PATH];
+	if (GetCurrentDirectoryA(MAX_PATH, currDir) == 0) {
+		LOGE("GetCurrentDirectory Error(%d)", GetLastError());
+	}
+	std::string sCurrDir = currDir;
+	std::string newDir(sCurrDir.c_str(), sCurrDir.size() - sizeof("/dll/xXX") + 1);
+	if (SetCurrentDirectoryA(newDir.c_str()) == 0) {
+		LOGE("SetCurrentDirectoryA Error(%d)", GetLastError());
+	}
+
+	FileSystem::RegenerateRootFolder();*/
+
 	//Create instances of modules
 	input = new m1Input();
 	window = new m1Window();
@@ -64,7 +78,7 @@ bool Application::Init()
 	modules.push_back(gui);
 	modules.push_back(render);
 
-	nlohmann::json conf = FileSystem::OpenJSONFile("../../Configuration/Configuration.json");
+	nlohmann::json conf = FileSystem::OpenJSONFile("Configuration/Configuration.json");
 
 	if (conf.is_null())
 		LOGNE("Configuration.json not found");
@@ -213,7 +227,7 @@ void Application::SaveConfiguration()
 		(*m)->Save(conf[(*m)->name]);
 	}
 
-	FileSystem::SaveJSONFile("../../Configuration/Configuration.json", conf);
+	FileSystem::SaveJSONFile("Configuration/Configuration.json", conf);
 }
 
 void Application::LoadConfiduration(const char* file)

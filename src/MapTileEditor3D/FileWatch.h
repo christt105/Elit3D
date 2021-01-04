@@ -34,7 +34,7 @@ public:
 	std::condition_variable conditional;
 
 private:
-	std::string folder = "../../Assets/";
+	std::string folder = "Assets/";
 	std::thread thread;
 	bool watch = true;
 	Folder* root = nullptr;
