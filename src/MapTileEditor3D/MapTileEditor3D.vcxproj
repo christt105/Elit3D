@@ -89,7 +89,7 @@
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include;$(SolutionDir)MapTileEditor3D\ExternalTools\DevIL\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include;$(SolutionDir)MapTileEditor3D\ExternalTools\DevIL\include;$(SolutionDir)MapTileEditor3D</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include;$(SolutionDir)MapTileEditor3D\ExternalTools\DevIL\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include;$(SolutionDir)MapTileEditor3D\ExternalTools\DevIL\include;$(SolutionDir)MapTileEditor3D</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -126,7 +126,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include;$(SolutionDir)MapTileEditor3D\ExternalTools\DevIL\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include;$(SolutionDir)MapTileEditor3D\ExternalTools\DevIL\include;$(SolutionDir)MapTileEditor3D</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -149,7 +149,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include;$(SolutionDir)MapTileEditor3D\ExternalTools\DevIL\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)MapTileEditor3D\ExternalTools\GLEW\include;$(SolutionDir)MapTileEditor3D\ExternalTools\SDL2\include;$(SolutionDir)MapTileEditor3D\ExternalTools\DevIL\include;$(SolutionDir)MapTileEditor3D</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -162,10 +162,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="c1Material.cpp" />
-    <ClCompile Include="c1Mesh.cpp" />
-    <ClCompile Include="c1Transform.cpp" />
+    <ClCompile Include="Core\Application.cpp" />
+    <ClCompile Include="Core\Main.cpp" />
     <ClCompile Include="ExternalTools\base64\base64.cpp" />
     <ClCompile Include="ExternalTools\MathGeoLib\include\Algorithm\GJK.cpp" />
     <ClCompile Include="ExternalTools\MathGeoLib\include\Algorithm\GJK2D.cpp" />
@@ -226,8 +224,6 @@
     <ClCompile Include="ExternalTools\zlib\uncompr.c" />
     <ClCompile Include="ExternalTools\zlib\zlib_strings.cpp" />
     <ClCompile Include="ExternalTools\zlib\zutil.c" />
-    <ClCompile Include="MapLayer.cpp" />
-    <ClCompile Include="Component.cpp" />
     <ClCompile Include="ExternalTools\ImGui\imgui.cpp" />
     <ClCompile Include="ExternalTools\ImGui\imgui_demo.cpp" />
     <ClCompile Include="ExternalTools\ImGui\imgui_draw.cpp" />
@@ -235,63 +231,63 @@
     <ClCompile Include="ExternalTools\ImGui\imgui_impl_sdl.cpp" />
     <ClCompile Include="ExternalTools\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="ExternalTools\mmgr\mmgr.cpp" />
-    <ClCompile Include="FileSystem.cpp" />
-    <ClCompile Include="FileWatch.cpp" />
-    <ClCompile Include="i1Model.cpp" />
-    <ClCompile Include="i1Tileset.cpp" />
-    <ClCompile Include="Importer.cpp" />
-    <ClCompile Include="int2.cpp" />
-    <ClCompile Include="Logger.cpp" />
-    <ClCompile Include="m1Camera3D.cpp" />
-    <ClCompile Include="m1Events.cpp" />
-    <ClCompile Include="m1GUI.cpp" />
-    <ClCompile Include="m1Importer.cpp" />
-    <ClCompile Include="m1Input.cpp" />
-    <ClCompile Include="m1MapEditor.cpp" />
-    <ClCompile Include="m1Render3D.cpp" />
-    <ClCompile Include="m1Resources.cpp" />
-    <ClCompile Include="m1Scene.cpp" />
-    <ClCompile Include="m1Window.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Module.cpp" />
-    <ClCompile Include="m1Objects.cpp" />
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="OpenGLHelper.cpp" />
-    <ClCompile Include="OSUtils.cpp" />
-    <ClCompile Include="p1About.cpp" />
-    <ClCompile Include="p1Configuration.cpp" />
-    <ClCompile Include="p1Console.cpp" />
-    <ClCompile Include="p1DebugResources.cpp" />
-    <ClCompile Include="p1Inspector.cpp" />
-    <ClCompile Include="p1Layers.cpp" />
-    <ClCompile Include="p1Objects.cpp" />
-    <ClCompile Include="p1Resources.cpp" />
-    <ClCompile Include="p1Scene.cpp" />
-    <ClCompile Include="p1Tileset.cpp" />
-    <ClCompile Include="p1Tools.cpp" />
-    <ClCompile Include="Panel.cpp" />
-    <ClCompile Include="Profiler.cpp" />
-    <ClCompile Include="Properties.cpp" />
-    <ClCompile Include="r1Map.cpp" />
-    <ClCompile Include="r1Mesh.cpp" />
-    <ClCompile Include="r1Model.cpp" />
-    <ClCompile Include="r1Texture.cpp" />
-    <ClCompile Include="r1Tileset.cpp" />
-    <ClCompile Include="Random.cpp" />
-    <ClCompile Include="Resource.cpp" />
-    <ClCompile Include="r1Shader.cpp" />
-    <ClCompile Include="SystemInfo.cpp" />
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="TypeVar.cpp" />
-    <ClCompile Include="Viewport.cpp" />
+    <ClCompile Include="Modules\Base\Module.cpp" />
+    <ClCompile Include="Modules\m1Camera3D.cpp" />
+    <ClCompile Include="Modules\m1Events.cpp" />
+    <ClCompile Include="Modules\m1GUI.cpp" />
+    <ClCompile Include="Modules\m1Importer.cpp" />
+    <ClCompile Include="Modules\m1Input.cpp" />
+    <ClCompile Include="Modules\m1MapEditor.cpp" />
+    <ClCompile Include="Modules\m1Objects.cpp" />
+    <ClCompile Include="Modules\m1Render3D.cpp" />
+    <ClCompile Include="Modules\m1Resources.cpp" />
+    <ClCompile Include="Modules\m1Scene.cpp" />
+    <ClCompile Include="Modules\m1Window.cpp" />
+    <ClCompile Include="Objects\Components\Base\Component.cpp" />
+    <ClCompile Include="Objects\Components\c1Material.cpp" />
+    <ClCompile Include="Objects\Components\c1Mesh.cpp" />
+    <ClCompile Include="Objects\Components\c1Transform.cpp" />
+    <ClCompile Include="Objects\Object.cpp" />
+    <ClCompile Include="Panels\Base\Panel.cpp" />
+    <ClCompile Include="Panels\p1About.cpp" />
+    <ClCompile Include="Panels\p1Configuration.cpp" />
+    <ClCompile Include="Panels\p1Console.cpp" />
+    <ClCompile Include="Panels\p1DebugResources.cpp" />
+    <ClCompile Include="Panels\p1Inspector.cpp" />
+    <ClCompile Include="Panels\p1Layers.cpp" />
+    <ClCompile Include="Panels\p1Objects.cpp" />
+    <ClCompile Include="Panels\p1Resources.cpp" />
+    <ClCompile Include="Panels\p1Scene.cpp" />
+    <ClCompile Include="Panels\p1Tileset.cpp" />
+    <ClCompile Include="Panels\p1Tools.cpp" />
+    <ClCompile Include="Resources\Base\Resource.cpp" />
+    <ClCompile Include="Resources\r1Map.cpp" />
+    <ClCompile Include="Resources\r1Mesh.cpp" />
+    <ClCompile Include="Resources\r1Model.cpp" />
+    <ClCompile Include="Resources\r1Shader.cpp" />
+    <ClCompile Include="Resources\r1Texture.cpp" />
+    <ClCompile Include="Resources\r1Tileset.cpp" />
+    <ClCompile Include="Tools\FileSystem.cpp" />
+    <ClCompile Include="Tools\FileWatch.cpp" />
+    <ClCompile Include="Tools\Importers\Base\Importer.cpp" />
+    <ClCompile Include="Tools\Importers\i1Model.cpp" />
+    <ClCompile Include="Tools\Importers\i1Tileset.cpp" />
+    <ClCompile Include="Tools\Map\MapLayer.cpp" />
+    <ClCompile Include="Tools\Map\Properties.cpp" />
+    <ClCompile Include="Tools\Math\int2.cpp" />
+    <ClCompile Include="Tools\Math\Random.cpp" />
+    <ClCompile Include="Tools\OpenGL\OpenGLHelper.cpp" />
+    <ClCompile Include="Tools\OpenGL\Viewport.cpp" />
+    <ClCompile Include="Tools\System\Logger.cpp" />
+    <ClCompile Include="Tools\System\OSUtils.cpp" />
+    <ClCompile Include="Tools\System\Profiler.cpp" />
+    <ClCompile Include="Tools\System\SystemInfo.cpp" />
+    <ClCompile Include="Tools\Timer.cpp" />
+    <ClCompile Include="Tools\TypeVar.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="Buffer.h" />
-    <ClInclude Include="c1Material.h" />
-    <ClInclude Include="c1Mesh.h" />
-    <ClInclude Include="c1Transform.h" />
-    <ClInclude Include="DebugVars.h" />
+    <ClInclude Include="Core\Application.h" />
+    <ClInclude Include="Core\Globals.h" />
     <ClInclude Include="ExternalTools\base64\base64.h" />
     <ClInclude Include="ExternalTools\DevIL\include\IL\devil_cpp_wrapper.hpp" />
     <ClInclude Include="ExternalTools\DevIL\include\IL\devil_internal_exports.h" />
@@ -405,8 +401,6 @@
     <ClInclude Include="ExternalTools\zlib\zlib.h" />
     <ClInclude Include="ExternalTools\zlib\zlib_strings.h" />
     <ClInclude Include="ExternalTools\zlib\zutil.h" />
-    <ClInclude Include="MapLayer.h" />
-    <ClInclude Include="Component.h" />
     <ClInclude Include="ExternalTools\Assimp\include\aabb.h" />
     <ClInclude Include="ExternalTools\Assimp\include\ai_assert.h" />
     <ClInclude Include="ExternalTools\Assimp\include\anim.h" />
@@ -586,60 +580,63 @@
     <ClInclude Include="ExternalTools\SDL2\include\SDL_version.h" />
     <ClInclude Include="ExternalTools\SDL2\include\SDL_video.h" />
     <ClInclude Include="ExternalTools\SDL2\include\SDL_vulkan.h" />
-    <ClInclude Include="FileSystem.h" />
-    <ClInclude Include="FileWatch.h" />
-    <ClInclude Include="Globals.h" />
-    <ClInclude Include="i1Model.h" />
-    <ClInclude Include="i1Tileset.h" />
-    <ClInclude Include="IconsFontAwesome5.h" />
-    <ClInclude Include="Importer.h" />
-    <ClInclude Include="int2.h" />
-    <ClInclude Include="Logger.h" />
-    <ClInclude Include="m1Camera3D.h" />
-    <ClInclude Include="m1Events.h" />
-    <ClInclude Include="m1GUI.h" />
-    <ClInclude Include="m1Importer.h" />
-    <ClInclude Include="m1Input.h" />
-    <ClInclude Include="m1MapEditor.h" />
-    <ClInclude Include="m1Render3D.h" />
-    <ClInclude Include="m1Resources.h" />
-    <ClInclude Include="m1Scene.h" />
-    <ClInclude Include="m1Window.h" />
-    <ClInclude Include="Module.h" />
-    <ClInclude Include="m1Objects.h" />
-    <ClInclude Include="Object.h" />
-    <ClInclude Include="OpenGLHelper.h" />
-    <ClInclude Include="OSUtils.h" />
-    <ClInclude Include="p1About.h" />
-    <ClInclude Include="p1Configuration.h" />
-    <ClInclude Include="p1Console.h" />
-    <ClInclude Include="p1DebugResources.h" />
-    <ClInclude Include="p1Inspector.h" />
-    <ClInclude Include="p1Layers.h" />
-    <ClInclude Include="p1Objects.h" />
-    <ClInclude Include="p1Resources.h" />
-    <ClInclude Include="p1Scene.h" />
-    <ClInclude Include="p1Tileset.h" />
-    <ClInclude Include="p1Tools.h" />
-    <ClInclude Include="Panel.h" />
-    <ClInclude Include="Profiler.h" />
-    <ClInclude Include="Properties.h" />
-    <ClInclude Include="r1Map.h" />
-    <ClInclude Include="r1Mesh.h" />
-    <ClInclude Include="r1Model.h" />
-    <ClInclude Include="r1Texture.h" />
-    <ClInclude Include="r1Tileset.h" />
-    <ClInclude Include="Random.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="r1Shader.h" />
-    <ClInclude Include="resource1.h" />
-    <ClInclude Include="SystemInfo.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="TypeVar.h" />
-    <ClInclude Include="Viewport.h" />
+    <ClInclude Include="Modules\Base\Module.h" />
+    <ClInclude Include="Modules\m1Camera3D.h" />
+    <ClInclude Include="Modules\m1Events.h" />
+    <ClInclude Include="Modules\m1GUI.h" />
+    <ClInclude Include="Modules\m1Importer.h" />
+    <ClInclude Include="Modules\m1Input.h" />
+    <ClInclude Include="Modules\m1MapEditor.h" />
+    <ClInclude Include="Modules\m1Objects.h" />
+    <ClInclude Include="Modules\m1Render3D.h" />
+    <ClInclude Include="Modules\m1Resources.h" />
+    <ClInclude Include="Modules\m1Scene.h" />
+    <ClInclude Include="Modules\m1Window.h" />
+    <ClInclude Include="Objects\Components\Base\Component.h" />
+    <ClInclude Include="Objects\Components\c1Material.h" />
+    <ClInclude Include="Objects\Components\c1Mesh.h" />
+    <ClInclude Include="Objects\Components\c1Transform.h" />
+    <ClInclude Include="Objects\Object.h" />
+    <ClInclude Include="Panels\Base\Panel.h" />
+    <ClInclude Include="Panels\p1About.h" />
+    <ClInclude Include="Panels\p1Configuration.h" />
+    <ClInclude Include="Panels\p1Console.h" />
+    <ClInclude Include="Panels\p1DebugResources.h" />
+    <ClInclude Include="Panels\p1Inspector.h" />
+    <ClInclude Include="Panels\p1Layers.h" />
+    <ClInclude Include="Panels\p1Objects.h" />
+    <ClInclude Include="Panels\p1Resources.h" />
+    <ClInclude Include="Panels\p1Scene.h" />
+    <ClInclude Include="Panels\p1Tileset.h" />
+    <ClInclude Include="Panels\p1Tools.h" />
+    <ClInclude Include="Resources\Base\Resource.h" />
+    <ClInclude Include="Resources\r1Map.h" />
+    <ClInclude Include="Resources\r1Mesh.h" />
+    <ClInclude Include="Resources\r1Model.h" />
+    <ClInclude Include="Resources\r1Shader.h" />
+    <ClInclude Include="Resources\r1Texture.h" />
+    <ClInclude Include="Resources\r1Tileset.h" />
+    <ClInclude Include="Tools\DebugVars.h" />
+    <ClInclude Include="Tools\FileSystem.h" />
+    <ClInclude Include="Tools\FileWatch.h" />
+    <ClInclude Include="Tools\Importers\Base\Importer.h" />
+    <ClInclude Include="Tools\Importers\i1Model.h" />
+    <ClInclude Include="Tools\Importers\i1Tileset.h" />
+    <ClInclude Include="Tools\Map\MapLayer.h" />
+    <ClInclude Include="Tools\Map\Properties.h" />
+    <ClInclude Include="Tools\Math\int2.h" />
+    <ClInclude Include="Tools\Math\Random.h" />
+    <ClInclude Include="Tools\OpenGL\Buffer.h" />
+    <ClInclude Include="Tools\OpenGL\OpenGLHelper.h" />
+    <ClInclude Include="Tools\OpenGL\Viewport.h" />
+    <ClInclude Include="Tools\System\Logger.h" />
+    <ClInclude Include="Tools\System\OSUtils.h" />
+    <ClInclude Include="Tools\System\Profiler.h" />
+    <ClInclude Include="Tools\System\SystemInfo.h" />
+    <ClInclude Include="Tools\Timer.h" />
+    <ClInclude Include="Tools\TypeVar.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
     <None Include="ExternalTools\Assimp\include\color4.inl" />
     <None Include="ExternalTools\Assimp\include\material.inl" />
     <None Include="ExternalTools\Assimp\include\matrix3x3.inl" />
@@ -653,9 +650,6 @@
     <None Include="ExternalTools\MathGeoLib\include\Geometry\QuadTree.inl" />
     <None Include="ExternalTools\MathGeoLib\include\Math\float2.inl" />
     <None Include="ExternalTools\MathGeoLib\include\Math\Matrix.inl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="MapTileEditor3D.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\icon.ico" />

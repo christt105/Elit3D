@@ -898,8 +898,8 @@ CODE
 #pragma GCC diagnostic ignored "-Wclass-memaccess"          // [__GNUC__ >= 8] warning: 'memset/memcpy' clearing/writing an object of type 'xxxx' with no trivial copy-assignment; use assignment or value-initialization instead
 #endif
 
-#include "../../Application.h"
-#include "../../m1Window.h"
+#include "Core/Application.h"
+#include "Modules/m1Window.h"
 
 // Debug options
 #define IMGUI_DEBUG_NAV_SCORING     0   // Display navigation scoring preview when hovering items. Display last moving direction matches when holding CTRL

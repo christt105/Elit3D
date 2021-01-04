@@ -78,7 +78,7 @@
 #pragma warning( disable : 4577 ) // Warning that exceptions are disabled
 #pragma warning( disable : 4530 ) // Warning that exceptions are disabled
 
-#include "../../Globals.h"
+#include "Core/Globals.h"
 
 #if USE_MMGR
 //#include "stdafx.h"

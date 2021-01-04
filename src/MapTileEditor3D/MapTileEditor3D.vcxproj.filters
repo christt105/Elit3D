@@ -129,48 +129,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Application.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Module.cpp">
-      <Filter>Modules\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="m1Window.cpp">
-      <Filter>Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="m1Render3D.cpp">
-      <Filter>Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="m1Input.cpp">
-      <Filter>Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="m1Scene.cpp">
-      <Filter>Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="m1GUI.cpp">
-      <Filter>Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="FileSystem.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="m1Camera3D.cpp">
-      <Filter>Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="m1Objects.cpp">
-      <Filter>Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Panel.cpp">
-      <Filter>Panels\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="p1Configuration.cpp">
-      <Filter>Panels</Filter>
-    </ClCompile>
-    <ClCompile Include="p1About.cpp">
-      <Filter>Panels</Filter>
-    </ClCompile>
     <ClCompile Include="ExternalTools\ImGui\imgui_widgets.cpp">
       <Filter>External Libraries\ImGui</Filter>
     </ClCompile>
@@ -189,122 +147,8 @@
     <ClCompile Include="ExternalTools\ImGui\imgui_impl_sdl.cpp">
       <Filter>External Libraries\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="c1Mesh.cpp">
-      <Filter>Objects\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="c1Transform.cpp">
-      <Filter>Objects\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="c1Material.cpp">
-      <Filter>Objects\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Component.cpp">
-      <Filter>Objects\Components\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Resource.cpp">
-      <Filter>Resources\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="m1Resources.cpp">
-      <Filter>Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="r1Shader.cpp">
-      <Filter>Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="m1Importer.cpp">
-      <Filter>Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Importer.cpp">
-      <Filter>Tools\Importers\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="i1Tileset.cpp">
-      <Filter>Tools\Importers</Filter>
-    </ClCompile>
-    <ClCompile Include="r1Mesh.cpp">
-      <Filter>Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="i1Model.cpp">
-      <Filter>Tools\Importers</Filter>
-    </ClCompile>
-    <ClCompile Include="r1Model.cpp">
-      <Filter>Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="r1Texture.cpp">
-      <Filter>Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="p1Objects.cpp">
-      <Filter>Panels</Filter>
-    </ClCompile>
-    <ClCompile Include="p1Inspector.cpp">
-      <Filter>Panels</Filter>
-    </ClCompile>
-    <ClCompile Include="p1Console.cpp">
-      <Filter>Panels</Filter>
-    </ClCompile>
-    <ClCompile Include="p1Scene.cpp">
-      <Filter>Panels</Filter>
-    </ClCompile>
-    <ClCompile Include="p1Resources.cpp">
-      <Filter>Panels</Filter>
-    </ClCompile>
-    <ClCompile Include="p1Tileset.cpp">
-      <Filter>Panels</Filter>
-    </ClCompile>
-    <ClCompile Include="r1Tileset.cpp">
-      <Filter>Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="FileWatch.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="m1Events.cpp">
-      <Filter>Modules</Filter>
-    </ClCompile>
     <ClCompile Include="ExternalTools\mmgr\mmgr.cpp">
       <Filter>External Libraries\mmgr</Filter>
-    </ClCompile>
-    <ClCompile Include="p1DebugResources.cpp">
-      <Filter>Panels</Filter>
-    </ClCompile>
-    <ClCompile Include="int2.cpp">
-      <Filter>Tools\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="m1MapEditor.cpp">
-      <Filter>Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="r1Map.cpp">
-      <Filter>Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="OpenGLHelper.cpp">
-      <Filter>Tools\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Viewport.cpp">
-      <Filter>Tools\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Random.cpp">
-      <Filter>Tools\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="MapLayer.cpp">
-      <Filter>Tools\Map</Filter>
-    </ClCompile>
-    <ClCompile Include="Profiler.cpp">
-      <Filter>Tools\System</Filter>
-    </ClCompile>
-    <ClCompile Include="SystemInfo.cpp">
-      <Filter>Tools\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Logger.cpp">
-      <Filter>Tools\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="p1Layers.cpp">
-      <Filter>Panels</Filter>
-    </ClCompile>
-    <ClCompile Include="OSUtils.cpp">
-      <Filter>Tools\System</Filter>
     </ClCompile>
     <ClCompile Include="ExternalTools\pugixml\pugixml.cpp">
       <Filter>External Libraries\pugixml</Filter>
@@ -438,9 +282,6 @@
     <ClCompile Include="ExternalTools\base64\base64.cpp">
       <Filter>External Libraries\base64</Filter>
     </ClCompile>
-    <ClCompile Include="TypeVar.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
     <ClCompile Include="ExternalTools\zlib\zlib_strings.cpp">
       <Filter>External Libraries\zlib</Filter>
     </ClCompile>
@@ -489,12 +330,61 @@
     <ClCompile Include="ExternalTools\zlib\gzclose.c">
       <Filter>External Libraries\zlib\dependencies</Filter>
     </ClCompile>
-    <ClCompile Include="Properties.cpp">
-      <Filter>Tools\Map</Filter>
-    </ClCompile>
-    <ClCompile Include="p1Tools.cpp">
-      <Filter>Panels</Filter>
-    </ClCompile>
+    <ClCompile Include="Resources\Base\Resource.cpp" />
+    <ClCompile Include="Resources\r1Map.cpp" />
+    <ClCompile Include="Resources\r1Mesh.cpp" />
+    <ClCompile Include="Resources\r1Model.cpp" />
+    <ClCompile Include="Resources\r1Shader.cpp" />
+    <ClCompile Include="Resources\r1Texture.cpp" />
+    <ClCompile Include="Resources\r1Tileset.cpp" />
+    <ClCompile Include="Tools\FileSystem.cpp" />
+    <ClCompile Include="Tools\FileWatch.cpp" />
+    <ClCompile Include="Tools\Importers\Base\Importer.cpp" />
+    <ClCompile Include="Tools\Importers\i1Model.cpp" />
+    <ClCompile Include="Tools\Importers\i1Tileset.cpp" />
+    <ClCompile Include="Tools\Map\MapLayer.cpp" />
+    <ClCompile Include="Tools\Map\Properties.cpp" />
+    <ClCompile Include="Tools\Math\int2.cpp" />
+    <ClCompile Include="Tools\Math\Random.cpp" />
+    <ClCompile Include="Tools\OpenGL\OpenGLHelper.cpp" />
+    <ClCompile Include="Tools\OpenGL\Viewport.cpp" />
+    <ClCompile Include="Tools\System\Logger.cpp" />
+    <ClCompile Include="Tools\System\OSUtils.cpp" />
+    <ClCompile Include="Tools\System\Profiler.cpp" />
+    <ClCompile Include="Tools\System\SystemInfo.cpp" />
+    <ClCompile Include="Tools\Timer.cpp" />
+    <ClCompile Include="Tools\TypeVar.cpp" />
+    <ClCompile Include="Core\Application.cpp" />
+    <ClCompile Include="Core\Main.cpp" />
+    <ClCompile Include="Modules\Base\Module.cpp" />
+    <ClCompile Include="Modules\m1Camera3D.cpp" />
+    <ClCompile Include="Modules\m1Events.cpp" />
+    <ClCompile Include="Modules\m1GUI.cpp" />
+    <ClCompile Include="Modules\m1Importer.cpp" />
+    <ClCompile Include="Modules\m1Input.cpp" />
+    <ClCompile Include="Modules\m1MapEditor.cpp" />
+    <ClCompile Include="Modules\m1Objects.cpp" />
+    <ClCompile Include="Modules\m1Render3D.cpp" />
+    <ClCompile Include="Modules\m1Resources.cpp" />
+    <ClCompile Include="Modules\m1Scene.cpp" />
+    <ClCompile Include="Modules\m1Window.cpp" />
+    <ClCompile Include="Objects\Components\Base\Component.cpp" />
+    <ClCompile Include="Objects\Components\c1Material.cpp" />
+    <ClCompile Include="Objects\Components\c1Mesh.cpp" />
+    <ClCompile Include="Objects\Components\c1Transform.cpp" />
+    <ClCompile Include="Objects\Object.cpp" />
+    <ClCompile Include="Panels\Base\Panel.cpp" />
+    <ClCompile Include="Panels\p1About.cpp" />
+    <ClCompile Include="Panels\p1Configuration.cpp" />
+    <ClCompile Include="Panels\p1Console.cpp" />
+    <ClCompile Include="Panels\p1DebugResources.cpp" />
+    <ClCompile Include="Panels\p1Inspector.cpp" />
+    <ClCompile Include="Panels\p1Layers.cpp" />
+    <ClCompile Include="Panels\p1Objects.cpp" />
+    <ClCompile Include="Panels\p1Resources.cpp" />
+    <ClCompile Include="Panels\p1Scene.cpp" />
+    <ClCompile Include="Panels\p1Tileset.cpp" />
+    <ClCompile Include="Panels\p1Tools.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalTools\SDL2\include\begin_code.h">
@@ -761,50 +651,11 @@
     <ClInclude Include="ExternalTools\GLEW\include\GL\wglew.h">
       <Filter>External Libraries\GLEW</Filter>
     </ClInclude>
-    <ClInclude Include="Application.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Module.h">
-      <Filter>Modules\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="m1Window.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="m1Render3D.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="m1Input.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="m1Scene.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="m1GUI.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="FileSystem.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
     <ClInclude Include="ExternalTools\JSON\json.hpp">
       <Filter>External Libraries\JSON</Filter>
     </ClInclude>
     <ClInclude Include="ExternalTools\par_shapes\par_shapes.h">
       <Filter>External Libraries</Filter>
-    </ClInclude>
-    <ClInclude Include="m1Camera3D.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="m1Objects.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Panel.h">
-      <Filter>Panels\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="p1Configuration.h">
-      <Filter>Panels</Filter>
-    </ClInclude>
-    <ClInclude Include="p1About.h">
-      <Filter>Panels</Filter>
     </ClInclude>
     <ClInclude Include="ExternalTools\ImGui\imgui_internal.h">
       <Filter>External Libraries\ImGui</Filter>
@@ -830,30 +681,6 @@
     <ClInclude Include="ExternalTools\ImGui\imgui_impl_sdl.h">
       <Filter>External Libraries\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="c1Mesh.h">
-      <Filter>Objects\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="c1Transform.h">
-      <Filter>Objects\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="c1Material.h">
-      <Filter>Objects\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Component.h">
-      <Filter>Objects\Components\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Resources\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="m1Resources.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="r1Shader.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="ExternalTools\PCG\pcg_random.hpp">
       <Filter>External Libraries\PCG</Filter>
     </ClInclude>
@@ -862,24 +689,6 @@
     </ClInclude>
     <ClInclude Include="ExternalTools\PCG\pcg_extras.hpp">
       <Filter>External Libraries\PCG</Filter>
-    </ClInclude>
-    <ClInclude Include="m1Importer.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Importer.h">
-      <Filter>Tools\Importers\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="i1Tileset.h">
-      <Filter>Tools\Importers</Filter>
-    </ClInclude>
-    <ClInclude Include="r1Mesh.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="i1Model.h">
-      <Filter>Tools\Importers</Filter>
-    </ClInclude>
-    <ClInclude Include="r1Model.h">
-      <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="ExternalTools\Assimp\include\Bitmap.h">
       <Filter>External Libraries\Assimp</Filter>
@@ -1106,68 +915,14 @@
     <ClInclude Include="ExternalTools\Assimp\include\Compiler\poppack1.h">
       <Filter>External Libraries\Assimp\Compiler</Filter>
     </ClInclude>
-    <ClInclude Include="r1Texture.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="p1Objects.h">
-      <Filter>Panels</Filter>
-    </ClInclude>
-    <ClInclude Include="p1Inspector.h">
-      <Filter>Panels</Filter>
-    </ClInclude>
-    <ClInclude Include="p1Console.h">
-      <Filter>Panels</Filter>
-    </ClInclude>
-    <ClInclude Include="IconsFontAwesome5.h">
-      <Filter>External Libraries\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="p1Scene.h">
-      <Filter>Panels</Filter>
-    </ClInclude>
-    <ClInclude Include="p1Resources.h">
-      <Filter>Panels</Filter>
-    </ClInclude>
-    <ClInclude Include="p1Tileset.h">
-      <Filter>Panels</Filter>
-    </ClInclude>
-    <ClInclude Include="r1Tileset.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="FileWatch.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="Globals.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="m1Events.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="TypeVar.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
     <ClInclude Include="ExternalTools\mmgr\mmgr.h">
       <Filter>External Libraries\mmgr</Filter>
     </ClInclude>
     <ClInclude Include="ExternalTools\mmgr\nommgr.h">
       <Filter>External Libraries\mmgr</Filter>
     </ClInclude>
-    <ClInclude Include="p1DebugResources.h">
-      <Filter>Panels</Filter>
-    </ClInclude>
-    <ClInclude Include="int2.h">
-      <Filter>Tools\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="m1MapEditor.h">
-      <Filter>Modules</Filter>
-    </ClInclude>
     <ClInclude Include="ExternalTools\Assimp\include\AssimpProfiler.h">
       <Filter>External Libraries\Assimp</Filter>
-    </ClInclude>
-    <ClInclude Include="r1Map.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugVars.h">
-      <Filter>Tools</Filter>
     </ClInclude>
     <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\infoware.hpp">
       <Filter>External Libraries\infoware</Filter>
@@ -1205,44 +960,8 @@
     <ClInclude Include="ExternalTools\infoware-0.5.5\include\infoware\detail\memory.hpp">
       <Filter>External Libraries\infoware\detail</Filter>
     </ClInclude>
-    <ClInclude Include="Buffer.h">
-      <Filter>Tools\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenGLHelper.h">
-      <Filter>Tools\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Viewport.h">
-      <Filter>Tools\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Random.h">
-      <Filter>Tools\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="MapLayer.h">
-      <Filter>Tools\Map</Filter>
-    </ClInclude>
-    <ClInclude Include="SystemInfo.h">
-      <Filter>Tools\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Profiler.h">
-      <Filter>Tools\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Logger.h">
-      <Filter>Tools\System</Filter>
-    </ClInclude>
     <ClInclude Include="ExternalTools\ImGui\IconsFontAwesome5\IconsFontAwesome5Brands.h">
       <Filter>External Libraries\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="p1Layers.h">
-      <Filter>Panels</Filter>
-    </ClInclude>
-    <ClInclude Include="resource1.h">
-      <Filter>icon</Filter>
-    </ClInclude>
-    <ClInclude Include="OSUtils.h">
-      <Filter>Tools\System</Filter>
     </ClInclude>
     <ClInclude Include="ExternalTools\pugixml\pugixml.hpp">
       <Filter>External Libraries\pugixml</Filter>
@@ -1541,15 +1260,66 @@
     <ClInclude Include="ExternalTools\zlib\gzguts.h">
       <Filter>External Libraries\zlib\dependencies</Filter>
     </ClInclude>
-    <ClInclude Include="Properties.h">
-      <Filter>Tools\Map</Filter>
-    </ClInclude>
-    <ClInclude Include="p1Tools.h">
-      <Filter>Panels</Filter>
-    </ClInclude>
     <ClInclude Include="ExternalTools\imgui_markdown\imgui_markdown.h">
       <Filter>External Libraries\ImGui\markdown</Filter>
     </ClInclude>
+    <ClInclude Include="Resources\Base\Resource.h" />
+    <ClInclude Include="Resources\r1Map.h" />
+    <ClInclude Include="Resources\r1Mesh.h" />
+    <ClInclude Include="Resources\r1Model.h" />
+    <ClInclude Include="Resources\r1Shader.h" />
+    <ClInclude Include="Resources\r1Texture.h" />
+    <ClInclude Include="Resources\r1Tileset.h" />
+    <ClInclude Include="Tools\DebugVars.h" />
+    <ClInclude Include="Tools\FileSystem.h" />
+    <ClInclude Include="Tools\FileWatch.h" />
+    <ClInclude Include="Tools\Importers\Base\Importer.h" />
+    <ClInclude Include="Tools\Importers\i1Model.h" />
+    <ClInclude Include="Tools\Importers\i1Tileset.h" />
+    <ClInclude Include="Tools\Map\MapLayer.h" />
+    <ClInclude Include="Tools\Map\Properties.h" />
+    <ClInclude Include="Tools\Math\int2.h" />
+    <ClInclude Include="Tools\Math\Random.h" />
+    <ClInclude Include="Tools\OpenGL\Buffer.h" />
+    <ClInclude Include="Tools\OpenGL\OpenGLHelper.h" />
+    <ClInclude Include="Tools\OpenGL\Viewport.h" />
+    <ClInclude Include="Tools\System\Logger.h" />
+    <ClInclude Include="Tools\System\OSUtils.h" />
+    <ClInclude Include="Tools\System\Profiler.h" />
+    <ClInclude Include="Tools\System\SystemInfo.h" />
+    <ClInclude Include="Tools\Timer.h" />
+    <ClInclude Include="Tools\TypeVar.h" />
+    <ClInclude Include="Core\Application.h" />
+    <ClInclude Include="Core\Globals.h" />
+    <ClInclude Include="Modules\Base\Module.h" />
+    <ClInclude Include="Modules\m1Camera3D.h" />
+    <ClInclude Include="Modules\m1Events.h" />
+    <ClInclude Include="Modules\m1GUI.h" />
+    <ClInclude Include="Modules\m1Importer.h" />
+    <ClInclude Include="Modules\m1Input.h" />
+    <ClInclude Include="Modules\m1MapEditor.h" />
+    <ClInclude Include="Modules\m1Objects.h" />
+    <ClInclude Include="Modules\m1Render3D.h" />
+    <ClInclude Include="Modules\m1Resources.h" />
+    <ClInclude Include="Modules\m1Scene.h" />
+    <ClInclude Include="Modules\m1Window.h" />
+    <ClInclude Include="Objects\Components\Base\Component.h" />
+    <ClInclude Include="Objects\Components\c1Material.h" />
+    <ClInclude Include="Objects\Components\c1Mesh.h" />
+    <ClInclude Include="Objects\Components\c1Transform.h" />
+    <ClInclude Include="Objects\Object.h" />
+    <ClInclude Include="Panels\Base\Panel.h" />
+    <ClInclude Include="Panels\p1About.h" />
+    <ClInclude Include="Panels\p1Configuration.h" />
+    <ClInclude Include="Panels\p1Console.h" />
+    <ClInclude Include="Panels\p1DebugResources.h" />
+    <ClInclude Include="Panels\p1Inspector.h" />
+    <ClInclude Include="Panels\p1Layers.h" />
+    <ClInclude Include="Panels\p1Objects.h" />
+    <ClInclude Include="Panels\p1Resources.h" />
+    <ClInclude Include="Panels\p1Scene.h" />
+    <ClInclude Include="Panels\p1Tileset.h" />
+    <ClInclude Include="Panels\p1Tools.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExternalTools\Assimp\include\color4.inl">
@@ -1576,9 +1346,6 @@
     <None Include="ExternalTools\Assimp\include\vector3.inl">
       <Filter>External Libraries\Assimp</Filter>
     </None>
-    <None Include="cpp.hint">
-      <Filter>Tools</Filter>
-    </None>
     <None Include="ExternalTools\MathGeoLib\include\Geometry\KDTree.inl">
       <Filter>External Libraries\MathGeoLib\Geometry</Filter>
     </None>
@@ -1599,10 +1366,5 @@
     <Image Include="Assets\icon.ico">
       <Filter>icon</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="MapTileEditor3D.rc">
-      <Filter>icon</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

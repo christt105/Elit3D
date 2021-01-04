@@ -31,7 +31,7 @@
 // Copyright 2000, Fluid Studios, Inc., all rights reserved.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-#include "../../Globals.h"
+#include "Core/Globals.h"
 
 #if !USE_MMGR
 #define new new( _NORMAL_BLOCK , __FILE__ , __LINE__ )

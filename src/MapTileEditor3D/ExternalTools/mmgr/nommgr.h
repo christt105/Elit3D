@@ -31,7 +31,7 @@
 // Copyright 2000, Fluid Studios, Inc., all rights reserved.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-#include "../../Globals.h"
+#include "Core/Globals.h"
 
 #if USE_MMGR
 
