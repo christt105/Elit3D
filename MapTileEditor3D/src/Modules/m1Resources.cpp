@@ -20,16 +20,6 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-#ifdef _M_X64
-#pragma comment(lib, "src/ExternalTools/DevIL/libx64/DevIL.lib")
-#pragma comment(lib, "src/ExternalTools/DevIL/libx64/ILU.lib")
-#pragma comment(lib, "src/ExternalTools/DevIL/libx64/ILUT.lib")
-#else
-#pragma comment(lib, "src/ExternalTools/DevIL/libx86/DevIL.lib")
-#pragma comment(lib, "src/ExternalTools/DevIL/libx86/ILU.lib")
-#pragma comment(lib, "src/ExternalTools/DevIL/libx86/ILUT.lib")
-#endif
-
 m1Resources::m1Resources(bool start_enabled) : Module("Resources", start_enabled)
 {
 }

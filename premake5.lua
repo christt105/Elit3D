@@ -30,6 +30,9 @@ project "MapTileEditor3D"
 		"glew32s.lib",
 		"opengl32.lib",
 		"assimp.lib",
+		"DevIL.lib",
+		"ILU.lib",
+		"ILUT.lib",
 		"gdi32.lib",
 		"version.lib",
 		"Ole32.lib",
@@ -39,10 +42,10 @@ project "MapTileEditor3D"
 	}
 
 	files { "**.hpp", "**.cpp", "**.h", "**.c" }
-	removefiles { "luadevil.c" }
 	excludes { 
 		"%{wks.location}/MapTileEditor3D/src/ExternalTools/ImGui/misc/**.cpp", 
-		"%{wks.location}/MapTileEditor3D/src/ExternalTools/ImGui/misc/**.h"
+		"%{wks.location}/MapTileEditor3D/src/ExternalTools/ImGui/misc/**.h",
+		"%{wks.location}/MapTileEditor3D/src/ExternalTools/DevIL/include/IL/luadevil.c"
 	}
 
    filter "configurations:Debug"
@@ -59,7 +62,8 @@ project "MapTileEditor3D"
 		libdirs {
 			"%{wks.location}/MapTileEditor3D/src/ExternalTools/SDL2/libx86",
 			"%{wks.location}/MapTileEditor3D/src/ExternalTools/GLEW/libx86",
-			"%{wks.location}/MapTileEditor3D/src/ExternalTools/Assimp/libx86"
+			"%{wks.location}/MapTileEditor3D/src/ExternalTools/Assimp/libx86",
+			"%{wks.location}/MapTileEditor3D/src/ExternalTools/DevIL/libx86"
 		}
 	
 	filter "platforms:x64"
@@ -68,6 +72,7 @@ project "MapTileEditor3D"
 		libdirs {
 			"%{wks.location}/MapTileEditor3D/src/ExternalTools/GLEW/libx64",
 			"%{wks.location}/MapTileEditor3D/src/ExternalTools/SDL2/libx64",
-			"%{wks.location}/MapTileEditor3D/src/ExternalTools/Assimp/libx64"
+			"%{wks.location}/MapTileEditor3D/src/ExternalTools/Assimp/libx64",
+			"%{wks.location}/MapTileEditor3D/src/ExternalTools/DevIL/libx64"
 		}
 	
