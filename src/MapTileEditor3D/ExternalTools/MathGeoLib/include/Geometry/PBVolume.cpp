@@ -1,5 +1,0 @@
-#include "PBVolume.h"
-
-MATH_BEGIN_NAMESPACE
-
-MATH_END_NAMESPACE
