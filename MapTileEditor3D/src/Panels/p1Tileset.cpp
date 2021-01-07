@@ -360,12 +360,14 @@ void p1Tileset::ModalCreateTileset(bool& modal)
 		jsontileset["transparent color"]["b"] = data.transparent_color[2];
 
 		std::string path("Assets/Tilesets/" + std::string(data.buf_name) + ".tileset");
+		App->resources->PauseFileWatcher(true);
 		FileSystem::SaveJSONFile(path.c_str(), jsontileset);
 		uint64_t meta = App->resources->GenerateMeta(path.c_str());
 		r1Tileset* res = App->resources->CreateResource<r1Tileset>(path.c_str(), meta);
+		App->resources->PauseFileWatcher(false);
+		res->LoadVars();
 		
-		tileset = res->GetUID();
-		res->Attach();
+		SelectTileset(res->GetUID());
 
 		ImGui::CloseCurrentPopup();
 		select_tileset = false;

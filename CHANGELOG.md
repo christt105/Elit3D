@@ -1,4 +1,26 @@
 # Changelog
+## [0.3.0] - 2021-01-04
+### Added
+* Tools to modify the map
+	* Brush
+	* Eraser
+	* Bucket
+	* Eye dropper
+* Panel tools
+* Brush size
+* Brush shape (Rectangle and Circle)
+* Shader to know where the brush will paint
+* Debug mode to paint layer texture without shader
+* Panel about ImGui Markdown
+
+### Changed
+* JSON map export csv format, now export an array of id
+* Assimp x86 compiled in release
+
+### Fixed
+* When select a tileset with height different to 32px it always load 32px
+* Create and select a tilesetwithour filewatcher
+
 ## [0.2.1] - 2020-12-18
 ### Added
  * base64 coder and decoder library
