@@ -41,7 +41,7 @@ project "MapTileEditor3D"
 		"Advapi32.lib"
 	}
 
-	files { "**.hpp", "**.cpp", "**.h", "**.c" }
+	files { "**.hpp", "**.cpp", "**.h", "**.c", "**.rc", "**.ico" }
 	excludes { 
 		"%{wks.location}/MapTileEditor3D/src/ExternalTools/ImGui/misc/**.cpp", 
 		"%{wks.location}/MapTileEditor3D/src/ExternalTools/ImGui/misc/**.h",
