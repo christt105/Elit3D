@@ -372,16 +372,23 @@ void FileSystem::GenerateFolders()
     }
     std::string sCurrDir = currDir;
 
-#ifdef DISTR
+#ifdef DISTI
     sAppdata = GetCanonical(SDL_GetPrefPath(ORGANIZATION, APP_NAME));
     appdata = GetFolders(sAppdata.c_str());
+    //TODO: Installation setup
+#elif DISTP
+    sAppdata = fs::canonical(sCurrDir).u8string();
+    appdata = GetFolders(sAppdata.c_str());
+    std::string parent(sCurrDir.c_str(), sCurrDir.size() - sizeof(APP_NAME) + 1);
+    std::string newDir(parent + "project");
 #else
     sAppdata = fs::canonical(sCurrDir + "/installation_dir").u8string();
     appdata = GetFolders(sAppdata.c_str());
+    std::string parent(sCurrDir.c_str(), sCurrDir.size() - sizeof(APP_NAME) + 1);
+    std::string newDir(parent + "test");
 #endif
 
-    std::string newDir(sCurrDir.c_str(), sCurrDir.size() - sizeof("MapTileEditor3D") + 1);
-    if (SetCurrentDirectoryA((newDir + "test/").c_str()) == 0) {
+    if (SetCurrentDirectoryA(newDir.c_str()) == 0) {
         LOGE("SetCurrentDirectoryA Error(%d)", GetLastError());
     }
     if (GetCurrentDirectoryA(MAX_PATH, currDir) == 0) {

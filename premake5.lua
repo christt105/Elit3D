@@ -1,5 +1,5 @@
 workspace "MapTileEditor3D"
-	configurations { "Debug", "Release", "Dist" }
+	configurations { "Debug", "Release", "DistPortable", "DistInstall" }
 	platforms { "x86", "x64" }
 	
 project "MapTileEditor3D"
@@ -56,8 +56,11 @@ project "MapTileEditor3D"
 		defines { "NDEBUG" }
 		optimize "On"
 	  
-	filter "configurations:Dist"
-		defines { "NDEBUG", "DISTR" }
+	filter "configurations:DistPortable"
+		defines { "NDEBUG", "DISTP" }
+		optimize "On"
+	filter "configurations:DistInstall"
+		defines { "NDEBUG", "DISTI" }
 		optimize "On"
 	  
 	filter "platforms:x86"
