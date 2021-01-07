@@ -24,7 +24,6 @@ public:
 
 		//Textures
 		RESOURCE_MIN,
-		FOLDER_BACK,
 		FOLDER,
 		PNG,
 		FBX,

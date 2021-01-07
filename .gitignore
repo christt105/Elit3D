@@ -3,7 +3,7 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-src/binaries/Export/
+**/Export/**
 
 # User-specific files
 *.rsuser
@@ -350,5 +350,6 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-src/Build/Configuration/locals.json
-src/binaries/*.dll
+*.sln
+*.vcxproj
+*.filters

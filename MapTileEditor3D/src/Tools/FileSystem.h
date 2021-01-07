@@ -52,16 +52,22 @@ public:
 	static std::string GetNameFolder(const char* path, bool with_slash = true);
 	static std::string GetParentFolder(const char* path);
 	static std::string GetFullPath(const char* path);
+	static std::string GetCanonical(const char* path);
 
-	static Folder* GetPtrFolder(const char* folder);
+	static Folder* GetPtrFolder(const char* folder, bool is_appdata = false);
 	static Folder* GetRootFolder();
 	static Folder* RegenerateRootFolder();
+	static void GenerateFolders();
 
 	static void DeleteRoot();
 
 private:
 	static Folder* GetFolders(const char* path);
 
+public:
+	static std::string sAppdata;
+
 private:
 	static Folder* root;
+	static Folder* appdata;
 };

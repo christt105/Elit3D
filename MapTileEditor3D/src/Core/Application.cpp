@@ -37,6 +37,8 @@ bool Application::Init()
 
 	framerate_last_second_timer.Start();
 
+	FileSystem::GenerateFolders();
+
 	//Create instances of modules
 	input = new m1Input();
 	window = new m1Window();
@@ -66,10 +68,15 @@ bool Application::Init()
 	modules.push_back(gui);
 	modules.push_back(render);
 
-	nlohmann::json conf = FileSystem::OpenJSONFile("Configuration/Configuration.json");
+	nlohmann::json conf = FileSystem::OpenJSONFile("prefs/Configuration.json");
 
-	if (conf.is_null())
-		LOGNE("Configuration.json not found");
+	if (conf.is_null()) {
+		LOGNE("Configuration.json not found on project folder");
+		conf = FileSystem::OpenJSONFile((FileSystem::sAppdata + "/Configuration/Configuration.json").c_str());
+		if (conf.is_null()) {
+			LOGNE("Configuration.json not found on app folder");
+		}
+	}
 
 	name.assign(conf["App"].value("name", "PROGRAM"));
 	version.assign(conf["App"].value("version", "0.1"));
@@ -218,9 +225,14 @@ void Application::SaveConfiguration()
 	FileSystem::SaveJSONFile("Configuration/Configuration.json", conf);
 }
 
-void Application::LoadConfiduration(const char* file)
+void Application::LoadConfiguration(const char* file)
 {
 	nlohmann::json conf = FileSystem::OpenJSONFile(file);
+
+	if (conf.is_null()) {
+		LOGNW("Configuration on %s not found", file);
+		return;
+	}
 
 	name.assign(conf["App"]["name"]);
 	version.assign(conf["App"]["version"]);

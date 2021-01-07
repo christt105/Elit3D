@@ -108,10 +108,10 @@ UpdateStatus m1Events::PreUpdate()
 			App->SaveConfiguration();
 			break;
 		case Event::Type::LOAD_CONFIGURATION:
-			App->LoadConfiduration("Configuration/Configuration.json");
+			App->LoadConfiguration("prefs/Configuration.json");
 			break;
 		case Event::Type::LOAD_DEFAULT_CONFIGURATION:
-			App->LoadConfiduration("Configuration/Configuration_default.json");
+			App->LoadConfiguration((FileSystem::sAppdata + "/Configuration/Configuration_default.json").c_str());
 			break;
 		default:
 			LOG("Event with type %i not handled", (int)e->type);

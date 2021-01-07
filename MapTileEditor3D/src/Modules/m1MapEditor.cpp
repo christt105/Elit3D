@@ -50,10 +50,12 @@ bool m1MapEditor::Start()
 	panel_layers = App->gui->layers;
 	panel_tools = App->gui->tools;
 
-	nlohmann::json locals = FileSystem::OpenJSONFile("Configuration/locals.json");
-	if (locals.find("last_map_used") != locals.end()) {
-		if (locals.value("last_map_used", 0ULL) != 0ULL)
-			LoadMap(locals.value("last_map_used", 0ULL));
+	nlohmann::json locals = FileSystem::OpenJSONFile("prefs/locals.json");
+	if (!locals.is_null()) {
+		if (locals.find("last_map_used") != locals.end()) {
+			if (locals.value("last_map_used", 0ULL) != 0ULL)
+				LoadMap(locals.value("last_map_used", 0ULL));
+		}
 	}
 
 	auto r = (r1Mesh*)App->resources->EGet(m1Resources::EResourceType::TILE);
@@ -146,7 +148,7 @@ void m1MapEditor::LoadMap(const uint64_t& id)
 
 			nlohmann::json locals;
 			locals["last_map_used"] = id;
-			FileSystem::SaveJSONFile("Configuration/locals.json", locals);
+			FileSystem::SaveJSONFile("prefs/locals.json", locals);
 
 			App->gui->inspector->SetSelected(m, p1Inspector::SelectedType::EDITOR_MAP);
 		}

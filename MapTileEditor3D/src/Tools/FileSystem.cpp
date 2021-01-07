@@ -3,16 +3,20 @@
 #include <fstream>
 #include <filesystem>
 #include <stack>
+#include <Windows.h>
 
 #include "Tools/System/Logger.h"
 
 #include "Tools/System/Profiler.h"
+#include "SDL.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
 namespace fs = std::filesystem;
 
-Folder* FileSystem::root = FileSystem::GetFolders("./");
+Folder* FileSystem::root = nullptr;
+Folder* FileSystem::appdata = nullptr;
+std::string FileSystem::sAppdata;
 
 nlohmann::json FileSystem::OpenJSONFile(const char* path)
 {
@@ -308,14 +312,29 @@ std::string FileSystem::GetFullPath(const char* path)
     return fs::absolute(path).string();
 }
 
-Folder* FileSystem::GetPtrFolder(const char* folder)
+std::string FileSystem::GetCanonical(const char* path)
 {
-    if (root->full_path.compare(folder) == 0)
-        return root;
+    return fs::canonical(path).u8string();
+}
 
+Folder* FileSystem::GetPtrFolder(const char* folder, bool is_appdata)
+{
     std::stack<Folder*> s;
-    s.push(root);
-    std::string sfolder = std::string("./")+folder;
+    std::string sfolder;
+    if (is_appdata) {
+        if (appdata->full_path.compare(fs::canonical(folder).u8string()) == 0)
+            return appdata;
+
+        s.push(appdata);
+        sfolder = fs::canonical(folder).u8string();
+    }
+    else {
+        if (root->full_path.compare(folder) == 0)
+            return root;
+
+        s.push(root);
+        sfolder = fs::canonical(std::string("./") + folder).u8string();
+    }
 
     while (s.empty() == false) {
         auto f = s.top();
@@ -324,7 +343,7 @@ Folder* FileSystem::GetPtrFolder(const char* folder)
             if ((*i)->full_path.compare(sfolder) == 0) {
                 return *i;
             }
-            if (sfolder.find((*i)->full_path) != std::string::npos) {
+            if (sfolder.find(fs::canonical((*i)->full_path).u8string()) != std::string::npos) {
                 s.push(*i);
             }
         }
@@ -345,12 +364,39 @@ Folder* FileSystem::RegenerateRootFolder()
     return root = FileSystem::GetFolders("./");
 }
 
+void FileSystem::GenerateFolders()
+{
+    char currDir[MAX_PATH];
+    if (GetCurrentDirectoryA(MAX_PATH, currDir) == 0) {
+        LOGE("GetCurrentDirectory Error(%d)", GetLastError());
+    }
+    std::string sCurrDir = currDir;
+
+#ifdef DISTR
+    sAppdata = GetCanonical(SDL_GetPrefPath(ORGANIZATION, APP_NAME));
+    appdata = GetFolders(sAppdata.c_str());
+#else
+    sAppdata = fs::canonical(sCurrDir + "/installation_dir").u8string();
+    appdata = GetFolders(sAppdata.c_str());
+#endif
+
+    std::string newDir(sCurrDir.c_str(), sCurrDir.size() - sizeof("MapTileEditor3D") + 1);
+    if (SetCurrentDirectoryA((newDir + "test/").c_str()) == 0) {
+        LOGE("SetCurrentDirectoryA Error(%d)", GetLastError());
+    }
+    if (GetCurrentDirectoryA(MAX_PATH, currDir) == 0) {
+        LOGE("GetCurrentDirectory Error(%d)", GetLastError());
+    }
+    root = GetFolders("./");
+}
+
 void FileSystem::DeleteRoot()
 {
     delete root;
+    delete appdata;
 }
 
-Folder::Folder(const char* n, Folder* parent) :full_path(n), parent(parent)
+Folder::Folder(const char* n, Folder* parent) :full_path(fs::canonical(n).u8string()), parent(parent)
 {
     for (auto i = full_path.rbegin(); i != full_path.rend(); ++i) {
         if (i != full_path.rbegin()) {

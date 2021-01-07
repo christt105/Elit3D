@@ -65,7 +65,7 @@ public:
 	}
 
 	void SaveConfiguration();
-	void LoadConfiduration(const char* file);
+	void LoadConfiguration(const char* file);
 
 private:
 	std::vector<Module*> modules;
