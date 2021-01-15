@@ -22,7 +22,7 @@
 
 OpenGLBuffers Layer::tile = OpenGLBuffers();
 
-Layer::Layer()
+Layer::Layer(Layer::Type t) : type(t)
 {
 	if (tile.vertices.size == 0u)
 		tile.InitData();
@@ -187,6 +187,17 @@ void Layer::SetName(const char* n)
 {
 	name.assign(n);
 	strcpy_s(buf, 30, n);
+}
+
+Layer::Type Layer::GetType() const
+{
+	return type;
+}
+
+void Layer::SetType(Type t)
+{
+	type = t;
+	//TODO: delete all data if exist
 }
 
 OpenGLBuffers::OpenGLBuffers()

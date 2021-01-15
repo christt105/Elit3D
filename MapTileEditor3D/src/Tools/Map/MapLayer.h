@@ -11,6 +11,7 @@
 
 class r1Mesh;
 struct TypeVar;
+class Object;
 
 class OpenGLBuffers {
 public:
@@ -42,7 +43,12 @@ public:
         MAX
     };
 
-    Layer();
+    enum class Type {
+        TILE,
+        OBJECT
+    };
+
+    Layer(Layer::Type t);
     ~Layer();
 
     float height = 0.f;
@@ -66,10 +72,16 @@ public:
     const char* GetName() const;
     void SetName(const char* n);
 
+    Type GetType() const;
+    void SetType(Type t);
+
 private:
     static OpenGLBuffers tile;
 
-    TILE_DATA_TYPE* tile_data = nullptr; //TODO: Research about set id with short or int
+    union {
+        TILE_DATA_TYPE* tile_data = nullptr; //TODO: Research about set id with short or int
+        Object* root;
+    };
 
     Properties properties;
 
@@ -79,4 +91,6 @@ private:
     bool locked = false;
     float opacity = 1.f;
     int displacement[2] = { 0,0 };
+
+    Type type = Type::TILE;
 };

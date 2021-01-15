@@ -215,7 +215,7 @@ void r1Map::Load()
 void r1Map::LoadLayers(nlohmann::json& file)
 {
 	for (auto l = file["layers"].begin(); l != file["layers"].end(); ++l) {
-		Layer* layer = new Layer();
+		Layer* layer = new Layer(Layer::Type::TILE); //TODO: save and load layer type
 		layer->SetName((*l).value("name", "Layer").c_str());
 		layer->height = (*l).value("height", 0.f);
 		layer->opacity = (*l).value("opacity", 1.f);
@@ -418,7 +418,7 @@ void r1Map::CreateNewMap(int width, int height, const char* file)
 
 	nlohmann::json data = nlohmann::json::object();
 
-	Layer layer;
+	Layer layer(Layer::Type::TILE);
 	layer.Reset({ width, height });	
 
 	data["data"] = layer.Parse(width, height, Layer::DataTypeExport::BASE64_ZLIB);

@@ -25,7 +25,7 @@ void p1Layers::Update()
 	std::vector<Layer*>* layers = nullptr;
 	if (App->map_editor->GetLayers(layers)) {
 		Buttons(layers);
-		ImGui::Separator();
+		ImGui::Separator(); //TODO: Child window
 		DisplayLayers(layers);
 	}
 }
@@ -71,6 +71,18 @@ void p1Layers::DisplayLayers(std::vector<Layer*>* layers)
 				App->gui->inspector->SetSelected(*l, p1Inspector::SelectedType::LAYER);
 			}
 		}
+		ImVec2 s = ImGui::GetItemRectSize();
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(s.x + 50.f);
+		switch ((*l)->GetType())
+		{
+		case Layer::Type::TILE:
+			ImGui::Text(ICON_FA_BORDER_ALL);
+			break;
+		case Layer::Type::OBJECT:
+			ImGui::Text(ICON_FA_CUBES);
+			break;
+		}
 		if ((*l)->locked) {
 			ImGui::PopStyleVar();
 		}
@@ -84,7 +96,19 @@ void p1Layers::DisplayLayers(std::vector<Layer*>* layers)
 void p1Layers::Buttons(std::vector<Layer*>*& layers)
 {
 	if (ImGui::Button(ICON_FA_PLUS)) {
-		App->map_editor->AddLayer();
+		ImGui::OpenPopup("layer_type_create");
+	}
+	if (ImGui::BeginPopup("layer_type_create"))
+	{
+		if (ImGui::Button(ICON_FA_BORDER_ALL" Tile Layer")) {
+			App->map_editor->AddLayer(Layer::Type::TILE);
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button(ICON_FA_CUBES" Object Layer")) {
+			App->map_editor->AddLayer(Layer::Type::OBJECT);
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
 	}
 	ImGui::SameLine();
 	bool disabled = (selected == -1 || selected > (int)layers->size());

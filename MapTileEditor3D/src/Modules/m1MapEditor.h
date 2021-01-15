@@ -43,7 +43,7 @@ public:
 
     void ReorderLayers();
 
-    void AddLayer();
+    void AddLayer(Layer::Type t);
     void EraseLayer(int index);
 
     bool ValidMap() const;

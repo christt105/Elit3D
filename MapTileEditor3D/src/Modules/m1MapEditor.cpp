@@ -18,6 +18,8 @@
 #include "Resources/r1Map.h"
 #include "Resources/r1Mesh.h"
 
+#include "m1Objects.h"
+
 #include "ExternalTools/MathGeoLib/include/Geometry/Plane.h"
 #include "ExternalTools/MathGeoLib/include/Geometry/Ray.h"
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
@@ -290,12 +292,17 @@ void m1MapEditor::ReorderLayers()
 		std::sort(m->layers.begin(), m->layers.end(), Layer::HeightOrder);
 }
 
-void m1MapEditor::AddLayer()
+void m1MapEditor::AddLayer(Layer::Type t)
 {
 	auto m = (r1Map*)App->resources->Get(map);
 	if (m) {
-		Layer* layer = new Layer();
-		layer->Reset(m->size);
+		Layer* layer = new Layer(t);
+		if (t == Layer::Type::TILE) {
+			layer->Reset(m->size);
+		}
+		else {
+			layer->root = App->objects->CreateEmptyObject();
+		}
 		m->layers.push_back(layer);
 	}
 }

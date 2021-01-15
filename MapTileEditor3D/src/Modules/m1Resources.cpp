@@ -78,8 +78,9 @@ Uint64 m1Resources::FindByName(const char* file)
 Uint64 m1Resources::FindByPath(const char* assets_path)
 {
 	PROFILE_FUNCTION();
+	std::string comp = FileSystem::GetCanonical(assets_path);
 	for (auto i = resources.begin(); i != resources.end(); ++i) {
-		if ((*i).second->path.compare(assets_path) == 0)
+		if ((*i).second->path.compare(comp) == 0)
 			return (*i).first;
 	}
 

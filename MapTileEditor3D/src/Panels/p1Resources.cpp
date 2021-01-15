@@ -188,11 +188,18 @@ void p1Project::Update()
 				ImGui::BeginGroup();
 				if (ImGui::ImageButtonGL((ImTextureID)ids[GetEType(extension)], ImVec2(size * 80.f, size * 100.6f), 2)) {
 					static std::string path;
-					path = selected->full_path + (*i).first;
+					path = FileSystem::GetCanonical((selected->full_path + (*i).first).c_str());
 					App->gui->inspector->SetSelected((void*)&(path), GetInspectorType(extension));
 				}
 				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
-					App->map_editor->LoadMap(App->resources->FindByPath((selected->full_path + (*i).first).c_str()));
+					std::string ext = FileSystem::GetFileExtension((*i).first.c_str());
+
+					if (ext == "fbx") {
+						App->resources->Get(App->resources->FindByPath((selected->full_path + "/" + (*i).first).c_str()))->Attach();
+					}
+					else if (ext == "scene") {
+						App->map_editor->LoadMap(App->resources->FindByPath((selected->full_path + "/" + (*i).first).c_str()));
+					}
 				}
 				ImGui::Text(FileSystem::GetNameFile((*i).first.c_str()).c_str());
 				ImGui::EndGroup();

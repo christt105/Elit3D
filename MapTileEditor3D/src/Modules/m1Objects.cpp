@@ -25,7 +25,7 @@ m1Objects::~m1Objects()
 Object* m1Objects::CreateEmptyObject()
 {
 	Object* obj = new Object();
-	objects.push_back(obj);
+	//objects.push_back(obj);
 
 	return obj;
 }

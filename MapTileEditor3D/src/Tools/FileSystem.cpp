@@ -329,7 +329,7 @@ Folder* FileSystem::GetPtrFolder(const char* folder, bool is_appdata)
         sfolder = fs::canonical(folder).u8string();
     }
     else {
-        if (root->full_path.compare(folder) == 0)
+        if (GetCanonical(root->full_path.c_str()).compare(GetCanonical(folder)) == 0)
             return root;
 
         s.push(root);
@@ -340,7 +340,7 @@ Folder* FileSystem::GetPtrFolder(const char* folder, bool is_appdata)
         auto f = s.top();
         s.pop();
         for (auto i = f->folders.begin(); i != f->folders.end(); ++i) {
-            if ((*i)->full_path.compare(sfolder) == 0) {
+            if (fs::canonical((*i)->full_path).u8string().compare(sfolder) == 0) {
                 return *i;
             }
             if (sfolder.find(fs::canonical((*i)->full_path).u8string()) != std::string::npos) {
@@ -403,7 +403,7 @@ void FileSystem::DeleteRoot()
     delete appdata;
 }
 
-Folder::Folder(const char* n, Folder* parent) :full_path(fs::canonical(n).u8string()), parent(parent)
+Folder::Folder(const char* n, Folder* parent) :full_path(fs::canonical(n).u8string() + "/"), parent(parent)
 {
     for (auto i = full_path.rbegin(); i != full_path.rend(); ++i) {
         if (i != full_path.rbegin()) {
