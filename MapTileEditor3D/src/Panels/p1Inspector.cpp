@@ -23,13 +23,15 @@ void p1Inspector::Update()
 	if (selected)
 		switch (type)
 		{
-		case p1Inspector::SelectedType::OBJECT:
-			if (App->objects->selected != nullptr) {
-				for (auto i = App->objects->selected->components.begin(); i != App->objects->selected->components.end(); ++i) {
+		case p1Inspector::SelectedType::OBJECT: {
+			const Object* sel = App->objects->GetSelected();
+			if (sel != nullptr) {
+				for (auto i = sel->components.begin(); i != sel->components.end(); ++i) {
 					(*i)->OnInspector();
 				}
 			}
 			break;
+		}
 		case p1Inspector::SelectedType::LAYER:
 			((Layer*)selected)->OnInspector();
 			break;

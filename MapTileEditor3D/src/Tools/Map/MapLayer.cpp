@@ -8,6 +8,8 @@
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 
+#include "Objects/Object.h"
+
 #include "Tools/OpenGL/OpenGLHelper.h"
 #include "Tools/TypeVar.h"
 #include "Tools/System/Profiler.h"
@@ -27,13 +29,38 @@ Layer::Layer(Layer::Type t) : type(t)
 	if (tile.vertices.size == 0u)
 		tile.InitData();
 	strcpy_s(buf, 30, name.c_str());
+
+	switch (t)
+	{
+	case Layer::Type::TILE:
+		break;
+	case Layer::Type::OBJECT:
+		root = new Object();
+		break;
+	case Layer::Type::TERRAIN:
+		break;
+	default:
+		break;
+	}
 }
 
 Layer::~Layer()
 {
-	if (tile_data) {
-		delete[] tile_data;
-		oglh::DeleteTexture(id_tex);
+	switch (type)
+	{
+	case Layer::Type::TILE:
+		if (tile_data) {
+			delete[] tile_data;
+			oglh::DeleteTexture(id_tex);
+		}
+		break;
+	case Layer::Type::OBJECT:
+		delete root;
+		break;
+	case Layer::Type::TERRAIN:
+		break;
+	default:
+		break;
 	}
 }
 
@@ -90,10 +117,11 @@ void Layer::OnInspector()
 {
 	if (ImGui::InputText("Name", buf, 30))
 		name.assign(buf);
+	ImGui::Text("Type: "); ImGui::SameLine(); ImGui::Text(Layer::TypeToString(type).c_str());
 	ImGui::Checkbox("Visible", &visible);
 	ImGui::Checkbox("Lock", &locked);
-	ImGui::DragFloat("Height", &height, 0.1f);
 	ImGui::SliderFloat("Opacity", &opacity, 0.f, 1.f);
+	ImGui::DragFloat("Height", &height, 0.1f);
 	ImGui::DragInt2("Displacement", displacement);
 
 	ImGui::Separator();
@@ -198,6 +226,37 @@ void Layer::SetType(Type t)
 {
 	type = t;
 	//TODO: delete all data if exist
+}
+
+std::string Layer::TypeToString(Type t)
+{
+	switch (t)
+	{
+	case Layer::Type::TILE:
+		return std::string("tile");
+		break;
+	case Layer::Type::OBJECT:
+		return std::string("object");
+		break;
+	case Layer::Type::TERRAIN:
+		return std::string("terrain");
+		break;
+	}
+	return std::string("NONE");
+}
+
+Layer::Type Layer::StringToType(const std::string& s)
+{
+	if (s.compare("tile")) {
+		return Layer::Type::TILE;
+	}
+	else if (s.compare("object")) {
+		return Layer::Type::OBJECT;
+	}
+	else if (s.compare("terrain")) {
+		return Layer::Type::TERRAIN;
+	}
+	return Layer::Type::NONE;
 }
 
 OpenGLBuffers::OpenGLBuffers()

@@ -12,6 +12,7 @@
             "name": "Background",
             "opacity": 1.0,
             "properties": null,
+            "type": 0,
             "visible": true
         },
         {
@@ -26,6 +27,7 @@
             "name": "Dirt",
             "opacity": 1.0,
             "properties": null,
+            "type": 0,
             "visible": true
         },
         {
@@ -40,6 +42,7 @@
             "name": "Water",
             "opacity": 1.0,
             "properties": null,
+            "type": 0,
             "visible": true
         },
         {
@@ -54,6 +57,7 @@
             "name": "Items",
             "opacity": 1.0,
             "properties": null,
+            "type": 0,
             "visible": true
         },
         {
@@ -68,7 +72,21 @@
             "name": "Layer",
             "opacity": 1.0,
             "properties": null,
+            "type": 0,
             "visible": false
+        },
+        {
+            "displacement": [
+                0,
+                0
+            ],
+            "height": 0.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "type": 1,
+            "visible": true
         }
     ],
     "properties": null,

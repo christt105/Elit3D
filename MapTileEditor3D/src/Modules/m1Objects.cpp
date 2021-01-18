@@ -17,17 +17,11 @@ m1Objects::m1Objects(bool start_enabled) : Module("Objects", start_enabled)
 
 m1Objects::~m1Objects()
 {
-	for (auto i = objects.begin(); i != objects.end(); ++i) {
-		delete* i;
-	}
 }
 
 Object* m1Objects::CreateEmptyObject()
 {
-	Object* obj = new Object();
-	//objects.push_back(obj);
-
-	return obj;
+	return new Object();
 }
 
 bool m1Objects::Start()
@@ -39,18 +33,23 @@ UpdateStatus m1Objects::Update()
 {
 	PROFILE_FUNCTION();
 
-	App->render->GetViewport("scene")->Begin();
+	if (layer_root_selected != nullptr) {
+		App->render->GetViewport("scene")->Begin();
 
-	auto shader = App->render->GetShader("default");
-	shader->Use();
+		auto shader = App->render->GetShader("default");
+		shader->Use();
 
-	for (auto i = objects.begin(); i != objects.end(); ++i) {
-		(*i)->Update();
+		layer_root_selected->Update();
+
+		shader->SetMat4("model", float4x4::identity);
+
+		App->render->GetViewport("scene")->End();
 	}
 
-	shader->SetMat4("model", float4x4::identity);
-
-	App->render->GetViewport("scene")->End();
-
 	return UpdateStatus::UPDATE_CONTINUE;
+}
+
+const Object* m1Objects::GetSelected() const
+{
+	return selected;
 }

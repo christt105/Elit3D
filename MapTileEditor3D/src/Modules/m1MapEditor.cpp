@@ -292,7 +292,7 @@ void m1MapEditor::ReorderLayers()
 		std::sort(m->layers.begin(), m->layers.end(), Layer::HeightOrder);
 }
 
-void m1MapEditor::AddLayer(Layer::Type t)
+Layer* m1MapEditor::AddLayer(Layer::Type t)
 {
 	auto m = (r1Map*)App->resources->Get(map);
 	if (m) {
@@ -304,7 +304,9 @@ void m1MapEditor::AddLayer(Layer::Type t)
 			layer->root = App->objects->CreateEmptyObject();
 		}
 		m->layers.push_back(layer);
+		return layer;
 	}
+	return nullptr;
 }
 
 void m1MapEditor::EraseLayer(int index)
@@ -336,6 +338,27 @@ bool m1MapEditor::GetLayers(std::vector<Layer*>* &vec) const
 	vec = &m->layers;
 
 	return true;
+}
+
+Layer* m1MapEditor::GetObjectLayer(bool create_if_no_exist)
+{
+	auto m = GetMap();
+	if(m == nullptr)
+		return nullptr;
+
+	if (m->layers[panel_layers->GetSelected()]->type == Layer::Type::OBJECT)
+		return m->layers[panel_layers->GetSelected()];
+
+	for (auto i = m->layers.begin(); i != m->layers.end(); ++i) {
+		if ((*i)->type == Layer::Type::OBJECT)
+			return *i;
+	}
+
+	if (create_if_no_exist) {
+		return AddLayer(Layer::Type::OBJECT);
+	}
+
+	return nullptr;
 }
 
 void m1MapEditor::ExportMap(MapTypeExport t, Layer::DataTypeExport d) const

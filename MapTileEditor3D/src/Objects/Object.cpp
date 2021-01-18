@@ -9,6 +9,9 @@
 Object::Object(Object* parent) : parent(parent)
 {
 	transform = CreateComponent<c1Transform>();
+
+	if (parent != nullptr)
+		parent->AddChild(this);
 }
 
 Object::~Object()

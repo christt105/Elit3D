@@ -31,6 +31,7 @@ class Layer {
     friend class r1Map;
     friend class m1MapEditor;
     friend class p1Layers;
+    friend class p1Resources; //TODO HM
 public:
     enum class DataTypeExport {
         NONE = -1,
@@ -44,8 +45,13 @@ public:
     };
 
     enum class Type {
+        NONE = -1,
+
         TILE,
-        OBJECT
+        OBJECT,
+        TERRAIN,
+
+        MAX
     };
 
     Layer(Layer::Type t);
@@ -74,14 +80,16 @@ public:
 
     Type GetType() const;
     void SetType(Type t);
-
-private:
-    static OpenGLBuffers tile;
+    static std::string TypeToString(Type t);
+    static Layer::Type StringToType(const std::string& s);
 
     union {
         TILE_DATA_TYPE* tile_data = nullptr; //TODO: Research about set id with short or int
         Object* root;
     };
+private:
+    static OpenGLBuffers tile;
+
 
     Properties properties;
 

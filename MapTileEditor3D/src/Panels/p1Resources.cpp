@@ -8,6 +8,10 @@
 #include "Modules/m1GUI.h"
 #include "Modules/m1MapEditor.h"
 
+#include "Resources/r1Model.h"
+#include "Resources/r1Map.h"
+#include "Tools/Map/MapLayer.h"
+
 #include "Tools/System/OSUtils.h"
 
 #include "Tools/System/Profiler.h"
@@ -194,8 +198,11 @@ void p1Project::Update()
 				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
 					std::string ext = FileSystem::GetFileExtension((*i).first.c_str());
 
-					if (ext == "fbx") {
-						App->resources->Get(App->resources->FindByPath((selected->full_path + "/" + (*i).first).c_str()))->Attach();
+					if (ext == "fbx") { //TODO ugly place to put that code here
+						auto model = (r1Model*)App->resources->Get(App->resources->FindByPath((selected->full_path + "/" + (*i).first).c_str()));
+						model->Attach();
+						auto map = App->map_editor->GetObjectLayer(true);
+						model->CreateObject(map->root);
 					}
 					else if (ext == "scene") {
 						App->map_editor->LoadMap(App->resources->FindByPath((selected->full_path + "/" + (*i).first).c_str()));

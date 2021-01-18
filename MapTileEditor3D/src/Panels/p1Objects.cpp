@@ -16,8 +16,9 @@ p1Objects::~p1Objects()
 
 void p1Objects::Update()
 {
-	for (auto i = App->objects->objects.begin(); i != App->objects->objects.end(); ++i) {
-		TreeNode(*i);
+	if (App->objects->layer_root_selected != nullptr) {
+		for (auto i = App->objects->layer_root_selected->children.begin(); i != App->objects->layer_root_selected->children.end(); ++i)
+			TreeNode(*i);
 	}
 }
 
@@ -31,6 +32,7 @@ void p1Objects::TreeNode(Object* obj)
 		flags |= ImGuiTreeNodeFlags_Leaf;
 
 	bool tree = ImGui::TreeNodeEx(obj->GetName(), flags);
+	ImGui::PushID(obj);
 	if (ImGui::IsItemClicked() && App->objects->selected != obj)
 		App->objects->selected = obj;
 
@@ -40,4 +42,5 @@ void p1Objects::TreeNode(Object* obj)
 		}
 		ImGui::TreePop();
 	}
+	ImGui::PopID();
 }

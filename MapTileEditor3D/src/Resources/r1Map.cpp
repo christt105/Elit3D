@@ -45,8 +45,6 @@ void r1Map::Save(const uint64_t& tileset)
 
 		for (auto l = layers.begin(); l != layers.end(); ++l) {
 			nlohmann::json lay = nlohmann::json::object();
-			lay["encoding"] = "base64-zlib";
-			lay["data"] = (*l)->Parse(size.x, size.y, Layer::DataTypeExport::BASE64_ZLIB);
 
 			(*l)->properties.SaveProperties(lay["properties"]);
 
@@ -56,6 +54,25 @@ void r1Map::Save(const uint64_t& tileset)
 			lay["visible"] = (*l)->visible;
 			lay["locked"] = (*l)->locked;
 			lay["displacement"] = { (*l)->displacement[0], (*l)->displacement[1] };
+
+			lay["type"] = (*l)->type;
+
+			switch ((*l)->type)
+			{
+			case Layer::Type::TILE: {
+				lay["encoding"] = "base64-zlib";
+				lay["data"] = (*l)->Parse(size.x, size.y, Layer::DataTypeExport::BASE64_ZLIB);
+				break;
+			}
+			case Layer::Type::OBJECT: {
+				break;
+			}
+			case Layer::Type::TERRAIN: {
+				break;
+			}
+			default:
+				break;
+			}
 
 			file["layers"].push_back(lay);
 		}
@@ -110,24 +127,40 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 				layer.append_attribute("displacementx").set_value((*l)->displacement[0]);
 				layer.append_attribute("displacementy").set_value((*l)->displacement[1]);
 
-				auto data = layer.append_child("data");
-				auto encoding = data.append_attribute("encoding");
-				switch (d)
+				layer.append_attribute("type").set_value(Layer::TypeToString((*l)->type).c_str());
+
+				switch ((*l)->type)
 				{
-				case Layer::DataTypeExport::CSV:
-				case Layer::DataTypeExport::CSV_NO_NEWLINE:
-					encoding.set_value("csv");
+				case Layer::Type::TILE: {
+					auto data = layer.append_child("data");
+					auto encoding = data.append_attribute("encoding");
+					switch (d)
+					{
+					case Layer::DataTypeExport::CSV:
+					case Layer::DataTypeExport::CSV_NO_NEWLINE:
+						encoding.set_value("csv");
+						break;
+					case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
+						encoding.set_value("base64");
+						break;
+					case Layer::DataTypeExport::BASE64_ZLIB:
+						encoding.set_value("base64-zlib");
+						break;
+					default:
+						break;
+					}
+					data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
 					break;
-				case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
-					encoding.set_value("base64");
+				}
+				case Layer::Type::OBJECT: {
 					break;
-				case Layer::DataTypeExport::BASE64_ZLIB:
-					encoding.set_value("base64-zlib");
+				}
+				case Layer::Type::TERRAIN: {
 					break;
+				}
 				default:
 					break;
 				}
-				data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
 			}
 
 			doc.save_file("Export/Test.xml");
@@ -147,25 +180,6 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 			for (auto l = layers.begin(); l != layers.end(); ++l) {
 				nlohmann::json lay = nlohmann::json::object();
 
-				switch (d)
-				{
-				case Layer::DataTypeExport::CSV:
-				case Layer::DataTypeExport::CSV_NO_NEWLINE:
-					lay["encoding"] = "csv";
-					lay["data"] = (*l)->Parse(size.x, size.y);
-					break;
-				case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
-					lay["encoding"] = "base64";
-					lay["data"] = (*l)->Parse(size.x, size.y, d);
-					break;
-				case Layer::DataTypeExport::BASE64_ZLIB:
-					lay["encoding"] = "base64-zlib";
-					lay["data"] = (*l)->Parse(size.x, size.y, d);
-					break;
-				default:
-					break;
-				}
-
 				(*l)->properties.SaveProperties(lay["properties"]);
 
 				lay["name"] = (*l)->GetName();
@@ -174,6 +188,41 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 				lay["visible"] = (*l)->visible;
 				lay["locked"] = (*l)->locked;
 				lay["displacement"] = { (*l)->displacement[0], (*l)->displacement[1] };
+
+				lay["type"] = Layer::TypeToString((*l)->type);
+
+				switch ((*l)->type)
+				{
+				case Layer::Type::TILE: {
+					switch (d)
+					{
+					case Layer::DataTypeExport::CSV:
+					case Layer::DataTypeExport::CSV_NO_NEWLINE:
+						lay["encoding"] = "csv";
+						lay["data"] = (*l)->Parse(size.x, size.y);
+						break;
+					case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
+						lay["encoding"] = "base64";
+						lay["data"] = (*l)->Parse(size.x, size.y, d);
+						break;
+					case Layer::DataTypeExport::BASE64_ZLIB:
+						lay["encoding"] = "base64-zlib";
+						lay["data"] = (*l)->Parse(size.x, size.y, d);
+						break;
+					default:
+						break;
+					}
+					break;
+				}
+				case Layer::Type::OBJECT: {
+					break;
+				}
+				case Layer::Type::TERRAIN: {
+					break;
+				}
+				default:
+					break;
+				}
 
 				file["layers"].push_back(lay);
 			}
@@ -215,7 +264,7 @@ void r1Map::Load()
 void r1Map::LoadLayers(nlohmann::json& file)
 {
 	for (auto l = file["layers"].begin(); l != file["layers"].end(); ++l) {
-		Layer* layer = new Layer(Layer::Type::TILE); //TODO: save and load layer type
+		Layer* layer = new Layer((*l).value("type", Layer::Type::TILE));
 		layer->SetName((*l).value("name", "Layer").c_str());
 		layer->height = (*l).value("height", 0.f);
 		layer->opacity = (*l).value("opacity", 1.f);
@@ -229,24 +278,34 @@ void r1Map::LoadLayers(nlohmann::json& file)
 		layer->properties.LoadProperties((*l)["properties"]);
 
 
-		layer->tile_data = new TILE_DATA_TYPE[size.x * size.y];
-		layer->Unparse(size.x, size.y, (*l).value("data", "0")/*TODO: unparse type (csv, base64, zlib...)*/);
+		switch (layer->type)
+		{
+		case Layer::Type::TILE: {
+			layer->tile_data = new TILE_DATA_TYPE[size.x * size.y];
+			layer->Unparse(size.x, size.y, (*l).value("data", "0")/*TODO: unparse type (csv, base64, zlib...)*/);
 
-		unsigned char* tex_data = new unsigned char[size.x * size.y * 3];
-		memset(tex_data, 254, sizeof(unsigned char) * size.x * size.y * 3);
+			unsigned char* tex_data = new unsigned char[size.x * size.y * 3];
+			memset(tex_data, 254, sizeof(unsigned char) * size.x * size.y * 3);
 
-		for (int i = 0; i < size.x * size.y; ++i) {
-			if (layer->tile_data[i] != 0) {
-				tex_data[i * 3] = (unsigned char)(layer->tile_data[i] / UCHAR_MAX);
-				tex_data[i * 3 + 1] = 0;
-				tex_data[i * 3 + 2] = (unsigned char)(layer->tile_data[i] % UCHAR_MAX);
+			for (int i = 0; i < size.x * size.y; ++i) {
+				if (layer->tile_data[i] != 0) {
+					tex_data[i * 3] = (unsigned char)(layer->tile_data[i] / UCHAR_MAX);
+					tex_data[i * 3 + 1] = 0;
+					tex_data[i * 3 + 2] = (unsigned char)(layer->tile_data[i] % UCHAR_MAX);
+				}
 			}
-		}
 
-		glEnable(GL_TEXTURE_2D);
-		oglh::GenTextureData(layer->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex_data);
-		oglh::UnBindTexture();
-		delete[] tex_data;
+			glEnable(GL_TEXTURE_2D);
+			oglh::GenTextureData(layer->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex_data);
+			oglh::UnBindTexture();
+			delete[] tex_data;
+			break;
+		}
+		case Layer::Type::OBJECT:
+			break;
+		default:
+			break;
+		}
 
 		layers.push_back(layer);
 	}
@@ -268,6 +327,9 @@ void r1Map::Resize(int width, int height)
 	PROFILE_AND_LOG("Map Resize");
 
 	for (auto l = layers.begin(); l != layers.end(); ++l) {
+		if ((*l)->type != Layer::Type::TILE)
+			continue;
+
 		TILE_DATA_TYPE* new_data = new TILE_DATA_TYPE[width * height];
 		memset(new_data, 0, sizeof(TILE_DATA_TYPE) * width * height);
 

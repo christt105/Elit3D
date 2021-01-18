@@ -2,6 +2,11 @@
 
 #include "ExternalTools/Assimp/include/Importer.hpp"
 #include "ExternalTools/Assimp/include/scene.h"
+#include "ExternalTools/Assimp/include/postprocess.h"
+
+#include "Objects/Object.h"
+
+#include "Tools/OpenGL/OpenGLHelper.h"
 
 #include "Tools/System/Logger.h"
 
@@ -17,19 +22,26 @@ void r1Model::Load()
 {
 	Assimp::Importer importer;
 
-	const aiScene* scene = importer.ReadFile(path, NULL);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
 
 	if (scene == nullptr) {
 		LOGW("Model %s with path %s not loaded correctly | Error: %s", name.c_str(), path.c_str(), importer.GetErrorString());
 		return;
 	}
 
-	LoadNode(scene->mRootNode, scene);
+	root = new Node();
+	root->name = "root";
+	for (int i = 0; i < scene->mRootNode->mNumChildren; ++i) {
+		Node* c = new Node();
+		LoadNode(scene->mRootNode->mChildren[i], scene, c);
+		c->parent = root;
+		root->children.push_back(c);
+	}
 }
 
-void r1Model::LoadNode(aiNode* node, const aiScene* scene)
+void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
 {
-	LOG("Node Name: %s", node->mName.C_Str());
+	n->name = node->mName.C_Str();
 	
 	node->mTransformation;
 
@@ -69,11 +81,71 @@ void r1Model::LoadNode(aiNode* node, const aiScene* scene)
 		}
 	}
 
-	for (unsigned int i = 0u; i < node->mNumMeshes; ++i) {
-		scene->mMeshes[node->mMeshes[i]];
+	if (node->mNumMeshes == 1) {
+		for (unsigned int i = 0u; i < node->mNumMeshes; ++i) {
+			aiMesh* m = scene->mMeshes[node->mMeshes[i]];
+			Mesh* mesh = new Mesh();
+
+			oglh::GenVAO(mesh->VAO);
+
+			mesh->vertices.size = m->mNumVertices;
+			mesh->vertices.data = new float[mesh->vertices.size * 3];
+			memset(mesh->vertices.data, 0.f, sizeof(float) * mesh->vertices.size * 3);
+
+			for (int v = 0; v < m->mNumVertices; ++v) {
+				mesh->vertices.data[v*3] = m->mVertices[v].x;
+				mesh->vertices.data[v*3+1] = m->mVertices[v].y;
+				mesh->vertices.data[v*3+2] = m->mVertices[v].z;
+			}
+
+			oglh::GenArrayBuffer(mesh->vertices.id, mesh->vertices.size, sizeof(float), 3, mesh->vertices.data);
+
+			mesh->indices.size = m->mNumFaces * 3;
+			mesh->indices.data = new unsigned int[mesh->indices.size];
+			memset(mesh->indices.data, 0U, sizeof(unsigned int) * mesh->indices.size);
+
+			for (int f = 0; f < m->mNumFaces; ++f) {
+				for (int n = 0; n < m->mFaces[f].mNumIndices; ++n)
+					mesh->indices.data[f + n] = m->mFaces[f].mIndices[n];
+			}
+
+			oglh::GenElementBuffer(mesh->indices.id, mesh->indices.size, mesh->indices.data);
+
+			n->id_mesh = meshes.size();
+			meshes.push_back(mesh);
+		}
+	}
+	else if(node->mNumMeshes > 1) {
+		LOGE("Node with more than 1 mesh");
 	}
 
 	for (unsigned int i = 0u; i < node->mNumChildren; ++i) {
-		LoadNode(node->mChildren[i], scene);
+		Node* child = new Node();
+		LoadNode(node->mChildren[i], scene, child);
+		child->parent = n;
+		n->children.push_back(child);
+	}
+}
+
+void r1Model::CreateObject(Object* r)
+{
+	if (r == nullptr)
+		return;
+
+	Object* parent = new Object(r);
+	parent->SetName(name.c_str());
+
+	for (auto i = root->children.begin(); i != root->children.end(); ++i)
+		CreateChildren(*i, parent);
+}
+
+void r1Model::CreateChildren(r1Model::Node* parent, Object* r)
+{
+	Object* o = new Object(r);
+
+	o->SetName(parent->name.c_str());
+
+	for (auto i = parent->children.begin(); i != parent->children.end(); ++i) {
+		CreateChildren((*i), o);
 	}
 }
