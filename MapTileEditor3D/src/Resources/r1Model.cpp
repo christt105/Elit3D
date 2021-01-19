@@ -4,7 +4,15 @@
 #include "ExternalTools/Assimp/include/scene.h"
 #include "ExternalTools/Assimp/include/postprocess.h"
 
+#include "ExternalTools/MathGeoLib/include/Math/Quat.h"
+
 #include "Objects/Object.h"
+#include "Objects/Components/c1Mesh.h"
+#include "Objects/Components/c1Transform.h"
+#include "Resources/r1Mesh.h"
+
+#include "Core/Application.h"
+#include "Modules/m1Resources.h"
 
 #include "Tools/OpenGL/OpenGLHelper.h"
 
@@ -16,6 +24,8 @@ r1Model::r1Model(const uint64_t& uid) : Resource(Resource::Type::Model, uid)
 
 r1Model::~r1Model()
 {
+	if (root != nullptr)
+		delete root;
 }
 
 void r1Model::Load()
@@ -27,6 +37,39 @@ void r1Model::Load()
 	if (scene == nullptr) {
 		LOGW("Model %s with path %s not loaded correctly | Error: %s", name.c_str(), path.c_str(), importer.GetErrorString());
 		return;
+	}
+
+	//Load meshes
+	for (int im = 0; im < scene->mNumMeshes; ++im) {
+		aiMesh* m = scene->mMeshes[im];
+		auto mesh = App->resources->CreateResource<r1Mesh>("", 0ULL, false);
+
+		oglh::GenVAO(mesh->VAO);
+		
+		mesh->vertices.size = m->mNumVertices;
+		mesh->vertices.data = new float[mesh->vertices.size * 3];
+		memset(mesh->vertices.data, 0.f, sizeof(float) * mesh->vertices.size * 3);
+
+		for (int v = 0; v < m->mNumVertices; ++v) {
+			mesh->vertices.data[v * 3] = m->mVertices[v].x;
+			mesh->vertices.data[v * 3 + 1] = m->mVertices[v].y;
+			mesh->vertices.data[v * 3 + 2] = m->mVertices[v].z;
+		}
+
+		oglh::GenArrayBuffer(mesh->vertices.id, mesh->vertices.size, sizeof(float), 3, mesh->vertices.data, 0, 3);
+
+		mesh->indices.size = m->mNumFaces * 3;
+		mesh->indices.data = new unsigned int[mesh->indices.size];
+		memset(mesh->indices.data, 0U, sizeof(unsigned int) * mesh->indices.size);
+
+		for (int f = 0; f < m->mNumFaces; ++f) {
+			for (int n = 0; n < m->mFaces[f].mNumIndices; ++n)
+				mesh->indices.data[f * m->mFaces[f].mNumIndices + n] = m->mFaces[f].mIndices[n];
+		}
+
+		oglh::GenElementBuffer(mesh->indices.id, mesh->indices.size, mesh->indices.data);
+
+		meshes.push_back(mesh);
 	}
 
 	root = new Node();
@@ -43,7 +86,9 @@ void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
 {
 	n->name = node->mName.C_Str();
 	
-	node->mTransformation;
+	aiVector3D pos, scale; aiQuaternion rot;
+	node->mTransformation.Decompose(scale, rot, pos);
+	n->transform = float4x4::FromTRS({ pos.x, pos.y, pos.z }, Quat(rot.x, rot.y, rot.z, rot.w), { scale.x, scale.y, scale.z });
 
 	if (node->mMetaData != nullptr) {
 		LOG("Metadata of node %s", node->mName.C_Str());
@@ -83,36 +128,7 @@ void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
 
 	if (node->mNumMeshes == 1) {
 		for (unsigned int i = 0u; i < node->mNumMeshes; ++i) {
-			aiMesh* m = scene->mMeshes[node->mMeshes[i]];
-			Mesh* mesh = new Mesh();
-
-			oglh::GenVAO(mesh->VAO);
-
-			mesh->vertices.size = m->mNumVertices;
-			mesh->vertices.data = new float[mesh->vertices.size * 3];
-			memset(mesh->vertices.data, 0.f, sizeof(float) * mesh->vertices.size * 3);
-
-			for (int v = 0; v < m->mNumVertices; ++v) {
-				mesh->vertices.data[v*3] = m->mVertices[v].x;
-				mesh->vertices.data[v*3+1] = m->mVertices[v].y;
-				mesh->vertices.data[v*3+2] = m->mVertices[v].z;
-			}
-
-			oglh::GenArrayBuffer(mesh->vertices.id, mesh->vertices.size, sizeof(float), 3, mesh->vertices.data);
-
-			mesh->indices.size = m->mNumFaces * 3;
-			mesh->indices.data = new unsigned int[mesh->indices.size];
-			memset(mesh->indices.data, 0U, sizeof(unsigned int) * mesh->indices.size);
-
-			for (int f = 0; f < m->mNumFaces; ++f) {
-				for (int n = 0; n < m->mFaces[f].mNumIndices; ++n)
-					mesh->indices.data[f + n] = m->mFaces[f].mIndices[n];
-			}
-
-			oglh::GenElementBuffer(mesh->indices.id, mesh->indices.size, mesh->indices.data);
-
-			n->id_mesh = meshes.size();
-			meshes.push_back(mesh);
+			n->id_mesh = meshes[node->mMeshes[i]]->GetUID();
 		}
 	}
 	else if(node->mNumMeshes > 1) {
@@ -144,6 +160,13 @@ void r1Model::CreateChildren(r1Model::Node* parent, Object* r)
 	Object* o = new Object(r);
 
 	o->SetName(parent->name.c_str());
+
+	o->transform->SetLocalMatrix(parent->transform);
+
+	if (parent->id_mesh != -1) {
+		auto mesh = o->CreateComponent<c1Mesh>();
+		mesh->SetMesh(parent->id_mesh);
+	}
 
 	for (auto i = parent->children.begin(); i != parent->children.end(); ++i) {
 		CreateChildren((*i), o);

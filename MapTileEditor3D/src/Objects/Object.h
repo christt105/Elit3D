@@ -31,12 +31,13 @@ public:
 	c1Transform* transform = nullptr;
 
 	std::vector<Object*> children;
+
+	Object* parent = nullptr;
 private:
 	std::vector<Component*> components;
 
 	std::string name = "Object";
 
-	Object* parent = nullptr;
 };
 
 template<class C>

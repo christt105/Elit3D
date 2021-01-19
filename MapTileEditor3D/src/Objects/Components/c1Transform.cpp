@@ -2,10 +2,13 @@
 
 #include "ExternalTools/MathGeoLib/include/MathGeoLib.h"
 
+#include "Objects/Object.h"
+
 #include "ExternalTools/ImGui/imgui.h"
 
 c1Transform::c1Transform(Object* obj) : Component(obj, Type::Transform)
 {
+	CalculateGlobalMatrix();
 }
 
 c1Transform::~c1Transform()
@@ -25,14 +28,21 @@ void c1Transform::OnInspector()
 	}
 }
 
-void c1Transform::SetMatrix(const float4x4& m)
+void c1Transform::SetLocalMatrix(const float4x4& m)
 {
-	mat = m;
+	m.Decompose(position, rotation, scale);
+
+	CalculateGlobalMatrix();
 }
 
-float4x4 c1Transform::GetMatrix() const
+const float4x4& c1Transform::GetLocalMatrix() const
 {
 	return mat;
+}
+
+const float4x4& c1Transform::GetGlobalMatrix() const
+{
+	return gmat;
 }
 
 void c1Transform::SetPosition(const float3& pos)
@@ -75,4 +85,16 @@ void c1Transform::SetScale(float x, float y, float z)
 	scale = float3(x, y, z);
 
 	mat = float4x4::FromTRS(position, rotation, scale);
+}
+
+void c1Transform::CalculateGlobalMatrix()
+{
+	mat = gmat = float4x4::FromTRS(position, rotation, scale);
+	if(object->parent != nullptr) {
+		gmat = object->parent->transform->GetGlobalMatrix() * mat;
+	}
+
+	for (auto i = object->children.begin(); i != object->children.end(); ++i) {
+		(*i)->transform->CalculateGlobalMatrix();
+	}
 }

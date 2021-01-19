@@ -33,7 +33,7 @@ void c1Mesh::Update()
 	if (rmesh != nullptr) {
 		oglh::BindBuffers(rmesh->VAO, rmesh->vertices.id, rmesh->indices.id);
 
-		material->shader->SetMat4("model", object->transform->GetMatrix());
+		material->shader->SetMat4("model", object->transform->GetGlobalMatrix());
 
 		material->BindTex();
 		oglh::DrawElements(rmesh->indices.size);
