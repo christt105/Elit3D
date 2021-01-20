@@ -55,6 +55,10 @@ void r1Mesh::Unload()
 		oglh::DeleteBuffer(texture.id);
 		delete[] texture.data;
 	}
+	if (normals.data != nullptr) {
+		oglh::DeleteBuffer(normals.id);
+		delete[] normals.data;
+	}
 }
 
 void r1Mesh::GenerateFiles(const aiMesh* mesh)

@@ -77,6 +77,8 @@ UpdateStatus m1Camera3D::PreUpdate()
 	shader->SetMat4("view", frustum.ViewMatrix());
 	shader->SetMat4("projection", frustum.ProjectionMatrix());
 
+	shader->SetVec3("lightPos", frustum.Pos());
+
 	shader = App->render->GetShader("tilemap");
 	shader->Use();
 	shader->SetMat4("model", float4x4::identity);

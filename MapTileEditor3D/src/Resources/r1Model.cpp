@@ -85,6 +85,20 @@ void r1Model::Load()
 
 		oglh::GenArrayBuffer(mesh->vertices.id, mesh->vertices.size, sizeof(float), 3, mesh->vertices.data, 0, 3);
 
+		if (m->HasNormals()) {
+			mesh->normals.size = m->mNumVertices;
+			mesh->normals.data = new float[mesh->normals.size * 3];
+			memset(mesh->normals.data, 0.f, sizeof(float) * mesh->normals.size * 3);
+
+			for (int n = 0; n < m->mNumVertices; ++n) {
+				mesh->normals.data[n * 3] = m->mNormals[n].x;
+				mesh->normals.data[n * 3 + 1] = m->mNormals[n].y;
+				mesh->normals.data[n * 3 + 2] = m->mNormals[n].z;
+			}
+
+			oglh::GenArrayBuffer(mesh->normals.id, mesh->normals.size, sizeof(float), 3, mesh->normals.data, 2, 3);
+		}
+
 		mesh->indices.size = m->mNumFaces * 3;
 		mesh->indices.data = new unsigned int[mesh->indices.size];
 		memset(mesh->indices.data, 0U, sizeof(unsigned int) * mesh->indices.size);

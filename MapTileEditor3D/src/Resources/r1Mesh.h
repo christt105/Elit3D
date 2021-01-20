@@ -25,6 +25,7 @@ public:
 	unsigned int VAO = 0u;
 
 	Buffer<float> vertices;
+	Buffer<float> normals;
 	Buffer<unsigned int> indices;
 	Buffer<float> texture;
 };
