@@ -4,6 +4,7 @@
 #include <string>
 #include <typeinfo>
 #include "Objects/Components/Base/Component.h"
+#include "ExternalTools/JSON/json.hpp"
 
 class c1Transform;
 
@@ -33,6 +34,9 @@ public:
 	std::vector<Object*> children;
 
 	Object* parent = nullptr;
+
+	nlohmann::json Parse();
+
 private:
 	std::vector<Component*> components;
 

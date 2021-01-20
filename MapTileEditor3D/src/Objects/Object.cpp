@@ -57,3 +57,21 @@ Object* Object::CreateChild()
 	children.push_back(new Object(this));
 	return children.back();
 }
+
+nlohmann::json Object::Parse()
+{
+	nlohmann::json n;
+
+	n["name"] = name;
+	n["active"] = active;
+
+	for (auto i = components.begin(); i != components.end(); ++i) {
+		n["components"].push_back((*i)->Parse());
+	}
+
+	for (auto i = children.begin(); i != children.end(); ++i) {
+		n["children"].push_back((*i)->Parse());
+	}
+
+	return n;
+}

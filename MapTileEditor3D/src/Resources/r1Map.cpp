@@ -14,6 +14,7 @@
 #include "Resources/r1Tileset.h"
 
 #include "Tools/Map/MapLayer.h"
+#include "Objects/Object.h"
 
 #include "ExternalTools/DevIL/include/IL/il.h"
 #include "ExternalTools/DevIL/include/IL/ilut.h"
@@ -65,6 +66,7 @@ void r1Map::Save(const uint64_t& tileset)
 				break;
 			}
 			case Layer::Type::OBJECT: {
+				lay["root"] = (*l)->root->Parse();
 				break;
 			}
 			case Layer::Type::TERRAIN: {

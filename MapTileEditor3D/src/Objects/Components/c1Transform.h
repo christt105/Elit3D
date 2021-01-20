@@ -28,6 +28,8 @@ public:
 
 	void CalculateGlobalMatrix();
 
+	nlohmann::json Parse() override;
+
 private:
 	float4x4 mat = float4x4::identity;
 	float4x4 gmat = float4x4::identity;

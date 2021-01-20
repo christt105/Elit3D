@@ -104,3 +104,23 @@ void c1Transform::CalculateGlobalMatrix()
 		(*i)->transform->CalculateGlobalMatrix();
 	}
 }
+
+nlohmann::json c1Transform::Parse()
+{
+	nlohmann::json ret = Component::Parse();
+
+	ret["position"]["x"] = position.x;
+	ret["position"]["y"] = position.y;
+	ret["position"]["z"] = position.z;
+
+	ret["rotation"]["x"] = rotation.x;
+	ret["rotation"]["y"] = rotation.y;
+	ret["rotation"]["z"] = rotation.z;
+	ret["rotation"]["w"] = rotation.w;
+
+	ret["scale"]["x"] = scale.x;
+	ret["scale"]["y"] = scale.y;
+	ret["scale"]["z"] = scale.z;
+
+	return ret;
+}

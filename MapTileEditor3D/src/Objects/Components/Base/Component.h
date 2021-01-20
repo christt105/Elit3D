@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ExternalTools/JSON/json.hpp"
+
 class Object;
 
 class Component
@@ -22,6 +24,8 @@ public:
 	virtual void Update() {}
 
 	virtual void OnInspector() {}
+
+	virtual nlohmann::json Parse();
 
 public:
 	Object* object = nullptr;

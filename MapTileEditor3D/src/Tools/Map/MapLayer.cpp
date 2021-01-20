@@ -36,6 +36,7 @@ Layer::Layer(Layer::Type t) : type(t)
 		break;
 	case Layer::Type::OBJECT:
 		root = new Object();
+		root->SetName("root");
 		break;
 	case Layer::Type::TERRAIN:
 		break;
