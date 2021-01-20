@@ -31,6 +31,8 @@ public:
 	void Detach();
 
 	virtual void OnInspector() {} //TODO: 
+	virtual void GenerateFiles() {}
+	virtual void UpdateFiles() {}
 
 	Resource::Type GetType() const;
 	std::string GetStrType() const;

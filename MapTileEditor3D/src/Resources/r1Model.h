@@ -36,14 +36,21 @@ public:
 	~r1Model();
 
 	void Load() override;
-	void LoadNode(aiNode* root, const aiScene* scene, Node* parent);
 
-	void LoadMetaData(aiMetadata* meta);
+	void GenerateFiles() override;
+	void UpdateFiles() override;
 
 	void CreateObject(Object* root);
 
+private:
+	void LoadMetaData(aiMetadata* meta);
+	void LoadNode(aiNode* root, const aiScene* scene, Node* parent);
+
+	void CreateHierarchy(nlohmann::json& parent, aiNode* node);
+
 	void CreateChildren(r1Model::Node* parent, Object* r);
 
+public:
 	std::vector<r1Mesh*> meshes;
 	Node* root = nullptr;
 };

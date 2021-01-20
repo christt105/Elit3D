@@ -14,6 +14,8 @@
 #include "Core/Application.h"
 #include "Modules/m1Resources.h"
 
+#include "Tools/FileSystem.h"
+
 #include "Tools/OpenGL/OpenGLHelper.h"
 
 #include "Tools/System/Logger.h"
@@ -52,10 +54,22 @@ void r1Model::Load()
 		LOG("Scale is %lf", factor);
 	}
 
+	nlohmann::json meta = FileSystem::OpenJSONFile((path + ".meta").c_str());
+
+	if (meta.is_null()) {
+		LOGW("meta file of resource %s was not found", path.c_str());
+		return;
+	}
+
+	meta = meta["properties"];
+
 	//Load meshes
 	for (int im = 0; im < scene->mNumMeshes; ++im) {
 		aiMesh* m = scene->mMeshes[im];
-		auto mesh = App->resources->CreateResource<r1Mesh>("", 0ULL, false);
+
+		nlohmann::json jmesh = meta["meshes"][im];
+
+		auto mesh = App->resources->CreateResource<r1Mesh>("", jmesh.value("uid", 0ULL), false);
 
 		oglh::GenVAO(mesh->VAO);
 		
@@ -123,6 +137,70 @@ void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
 		child->parent = n;
 		n->children.push_back(child);
 	}
+}
+
+void r1Model::CreateHierarchy(nlohmann::json& parent, aiNode* node)
+{
+	parent["name"] = node->mName.C_Str();
+	
+	if (node->mNumMeshes > 0) {
+		if (node->mNumMeshes == 1) {
+			parent["id_mesh"] = node->mMeshes[0];
+		}
+		else {
+			//TODO: create separated object for every mesh
+		}
+	}
+
+	for (int i = 0; i < node->mNumChildren; ++i) {
+		nlohmann::json child;
+		CreateHierarchy(child, node->mChildren[i]);
+		parent["children"].push_back(child);
+	}
+}
+
+void r1Model::GenerateFiles()
+{
+	Assimp::Importer importer;
+
+	nlohmann::json meta = FileSystem::OpenJSONFile((path + ".meta").c_str());
+
+	if (meta.is_null()) {
+		LOGW("meta file of resource %s was not found", path.c_str());
+		return;
+	}
+
+	auto mprop = meta["properties"];
+
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+
+	if (scene == nullptr) {
+		LOGW("Model %s with path %s not loaded correctly | Error: %s", name.c_str(), path.c_str(), importer.GetErrorString());
+		return;
+	}
+
+	if (scene->mMetaData != nullptr) {
+		LoadMetaData(scene->mMetaData);
+	}
+
+	for (int im = 0; im < scene->mNumMeshes; ++im) {
+		nlohmann::json jmesh;
+		jmesh["uid"] = Random::RandomGUID();
+		jmesh["index"] = im;
+
+		mprop["meshes"].push_back(jmesh);
+	}
+
+	CreateHierarchy(mprop["root"], scene->mRootNode);
+
+	meta["properties"] = mprop;
+
+	FileSystem::SaveJSONFile((path + ".meta").c_str(), meta);
+}
+
+void r1Model::UpdateFiles()
+{
+	LOGNE("TODO: fbx Updated");
 }
 
 void r1Model::LoadMetaData(aiMetadata* meta)

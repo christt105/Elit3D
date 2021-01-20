@@ -260,23 +260,25 @@ void m1Resources::ImportFiles(const Folder* parent)
 				nlohmann::json meta = FileSystem::OpenJSONFile((parent->full_path + "/" + (*file).first + ".meta").c_str());
 				uint64_t timestamp = FileSystem::LastTimeWrite((parent->full_path + "/" + (*file).first).c_str());
 				std::string extension = meta.value("extension", "none");
+
+				auto res = CreateResource(
+					GetTypeFromStr(extension.c_str()),
+					(parent->full_path + "/" + (*file).first).c_str(),
+					meta.value("UID", 0ULL));
+
 				if (meta.value("timestamp", 0ULL) != timestamp) {									// file updated
 					meta["timestamp"] = timestamp;
 					FileSystem::SaveJSONFile((parent->full_path + "/" + (*file).first + ".meta").c_str(), meta);
-					// TODO: Regenerate properties
+					res->UpdateFiles();
 				}
-				CreateResource(
-					GetTypeFromStr(extension.c_str()), 
-					(parent->full_path + "/" + (*file).first).c_str(), 
-					meta.value("UID", 0ULL)
-				);
 			}
 			else {
-				CreateResource(
+				auto res = CreateResource(
 					GetTypeFromStr(FileSystem::GetFileExtension((*file).first.c_str()).c_str()),	//type
 					(parent->full_path + "/" + (*file).first).c_str(),								//path
 					GenerateMeta((parent->full_path + (*file).first).c_str())						//meta
 				);
+				res->GenerateFiles();
 			}
 		}
 	}
