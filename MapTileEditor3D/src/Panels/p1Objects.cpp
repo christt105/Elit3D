@@ -2,6 +2,8 @@
 #include "Core/Application.h"
 #include "Modules/m1Objects.h"
 #include "Objects/Object.h"
+#include "Modules/m1GUI.h"
+#include "Panels/p1Inspector.h"
 
 #include "Tools/System/Logger.h"
 
@@ -33,8 +35,10 @@ void p1Objects::TreeNode(Object* obj)
 
 	bool tree = ImGui::TreeNodeEx(obj->GetName(), flags);
 	ImGui::PushID(obj);
-	if (ImGui::IsItemClicked() && App->objects->selected != obj)
+	if (ImGui::IsItemClicked() && App->objects->selected != obj) {
 		App->objects->selected = obj;
+		App->gui->inspector->SetSelected(obj, p1Inspector::SelectedType::OBJECT);
+	}
 
 	if (tree) {
 		for (auto i = obj->children.begin(); i != obj->children.end(); ++i) {

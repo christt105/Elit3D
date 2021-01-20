@@ -39,7 +39,7 @@ UpdateStatus m1Objects::Update()
 		auto shader = App->render->GetShader("default");
 		shader->Use();
 
-		layer_root_selected->Update();
+		//layer_root_selected->Update();
 
 		shader->SetMat4("model", float4x4::identity);
 

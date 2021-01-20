@@ -18,13 +18,19 @@ c1Transform::~c1Transform()
 void c1Transform::OnInspector()
 {
 	if (ImGui::CollapsingHeader("Transform")) {
-		float3 pos, euler, scale;
-		Quat rot;
-		mat.Decompose(pos, rot, scale);
-		euler = rot.ToEulerXYZ();
-		ImGui::DragFloat3("Position", pos.ptr());
-		ImGui::DragFloat3("Rotation", euler.ptr());
-		ImGui::DragFloat3("Scale", scale.ptr());
+		bool changed = false;
+		if (ImGui::DragFloat3("Position", position.ptr()))
+			changed = true;
+		float3 euler = rotation.ToEulerXYZ();
+		if (ImGui::DragFloat3("Rotation", euler.ptr())) {
+			changed = true;
+			rotation = Quat::FromEulerXYZ(euler.x, euler.y, euler.z);
+		}
+		if(ImGui::DragFloat3("Scale", scale.ptr()))
+			changed = true;
+
+		if (changed)
+			CalculateGlobalMatrix();
 	}
 }
 

@@ -24,8 +24,11 @@ void p1Inspector::Update()
 		switch (type)
 		{
 		case p1Inspector::SelectedType::OBJECT: {
-			const Object* sel = App->objects->GetSelected();
+			Object* sel = (Object*)selected;
 			if (sel != nullptr) {
+				ImGui::Checkbox("##active_object", &sel->active);
+				ImGui::SameLine();
+				ImGui::Text(sel->name.c_str());
 				for (auto i = sel->components.begin(); i != sel->components.end(); ++i) {
 					(*i)->OnInspector();
 				}

@@ -25,6 +25,9 @@ Object::~Object()
 
 void Object::Update()
 {
+	if (!active)
+		return;
+
 	for (auto i = components.begin(); i != components.end(); ++i) {
 		(*i)->Update();
 	}

@@ -39,6 +39,19 @@ void r1Model::Load()
 		return;
 	}
 
+	if (scene->mMetaData != nullptr) {
+		LoadMetaData(scene->mMetaData);
+	}
+
+	double factor(0.0);
+	bool result = scene->mMetaData->Get("UnitScaleFactor", factor);
+	if (result == false) {
+		LOG("Failed to retrieve  unit scale factor!");
+	}
+	else {
+		LOG("Scale is %lf", factor);
+	}
+
 	//Load meshes
 	for (int im = 0; im < scene->mNumMeshes; ++im) {
 		aiMesh* m = scene->mMeshes[im];
@@ -92,38 +105,7 @@ void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
 
 	if (node->mMetaData != nullptr) {
 		LOG("Metadata of node %s", node->mName.C_Str());
-		for (unsigned int i = 0u; i < node->mMetaData->mNumProperties; ++i) {
-			auto key = node->mMetaData->mKeys[i];
-			auto val = node->mMetaData->mValues[i];
-			switch (val.mType)
-			{
-			case AI_BOOL:
-				LOG("Metadata with index %i type: bool key: %s | value: %i", i, key.C_Str(), *(bool*)val.mData);
-				break;
-			case AI_INT32:
-				LOG("Metadata with index %i type: int32_t key: %s | value: %i", i, key.C_Str(), *(int32_t*)val.mData);
-				break;
-			case AI_UINT64:
-				LOG("Metadata with index %i type: uint64_t key: %s | value: %" SDL_PRIu64, i, key.C_Str(), *(uint64_t*)val.mData);
-				break;
-			case AI_FLOAT:
-				LOG("Metadata with index %i type: float key: %s | value: %f", i, key.C_Str(), *(float*)val.mData);
-				break;
-			case AI_DOUBLE:
-				LOG("Metadata with index %i type: double key: %s | value: %d", i, key.C_Str(), *(double*)val.mData);
-				break;
-			case AI_AISTRING:
-				LOG("Metadata with index %i type: aiString key: %s | value: %s", i, key.C_Str(), (*(aiString*)val.mData).C_Str());
-				break;
-			case AI_AIVECTOR3D: {
-				aiVector3D value = *(aiVector3D*)val.mData;
-				LOG("Metadata with index %i type: aiVector3D key: %s | value: (%f, %f, %f)", i, key.C_Str(), value.x, value.y, value.z);
-			}	break;
-			default:
-				LOG("Metadata with index %i type not handled in the switch | Type: %i", i, val.mType);
-				break;
-			}
-		}
+		LoadMetaData(node->mMetaData);
 	}
 
 	if (node->mNumMeshes == 1) {
@@ -140,6 +122,42 @@ void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
 		LoadNode(node->mChildren[i], scene, child);
 		child->parent = n;
 		n->children.push_back(child);
+	}
+}
+
+void r1Model::LoadMetaData(aiMetadata* meta)
+{
+	for (unsigned int i = 0u; i < meta->mNumProperties; ++i) {
+		auto key = meta->mKeys[i];
+		auto val = meta->mValues[i];
+		switch (val.mType)
+		{
+		case AI_BOOL:
+			LOG("Metadata with index %i type: bool key: %s | value: %i", i, key.C_Str(), *(bool*)val.mData);
+			break;
+		case AI_INT32:
+			LOG("Metadata with index %i type: int32_t key: %s | value: %i", i, key.C_Str(), *(int32_t*)val.mData);
+			break;
+		case AI_UINT64:
+			LOG("Metadata with index %i type: uint64_t key: %s | value: %" SDL_PRIu64, i, key.C_Str(), *(uint64_t*)val.mData);
+			break;
+		case AI_FLOAT:
+			LOG("Metadata with index %i type: float key: %s | value: %f", i, key.C_Str(), *(float*)val.mData);
+			break;
+		case AI_DOUBLE:
+			LOG("Metadata with index %i type: double key: %s | value: %lf", i, key.C_Str(), *(double*)val.mData);
+			break;
+		case AI_AISTRING:
+			LOG("Metadata with index %i type: aiString key: %s | value: %s", i, key.C_Str(), (*(aiString*)val.mData).C_Str());
+			break;
+		case AI_AIVECTOR3D: {
+			aiVector3D value = *(aiVector3D*)val.mData;
+			LOG("Metadata with index %i type: aiVector3D key: %s | value: (%f, %f, %f)", i, key.C_Str(), value.x, value.y, value.z);
+		}	break;
+		default:
+			LOG("Metadata with index %i type not handled in the switch | Type: %i", i, val.mType);
+			break;
+		}
 	}
 }
 

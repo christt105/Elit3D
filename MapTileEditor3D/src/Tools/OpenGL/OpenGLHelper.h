@@ -163,6 +163,8 @@ public:
 	 * Sets Polygon Mode
 	*/
 	static void PolygonMode(bool line);
+
+	static void DepthEnable(bool active);
 	static std::string GetVersion();
 	static std::string GetVendor();
 	static std::string GetModel();

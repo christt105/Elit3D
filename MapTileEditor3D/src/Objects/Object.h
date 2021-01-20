@@ -37,7 +37,7 @@ private:
 	std::vector<Component*> components;
 
 	std::string name = "Object";
-
+	bool active = true;
 };
 
 template<class C>

@@ -119,7 +119,7 @@ void m1Camera3D::CameraMovement()
 		if (App->input->IsKeyPressed(SDL_SCANCODE_R))
 			frustum.Translate(float3::unitY * speed * App->GetDt());
 		if (App->input->IsKeyPressed(SDL_SCANCODE_F))
-			frustum.Translate(float3::unitY * speed * App->GetDt());
+			frustum.Translate(-float3::unitY * speed * App->GetDt());
 	}
 
 	if (App->gui->scene->IsOnHover()) {

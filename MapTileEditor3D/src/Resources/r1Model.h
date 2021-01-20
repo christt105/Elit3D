@@ -11,6 +11,7 @@ struct aiNode;
 struct aiScene;
 class Object;
 class r1Mesh;
+struct aiMetadata;
 
 class r1Model :
 	public Resource
@@ -36,6 +37,8 @@ public:
 
 	void Load() override;
 	void LoadNode(aiNode* root, const aiScene* scene, Node* parent);
+
+	void LoadMetaData(aiMetadata* meta);
 
 	void CreateObject(Object* root);
 
