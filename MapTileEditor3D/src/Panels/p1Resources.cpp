@@ -201,7 +201,7 @@ void p1Project::Update()
 					if (ext == "fbx") { //TODO ugly place to put that code here
 						auto model = (r1Model*)App->resources->Get(App->resources->FindByPath((selected->full_path + "/" + (*i).first).c_str()));
 						model->Attach();
-						auto map = App->map_editor->GetObjectLayer(true);
+						auto map = App->map_editor->GetObjectLayer(true, true);
 						model->CreateObject(map->root);
 					}
 					else if (ext == "scene") {

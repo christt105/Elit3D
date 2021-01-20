@@ -50,7 +50,7 @@ public:
     r1Map* GetMap() const;
     bool GetLayers(std::vector<Layer*>* &vec) const;
 
-    Layer* GetObjectLayer(bool create_if_no_exist);
+    Layer* GetObjectLayer(bool create_if_no_exist, bool select);
 
     void ExportMap(MapTypeExport t, Layer::DataTypeExport d) const;
 

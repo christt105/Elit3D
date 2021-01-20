@@ -340,22 +340,30 @@ bool m1MapEditor::GetLayers(std::vector<Layer*>* &vec) const
 	return true;
 }
 
-Layer* m1MapEditor::GetObjectLayer(bool create_if_no_exist)
+Layer* m1MapEditor::GetObjectLayer(bool create_if_no_exist, bool select)
 {
 	auto m = GetMap();
 	if(m == nullptr)
 		return nullptr;
 
-	if (m->layers[panel_layers->GetSelected()]->type == Layer::Type::OBJECT)
-		return m->layers[panel_layers->GetSelected()];
+	int sel = panel_layers->GetSelected();
+	if (sel != -1)
+		if (m->layers[sel]->type == Layer::Type::OBJECT)
+			return m->layers[sel];
 
-	for (auto i = m->layers.begin(); i != m->layers.end(); ++i) {
-		if ((*i)->type == Layer::Type::OBJECT)
-			return *i;
+	for (int i = 0; i < m->layers.size(); ++i) {
+		if (m->layers[i]->type == Layer::Type::OBJECT) {
+			if (select)
+				panel_layers->SetSelected(i);
+			return m->layers[i];
+		}
 	}
 
 	if (create_if_no_exist) {
-		return AddLayer(Layer::Type::OBJECT);
+		auto l = AddLayer(Layer::Type::OBJECT);
+		if (select)
+			panel_layers->SetSelected(m->layers.size()-1);
+		return l;
 	}
 
 	return nullptr;

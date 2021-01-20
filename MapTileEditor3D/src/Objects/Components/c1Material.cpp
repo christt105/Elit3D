@@ -35,7 +35,7 @@ void c1Material::UnBindTex()
 void c1Material::OnInspector()
 {
 	static bool choose_texture = false;
-	if (ImGui::CollapsingHeader("Material")) {
+	if (ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen)) {
 		if (tex != 0u) {
 			auto t = (r1Texture*)App->resources->Get(tex);
 			if (t != nullptr) {

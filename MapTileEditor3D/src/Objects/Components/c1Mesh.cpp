@@ -59,7 +59,7 @@ void c1Mesh::SetEMesh(m1Resources::EResourceType res)
 
 void c1Mesh::OnInspector()
 {
-	if (ImGui::CollapsingHeader("Mesh")) {
+	if (ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen)) {
 		if (mesh != 0U) {
 			const r1Mesh* rmesh = (r1Mesh*)App->resources->Get(mesh);
 			ImGui::Text("Mesh: "); ImGui::SameLine();
