@@ -10,6 +10,7 @@
 
 class oglh
 {
+	friend class Viewport;
 public:
 	enum Filter {
 		Nearest,

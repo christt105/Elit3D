@@ -70,6 +70,7 @@ void r1Model::Load()
 		nlohmann::json jmesh = meta["meshes"][im];
 
 		auto mesh = App->resources->CreateResource<r1Mesh>("", jmesh.value("uid", 0ULL), false);
+		mesh->from_model = uid;
 
 		oglh::GenVAO(mesh->VAO);
 		

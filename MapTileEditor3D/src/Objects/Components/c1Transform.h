@@ -28,7 +28,8 @@ public:
 
 	void CalculateGlobalMatrix();
 
-	nlohmann::json Parse() override;
+	nlohmann::json	Parse() override;
+	void			Unparse(const nlohmann::json& node) override;
 
 private:
 	float4x4 mat = float4x4::identity;

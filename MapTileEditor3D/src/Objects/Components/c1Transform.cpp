@@ -22,9 +22,10 @@ void c1Transform::OnInspector()
 		if (ImGui::DragFloat3("Position", position.ptr()))
 			changed = true;
 		float3 euler = rotation.ToEulerXYZ();
+		euler = { RadToDeg(euler.x), RadToDeg(euler.y),RadToDeg(euler.z) };
 		if (ImGui::DragFloat3("Rotation", euler.ptr())) {
 			changed = true;
-			rotation = Quat::FromEulerXYZ(euler.x, euler.y, euler.z);
+			rotation = Quat::FromEulerXYZ(DegToRad(euler.x), DegToRad(euler.y), DegToRad(euler.z));
 		}
 		if(ImGui::DragFloat3("Scale", scale.ptr()))
 			changed = true;
@@ -123,4 +124,13 @@ nlohmann::json c1Transform::Parse()
 	ret["scale"]["z"] = scale.z;
 
 	return ret;
+}
+
+void c1Transform::Unparse(const nlohmann::json& node)
+{
+	position = { node["position"].value("x", 0.f),node["position"].value("y", 0.f), node["position"].value("z", 0.f) };
+	rotation = Quat(node["rotation"].value("x", 0.f), node["rotation"].value("y", 0.f), node["rotation"].value("z", 0.f), node["rotation"].value("w", 0.f));
+	scale = { node["scale"].value("x", 0.f),node["scale"].value("y", 0.f), node["scale"].value("z", 0.f) };
+
+	CalculateGlobalMatrix();
 }

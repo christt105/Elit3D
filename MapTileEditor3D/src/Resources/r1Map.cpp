@@ -304,6 +304,7 @@ void r1Map::LoadLayers(nlohmann::json& file)
 			break;
 		}
 		case Layer::Type::OBJECT:
+			layer->root->Unparse((*l)["root"]);
 			break;
 		default:
 			break;

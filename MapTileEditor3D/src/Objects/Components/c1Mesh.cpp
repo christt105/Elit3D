@@ -19,8 +19,11 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-c1Mesh::c1Mesh(Object* obj) : Component(obj, Type::Mesh), material(obj->CreateComponent<c1Material>())
+c1Mesh::c1Mesh(Object* obj) : Component(obj, Type::Mesh)
 {
+	material = obj->GetComponent<c1Material>();
+	if (material == nullptr)
+		material = obj->CreateComponent<c1Material>();
 }
 
 c1Mesh::~c1Mesh()
@@ -72,4 +75,21 @@ void c1Mesh::OnInspector()
 			ImGui::TextColored(ImVec4(1.f, 0.6f, 0.f, 1.f), "%u", rmesh->references);
 		}
 	}
+}
+
+nlohmann::json c1Mesh::Parse()
+{
+	nlohmann::json ret = Component::Parse();
+
+	if (!is_engine_mesh) {
+		auto m = (r1Mesh*)App->resources->Get(mesh);
+		ret["from_model"] = m->from_model;
+		ret["uid"] = mesh;
+	}
+
+	return ret;
+}
+
+void c1Mesh::Unparse(const nlohmann::json& node)
+{
 }

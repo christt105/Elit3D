@@ -95,9 +95,9 @@ UpdateStatus m1MapEditor::Update()
 			shader->SetInt("tilemap", 1);
 			panel_tileset->SetColumnUniform(shader);
 
-			for (auto layer : m->layers) {
-				if (layer->visible) {
-					layer->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
+			for (auto layer = m->layers.begin(); layer != m->layers.end(); ++layer) {
+				if ((*layer)->visible) {
+					(*layer)->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
 				}
 			}
 

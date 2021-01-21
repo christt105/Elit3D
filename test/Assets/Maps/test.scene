@@ -96,6 +96,7 @@
                                 "children": [
                                     {
                                         "active": true,
+                                        "children": [],
                                         "components": [
                                             {
                                                 "position": {
@@ -120,7 +121,9 @@
                                                 "type": 2
                                             },
                                             {
-                                                "type": 0
+                                                "from_model": 3506365957302941346,
+                                                "type": 0,
+                                                "uid": 10877711223625881038
                                             }
                                         ],
                                         "name": "Body"
@@ -130,6 +133,7 @@
                                         "children": [
                                             {
                                                 "active": true,
+                                                "children": [],
                                                 "components": [
                                                     {
                                                         "position": {
@@ -154,13 +158,16 @@
                                                         "type": 2
                                                     },
                                                     {
-                                                        "type": 0
+                                                        "from_model": 3506365957302941346,
+                                                        "type": 0,
+                                                        "uid": 14713462212010629176
                                                     }
                                                 ],
                                                 "name": "Border"
                                             },
                                             {
                                                 "active": true,
+                                                "children": [],
                                                 "components": [
                                                     {
                                                         "position": {
@@ -185,13 +192,16 @@
                                                         "type": 2
                                                     },
                                                     {
-                                                        "type": 0
+                                                        "from_model": 3506365957302941346,
+                                                        "type": 0,
+                                                        "uid": 2133057547635310988
                                                     }
                                                 ],
                                                 "name": "Back Cube"
                                             },
                                             {
                                                 "active": true,
+                                                "children": [],
                                                 "components": [
                                                     {
                                                         "position": {
@@ -216,7 +226,9 @@
                                                         "type": 2
                                                     },
                                                     {
-                                                        "type": 0
+                                                        "from_model": 3506365957302941346,
+                                                        "type": 0,
+                                                        "uid": 3796417831189238724
                                                     }
                                                 ],
                                                 "name": "Front Cube"
@@ -246,7 +258,9 @@
                                                 "type": 2
                                             },
                                             {
-                                                "type": 0
+                                                "from_model": 3506365957302941346,
+                                                "type": 0,
+                                                "uid": 6734413382454249707
                                             }
                                         ],
                                         "name": "Helmet"
@@ -276,13 +290,16 @@
                                         "type": 2
                                     },
                                     {
-                                        "type": 0
+                                        "from_model": 3506365957302941346,
+                                        "type": 0,
+                                        "uid": 16318779928848506838
                                     }
                                 ],
                                 "name": "Suzanne"
                             },
                             {
                                 "active": true,
+                                "children": [],
                                 "components": [
                                     {
                                         "position": {
@@ -307,7 +324,9 @@
                                         "type": 2
                                     },
                                     {
-                                        "type": 0
+                                        "from_model": 3506365957302941346,
+                                        "type": 0,
+                                        "uid": 6555973775725041567
                                     }
                                 ],
                                 "name": "Icosphere"

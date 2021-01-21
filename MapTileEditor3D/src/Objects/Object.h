@@ -26,8 +26,10 @@ public:
 
 	template<class C>
 	C* CreateComponent();
+	Component* CreateComponent(Component::Type t);
 	template<class C>
 	C* GetComponent();
+	Component* GetComponent(Component::Type t);
 
 	c1Transform* transform = nullptr;
 
@@ -35,7 +37,8 @@ public:
 
 	Object* parent = nullptr;
 
-	nlohmann::json Parse();
+	nlohmann::json	Parse();
+	void			Unparse(const nlohmann::json& node);
 
 private:
 	std::vector<Component*> components;

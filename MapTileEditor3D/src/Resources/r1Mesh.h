@@ -28,5 +28,7 @@ public:
 	Buffer<float> normals;
 	Buffer<unsigned int> indices;
 	Buffer<float> texture;
+
+	uint64_t from_model = 0ULL;
 };
 
