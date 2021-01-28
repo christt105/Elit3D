@@ -1,4 +1,4 @@
-# MapTileEditor-3D
+# TileMapEditor3D
 
 [![GitHub license](https://img.shields.io/github/license/christt105/TileMapEditor3D)](https://github.com/christt105/TileMapEditor3D/blob/master/LICENSE)
 
@@ -10,6 +10,16 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/christt105/TileMapEditor3D)
 
 Tile Map Editor 3D is a tile-based map editor in 3D. Composed of several layers of tiles and 3D objects, it allows you to export the maps in different formats.
+
+## Getting Started
+
+Tile Map Editor 3D is only tested on Visual Studio 2019 on Windows but the plan is to be compatible with Linux and Mac (minimum Linux) in a future.
+
+### Installation
+
+- Clone the repository `git clone https://github.com/christt105/TileMapEditor3D`
+- Execute the script `premake5.lua` with `premake/premake5.exe`
+  - For Windows - Visual Studio 2019 just execute the `scripts/generate_project.bat` file
 
 ## Main Goal
 
