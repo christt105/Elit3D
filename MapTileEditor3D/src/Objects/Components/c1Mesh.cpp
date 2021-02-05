@@ -8,6 +8,7 @@
 #include "Objects/Components/c1Material.h"
 #include "Objects/Components/c1Transform.h"
 
+#include "Resources/r1Model.h"
 #include "Resources/r1Mesh.h"
 #include "Resources/r1Shader.h"
 
@@ -92,4 +93,8 @@ nlohmann::json c1Mesh::Parse()
 
 void c1Mesh::Unparse(const nlohmann::json& node)
 {
+	auto model = (r1Model*)App->resources->Get(node.value("from_model", 0ULL));
+	if (model != nullptr)
+		model->Attach();
+	SetMesh(node.value("uid", 0ULL));
 }
