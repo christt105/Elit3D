@@ -35,11 +35,15 @@ void c1Mesh::Update()
 {
 	const r1Mesh* rmesh = ((is_engine_mesh) ? emesh : (r1Mesh*)App->resources->Get(mesh));
 	if (rmesh != nullptr) {
+		material->shader->Use();
+
+		oglh::ActiveTexture(0);
+
 		oglh::BindBuffers(rmesh->VAO, rmesh->vertices.id, rmesh->indices.id);
 
 		material->shader->SetMat4("model", object->transform->GetGlobalMatrix());
 
-		material->BindTex();
+		material->shader->SetBool("useTexture", material->BindTex());
 		oglh::DrawElements(rmesh->indices.size);
 		material->UnBindTex();
 	}
@@ -93,8 +97,7 @@ nlohmann::json c1Mesh::Parse()
 
 void c1Mesh::Unparse(const nlohmann::json& node)
 {
-	auto model = (r1Model*)App->resources->Get(node.value("from_model", 0ULL));
-	if (model != nullptr)
+	if (auto model = (r1Model*)App->resources->Get(node.value("from_model", 0ULL)))
 		model->Attach();
 	SetMesh(node.value("uid", 0ULL));
 }

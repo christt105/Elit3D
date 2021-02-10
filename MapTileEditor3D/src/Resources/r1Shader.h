@@ -31,6 +31,8 @@ public:
 
 	void Link(unsigned int vertex, unsigned int fragment);
 
+	std::string GetIdentifier() const;
+
 protected:
 	unsigned int id;
 

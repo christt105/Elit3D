@@ -24,6 +24,7 @@ class r1Model :
 		std::string name;
 
 		uint64_t id_mesh = 0ULL;
+		uint64_t id_tex = 0ULL;
 
 		float4x4 transform = float4x4::identity;
 
@@ -52,6 +53,7 @@ private:
 
 public:
 	std::vector<r1Mesh*> meshes;
+	std::vector<uint64_t> materials;
 	Node* root = nullptr;
 };
 

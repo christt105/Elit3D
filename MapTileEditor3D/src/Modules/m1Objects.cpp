@@ -53,3 +53,9 @@ const Object* m1Objects::GetSelected() const
 {
 	return selected;
 }
+
+void m1Objects::Unselect()
+{
+	selected = nullptr;
+	layer_root_selected = nullptr;
+}

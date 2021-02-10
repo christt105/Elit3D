@@ -30,5 +30,6 @@ public:
 	Buffer<float> texture;
 
 	uint64_t from_model = 0ULL;
+	unsigned int tex_i = 0U;
 };
 

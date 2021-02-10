@@ -153,6 +153,7 @@ void m1MapEditor::LoadMap(const uint64_t& id)
 			FileSystem::SaveJSONFile("prefs/locals.json", locals);
 
 			App->gui->inspector->SetSelected(m, p1Inspector::SelectedType::EDITOR_MAP);
+			App->objects->Unselect();
 		}
 		else {
 			LOGW("map with id %" PRIu64 " could not be loaded, not in resources", id);

@@ -18,6 +18,7 @@ public:
 	UpdateStatus Update() override;
 
 	const Object* GetSelected() const;
+	void Unselect();
 
 private:
 	Object* selected = nullptr;

@@ -134,6 +134,7 @@ void p1Layers::Buttons(std::vector<Layer*>*& layers)
 		App->map_editor->EraseLayer(selected);
 		selected = -1;
 		App->gui->inspector->SetSelected(nullptr, p1Inspector::SelectedType::NONE);
+		App->objects->layer_root_selected = nullptr;
 	}
 	if (disabled) {
 		ImGui::PopItemFlag();

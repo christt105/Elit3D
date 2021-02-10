@@ -8,6 +8,7 @@
 
 #include "Objects/Object.h"
 #include "Objects/Components/c1Mesh.h"
+#include "Objects/Components/c1Material.h"
 #include "Objects/Components/c1Transform.h"
 #include "Resources/r1Mesh.h"
 
@@ -72,6 +73,10 @@ void r1Model::Load()
 		auto mesh = App->resources->CreateResource<r1Mesh>("", jmesh.value("uid", 0ULL), false);
 		mesh->from_model = uid;
 
+		if (m->mMaterialIndex >= 0) {
+			mesh->tex_i = m->mMaterialIndex;
+		}
+
 		oglh::GenVAO(mesh->VAO);
 		
 		mesh->vertices.size = m->mNumVertices;
@@ -111,7 +116,46 @@ void r1Model::Load()
 
 		oglh::GenElementBuffer(mesh->indices.id, mesh->indices.size, mesh->indices.data);
 
+		if (m->HasTextureCoords(0)) {
+			mesh->texture.size = m->mNumVertices;
+			mesh->texture.data = new float[mesh->texture.size * 2];
+			memset(mesh->texture.data, 0.f, sizeof(float) * mesh->texture.size * 2);
+
+			for (int n = 0; n < m->mNumVertices; ++n) {
+				mesh->texture.data[n * 2] = m->mTextureCoords[0][n].x;
+				mesh->texture.data[n * 2 + 1] = m->mTextureCoords[0][n].y;
+			}
+
+			oglh::GenArrayBuffer(mesh->texture.id, mesh->texture.size, sizeof(float), 2, mesh->texture.data, 1, 2);
+		}
+
 		meshes.push_back(mesh);
+	}
+
+	for (int it = 0; it < scene->mNumMaterials; ++it) {
+		aiMaterial* mat = scene->mMaterials[it];
+
+		//for (int t = 0; t < (int)aiTextureType_UNKNOWN; ++t) {
+			//int ntex = mat->GetTextureCount((aiTextureType)t);
+		unsigned int ntex = mat->GetTextureCount((aiTextureType::aiTextureType_DIFFUSE));
+		for (unsigned int i = 0; i < ntex; ++i) {
+			aiString p;
+			if (mat->GetTexture(aiTextureType::aiTextureType_DIFFUSE, i, &p) != aiReturn::aiReturn_FAILURE) {
+				LOG("path of texture: %s", p.C_Str());
+				uint64_t t_uid = 0ULL;
+				if (FileSystem::Exists(p.C_Str())) {
+					t_uid = App->resources->FindByPath(p.C_Str());
+				}
+				else {
+					t_uid = App->resources->FindByName(FileSystem::GetNameFile(p.C_Str()).c_str());
+				}
+				materials.push_back(t_uid);
+			}
+			else {
+				LOGE("Error get texture from assimp");
+			}
+		}
+		//}
 	}
 
 	root = new Node();
@@ -140,10 +184,13 @@ void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
 	if (node->mNumMeshes == 1) {
 		for (unsigned int i = 0u; i < node->mNumMeshes; ++i) {
 			n->id_mesh = meshes[node->mMeshes[i]]->GetUID();
+			int m = scene->mMeshes[node->mMeshes[i]]->mMaterialIndex;
+			if (m >= 0 && m < materials.size())
+				n->id_tex = materials[m];
 		}
 	}
 	else if(node->mNumMeshes > 1) {
-		LOGE("Node with more than 1 mesh");
+		LOGE("TODO: Node with more than 1 mesh");
 	}
 
 	for (unsigned int i = 0u; i < node->mNumChildren; ++i) {
@@ -204,6 +251,25 @@ void r1Model::GenerateFiles()
 		jmesh["index"] = im;
 
 		mprop["meshes"].push_back(jmesh);
+	}
+
+	for (int it = 0; it < scene->mNumMaterials; ++it) {
+		LOGN("Material %s", scene->mMaterials[it]->GetName().C_Str());
+		for (int s = 0; s < scene->mMaterials[it]->GetTextureCount(aiTextureType::aiTextureType_SPECULAR); ++s) {
+		}
+		for (int d = 0; d < scene->mMaterials[it]->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE); ++d) {
+			aiString p;
+			aiReturn r = scene->mMaterials[it]->GetTexture(aiTextureType::aiTextureType_DIFFUSE, d, &p);
+			if (r == aiReturn::aiReturn_FAILURE) {
+				LOGE("GetTexture Failed");
+				continue;
+			}
+			LOG("Texture %s", p.C_Str());
+		}
+	}
+
+	for (int it = 0; it < scene->mNumTextures; ++it) {
+		LOGN("Texture %s", scene->mTextures[it]->mFilename.C_Str());
 	}
 
 	CreateHierarchy(mprop["root"], scene->mRootNode);
@@ -274,9 +340,14 @@ void r1Model::CreateChildren(r1Model::Node* parent, Object* r)
 
 	o->transform->SetLocalMatrix(parent->transform);
 
-	if (parent->id_mesh != -1) {
+	if (parent->id_mesh != 0ULL) {
 		auto mesh = o->CreateComponent<c1Mesh>();
 		mesh->SetMesh(parent->id_mesh);
+
+		if (parent->id_tex != 0ULL) {
+			auto mat = o->GetComponent<c1Material>();
+			mat->SetTexture(parent->id_tex);
+		}
 	}
 
 	for (auto i = parent->children.begin(); i != parent->children.end(); ++i) {
