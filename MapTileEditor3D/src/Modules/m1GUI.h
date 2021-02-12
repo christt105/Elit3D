@@ -30,13 +30,16 @@ public:
 	bool Init(const nlohmann::json& node) override;
 	bool Start() override;
 	UpdateStatus PreUpdate() override;
-	void MainMenuBar();
-	void DockSpace();
 	UpdateStatus Update() override;
 	UpdateStatus PostUpdate() override;
 	bool CleanUp() override;
 
 	void Save(nlohmann::json& node) override;
+
+private:
+	void SetStyle() const;
+	void DockSpace();
+	void MainMenuBar();
 
 public: //TODO private
 	std::vector<Panel*> panels;
