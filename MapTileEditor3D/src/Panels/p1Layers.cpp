@@ -77,6 +77,7 @@ void p1Layers::DisplayLayers(std::vector<Layer*>* layers)
 				App->gui->inspector->SetSelected(*l, p1Inspector::SelectedType::LAYER);
 				if ((*l)->type == Layer::Type::OBJECT)
 					App->objects->layer_root_selected = (*l)->root;
+				else App->objects->layer_root_selected = nullptr;
 			}
 		}
 		ImVec2 s = ImGui::GetItemRectSize();
@@ -189,4 +190,12 @@ int p1Layers::GetSelected() const
 void p1Layers::SetSelected(int i)
 {
 	selected = i;
+	
+	if (std::vector<Layer*>* layers; App->map_editor->GetLayers(layers)) {
+		Layer* layer = (*layers)[i];
+		App->gui->inspector->SetSelected(layer, p1Inspector::SelectedType::LAYER);
+		if (layer->type == Layer::Type::OBJECT) {
+			App->objects->layer_root_selected = layer->root;
+		}
+	}
 }
