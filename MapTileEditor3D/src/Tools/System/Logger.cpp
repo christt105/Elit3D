@@ -15,14 +15,6 @@
 
 ImGuiTextBuffer Logger::txt;
 
-Logger::Logger() 
-{
-}
-
-Logger::~Logger()
-{
-}
-
 void Logger::Log(int i, const char file[], const char func[], int line, const char* format, ...)
 {
 	static char tmp_string[4096];
@@ -69,8 +61,9 @@ void Logger::Log(int i, const char file[], const char func[], int line, const ch
 		}
 
 		App->gui->console->logs.push_back(log);
-		auto iterator_log = App->gui->console->map_logs.find(file + std::to_string(line));
-		if (iterator_log != App->gui->console->map_logs.end()) {
+		
+		if (auto iterator_log = App->gui->console->map_logs.find(file + std::to_string(line)); 
+			iterator_log != App->gui->console->map_logs.end()) {
 			(*iterator_log).second->buffer.append(((*iterator_log).second->last_line + "\n").c_str());
 			(*iterator_log).second->last_line.assign(tmp_string);
 			(*iterator_log).second->references++;
@@ -105,6 +98,6 @@ const char* Logger::GetLog()
 }
 
 LineLog::LineLog(Logger::LogType t, const char* str, const tm* tim)
-	: type(t), last_line(str), identifier(str), moment{tim->tm_hour,tim->tm_min,tim->tm_sec}
+	: type(t), last_line(str), identifier(str), timestamp{tim->tm_hour,tim->tm_min,tim->tm_sec}
 {
 }
