@@ -35,8 +35,8 @@ r1Model::~r1Model()
 void r1Model::Load()
 {
 	Assimp::Importer importer;
-
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+	
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GlobalScale);
 
 	if (scene == nullptr) {
 		LOGW("Model %s with path %s not loaded correctly | Error: %s", name.c_str(), path.c_str(), importer.GetErrorString());
@@ -45,15 +45,6 @@ void r1Model::Load()
 
 	if (scene->mMetaData != nullptr) {
 		LoadMetaData(scene->mMetaData);
-	}
-
-	double factor(0.0);
-	bool result = scene->mMetaData->Get("UnitScaleFactor", factor);
-	if (result == false) {
-		LOG("Failed to retrieve  unit scale factor!");
-	}
-	else {
-		LOG("Scale is %lf", factor);
 	}
 
 	nlohmann::json meta = FileSystem::OpenJSONFile((path + ".meta").c_str());
@@ -134,31 +125,26 @@ void r1Model::Load()
 	}
 
 	for (int it = 0; it < scene->mNumMaterials; ++it) {
-		aiMaterial* mat = scene->mMaterials[it];
+		aiMaterial const * mat = scene->mMaterials[it];
 
-		//for (int t = 0; t < (int)aiTextureType_UNKNOWN; ++t) {
-			//int ntex = mat->GetTextureCount((aiTextureType)t);
-		unsigned int ntex = mat->GetTextureCount((aiTextureType::aiTextureType_DIFFUSE));
+		unsigned int ntex = mat->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE);
 		for (unsigned int i = 0; i < ntex; ++i) {
 			aiString p;
-			if (mat->GetTexture(aiTextureType::aiTextureType_DIFFUSE, i, &p) != aiReturn::aiReturn_FAILURE) {
-				LOG("path of texture: %s", p.C_Str());
-				uint64_t t_uid = 0ULL;
-				if (FileSystem::Exists(p.C_Str())) {
-					t_uid = App->resources->FindByPath(p.C_Str());
-					if(t_uid == 0ULL)
-						t_uid = App->resources->FindByName(FileSystem::GetNameFile(p.C_Str()).c_str());
-				}
-				else {
+			if (!mat->GetTexture(aiTextureType::aiTextureType_DIFFUSE, i, &p) != aiReturn::aiReturn_FAILURE) {
+				LOGE("Error get texture from assimp");
+				continue;
+			}
+			uint64_t t_uid = 0ULL;
+			if (FileSystem::Exists(p.C_Str())) {
+				t_uid = App->resources->FindByPath(p.C_Str());
+				if (t_uid == 0ULL)
 					t_uid = App->resources->FindByName(FileSystem::GetNameFile(p.C_Str()).c_str());
-				}
-				materials.push_back(t_uid);
 			}
 			else {
-				LOGE("Error get texture from assimp");
+				t_uid = App->resources->FindByName(FileSystem::GetNameFile(p.C_Str()).c_str());
 			}
+			materials.push_back(t_uid);
 		}
-		//}
 	}
 
 	root = new Node();
@@ -180,7 +166,6 @@ void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
 	n->transform = float4x4::FromTRS({ pos.x, pos.y, pos.z }, Quat(rot.x, rot.y, rot.z, rot.w), { scale.x, scale.y, scale.z });
 
 	if (node->mMetaData != nullptr) {
-		LOG("Metadata of node %s", node->mName.C_Str());
 		LoadMetaData(node->mMetaData);
 	}
 
@@ -259,11 +244,11 @@ void r1Model::GenerateFiles()
 	for (int it = 0; it < scene->mNumMaterials; ++it) {
 		LOGN("Material %s", scene->mMaterials[it]->GetName().C_Str());
 		for (int s = 0; s < scene->mMaterials[it]->GetTextureCount(aiTextureType::aiTextureType_SPECULAR); ++s) {
+			//TODO: Load more texture types
 		}
 		for (int d = 0; d < scene->mMaterials[it]->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE); ++d) {
 			aiString p;
-			aiReturn r = scene->mMaterials[it]->GetTexture(aiTextureType::aiTextureType_DIFFUSE, d, &p);
-			if (r == aiReturn::aiReturn_FAILURE) {
+			if (scene->mMaterials[it]->GetTexture(aiTextureType::aiTextureType_DIFFUSE, d, &p) == aiReturn::aiReturn_FAILURE) {
 				LOGE("GetTexture Failed");
 				continue;
 			}
@@ -295,29 +280,29 @@ void r1Model::LoadMetaData(aiMetadata* meta)
 		switch (val.mType)
 		{
 		case AI_BOOL:
-			LOG("Metadata with index %i type: bool key: %s | value: %i", i, key.C_Str(), *(bool*)val.mData);
+			//LOG("Metadata with index %i type: bool key: %s | value: %i", i, key.C_Str(), *(bool*)val.mData);
 			break;
 		case AI_INT32:
-			LOG("Metadata with index %i type: int32_t key: %s | value: %i", i, key.C_Str(), *(int32_t*)val.mData);
+			//LOG("Metadata with index %i type: int32_t key: %s | value: %i", i, key.C_Str(), *(int32_t*)val.mData);
 			break;
 		case AI_UINT64:
-			LOG("Metadata with index %i type: uint64_t key: %s | value: %" SDL_PRIu64, i, key.C_Str(), *(uint64_t*)val.mData);
+			//LOG("Metadata with index %i type: uint64_t key: %s | value: %" SDL_PRIu64, i, key.C_Str(), *(uint64_t*)val.mData);
 			break;
 		case AI_FLOAT:
-			LOG("Metadata with index %i type: float key: %s | value: %f", i, key.C_Str(), *(float*)val.mData);
+			//LOG("Metadata with index %i type: float key: %s | value: %f", i, key.C_Str(), *(float*)val.mData);
 			break;
 		case AI_DOUBLE:
-			LOG("Metadata with index %i type: double key: %s | value: %lf", i, key.C_Str(), *(double*)val.mData);
+			//LOG("Metadata with index %i type: double key: %s | value: %lf", i, key.C_Str(), *(double*)val.mData);
 			break;
 		case AI_AISTRING:
-			LOG("Metadata with index %i type: aiString key: %s | value: %s", i, key.C_Str(), (*(aiString*)val.mData).C_Str());
+			//LOG("Metadata with index %i type: aiString key: %s | value: %s", i, key.C_Str(), (*(aiString*)val.mData).C_Str());
 			break;
 		case AI_AIVECTOR3D: {
 			aiVector3D value = *(aiVector3D*)val.mData;
-			LOG("Metadata with index %i type: aiVector3D key: %s | value: (%f, %f, %f)", i, key.C_Str(), value.x, value.y, value.z);
+			//LOG("Metadata with index %i type: aiVector3D key: %s | value: (%f, %f, %f)", i, key.C_Str(), value.x, value.y, value.z);
 		}	break;
 		default:
-			LOG("Metadata with index %i type not handled in the switch | Type: %i", i, val.mType);
+			//LOG("Metadata with index %i type not handled in the switch | Type: %i", i, val.mType);
 			break;
 		}
 	}
@@ -332,6 +317,15 @@ void r1Model::CreateObject(Object* r)
 
 	for (auto i = root->children.begin(); i != root->children.end(); ++i)
 		CreateChildren(*i, parent);
+}
+
+void r1Model::OnInspector()
+{
+	Resource::OnInspector();
+
+	ImGui::Separator();
+
+
 }
 
 void r1Model::CreateChildren(r1Model::Node* parent, Object* r)
