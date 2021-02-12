@@ -146,6 +146,8 @@ void r1Model::Load()
 				uint64_t t_uid = 0ULL;
 				if (FileSystem::Exists(p.C_Str())) {
 					t_uid = App->resources->FindByPath(p.C_Str());
+					if(t_uid == 0ULL)
+						t_uid = App->resources->FindByName(FileSystem::GetNameFile(p.C_Str()).c_str());
 				}
 				else {
 					t_uid = App->resources->FindByName(FileSystem::GetNameFile(p.C_Str()).c_str());
