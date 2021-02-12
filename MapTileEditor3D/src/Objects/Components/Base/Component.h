@@ -1,9 +1,12 @@
 #pragma once
 
+#include "ExternalTools/JSON/json.hpp"
+
 class Object;
 
 class Component
 {
+	friend class Object;
 public:
 	enum class Type {
 		NONE = -1,
@@ -22,6 +25,9 @@ public:
 	virtual void Update() {}
 
 	virtual void OnInspector() {}
+
+	virtual nlohmann::json	Parse();
+	virtual void			Unparse(const nlohmann::json& node) {}
 
 public:
 	Object* object = nullptr;

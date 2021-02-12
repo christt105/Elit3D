@@ -11,6 +11,7 @@
 
 class r1Mesh;
 struct TypeVar;
+class Object;
 
 class OpenGLBuffers {
 public:
@@ -30,6 +31,7 @@ class Layer {
     friend class r1Map;
     friend class m1MapEditor;
     friend class p1Layers;
+    friend class p1Resources; //TODO HM
 public:
     enum class DataTypeExport {
         NONE = -1,
@@ -42,7 +44,17 @@ public:
         MAX
     };
 
-    Layer();
+    enum class Type {
+        NONE = -1,
+
+        TILE,
+        OBJECT,
+        TERRAIN,
+
+        MAX
+    };
+
+    Layer(Layer::Type t);
     ~Layer();
 
     float height = 0.f;
@@ -66,10 +78,18 @@ public:
     const char* GetName() const;
     void SetName(const char* n);
 
+    Type GetType() const;
+    void SetType(Type t);
+    static std::string TypeToString(Type t);
+    static Layer::Type StringToType(const std::string& s);
+
+    union {
+        TILE_DATA_TYPE* tile_data = nullptr; //TODO: Research about set id with short or int
+        Object* root;
+    };
 private:
     static OpenGLBuffers tile;
 
-    TILE_DATA_TYPE* tile_data = nullptr; //TODO: Research about set id with short or int
 
     Properties properties;
 
@@ -79,4 +99,6 @@ private:
     bool locked = false;
     float opacity = 1.f;
     int displacement[2] = { 0,0 };
+
+    Type type = Type::TILE;
 };

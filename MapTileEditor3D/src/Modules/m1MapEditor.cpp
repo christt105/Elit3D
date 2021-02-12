@@ -18,6 +18,8 @@
 #include "Resources/r1Map.h"
 #include "Resources/r1Mesh.h"
 
+#include "m1Objects.h"
+
 #include "ExternalTools/MathGeoLib/include/Geometry/Plane.h"
 #include "ExternalTools/MathGeoLib/include/Geometry/Ray.h"
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
@@ -93,9 +95,9 @@ UpdateStatus m1MapEditor::Update()
 			shader->SetInt("tilemap", 1);
 			panel_tileset->SetColumnUniform(shader);
 
-			for (auto layer : m->layers) {
-				if (layer->visible) {
-					layer->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
+			for (auto layer = m->layers.begin(); layer != m->layers.end(); ++layer) {
+				if ((*layer)->visible) {
+					(*layer)->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
 				}
 			}
 
@@ -151,6 +153,7 @@ void m1MapEditor::LoadMap(const uint64_t& id)
 			FileSystem::SaveJSONFile("prefs/locals.json", locals);
 
 			App->gui->inspector->SetSelected(m, p1Inspector::SelectedType::EDITOR_MAP);
+			App->objects->Unselect();
 		}
 		else {
 			LOGW("map with id %" PRIu64 " could not be loaded, not in resources", id);
@@ -290,14 +293,21 @@ void m1MapEditor::ReorderLayers()
 		std::sort(m->layers.begin(), m->layers.end(), Layer::HeightOrder);
 }
 
-void m1MapEditor::AddLayer()
+Layer* m1MapEditor::AddLayer(Layer::Type t)
 {
 	auto m = (r1Map*)App->resources->Get(map);
 	if (m) {
-		Layer* layer = new Layer();
-		layer->Reset(m->size);
+		Layer* layer = new Layer(t);
+		if (t == Layer::Type::TILE) {
+			layer->Reset(m->size);
+		}
+		else {
+			layer->root = App->objects->CreateEmptyObject();
+		}
 		m->layers.push_back(layer);
+		return layer;
 	}
+	return nullptr;
 }
 
 void m1MapEditor::EraseLayer(int index)
@@ -329,6 +339,35 @@ bool m1MapEditor::GetLayers(std::vector<Layer*>* &vec) const
 	vec = &m->layers;
 
 	return true;
+}
+
+Layer* m1MapEditor::GetObjectLayer(bool create_if_no_exist, bool select)
+{
+	auto m = GetMap();
+	if(m == nullptr)
+		return nullptr;
+
+	int sel = panel_layers->GetSelected();
+	if (sel != -1)
+		if (m->layers[sel]->type == Layer::Type::OBJECT)
+			return m->layers[sel];
+
+	for (int i = 0; i < m->layers.size(); ++i) {
+		if (m->layers[i]->type == Layer::Type::OBJECT) {
+			if (select)
+				panel_layers->SetSelected(i);
+			return m->layers[i];
+		}
+	}
+
+	if (create_if_no_exist) {
+		auto l = AddLayer(Layer::Type::OBJECT);
+		if (select)
+			panel_layers->SetSelected(m->layers.size()-1);
+		return l;
+	}
+
+	return nullptr;
 }
 
 void m1MapEditor::ExportMap(MapTypeExport t, Layer::DataTypeExport d) const

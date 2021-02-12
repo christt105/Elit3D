@@ -22,6 +22,8 @@ public:
 
 	void OnInspector() override;
 
+	nlohmann::json	Parse() override;
+	void			Unparse(const nlohmann::json& node) override;
 private:
 	union {
 		Uint64 mesh = 0ULL;

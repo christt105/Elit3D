@@ -147,6 +147,11 @@ void r1Shader::Link(unsigned int vertex, unsigned int fragment)
     CheckCompileErrors(id, Type::PROGRAM);
 }
 
+std::string r1Shader::GetIdentifier() const
+{
+    return identifier;
+}
+
 void r1Shader::SetName(const char* nname)
 {
     identifier.assign(nname);

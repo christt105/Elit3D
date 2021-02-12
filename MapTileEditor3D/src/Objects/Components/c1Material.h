@@ -12,7 +12,7 @@ public:
 	c1Material(Object* obj);
 	~c1Material();
 
-	void BindTex();
+	bool BindTex();
 
 	void UnBindTex();
 
@@ -21,6 +21,9 @@ public:
 	void SetTexture(const uint64_t& id);
 	void SetTexture(const r1Texture* tex);
 	void SetTexture(const char* name_tex);
+
+	nlohmann::json	Parse() override;
+	void			Unparse(const nlohmann::json& node);
 
 private:
 	void ChooseTextureWindow(bool& choose_texture);

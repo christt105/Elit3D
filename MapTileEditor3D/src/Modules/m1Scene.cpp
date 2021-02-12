@@ -48,11 +48,13 @@ UpdateStatus m1Scene::Update()
 	PROFILE_FUNCTION();
 
 	App->render->GetViewport("scene")->Begin();
-
+	
 	if (draw_grid) {
 		static auto shader1 = App->render->GetShader("grid");
 		shader1->Use();
+		oglh::DepthEnable(true);
 		oglh::DrawArrays(6);
+		oglh::DepthEnable(false);
 	}
 
 	static auto shader = App->render->GetShader("default");

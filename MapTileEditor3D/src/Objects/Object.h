@@ -4,14 +4,16 @@
 #include <string>
 #include <typeinfo>
 #include "Objects/Components/Base/Component.h"
+#include "ExternalTools/JSON/json.hpp"
 
 class c1Transform;
 
 class Object
 {
+	friend class m1Objects;
 	friend class p1Inspector;
-public:
-	Object(Object* parent = nullptr);
+private:
+	Object(Object* parent = nullptr, const char* name = "Object");
 	~Object();
 
 public:
@@ -25,18 +27,25 @@ public:
 
 	template<class C>
 	C* CreateComponent();
+	Component* CreateComponent(Component::Type t);
 	template<class C>
 	C* GetComponent();
+	Component* GetComponent(Component::Type t);
 
 	c1Transform* transform = nullptr;
 
 	std::vector<Object*> children;
+
+	Object* parent = nullptr;
+
+	nlohmann::json	Parse();
+	void			Unparse(const nlohmann::json& node);
+
 private:
 	std::vector<Component*> components;
 
 	std::string name = "Object";
-
-	Object* parent = nullptr;
+	bool active = true;
 };
 
 template<class C>

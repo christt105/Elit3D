@@ -12,8 +12,8 @@ Viewport::Viewport()
 	glGenTextures(1, &ID[TEXTURE_MS]);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, ID[TEXTURE_MS]);
 	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, smaa, GL_RGB, 1, 1, GL_TRUE);
-	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
 	// attach it to currently bound framebuffer object
@@ -47,6 +47,8 @@ Viewport::Viewport()
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, ID[RBO]);
+
+	HANDLE_ERROR();
 }
 
 Viewport::~Viewport()

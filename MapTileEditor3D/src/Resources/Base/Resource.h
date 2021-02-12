@@ -31,13 +31,15 @@ public:
 	void Detach();
 
 	virtual void OnInspector() {} //TODO: 
+	virtual void GenerateFiles() {}
+	virtual void UpdateFiles() {}
 
 	Resource::Type GetType() const;
 	std::string GetStrType() const;
 	
 public:
 	std::string name;
-	std::string path; //e.g. "./Assets/Models/test/cat.png"
+	std::string path;
 	std::string extension;
 
 protected:

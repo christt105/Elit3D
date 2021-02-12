@@ -22,7 +22,7 @@ r1Mesh::~r1Mesh()
 
 void r1Mesh::Load()
 {
-	auto file = FileSystem::OpenJSONFile(path.c_str());
+	/*auto file = FileSystem::OpenJSONFile(path.c_str());
 
 	vertices.size = file["nVertex"];
 	vertices.data = new float[vertices.size * 3];
@@ -42,7 +42,7 @@ void r1Mesh::Load()
 		texture.data[i] = file["Tex"][i];
 	}
 
-	GenerateBuffers();
+	GenerateBuffers();*/
 }
 
 void r1Mesh::Unload()
@@ -54,6 +54,10 @@ void r1Mesh::Unload()
 	if (texture.data != nullptr) {
 		oglh::DeleteBuffer(texture.id);
 		delete[] texture.data;
+	}
+	if (normals.data != nullptr) {
+		oglh::DeleteBuffer(normals.id);
+		delete[] normals.data;
 	}
 }
 

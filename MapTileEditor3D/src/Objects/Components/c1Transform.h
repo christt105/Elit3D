@@ -13,8 +13,9 @@ public:
 	void OnInspector() override;
 
 public:
-	void SetMatrix(const float4x4& m);
-	float4x4 GetMatrix() const;
+	void SetLocalMatrix(const float4x4& m);
+	const float4x4& GetLocalMatrix() const;
+	const float4x4& GetGlobalMatrix() const;
 
 	void SetPosition(const float3& pos);
 	void SetPosition(float x, float y, float z);
@@ -25,8 +26,14 @@ public:
 	void SetScale(const float3& scl);
 	void SetScale(float x, float y, float z);
 
+	void CalculateGlobalMatrix();
+
+	nlohmann::json	Parse() override;
+	void			Unparse(const nlohmann::json& node) override;
+
 private:
 	float4x4 mat = float4x4::identity;
+	float4x4 gmat = float4x4::identity;
 
 	float3 position = float3::zero;
 	Quat rotation = Quat::identity;
