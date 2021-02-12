@@ -10,9 +10,10 @@ class c1Transform;
 
 class Object
 {
+	friend class m1Objects;
 	friend class p1Inspector;
-public:
-	Object(Object* parent = nullptr);
+private:
+	Object(Object* parent = nullptr, const char* name = "Object");
 	~Object();
 
 public:

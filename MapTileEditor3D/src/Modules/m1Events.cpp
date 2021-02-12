@@ -92,6 +92,10 @@ UpdateStatus m1Events::PreUpdate()
 			LOG("Folder %s removed", ((sTypeVar*)e->info["basic_info"])->value.c_str());
 			break;
 
+		case Event::Type::DELETE_OBJ:
+			delete (Object*)e->info["basic_info"]->iGetValue();
+			break;
+
 		case Event::Type::RESIZE_MAP:
 			App->map_editor->ResizeMap(((iTypeVar*)e->info["width"])->value, ((iTypeVar*)e->info["height"])->value);
 			break;

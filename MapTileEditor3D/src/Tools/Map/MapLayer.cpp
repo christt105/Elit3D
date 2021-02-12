@@ -4,6 +4,8 @@
 #include "Modules/m1Render3D.h"
 #include "Resources/r1Shader.h"
 
+#include "Modules/m1Objects.h"
+
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
@@ -35,8 +37,7 @@ Layer::Layer(Layer::Type t) : type(t)
 	case Layer::Type::TILE:
 		break;
 	case Layer::Type::OBJECT:
-		root = new Object();
-		root->SetName("root");
+		root = App->objects->CreateEmptyObject(nullptr, "root");
 		break;
 	case Layer::Type::TERRAIN:
 		break;
@@ -56,7 +57,7 @@ Layer::~Layer()
 		}
 		break;
 	case Layer::Type::OBJECT:
-		delete root;
+		App->objects->DeleteObject(root);
 		break;
 	case Layer::Type::TERRAIN:
 		break;

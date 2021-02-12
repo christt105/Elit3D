@@ -6,6 +6,7 @@
 
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
+#include "Modules/m1Objects.h"
 #include "Objects/Object.h"
 #include "Objects/Components/c1Mesh.h"
 #include "Objects/Components/c1Material.h"
@@ -325,8 +326,7 @@ void r1Model::CreateObject(Object* r)
 	if (r == nullptr)
 		return;
 
-	Object* parent = new Object(r);
-	parent->SetName(name.c_str());
+	Object* parent = App->objects->CreateEmptyObject(r, name.c_str());
 
 	for (auto i = root->children.begin(); i != root->children.end(); ++i)
 		CreateChildren(*i, parent);
@@ -334,7 +334,7 @@ void r1Model::CreateObject(Object* r)
 
 void r1Model::CreateChildren(r1Model::Node* parent, Object* r)
 {
-	Object* o = new Object(r);
+	Object* o = App->objects->CreateEmptyObject(r);
 
 	o->SetName(parent->name.c_str());
 

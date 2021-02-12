@@ -29,6 +29,8 @@ public:
             LOAD_CONFIGURATION,
             LOAD_DEFAULT_CONFIGURATION,
 
+            DELETE_OBJ,
+
             RESIZE_MAP,
             REORDER_LAYERS,
 

@@ -11,7 +11,7 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-Object::Object(Object* parent) : parent(parent)
+Object::Object(Object* parent, const char* name) : parent(parent), name(name)
 {
 	transform = CreateComponent<c1Transform>();
 

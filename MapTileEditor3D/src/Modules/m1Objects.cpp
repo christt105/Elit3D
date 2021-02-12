@@ -19,9 +19,17 @@ m1Objects::~m1Objects()
 {
 }
 
-Object* m1Objects::CreateEmptyObject()
+Object* m1Objects::CreateEmptyObject(Object* parent, const char* name)
 {
-	return new Object();
+	return new Object(parent, name);
+}
+
+void m1Objects::DeleteObject(Object* obj)
+{
+	if (obj->parent != nullptr)
+		obj->parent->children.erase(std::find(obj->parent->children.begin(), obj->parent->children.end(), obj));
+
+	delete obj;
 }
 
 bool m1Objects::Start()

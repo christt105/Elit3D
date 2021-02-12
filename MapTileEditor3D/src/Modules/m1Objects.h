@@ -12,7 +12,8 @@ public:
 	m1Objects(bool start_enabled = true);
 	~m1Objects();
 
-	Object* CreateEmptyObject();
+	Object* CreateEmptyObject(Object* parent = nullptr, const char* name = "Object");
+	void DeleteObject(Object* obj);
 
 	bool Start() override;
 	UpdateStatus Update() override;
