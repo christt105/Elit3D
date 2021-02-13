@@ -59,8 +59,10 @@ void p1Configuration::Update()
 		ImGui::SliderFloat("Zoom Speed", &App->camera->zoom_speed, 1.f, 100.f);
 		ImGui::SliderFloat("Movement Speed", &App->camera->mov_speed, 1.f, 50.f);
 		ImGui::SliderFloat("Turbo Speed", &App->camera->turbo_speed, 1.f, 50.f);
-		if (ImGui::SliderFloat("FOV", &App->camera->FOV, 30.f, 120.f))
+		if (float fov_deg = RadToDeg(App->camera->FOV); ImGui::SliderFloat("FOV", &fov_deg, 30.f, 120.f)) {
+			App->camera->FOV = DegToRad(fov_deg);
 			App->camera->SetFov();
+		}
 	}
 
 	if (ImGui::CollapsingHeader("System Info", ImGuiTreeNodeFlags_DefaultOpen)) {
