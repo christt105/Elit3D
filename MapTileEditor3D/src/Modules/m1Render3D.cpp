@@ -8,6 +8,7 @@
 #include "Resources/r1Shader.h"
 
 #include "Modules/m1Window.h"
+#include "Modules/m1Camera3D.h"
 
 #include "Tools/System/Logger.h"
 #include "Tools/OpenGL/OpenGLHelper.h"
@@ -127,6 +128,7 @@ void m1Render3D::Save(nlohmann::json& node)
 Viewport* m1Render3D::CreateViewport(const char* name)
 {
     Viewport* v = new Viewport();
+    v->camera = App->camera->CreateCamera(name);
     viewports[name] = v;
     return v;
 }

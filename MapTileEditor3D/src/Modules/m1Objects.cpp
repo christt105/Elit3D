@@ -41,18 +41,7 @@ UpdateStatus m1Objects::Update()
 {
 	PROFILE_FUNCTION();
 
-	//if (layer_root_selected != nullptr) {
-	//	App->render->GetViewport("scene")->Begin();
-
-	//	auto shader = App->render->GetShader("default");
-	//	shader->Use();
-
-	//	//layer_root_selected->Update();
-
-	//	shader->SetMat4("model", float4x4::identity);
-
-	//	App->render->GetViewport("scene")->End();
-	//}
+	
 
 	return UpdateStatus::UPDATE_CONTINUE;
 }

@@ -18,8 +18,7 @@ void p1ObjectEditor::Update()
 {
 	{
 		ImGui::BeginChild("childObjectInfo", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, 0.f));
-		for (int i = 0; i < 100; ++i)
-			ImGui::Text("%i", i);
+		ImGui::Text("childObjectInfo");
 
 		ImGui::EndChild();
 	}

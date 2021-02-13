@@ -105,6 +105,7 @@ void Viewport::Update()
 void Viewport::UpdateSize(int x, int y)
 {
 	size = { x, y };
+	camera->UpdateFrustum(x, y);
 	glViewport(0, 0, size.x, size.y);
 }
 

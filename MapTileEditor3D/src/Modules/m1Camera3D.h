@@ -1,7 +1,9 @@
 #pragma once
 #include "Modules/Base/Module.h"
 
-#include "ExternalTools/MathGeoLib/include/Geometry/Frustum.h"
+#include "ExternalTools/MathGeoLib/include/Math/float2.h"
+
+class Camera;
 
 class m1Camera3D :
 	public Module
@@ -12,31 +14,19 @@ public:
 	~m1Camera3D();
 
 	bool Init(const nlohmann::json& node) override;
-	bool Start() override;
 
-	void SetFov(float vertical_angle);
 	void SetFov();
 
 	UpdateStatus PreUpdate() override;
-	UpdateStatus Update() override;
+	bool CleanUp() override;
 
-	void CameraMovement();
-
-	Frustum frustum;
+	Camera* CreateCamera(const char* id);
 
 	void Save(nlohmann::json& node) override;
 	void Load(const nlohmann::json& node) override;
 
 private:
-	float2 lastRight = { -1.f, -1.f };
-	float2 lastMiddle = { -1.f, -1.f };;
-
-	float FOV = 60.f;
-
-	float pan_speed = 0.5f;
-	float orbit_speed = 0.1f;
-	float zoom_speed = 15.f;
-	float mov_speed = 15.f;
-	float turbo_speed = 2.f;
+	std::vector<Camera*> cameras;
+	Camera* scene = nullptr;
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Tools/Math/int2.h"
+#include "Tools/Camera.h"
 
 class Viewport
 {
@@ -41,6 +42,6 @@ private:
 	};
 	unsigned int ID[6];
 
-	//Camera* camera = nullptr;
+	Camera* camera = nullptr;
 };
 
