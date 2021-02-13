@@ -84,6 +84,18 @@ UpdateStatus m1Scene::Update()
 	}
 
 	App->render->GetViewport("scene")->End();
+
+	App->render->GetViewport("object editor")->Begin();
+
+	if (draw_grid) {
+		static auto shader1 = App->render->GetShader("grid");
+		shader1->Use();
+		oglh::DepthEnable(true);
+		oglh::DrawArrays(6);
+		oglh::DepthEnable(false);
+	}
+
+	App->render->GetViewport("object editor")->End();
 	
 	return UpdateStatus::UPDATE_CONTINUE;
 }

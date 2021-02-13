@@ -20,14 +20,11 @@ p1Layers::p1Layers(bool start_active, bool appear_mainmenubar, bool can_close)
 {
 }
 
-p1Layers::~p1Layers()
-{
-}
+p1Layers::~p1Layers() = default;
 
 void p1Layers::Update()
 {
-	std::vector<Layer*>* layers = nullptr;
-	if (App->map_editor->GetLayers(layers)) {
+	if (std::vector<Layer*>* layers = nullptr; App->map_editor->GetLayers(layers)) {
 		Buttons(layers);
 		ImGui::Separator(); //TODO: Child window
 		DisplayLayers(layers);

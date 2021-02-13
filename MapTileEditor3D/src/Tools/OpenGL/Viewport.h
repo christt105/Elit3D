@@ -6,6 +6,7 @@ class Viewport
 {
 	friend class m1Render3D;
 	friend class p1Scene;
+	friend class p1ObjectEditor;
 private:
 	Viewport();
 	~Viewport();
