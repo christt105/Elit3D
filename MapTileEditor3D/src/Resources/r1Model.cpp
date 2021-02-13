@@ -130,8 +130,8 @@ void r1Model::Load()
 		unsigned int ntex = mat->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE);
 		for (unsigned int i = 0; i < ntex; ++i) {
 			aiString p;
-			if (!mat->GetTexture(aiTextureType::aiTextureType_DIFFUSE, i, &p) != aiReturn::aiReturn_FAILURE) {
-				LOGE("Error get texture from assimp");
+			if (mat->GetTexture(aiTextureType::aiTextureType_DIFFUSE, i, &p) == aiReturn::aiReturn_FAILURE) {
+				LOGE("Error get diffuse texture from assimp");
 				continue;
 			}
 			uint64_t t_uid = 0ULL;

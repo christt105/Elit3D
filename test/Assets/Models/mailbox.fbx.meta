@@ -1,46 +1,38 @@
 {
-    "UID": 12850121501923073388,
+    "UID": 15309261173520732776,
     "extension": "fbx",
     "properties": {
         "meshes": [
             {
                 "index": 0,
-                "uid": 10729584307119805200
+                "uid": 13598160112440964729
             },
             {
                 "index": 1,
-                "uid": 16881986914118556888
+                "uid": 4591624319369476499
             },
             {
                 "index": 2,
-                "uid": 2851037648136459727
-            },
-            {
-                "index": 3,
-                "uid": 12506228582607284330
+                "uid": 11596050297423200890
             }
         ],
         "root": {
             "children": [
                 {
                     "id_mesh": 0,
-                    "name": "polygon0.003"
+                    "name": "polygon0.001"
                 },
                 {
                     "id_mesh": 1,
-                    "name": "polygon1.002"
+                    "name": "polygon1.001"
                 },
                 {
                     "id_mesh": 2,
-                    "name": "polygon2.002"
-                },
-                {
-                    "id_mesh": 3,
-                    "name": "polygon3.002"
+                    "name": "polygon2.001"
                 }
             ],
             "name": "RootNode"
         }
     },
-    "timestamp": 1613221288
+    "timestamp": 1613222370
 }
