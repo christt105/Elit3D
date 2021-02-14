@@ -6,6 +6,7 @@
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
 #include "ExternalTools/ImGui/imgui.h"
+#include "Tools/System/Logger.h"
 
 Camera::Camera(const char* id) : id(id)
 {
@@ -21,24 +22,30 @@ Camera::~Camera()
 
 void Camera::CameraMovement()
 {
-	float speed = mov_speed;
-	if (App->input->IsKeyPressed(SDL_SCANCODE_LSHIFT))
-		speed *= turbo_speed;
-	if (App->input->IsKeyPressed(SDL_SCANCODE_W))
-		frustum.Translate(frustum.Front().Normalized() * speed * App->GetDt());
-	if (App->input->IsKeyPressed(SDL_SCANCODE_S))
-		frustum.Translate(-frustum.Front().Normalized() * speed * App->GetDt());
-	if (App->input->IsKeyPressed(SDL_SCANCODE_A))
-		frustum.Translate(frustum.Front().Cross(frustum.Up()) * speed * App->GetDt());
-	if (App->input->IsKeyPressed(SDL_SCANCODE_D))
-		frustum.Translate(-frustum.Front().Cross(frustum.Up()) * speed * App->GetDt());
+	{
+		float speed = mov_speed;
+		if (wasd_mov) {
+			if (App->input->IsKeyPressed(SDL_SCANCODE_LSHIFT))
+				speed *= turbo_speed;
+			if (App->input->IsKeyPressed(SDL_SCANCODE_W))
+				frustum.Translate(frustum.Front().Normalized() * speed * App->GetDt());
+			if (App->input->IsKeyPressed(SDL_SCANCODE_S))
+				frustum.Translate(-frustum.Front().Normalized() * speed * App->GetDt());
+			if (App->input->IsKeyPressed(SDL_SCANCODE_A))
+				frustum.Translate(frustum.Front().Cross(frustum.Up()) * speed * App->GetDt());
+			if (App->input->IsKeyPressed(SDL_SCANCODE_D))
+				frustum.Translate(-frustum.Front().Cross(frustum.Up()) * speed * App->GetDt());
+		}
 
-	if (App->input->IsKeyPressed(SDL_SCANCODE_R))
-		frustum.Translate(float3::unitY * speed * App->GetDt());
-	if (App->input->IsKeyPressed(SDL_SCANCODE_F))
-		frustum.Translate(-float3::unitY * speed * App->GetDt());
+		if (rf_mov) {
+			if (App->input->IsKeyPressed(SDL_SCANCODE_R))
+				frustum.Translate(float3::unitY * speed * App->GetDt());
+			if (App->input->IsKeyPressed(SDL_SCANCODE_F))
+				frustum.Translate(-float3::unitY * speed * App->GetDt());
+		}
+	}
 
-	if (App->input->IsMouseButtonPressed(SDL_BUTTON_RIGHT)) {
+	if (rotation != RotationType::None && App->input->IsMouseButtonPressed(SDL_BUTTON_RIGHT)) {
 		if (App->input->IsMouseButtonDown(SDL_BUTTON_RIGHT) || lastRight.x == -1.f || lastRight.y == -1.f) {
 			lastRight = float2((float)App->input->GetMouseX(), (float)App->input->GetMouseY());
 		}
@@ -47,15 +54,31 @@ void Camera::CameraMovement()
 
 		lastRight = current;
 
-		Quat rot = Quat(float3::unitY, offset.x * App->GetDt()) * Quat(frustum.Up().Cross(frustum.Front()), offset.y * App->GetDt());
+		if (rotation == RotationType::FirstPerson) {
 
-		float3 up = rot * frustum.Up();
-		if (up.y >= 0) { // Block rotation camera will be upside down
-			frustum.SetFront(rot * frustum.Front());
+			Quat rot = Quat(float3::unitY, offset.x * App->GetDt()) * Quat(frustum.Up().Cross(frustum.Front()), offset.y * App->GetDt());
+
+			float3 up = rot * frustum.Up();
+			if (up.y >= 0) { // Block rotation camera will be upside down
+				frustum.SetFront(rot * frustum.Front());
+				frustum.SetUp(up);
+			}
+		}
+		else {
+			Quat rotx = Quat::RotateAxisAngle(float3::unitY, offset.x * App->GetDt());
+			Quat roty = Quat::RotateAxisAngle(frustum.WorldRight(), offset.y * App->GetDt());
+
+			float3 up = rotx * roty * frustum.Up();
+			frustum.SetFront(rotx * roty * frustum.Front());
 			frustum.SetUp(up);
+
+			frustum.SetPos(rotx * roty * (frustum.Pos() - pivot) + pivot);
+
+			LookAt(pivot);
 		}
 	}
-	if (App->input->IsMouseButtonPressed(SDL_BUTTON_MIDDLE)) {
+
+	if (pan_mov && App->input->IsMouseButtonPressed(SDL_BUTTON_MIDDLE)) {
 		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
 		if (App->input->IsMouseButtonDown(SDL_BUTTON_MIDDLE) || lastMiddle.x == -1.f || lastMiddle.y == -1.f) {
 			lastMiddle = float2((float)App->input->GetMouseX(), (float)App->input->GetMouseY());
@@ -67,7 +90,8 @@ void Camera::CameraMovement()
 
 		frustum.Translate(frustum.Up().Cross(frustum.Front()) * offset.x * App->GetDt() + frustum.Up() * -offset.y * App->GetDt());
 	}
-	if (App->input->GetMouseZ() != 0) {
+
+	if (zoom_mov && App->input->GetMouseZ() != 0) {
 		switch (frustum.Type())
 		{
 		case FrustumType::OrthographicFrustum: {
@@ -107,4 +131,11 @@ void Camera::ImGuiControl()
 		FOV = DegToRad(fov_deg);
 		//SetFov();
 	}
+}
+
+void Camera::LookAt(const float3& position)
+{
+	Quat look = Quat::LookAt(frustum.Front(), (position - frustum.Pos()).Normalized(), frustum.Up(), float3::unitY);
+	frustum.SetFront(look * frustum.Front());
+	frustum.SetUp(look * frustum.Up());
 }

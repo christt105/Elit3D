@@ -15,6 +15,11 @@ void p1ObjectEditor::Start()
 {
 	viewport = App->render->CreateViewport("object editor");
 	viewport->camera->is_active = false;
+	viewport->camera->pan_mov = false;
+	viewport->camera->rotation = Camera::RotationType::Orbit;
+	viewport->camera->wasd_mov = false;
+	viewport->camera->rf_mov = false;
+	viewport->camera->LookAt(float3::zero);
 }
 
 void p1ObjectEditor::Update()
