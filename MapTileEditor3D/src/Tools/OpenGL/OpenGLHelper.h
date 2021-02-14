@@ -11,6 +11,7 @@
 class oglh
 {
 	friend class Viewport;
+	friend class m1Render3D;
 public:
 	enum Filter {
 		Nearest,

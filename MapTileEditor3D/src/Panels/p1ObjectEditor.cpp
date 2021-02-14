@@ -4,6 +4,8 @@
 #include "Tools/OpenGL/Viewport.h"
 #include "ExternalTools/ImGui/imgui_internal.h"
 
+#include "Tools/System/Logger.h"
+
 p1ObjectEditor::p1ObjectEditor(bool start_active, bool appear_mainmenubar, bool can_close)
 	: Panel("Object Editor", start_active, appear_mainmenubar, can_close, ICON_FA_DRAW_POLYGON /*other: https://fontawesome.com/icons/pencil-ruler?style=solid | https://fontawesome.com/icons/tree?style=solid | https://fontawesome.com/icons/hammer?style=solid*/)
 {
@@ -12,6 +14,7 @@ p1ObjectEditor::p1ObjectEditor(bool start_active, bool appear_mainmenubar, bool 
 void p1ObjectEditor::Start()
 {
 	viewport = App->render->CreateViewport("object editor");
+	viewport->camera->is_active = false;
 }
 
 void p1ObjectEditor::Update()
@@ -26,10 +29,12 @@ void p1ObjectEditor::Update()
 	{
 		ImGui::BeginChild("childObjectViewport", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, 0.f));
 		
+		viewport->camera->is_active = ImGui::IsWindowHovered();
+		
 		ImGui::PushClipRect(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), false);
-		ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImVec2(0, ImGui::GetCurrentWindow()->TitleBarHeight() + ImGui::GetCurrentWindow()->MenuBarHeight()));
+		ImGui::SetCursorScreenPos(ImGui::GetWindowPos());
 
-		ImVec2 window_size = ImGui::GetContentRegionAvail() + ImVec2(16, 16);
+		ImVec2 window_size = ImGui::GetContentRegionAvail();
 		viewport->UpdateSize((int)window_size.x, (int)window_size.y); // TODO: Extract to a viewport function
 		
 		viewport->Update();

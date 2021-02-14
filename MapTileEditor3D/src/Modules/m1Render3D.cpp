@@ -77,6 +77,8 @@ bool m1Render3D::Init(const nlohmann::json& node)
 
     LoadShaders();
 
+    HANDLE_ERROR();
+
 	return ret;
 }
 
@@ -99,6 +101,7 @@ UpdateStatus m1Render3D::PostUpdate()
 {
     PROFILE_FUNCTION();
     SDL_GL_SwapWindow(App->window->window);
+    HANDLE_ERROR();
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -113,6 +116,8 @@ bool m1Render3D::CleanUp()
     {
         glDeleteShader(shader.second);
     }
+
+    HANDLE_ERROR();
 
     SDL_GL_DeleteContext(context);
 

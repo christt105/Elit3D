@@ -67,8 +67,8 @@ bool m1GUI::Init(const nlohmann::json& node)
 	panels.push_back(scene);
 	panels.push_back(tileset);
 	panels.push_back(layers);
-	panels.push_back(object_editor);
 	panels.push_back(tools);
+	panels.push_back(object_editor);
 	panels.push_back(dbg_resources);
 
 	return true;
@@ -281,6 +281,8 @@ void m1GUI::MainMenuBar()
 			if ((*i)->appear_in_mainmenubar) {
 				ImGui::PushID(*i);
 				if (ImGui::MenuItem((*i)->name.c_str(), "", (*i)->active)) {
+					if ((*i)->active)	(*i)->OnDisable();
+					else (*i)->OnEnable();
 					(*i)->active = !(*i)->active;
 				}
 				ImGui::PopID();

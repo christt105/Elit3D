@@ -9,7 +9,7 @@
 
 Camera::Camera(const char* id) : id(id)
 {
-	frustum.SetFrame({ 2.f, 10.f, 2.f }, float3::unitZ, float3::unitY);
+	frustum.SetFrame({ 2.f, 7.f, -10.f }, float3::unitZ, float3::unitY);
 	frustum.SetKind(FrustumProjectiveSpace::FrustumSpaceGL, FrustumHandedness::FrustumLeftHanded);
 
 	frustum.SetViewPlaneDistances(0.1f, 1000.f);

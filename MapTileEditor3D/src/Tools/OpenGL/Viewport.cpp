@@ -3,6 +3,9 @@
 #include <GL/glew.h>
 #include "Tools/OpenGL/OpenGLHelper.h"
 
+#include "Core/Application.h"
+#include "Modules/m1Camera3D.h"
+
 Viewport::Viewport()
 {
 	glGenFramebuffers(1, &ID[FBO_MS]);
@@ -106,7 +109,6 @@ void Viewport::UpdateSize(int x, int y)
 {
 	size = { x, y };
 	camera->UpdateFrustum(x, y);
-	glViewport(0, 0, size.x, size.y);
 }
 
 void Viewport::Blit() const
@@ -126,6 +128,8 @@ unsigned int Viewport::GetTexture() const
 void Viewport::Begin() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, ID[FBO_MS]);
+	App->camera->UpdateShaders(camera);
+	glViewport(0, 0, size.x, size.y);
 }
 
 void Viewport::End() const

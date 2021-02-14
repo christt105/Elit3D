@@ -13,12 +13,14 @@ public:
 	void UpdateFrustum(int sizeX, int sizeY);
 	void ImGuiControl();
 
+public:
+	bool is_active = true;
+
 private:
 	Frustum frustum;
 
 	const char* id = "";
 
-	bool is_active = true;
 
 	float2 lastRight = { -1.f, -1.f };
 	float2 lastMiddle = { -1.f, -1.f };

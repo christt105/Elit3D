@@ -56,30 +56,6 @@ UpdateStatus m1Camera3D::PreUpdate()
 		if (c->is_active)
 			c->CameraMovement();
 	}
-
-	auto shader = App->render->GetShader("default");
-	shader->Use();
-	shader->SetMat4("model", float4x4::identity);
-	shader->SetMat4("view", scene->frustum.ViewMatrix());
-	shader->SetMat4("projection", scene->frustum.ProjectionMatrix());
-
-	shader->SetVec3("lightPos", scene->frustum.Pos());
-
-	shader = App->render->GetShader("tilemap");
-	shader->Use();
-	shader->SetMat4("model", float4x4::identity);
-	shader->SetMat4("view", scene->frustum.ViewMatrix());
-	shader->SetMat4("projection", scene->frustum.ProjectionMatrix());
-
-	shader = App->render->GetShader("grid");
-	shader->Use();
-	shader->SetMat4("view", scene->frustum.ViewMatrix());
-	shader->SetMat4("projection", scene->frustum.ProjectionMatrix());
-
-	shader = App->render->GetShader("selectTile");
-	shader->Use();
-	shader->SetMat4("view", scene->frustum.ViewMatrix());
-	shader->SetMat4("projection", scene->frustum.ProjectionMatrix());
 	
 	return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -100,6 +76,33 @@ Camera* m1Camera3D::CreateCamera(const char* id)
 	Camera* ret = new Camera(id);
 	cameras.push_back(ret);
 	return ret;
+}
+
+void m1Camera3D::UpdateShaders(Camera* cam)
+{
+	auto shader = App->render->GetShader("default");
+	shader->Use();
+	shader->SetMat4("model", float4x4::identity);
+	shader->SetMat4("view", cam->frustum.ViewMatrix());
+	shader->SetMat4("projection", cam->frustum.ProjectionMatrix());
+
+	shader->SetVec3("lightPos", cam->frustum.Pos());
+
+	shader = App->render->GetShader("tilemap");
+	shader->Use();
+	shader->SetMat4("model", float4x4::identity);
+	shader->SetMat4("view", cam->frustum.ViewMatrix());
+	shader->SetMat4("projection", cam->frustum.ProjectionMatrix());
+
+	shader = App->render->GetShader("selectTile");
+	shader->Use();
+	shader->SetMat4("view", cam->frustum.ViewMatrix());
+	shader->SetMat4("projection", cam->frustum.ProjectionMatrix());
+
+	shader = App->render->GetShader("grid");
+	shader->Use();
+	shader->SetMat4("view", cam->frustum.ViewMatrix());
+	shader->SetMat4("projection", cam->frustum.ProjectionMatrix());
 }
 
 void m1Camera3D::Save(nlohmann::json& node)
