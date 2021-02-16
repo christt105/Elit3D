@@ -22,6 +22,8 @@ public:
 
 	void OnInspector() override;
 
+	inline uint64_t GetMesh() const { return mesh; }
+
 	nlohmann::json	Parse() override;
 	void			Unparse(const nlohmann::json& node) override;
 private:

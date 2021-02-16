@@ -144,6 +144,11 @@ void oglh::DeleteBuffer(unsigned int& id)
 	glDeleteBuffers(1, &id);
 }
 
+void oglh::BufferSubDataArray(unsigned int size, const void* data)
+{
+	glBufferSubData(GL_ARRAY_BUFFER, NULL, size, data);
+}
+
 void oglh::DeleteVAO(unsigned int& vao, unsigned int& vertex, unsigned int& elements)
 {
 	glDeleteVertexArrays(1, &vao);
@@ -224,7 +229,6 @@ void oglh::SetTextureProperties(unsigned int id, Wrap wrap, Filter filter)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
-
 }
 
 void oglh::PolygonMode(bool line)
@@ -233,6 +237,11 @@ void oglh::PolygonMode(bool line)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void oglh::EnableCullFace(bool active)
+{
+	(active) ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
 }
 
 void oglh::DepthEnable(bool active)
