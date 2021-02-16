@@ -3,12 +3,10 @@
 #include "Modules/m1Render3D.h"
 #include "Tools/OpenGL/Viewport.h"
 
-#include "Modules/m1Objects.h"
-#include "Objects/Object.h"
-#include "Objects/Components/c1Mesh.h"
-#include "Objects/Components/c1Material.h"
-#include "Resources/r1Mesh.h"
+#include "Resources/r1Shader.h"
 #include "Resources/r1Texture.h"
+#include "Modules/m1Resources.h"
+#include "Tools/OpenGL/ObjectEditor.h"
 
 #include "Tools/OpenGL/OpenGLHelper.h"
 
@@ -23,7 +21,9 @@ p1ObjectEditor::p1ObjectEditor(bool start_active, bool appear_mainmenubar, bool 
 
 p1ObjectEditor::~p1ObjectEditor()
 {
-	App->objects->DeleteObject(object);
+	for (auto i = meshes.begin(); i != meshes.end(); ++i) {
+		delete* i;
+	}
 }
 
 void p1ObjectEditor::Start()
@@ -36,55 +36,36 @@ void p1ObjectEditor::Start()
 	viewport->camera->rf_mov = false;
 	viewport->camera->LookAt(float3::zero);
 
-	object = App->objects->CreateEmptyObject();
-	
-	r1Mesh* mesh = App->resources->CreateResource<r1Mesh>("");
-	mesh->vertices.size = 4; //Quad
-	mesh->vertices.data = new float[mesh->vertices.size * 3]{
-		0.f, 0.f, 0.f,
-		1.f, 0.f, 0.f,
-		1.f, 1.f, 0.3f,
-		0.f, 1.f, 0.3f
-	};
-	mesh->indices.size = 6;
-	mesh->indices.data = new unsigned int[mesh->indices.size]{
-		0, 2, 1,
-		0, 3, 2
-	};
-	mesh->texture.size = mesh->vertices.size;
-	mesh->texture.data = new float[mesh->texture.size * 2]{
-		0.f, 0.f,
-		1.f, 0.f,
-		1.f, 1.f,
-		0.f, 1.f
-	};
+	meshes.push_back(new ObjectEditor());
 
-	mesh->Attach();
-
-	oglh::GenVAO(mesh->VAO);
-	oglh::GenArrayBuffer(mesh->vertices.id, mesh->vertices.size, sizeof(float), 3, mesh->vertices.data, 0, 3);
-	oglh::GenElementBuffer(mesh->indices.id, mesh->indices.size, mesh->indices.data);
-	oglh::GenArrayBuffer(mesh->texture.id, mesh->texture.size, sizeof(float), 2, mesh->texture.data, 1, 2);
-
-	c1Mesh* cmesh = object->CreateComponent<c1Mesh>();
-	cmesh->SetMesh(mesh->GetUID());
-
-	auto mat = object->GetComponent<c1Material>();
 	texture = (r1Texture*)App->resources->FindGet("tree01_lm2");
-	mat->SetTexture(texture);
+	texture->Attach();
 }
 
 void p1ObjectEditor::Update()
 {
-	viewport->Begin();
-	oglh::EnableCullFace(false);
-	object->Update();
-	oglh::EnableCullFace(true);
-	viewport->End();
-
+	DrawObject();
 	InfoWindow();
 	ImGui::SameLine();
 	ViewportWindow();
+}
+
+void p1ObjectEditor::DrawObject()
+{
+	viewport->Begin();
+	oglh::EnableCullFace(false);
+	static r1Shader* shader = App->render->GetShader("default");
+	shader->Use();
+	if (texture != nullptr)
+		texture->Bind();
+	shader->SetBool("useTexture", texture != nullptr);
+	for (auto i = meshes.begin(); i != meshes.end(); ++i) {
+		(*i)->Draw(shader);
+	}
+	if (texture != nullptr)
+		texture->Unbind();
+	oglh::EnableCullFace(true);
+	viewport->End();
 }
 
 void p1ObjectEditor::ViewportWindow()
@@ -114,7 +95,7 @@ void p1ObjectEditor::InfoWindow()
 {
 	ImGui::BeginChild("childObjectInfo", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.3f, 0.f), false, ImGuiWindowFlags_NoMove);
 
-	if (object == nullptr) {
+	if (meshes.empty()) {
 		if (ImGui::Button("Create")) {
 			ImGui::OpenPopup("CreateObject");
 			ImGui::SetNextWindowCentered(ImVec2(500.f, 300.f));
@@ -146,12 +127,17 @@ void p1ObjectEditor::InfoWindow()
 			ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2(ImGui::GetWindowContentRegionWidth(), texture->GetHeight() * ImGui::GetWindowContentRegionWidth() / texture->GetWidth()), ImVec2(0, 0), ImVec2(1, -1));
 			ImGui::EndChild();
 
-			auto comp = object->GetComponents();
-			for (auto i = comp.begin(); i != comp.end(); ++i)
+			auto i = meshes.begin();
+			while (i != meshes.end())
 			{
-				if((*i)->GetType() == Component::Type::Mesh)
-					ImGui::Text("%" PRIu64, ((c1Mesh*)(*i))->GetMesh());
+				if (!(*i)->OnGui()) {
+					i = meshes.erase(i);
+				}
+				else
+					++i;
 			}
+			if (ImGui::Button("Create"))
+				meshes.push_back(new ObjectEditor());
 		}
 	}
 

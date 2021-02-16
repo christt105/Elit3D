@@ -2,8 +2,8 @@
 #include "Panels/Base/Panel.h"
 
 class Viewport;
-class Object;
 class r1Texture;
+class ObjectEditor;
 
 class p1ObjectEditor :
     public Panel
@@ -15,14 +15,15 @@ public:
     void Start() override;
     void Update() override;
 
+private:
+    void DrawObject();
     void ViewportWindow();
-
     void InfoWindow();
 
 private:
     Viewport* viewport = nullptr;
-
-    Object* object = nullptr;
+    
+    std::vector<ObjectEditor*> meshes;
     r1Texture* texture = nullptr;
 };
 
