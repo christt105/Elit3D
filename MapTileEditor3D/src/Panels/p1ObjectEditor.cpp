@@ -3,6 +3,8 @@
 #include "Modules/m1Render3D.h"
 #include "Tools/OpenGL/Viewport.h"
 
+#include "Modules/m1Input.h"
+
 #include "Resources/r1Shader.h"
 #include "Resources/r1Texture.h"
 #include "Modules/m1Resources.h"
@@ -130,14 +132,7 @@ void p1ObjectEditor::InfoWindow()
 			float height = texture->GetHeight() * width / texture->GetWidth();
 			ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2(width, height), ImVec2(0, 0), ImVec2(1, -1));
 			if (selected != -1 && selected < meshes.size()) {
-				auto draw_list = ImGui::GetCurrentWindow()->DrawList;
-				auto mesh = meshes[selected];
-				auto uvs = mesh->uv.data;
-				
-				ImVec2 min = ImGui::GetItemRectMin() + ImVec2(uvs[0] * width, (1.f - uvs[1]) * height);
-				ImVec2 max = ImGui::GetItemRectMin() + ImVec2(uvs[4] * width, (1.f - uvs[5]) * height);
-
-				draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.f, 1.f, 0.f, 0.2f)));
+				DrawUVs(width, height);
 			}
 			ImGui::EndChild();
 
@@ -158,7 +153,7 @@ void p1ObjectEditor::InfoWindow()
 					ImGui::DragFloat3("Position", (*i)->position.ptr(), 0.01f);
 					if (ImGui::DragFloat3("Rotation", (*i)->euler.ptr(), 1.f, -360.f, 360.f))
 						(*i)->rot = Quat::FromEulerXYZ(math::DegToRad((*i)->euler.x), math::DegToRad((*i)->euler.y), math::DegToRad((*i)->euler.z));
-					ImGui::DragFloat2("Size", (*i)->size.ptr(), 0.1f);
+					ImGui::DragFloat("Size", &(*i)->scale, 0.1f);
 
 					ImGui::PushStyleColor(ImGuiCol_Button, { 1.f, 0.f, 0.f, 1.f });
 					if (ImGui::Button("Delete")) {
@@ -185,4 +180,72 @@ void p1ObjectEditor::InfoWindow()
 	}
 
 	ImGui::EndChild();
+}
+
+void p1ObjectEditor::DrawUVs(float width, float height)
+{
+	auto draw_list = ImGui::GetCurrentWindow()->DrawList;
+	auto mesh = meshes[selected];
+	auto uvs = mesh->uv.data;
+
+	ImVec2 min = ImGui::GetItemRectMin() + ImVec2(uvs[0] * width, (1.f - uvs[1]) * height);
+	ImVec2 max = ImGui::GetItemRectMin() + ImVec2(uvs[4] * width, (1.f - uvs[5]) * height);
+
+	draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.f, 1.f, 0.f, 0.2f)));
+	static float grab_width = 5.f;
+	static ImVec2 grab_quad = ImVec2(grab_width, grab_width);
+	static ImVec4 grab_color = ImVec4(1.f, 0.3f, 0.f, 1.f);
+	std::vector<std::pair<ImVec2, ImVec2>> corners;
+	corners.push_back({ min - grab_quad, min + grab_quad }); // 0 = bottom-left
+	corners.push_back({ ImVec2(max.x, min.y) - grab_quad, ImVec2(max.x, min.y) + grab_quad }); // 1 = bottom-rigth
+	corners.push_back({ max - grab_quad, max + grab_quad }); // 2 = top-right
+	corners.push_back({ ImVec2(min.x, max.y) - grab_quad, ImVec2(min.x, max.y) + grab_quad }); // 3 = top_left
+	for (auto i = corners.begin(); i != corners.end(); ++i)
+		draw_list->AddRect((*i).first, (*i).second, ImGui::GetColorU32(grab_color));
+
+	if (dragging == -1) {
+		if (App->input->IsMouseButtonDown(SDL_BUTTON_LEFT)) {
+			ImVec2 mouse = ImGui::GetMousePos();
+			for (auto i = corners.begin(); i != corners.end(); ++i) {
+				if (mouse.x > (*i).first.x && mouse.y > (*i).first.y && mouse.x < (*i).second.x && mouse.y < (*i).second.y) {
+					dragging = i - corners.begin();
+					break;
+				}
+			}
+		}
+		//TODO Change cursor
+	}
+	else {
+		ImVec2 mouse = ImGui::GetMousePos();
+		mouse = mouse - ImGui::GetItemRectMin();
+		mouse = { mouse.x / width, 1.f - (mouse.y / height) };
+		uvs[dragging * 2] = math::Clamp01<float>(mouse.x);
+		uvs[dragging * 2 + 1] = math::Clamp01<float>(mouse.y);
+		switch (dragging)
+		{
+		case 0:
+			uvs[6] = uvs[0];
+			uvs[3] = uvs[1];
+			break;
+		case 1:
+			uvs[4] = uvs[2];
+			uvs[1] = uvs[3];
+			break;
+		case 2:
+			uvs[2] = uvs[4];
+			uvs[7] = uvs[5];
+			break;
+		case 3:
+			uvs[0] = uvs[6];
+			uvs[5] = uvs[7];
+			break;
+		}
+		mesh->size = float2(uvs[2] - uvs[0], uvs[7] - uvs[1]);
+		oglh::BindTexture(mesh->uv.id);
+		oglh::SetArrayBuffer(mesh->uv.id, mesh->uv.size, sizeof(float), 2, mesh->uv.data, 1, 2);
+		oglh::UnBindTexture();
+	}
+	if (App->input->IsMouseButtonUp(SDL_BUTTON_LEFT)) {
+		dragging = -1;
+	}
 }

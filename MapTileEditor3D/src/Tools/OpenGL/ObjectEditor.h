@@ -31,5 +31,6 @@ private:
 	Quat rot = Quat::identity;
 	float3 euler = float3::zero;
 	float2 size = float2::one;
+	float scale = 1.f;
 };
 

@@ -24,9 +24,9 @@ ObjectEditor::ObjectEditor() {
 	uv.size = vertices.size;
 	uv.data = new float[uv.size * 2]{
 		0.f, 0.f,
-		0.7f, 0.f,
-		0.7f, .7f,
-		0.f, .7f
+		1.f, 0.f,
+		1.f, 1.f,
+		0.f, 1.f
 	};
 
 	oglh::GenVAO(VAO);
@@ -51,7 +51,7 @@ void ObjectEditor::Draw(r1Shader* shader)
 {
 	oglh::BindBuffers(VAO, vertices.id, indices.id);
 
-	shader->SetMat4("model", float4x4::FromTRS(position, rot, float3(size, 1.f)));
+	shader->SetMat4("model", float4x4::FromTRS(position, rot, float3(size * scale, 1.f)));
 
 	oglh::DrawElements(indices.size);
 }

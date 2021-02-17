@@ -20,11 +20,14 @@ private:
     void ViewportWindow();
     void InfoWindow();
 
+    void DrawUVs(float width, float height);
+
 private:
     Viewport* viewport = nullptr;
     
     std::vector<ObjectEditor*> meshes;
     int selected = -1;
+    int dragging = -1;
     r1Texture* texture = nullptr;
 };
 
