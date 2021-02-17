@@ -10,15 +10,17 @@ class r1Shader;
 
 class ObjectEditor
 {
+	friend class p1ObjectEditor;
 public:
 	ObjectEditor();
 	~ObjectEditor();
 
 	void Draw(r1Shader* shader);
-	bool OnGui();
+	bool OnGui(bool& sel);
 
 private:
 	std::string name = "Mesh";
+	char buffer[20]{ "" };
 
 	unsigned int VAO = 0U;
 	Buffer<float> vertices;

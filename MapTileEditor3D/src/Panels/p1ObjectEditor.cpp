@@ -54,6 +54,7 @@ void p1ObjectEditor::DrawObject()
 {
 	viewport->Begin();
 	oglh::EnableCullFace(false);
+	oglh::DepthEnable(true);
 	static r1Shader* shader = App->render->GetShader("default");
 	shader->Use();
 	if (texture != nullptr)
@@ -64,6 +65,7 @@ void p1ObjectEditor::DrawObject()
 	}
 	if (texture != nullptr)
 		texture->Unbind();
+	oglh::DepthEnable(false);
 	oglh::EnableCullFace(true);
 	viewport->End();
 }
@@ -123,21 +125,62 @@ void p1ObjectEditor::InfoWindow()
 			ImGui::Button("Load Texture");
 		}
 		else {
-			ImGui::BeginChild("imageChild", ImVec2(ImGui::GetWindowContentRegionWidth(), ImGui::GetWindowContentRegionWidth()));
-			ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2(ImGui::GetWindowContentRegionWidth(), texture->GetHeight() * ImGui::GetWindowContentRegionWidth() / texture->GetWidth()), ImVec2(0, 0), ImVec2(1, -1));
+			float width = ImGui::GetWindowContentRegionWidth();
+			ImGui::BeginChild("imageChild", ImVec2(width, width));
+			float height = texture->GetHeight() * width / texture->GetWidth();
+			ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2(width, height), ImVec2(0, 0), ImVec2(1, -1));
+			if (selected != -1 && selected < meshes.size()) {
+				auto draw_list = ImGui::GetCurrentWindow()->DrawList;
+				auto mesh = meshes[selected];
+				auto uvs = mesh->uv.data;
+				
+				ImVec2 min = ImGui::GetItemRectMin() + ImVec2(uvs[0] * width, (1.f - uvs[1]) * height);
+				ImVec2 max = ImGui::GetItemRectMin() + ImVec2(uvs[4] * width, (1.f - uvs[5]) * height);
+
+				draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.f, 1.f, 0.f, 0.2f)));
+			}
 			ImGui::EndChild();
 
+			ImGui::BeginChild("meshesChild");
 			auto i = meshes.begin();
 			while (i != meshes.end())
 			{
-				if (!(*i)->OnGui()) {
-					i = meshes.erase(i);
+				ImGui::PushID(*i);
+				if (ImGui::TreeNodeEx(this, ImGuiTreeNodeFlags_CollapsingHeader | ImGuiTreeNodeFlags_NoTreePushOnOpen, (*i)->name.c_str())) {
+					ImGui::Indent();
+
+					if (ImGui::Selectable("Select", selected == i - meshes.begin()))
+						selected = i - meshes.begin();
+
+					strcpy((*i)->buffer, (*i)->name.c_str());
+					ImGui::InputText("Name", (*i)->buffer, 20);
+					(*i)->name.assign((*i)->buffer);
+					ImGui::DragFloat3("Position", (*i)->position.ptr(), 0.01f);
+					if (ImGui::DragFloat3("Rotation", (*i)->euler.ptr(), 1.f, -360.f, 360.f))
+						(*i)->rot = Quat::FromEulerXYZ(math::DegToRad((*i)->euler.x), math::DegToRad((*i)->euler.y), math::DegToRad((*i)->euler.z));
+					ImGui::DragFloat2("Size", (*i)->size.ptr(), 0.1f);
+
+					ImGui::PushStyleColor(ImGuiCol_Button, { 1.f, 0.f, 0.f, 1.f });
+					if (ImGui::Button("Delete")) {
+						if (i - meshes.begin() == selected)
+							selected = -1;
+						i = meshes.erase(i);
+
+					}
+					else
+						++i;
+
+					ImGui::PopStyleColor();
+					ImGui::Unindent();
+					ImGui::PopID();
+					continue;
 				}
-				else
-					++i;
+				++i;
+				ImGui::PopID();
 			}
 			if (ImGui::Button("Create"))
 				meshes.push_back(new ObjectEditor());
+			ImGui::EndChild();
 		}
 	}
 

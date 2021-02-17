@@ -24,6 +24,7 @@ private:
     Viewport* viewport = nullptr;
     
     std::vector<ObjectEditor*> meshes;
+    int selected = -1;
     r1Texture* texture = nullptr;
 };
 
