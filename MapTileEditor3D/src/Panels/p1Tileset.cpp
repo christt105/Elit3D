@@ -99,17 +99,20 @@ void p1Tileset::Update()
 void p1Tileset::DisplayImage(r1Texture* texture, r1Tileset* tile)
 {
 	if (ImGui::BeginChild("##tileset")) {
-		ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2((float)texture->GetWidth(), (float)texture->GetHeight()), ImVec2(0, 0), ImVec2(1, -1));
+		float width = ImGui::GetContentRegionAvailWidth() - 10.f;
+		float height = (float)texture->GetHeight() * width / (float)texture->GetWidth();
+		float2 tileSize{ ((float)tile->width * width/(float)texture->GetWidth()), ((float)tile->height * height/(float)texture->GetHeight()) };
+		ImGui::Image((ImTextureID)texture->GetBufferID(), ImVec2(width, height), ImVec2(0, 0), ImVec2(1, -1));
 		if (ImGui::IsItemHovered()) {
 			ImVec2 mouse = ImGui::GetMousePos() - ImGui::GetItemRectMin();
-			ImVec2 tile_mouse = ImVec2(floor(mouse.x / tile->width), floor(mouse.y / tile->height));
+			ImVec2 tile_mouse = ImVec2(floor(mouse.x / tileSize.x), floor(mouse.y / tileSize.y));
 
 			ImGui::BeginTooltip();
 			ImGui::Text("Tile: %i, %i", (int)tile_mouse.x, (int)tile_mouse.y);
 			ImGui::EndTooltip();
 
-			ImVec2 min = ImGui::GetItemRectMin() + ImVec2(tile_mouse.x * tile->width, tile_mouse.y * tile->height);
-			ImVec2 max = min + ImVec2((float)tile->width, (float)tile->height);
+			ImVec2 min = ImGui::GetItemRectMin() + ImVec2(tile_mouse.x * tileSize.x, tile_mouse.y * tileSize.y);
+			ImVec2 max = min + ImVec2((float)tileSize.x, (float)tileSize.y);
 
 			auto draw_list = ImGui::GetCurrentWindow()->DrawList;
 
@@ -125,8 +128,8 @@ void p1Tileset::DisplayImage(r1Texture* texture, r1Tileset* tile)
 		if (tile_selected[0] != -1) {
 			auto draw_list = ImGui::GetCurrentWindow()->DrawList;
 
-			ImVec2 min = ImGui::GetItemRectMin() + ImVec2((float)(tile_selected[0] * tile->width), (float)(tile_selected[1] * tile->height));
-			ImVec2 max = min + ImVec2((float)tile->width, (float)tile->height);
+			ImVec2 min = ImGui::GetItemRectMin() + ImVec2((float)(tile_selected[0] * tileSize.x), (float)(tile_selected[1] * tileSize.y));
+			ImVec2 max = min + ImVec2((float)tileSize.x, (float)tileSize.y);
 
 			draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.3f)));
 			draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 0.654f, 0.141f, 1.f)));
