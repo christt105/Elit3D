@@ -1,0 +1,54 @@
+{
+    "UID": 3394069498312192643,
+    "extension": "fbx",
+    "properties": {
+        "meshes": [
+            {
+                "index": 0,
+                "uid": 14365171375532175678
+            },
+            {
+                "index": 1,
+                "uid": 10582951613684610212
+            },
+            {
+                "index": 2,
+                "uid": 8148660334040105343
+            },
+            {
+                "index": 3,
+                "uid": 17425869447569865197
+            },
+            {
+                "index": 4,
+                "uid": 2835446429811890585
+            }
+        ],
+        "root": {
+            "children": [
+                {
+                    "id_mesh": 0,
+                    "name": "polygon0.004"
+                },
+                {
+                    "id_mesh": 1,
+                    "name": "polygon1.003"
+                },
+                {
+                    "id_mesh": 2,
+                    "name": "polygon2.003"
+                },
+                {
+                    "id_mesh": 3,
+                    "name": "polygon3.003"
+                },
+                {
+                    "id_mesh": 4,
+                    "name": "polygon4.002"
+                }
+            ],
+            "name": "RootNode"
+        }
+    },
+    "timestamp": 1613221288
+}

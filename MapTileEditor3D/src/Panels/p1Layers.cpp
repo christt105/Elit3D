@@ -20,14 +20,11 @@ p1Layers::p1Layers(bool start_active, bool appear_mainmenubar, bool can_close)
 {
 }
 
-p1Layers::~p1Layers()
-{
-}
+p1Layers::~p1Layers() = default;
 
 void p1Layers::Update()
 {
-	std::vector<Layer*>* layers = nullptr;
-	if (App->map_editor->GetLayers(layers)) {
+	if (std::vector<Layer*>* layers = nullptr; App->map_editor->GetLayers(layers)) {
 		Buttons(layers);
 		ImGui::Separator(); //TODO: Child window
 		DisplayLayers(layers);
@@ -77,6 +74,7 @@ void p1Layers::DisplayLayers(std::vector<Layer*>* layers)
 				App->gui->inspector->SetSelected(*l, p1Inspector::SelectedType::LAYER);
 				if ((*l)->type == Layer::Type::OBJECT)
 					App->objects->layer_root_selected = (*l)->root;
+				else App->objects->layer_root_selected = nullptr;
 			}
 		}
 		ImVec2 s = ImGui::GetItemRectSize();
@@ -189,4 +187,12 @@ int p1Layers::GetSelected() const
 void p1Layers::SetSelected(int i)
 {
 	selected = i;
+	
+	if (std::vector<Layer*>* layers; App->map_editor->GetLayers(layers)) {
+		Layer* layer = (*layers)[i];
+		App->gui->inspector->SetSelected(layer, p1Inspector::SelectedType::LAYER);
+		if (layer->type == Layer::Type::OBJECT) {
+			App->objects->layer_root_selected = layer->root;
+		}
+	}
 }

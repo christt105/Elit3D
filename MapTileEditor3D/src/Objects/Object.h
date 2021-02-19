@@ -32,6 +32,8 @@ public:
 	C* GetComponent();
 	Component* GetComponent(Component::Type t);
 
+	const std::vector<Component*>& GetComponents() const;
+
 	c1Transform* transform = nullptr;
 
 	std::vector<Object*> children;

@@ -442,7 +442,7 @@ PUGI__NS_BEGIN
 	static const uintptr_t xml_memory_page_value_allocated_or_shared_mask = xml_memory_page_value_allocated_mask | xml_memory_page_contents_shared_mask;
 
 #ifdef PUGIXML_COMPACT
-	#define PUGI__GETHEADER_IMPL(object, page, flags) // unused
+	#define PUGI__GETHEADER_IMPL(root, page, flags) // unused
 	#define PUGI__GETPAGE_IMPL(header) (header).get_page()
 #else
 	#define PUGI__GETHEADER_IMPL(object, page, flags) (((reinterpret_cast<char*>(object) - reinterpret_cast<char*>(page)) << 8) | (flags))
@@ -791,21 +791,21 @@ PUGI__NS_BEGIN
 		unsigned char _flags;
 	};
 
-	PUGI__FN xml_memory_page* compact_get_page(const void* object, int header_offset)
+	PUGI__FN xml_memory_page* compact_get_page(const void* root, int header_offset)
 	{
-		const compact_header* header = reinterpret_cast<const compact_header*>(static_cast<const char*>(object) - header_offset);
+		const compact_header* header = reinterpret_cast<const compact_header*>(static_cast<const char*>(root) - header_offset);
 
 		return header->get_page();
 	}
 
-	template <int header_offset, typename T> PUGI__FN_NO_INLINE T* compact_get_value(const void* object)
+	template <int header_offset, typename T> PUGI__FN_NO_INLINE T* compact_get_value(const void* root)
 	{
-		return static_cast<T*>(compact_get_page(object, header_offset)->allocator->_hash->find(object));
+		return static_cast<T*>(compact_get_page(root, header_offset)->allocator->_hash->find(root));
 	}
 
-	template <int header_offset, typename T> PUGI__FN_NO_INLINE void compact_set_value(const void* object, T* value)
+	template <int header_offset, typename T> PUGI__FN_NO_INLINE void compact_set_value(const void* root, T* value)
 	{
-		compact_get_page(object, header_offset)->allocator->_hash->insert(object, value);
+		compact_get_page(root, header_offset)->allocator->_hash->insert(root, value);
 	}
 
 	template <typename T, int header_offset, int start = -126> class compact_pointer

@@ -20,6 +20,9 @@ public:
 	virtual void Start();
 	virtual void Update() = 0;
 
+	virtual void OnEnable() {}
+	virtual void OnDisable() {}
+
 	bool IsFocused() const;
 	bool IsOnHover() const;
 

@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Tools/Math/int2.h"
+#include "Tools/Camera.h"
 
 class Viewport
 {
 	friend class m1Render3D;
 	friend class p1Scene;
+	friend class p1ObjectEditor;
 private:
 	Viewport();
 	~Viewport();
@@ -40,6 +42,6 @@ private:
 	};
 	unsigned int ID[6];
 
-	//Camera* camera = nullptr;
+	Camera* camera = nullptr;
 };
 

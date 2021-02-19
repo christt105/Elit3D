@@ -3,6 +3,9 @@
 #include <GL/glew.h>
 #include "Tools/OpenGL/OpenGLHelper.h"
 
+#include "Core/Application.h"
+#include "Modules/m1Camera3D.h"
+
 Viewport::Viewport()
 {
 	glGenFramebuffers(1, &ID[FBO_MS]);
@@ -15,7 +18,7 @@ Viewport::Viewport()
 	//glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	//glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-
+	
 	// attach it to currently bound framebuffer object
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, ID[TEXTURE_MS], 0);
 
@@ -105,7 +108,7 @@ void Viewport::Update()
 void Viewport::UpdateSize(int x, int y)
 {
 	size = { x, y };
-	glViewport(0, 0, size.x, size.y);
+	camera->UpdateFrustum(x, y);
 }
 
 void Viewport::Blit() const
@@ -125,6 +128,8 @@ unsigned int Viewport::GetTexture() const
 void Viewport::Begin() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, ID[FBO_MS]);
+	App->camera->UpdateShaders(camera);
+	glViewport(0, 0, size.x, size.y);
 }
 
 void Viewport::End() const

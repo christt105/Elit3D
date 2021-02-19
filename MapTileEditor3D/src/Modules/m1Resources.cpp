@@ -89,13 +89,6 @@ Uint64 m1Resources::FindByPath(const char* assets_path)
 	return 0ull;
 }
 
-Resource* m1Resources::Get(const Uint64& uid) const
-{
-	PROFILE_FUNCTION();
-	auto ret = resources.find(uid);
-	return (ret == resources.end()) ? nullptr : (*ret).second;
-}
-
 Resource* m1Resources::FindGet(const char* file, bool by_name)
 {
 	if (by_name) {
