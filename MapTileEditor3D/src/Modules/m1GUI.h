@@ -13,6 +13,7 @@ class p1Tileset;
 class p1DebugResources;
 class p1Layers;
 class p1Tools;
+class p1ObjectEditor;
 
 struct ImFont;
 
@@ -54,6 +55,7 @@ public: //TODO private
 	p1Tileset*			tileset = nullptr;
 	p1Layers*			layers = nullptr;
 	p1Tools*			tools = nullptr;
+	p1ObjectEditor*		object_editor = nullptr;
 	
 	p1DebugResources* dbg_resources = nullptr;
 

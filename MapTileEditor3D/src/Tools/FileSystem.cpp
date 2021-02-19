@@ -385,7 +385,7 @@ void FileSystem::GenerateFolders()
     sAppdata = fs::canonical(sCurrDir + "/installation_dir").u8string();
     appdata = GetFolders(sAppdata.c_str());
     std::string parent(sCurrDir.c_str(), sCurrDir.size() - sizeof(APP_NAME) + 1);
-    std::string newDir(parent + "test");
+    std::string newDir(parent + "project");
 #endif
 
     if (SetCurrentDirectoryA(newDir.c_str()) == 0) {

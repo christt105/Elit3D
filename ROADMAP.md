@@ -62,12 +62,12 @@ ClickUp - [List](https://share.clickup.com/l/h/6-29893176-1/771a92a6e746703) - [
 
 ClickUp - [List](https://share.clickup.com/l/h/6-29893177-1/f84816f5bd5b0d7) - [Board](https://share.clickup.com/b/h/6-29893177-2/f9f548d0e90c676)
 
-- [ ] Import 3D models
+- [x] Import 3D models
 - [x] Object layers
-- [ ] Load 3D models on scene
+- [x] Load 3D models on scene
 - [ ] Primitives
 - [ ] 3D terrains
-- [ ] Textures
+- [x] Textures
 - [ ] Creation tool of sprites
   - Given an image, create a sprite and place it on the map inclined
 

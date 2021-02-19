@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Tools/Math/int2.h"
+#include "Tools/Camera.h"
 
 class Viewport
 {
 	friend class m1Render3D;
 	friend class p1Scene;
+	friend class p1ObjectEditor;
 private:
 	Viewport();
 	~Viewport();
@@ -21,6 +23,8 @@ private:
 public:
 	void Begin() const;
 	void End() const;
+
+	inline Camera* GetCamera() const { return camera; }
 
 public:
 	float color[3] = { .2f, .2f, .2f };
@@ -40,6 +44,6 @@ private:
 	};
 	unsigned int ID[6];
 
-	//Camera* camera = nullptr;
+	Camera* camera = nullptr;
 };
 

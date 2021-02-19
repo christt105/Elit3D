@@ -47,43 +47,49 @@ UpdateStatus m1Scene::Update()
 {
 	PROFILE_FUNCTION();
 
-	App->render->GetViewport("scene")->Begin();
-	
-	if (draw_grid) {
+	{
+		static Viewport const * v = App->render->GetViewport("scene");
+		v->Begin();
+
+		if (draw_grid) {
+			static auto shader1 = App->render->GetShader("grid");
+			shader1->Use();
+			oglh::DepthEnable(true);
+			oglh::DrawArrays(6);
+			oglh::DepthEnable(false);
+		}
+
+		static auto shader = App->render->GetShader("default");
+		shader->Use();
+		shader->SetMat4("model", float4x4::identity);
+
+		static float3 xd0 = float3::zero;
+		static float3 xd1 = float3::one;
+		if (panel_scene->IsOnHover()) {
+			int2 mouse_panel = panel_scene->GetMousePosition();
+			int2 size_panel = panel_scene->GetSize();
+			mouse_panel.y = size_panel.y - mouse_panel.y;
+			float2 mouse_perc(2 * ((float)mouse_panel.x) / ((float)size_panel.x) - 1, 2 * ((float)mouse_panel.y) / ((float)size_panel.y) - 1);
+
+			auto ray = v->GetCamera()->frustum.UnProject(mouse_perc);
+			App->map_editor->Mouse(ray);
+		}
+
+		v->End();
+	}
+
+	{
+		static Viewport const * v = App->render->GetViewport("object editor");
+		v->Begin();
+
 		static auto shader1 = App->render->GetShader("grid");
 		shader1->Use();
 		oglh::DepthEnable(true);
 		oglh::DrawArrays(6);
 		oglh::DepthEnable(false);
+
+		v->End();
 	}
-
-	static auto shader = App->render->GetShader("default");
-	shader->Use();
-	shader->SetMat4("model", float4x4::identity);
-
-	static float3 xd0 = float3::zero;
-	static float3 xd1 = float3::one;
-	if (panel_scene->IsOnHover()) {
-		int2 mouse_panel = panel_scene->GetMousePosition();
-		int2 size_panel = panel_scene->GetSize();
-		mouse_panel.y = size_panel.y - mouse_panel.y;
-		float2 mouse_perc(2 * ((float)mouse_panel.x) / ((float)size_panel.x) - 1, 2 * ((float)mouse_panel.y) / ((float)size_panel.y) - 1);
-
-		auto ray = App->camera->frustum.UnProject(mouse_perc);
-		App->map_editor->Mouse(ray);
-		shader->Use();
-
-		if (App->input->IsMouseButtonPressed(1)) {
-			xd0 = ray.pos;
-			xd1 = ray.pos + ray.dir * 250.f;
-		}
-	}
-
-	if (App->debug.draw_mouse_pick_line) {
-		oglh::OldDrawLines(xd0, xd1);
-	}
-
-	App->render->GetViewport("scene")->End();
 	
 	return UpdateStatus::UPDATE_CONTINUE;
 }

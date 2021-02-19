@@ -26,6 +26,8 @@ public:
 
 	virtual void OnInspector() {}
 
+	inline Type GetType() const { return type; }
+
 	virtual nlohmann::json	Parse();
 	virtual void			Unparse(const nlohmann::json& node) {}
 

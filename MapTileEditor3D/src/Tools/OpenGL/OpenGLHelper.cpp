@@ -10,7 +10,6 @@
 void oglh::GenTexture(unsigned int& id)
 {
 	glGenTextures(1, &id);
-	HANDLE_ERROR();
 }
 
 std::string oglh::GetVendor()
@@ -91,25 +90,21 @@ int oglh::FilterEnumToGLEnum(Filter f)
 void oglh::ActiveTexture(int val)
 {
 	glActiveTexture(GL_TEXTURE0 + val);
-	HANDLE_ERROR();
 }
 
 void oglh::BindTexture(unsigned int id)
 {
 	glBindTexture(GL_TEXTURE_2D, id);
-	HANDLE_ERROR();
 }
 
 void oglh::TexSubImage2D(int x, int y, int width, int height, const unsigned char* pixels)
 {
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-	HANDLE_ERROR();
 }
 
 void oglh::UnBindTexture()
 {
 	glBindTexture(GL_TEXTURE_2D, 0u);
-	HANDLE_ERROR();
 }
 
 void oglh::UnBindBuffers()
@@ -117,19 +112,16 @@ void oglh::UnBindBuffers()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-	HANDLE_ERROR();
 }
 
 void oglh::DrawArrays(int n)
 {
 	glDrawArrays(GL_TRIANGLES, 0, n);
-	HANDLE_ERROR();
 }
 
 void oglh::DrawElements(int size)
 {
 	glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, (void*)0);
-	HANDLE_ERROR();
 }
 
 void oglh::OldDrawLines(const float3& begin, const float3& end)
@@ -138,7 +130,6 @@ void oglh::OldDrawLines(const float3& begin, const float3& end)
 	glVertex3f(begin.x, begin.y, begin.z);
 	glVertex3f(end.x, end.y, end.z);
 	glEnd();
-	HANDLE_ERROR();
 }
 
 void oglh::BindBuffers(unsigned int vao, unsigned int vertex, unsigned int elements)
@@ -146,13 +137,21 @@ void oglh::BindBuffers(unsigned int vao, unsigned int vertex, unsigned int eleme
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements);
-	HANDLE_ERROR();
+}
+
+void oglh::BindBuffer(unsigned int id)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, id);
 }
 
 void oglh::DeleteBuffer(unsigned int& id)
 {
 	glDeleteBuffers(1, &id);
-	HANDLE_ERROR();
+}
+
+void oglh::BufferSubDataArray(unsigned int size, const void* data)
+{
+	glBufferSubData(GL_ARRAY_BUFFER, NULL, size, data);
 }
 
 void oglh::DeleteVAO(unsigned int& vao, unsigned int& vertex, unsigned int& elements)
@@ -160,20 +159,17 @@ void oglh::DeleteVAO(unsigned int& vao, unsigned int& vertex, unsigned int& elem
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(1, &vertex);
 	glDeleteBuffers(1, &elements);
-	HANDLE_ERROR();
 }
 
 void oglh::DeleteTexture(unsigned int& id)
 {
 	glDeleteTextures(1, &id);
-	HANDLE_ERROR();
 }
 
 void oglh::GenVAO(unsigned int& vao)
 {
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
-	HANDLE_ERROR();
 }
 
 void oglh::GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type_size, unsigned int element_size, const float* data)
@@ -181,7 +177,6 @@ void oglh::GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type
 	glGenBuffers(1, &id);
 	glBindBuffer(GL_ARRAY_BUFFER, id);
 	glBufferData(GL_ARRAY_BUFFER, type_size * size * element_size, data, GL_STATIC_DRAW);
-	HANDLE_ERROR();
 }
 
 void oglh::GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type_size, unsigned int element_size, const float* data, unsigned int attrib_index, unsigned int attrib_size)
@@ -191,7 +186,6 @@ void oglh::GenArrayBuffer(unsigned int& id, unsigned int size, unsigned int type
 	glBufferData(GL_ARRAY_BUFFER, type_size * size * element_size, data, GL_STATIC_DRAW);
 	glVertexAttribPointer(attrib_index, attrib_size, GL_FLOAT, GL_FALSE, 0, (void*)0); // TODO: allow other than GL_FLOAT
 	glEnableVertexAttribArray(attrib_index);
-	HANDLE_ERROR();
 }
 
 void oglh::SetArrayBuffer(unsigned int& id, unsigned int size, unsigned int type_size, unsigned int element_size, const float* data, unsigned int attrib_index, unsigned int attrib_size)
@@ -200,7 +194,6 @@ void oglh::SetArrayBuffer(unsigned int& id, unsigned int size, unsigned int type
 	glBufferData(GL_ARRAY_BUFFER, type_size * size * element_size, data, GL_STATIC_DRAW);
 	glVertexAttribPointer(attrib_index, attrib_size, GL_FLOAT, GL_FALSE, 0, (void*)0); // TODO: allow other than GL_FLOAT
 	glEnableVertexAttribArray(attrib_index);
-	HANDLE_ERROR();
 }
 
 void oglh::GenElementBuffer(unsigned int& id, unsigned int size, const unsigned int* data)
@@ -208,7 +201,6 @@ void oglh::GenElementBuffer(unsigned int& id, unsigned int size, const unsigned 
 	glGenBuffers(1, &id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * size, data, GL_STATIC_DRAW);
-	HANDLE_ERROR();
 }
 
 void oglh::GenTextureData(unsigned int& id, Wrap wrap, Filter filter, unsigned int size_x, unsigned int size_y, const unsigned char* data)
@@ -216,23 +208,17 @@ void oglh::GenTextureData(unsigned int& id, Wrap wrap, Filter filter, unsigned i
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
 
-	HANDLE_ERROR();
-
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, WrapEnumToGLEnum(wrap));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, WrapEnumToGLEnum(wrap));
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilterEnumToGLEnum(filter));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilterEnumToGLEnum(filter));
 
-	HANDLE_ERROR();
-
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size_x, size_y, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
-
-	HANDLE_ERROR();
 }
 
 void oglh::SetTextureProperties(unsigned int id, Wrap wrap, Filter filter)
@@ -248,8 +234,6 @@ void oglh::SetTextureProperties(unsigned int id, Wrap wrap, Filter filter)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
-
-	HANDLE_ERROR();
 }
 
 void oglh::PolygonMode(bool line)
@@ -258,7 +242,11 @@ void oglh::PolygonMode(bool line)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	HANDLE_ERROR();
+}
+
+void oglh::EnableCullFace(bool active)
+{
+	(active) ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
 }
 
 void oglh::DepthEnable(bool active)

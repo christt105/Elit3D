@@ -100,6 +100,11 @@ Component* Object::GetComponent(Component::Type t)
 	return nullptr;
 }
 
+const std::vector<Component*>& Object::GetComponents() const
+{
+	return components;
+}
+
 nlohmann::json Object::Parse()
 {
 	nlohmann::json n;

@@ -43,6 +43,8 @@ public:
 
 	void CreateObject(Object* root);
 
+	void OnInspector() override;
+
 private:
 	void LoadMetaData(aiMetadata* meta);
 	void LoadNode(aiNode* root, const aiScene* scene, Node* parent);

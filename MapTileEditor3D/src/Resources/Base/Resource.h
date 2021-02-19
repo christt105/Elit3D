@@ -30,7 +30,7 @@ public:
 	void Attach();
 	void Detach();
 
-	virtual void OnInspector() {} //TODO: 
+	virtual void OnInspector();
 	virtual void GenerateFiles() {}
 	virtual void UpdateFiles() {}
 

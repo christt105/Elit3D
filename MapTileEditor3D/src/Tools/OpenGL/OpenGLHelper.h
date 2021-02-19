@@ -11,6 +11,7 @@
 class oglh
 {
 	friend class Viewport;
+	friend class m1Render3D;
 public:
 	enum Filter {
 		Nearest,
@@ -88,6 +89,10 @@ public:
 	*/
 	static void BindBuffers(unsigned int vao, unsigned int vertex, unsigned int elements);
 	/**
+	 * Bind buffers
+	*/
+	static void BindBuffer(unsigned int id);
+	/**
 	 * Unbind VAO, vertex and elements buffers
 	*/
 	static void UnBindBuffers();
@@ -159,11 +164,17 @@ public:
 	 * @param[out] id Buffer id container
 	*/
 	static void DeleteBuffer(unsigned int& id);
+	/**
+	 * 
+	*/
+	static void BufferSubDataArray(unsigned int size, const void* data);
 	//Misc
 	/**
 	 * Sets Polygon Mode
 	*/
 	static void PolygonMode(bool line);
+
+	static void EnableCullFace(bool active);
 
 	static void DepthEnable(bool active);
 	static std::string GetVersion();

@@ -33,6 +33,7 @@ p1Scene::p1Scene(bool start_enabled, bool appear_mainmenubar, bool can_close)
 void p1Scene::Start()
 {
 	viewport = App->render->CreateViewport("scene");
+	viewport->camera->is_active = App->map_editor->ValidMap();
 }
 
 p1Scene::~p1Scene()
@@ -43,7 +44,10 @@ void p1Scene::Update()
 {
 	MenuBar();
 
+
 	if (App->map_editor->ValidMap()) {
+
+		viewport->camera->is_active = IsOnHover();
 
 		ImGui::PushClipRect(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), false);
 		ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + ImVec2(0, ImGui::GetCurrentWindow()->TitleBarHeight() + ImGui::GetCurrentWindow()->MenuBarHeight()));

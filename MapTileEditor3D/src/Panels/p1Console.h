@@ -21,5 +21,9 @@ private:
 
 	bool collapse = true;
 	bool autoscroll = true;
+
+	bool info = true;
+	bool warning = true;
+	bool error = true;
 };
 

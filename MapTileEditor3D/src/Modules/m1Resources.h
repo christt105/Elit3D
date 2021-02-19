@@ -45,7 +45,10 @@ public:
 public:
 	Uint64 FindByName(const char* name);
 	Uint64 FindByPath(const char* assets_path);
-	Resource* Get(const Uint64& uid) const;
+	inline Resource* Get(const Uint64& uid) const {
+		auto ret = resources.find(uid);
+		return (ret == resources.end()) ? nullptr : (*ret).second;
+	}
 	Resource* FindGet(const char* file, bool by_name = true);
 	Resource* EGet(EResourceType type) const;
 
