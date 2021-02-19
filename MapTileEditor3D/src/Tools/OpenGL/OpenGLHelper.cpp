@@ -261,6 +261,14 @@ void oglh::PolygonMode(bool line)
 	HANDLE_ERROR();
 }
 
+void oglh::DepthEnable(bool active)
+{
+	if (active)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+}
+
 std::string oglh::GetVersion()
 {
 	return std::string((const char*)glGetString(GL_VERSION));

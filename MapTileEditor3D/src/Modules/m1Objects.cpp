@@ -17,17 +17,19 @@ m1Objects::m1Objects(bool start_enabled) : Module("Objects", start_enabled)
 
 m1Objects::~m1Objects()
 {
-	for (auto i = objects.begin(); i != objects.end(); ++i) {
-		delete* i;
-	}
 }
 
-Object* m1Objects::CreateEmptyObject()
+Object* m1Objects::CreateEmptyObject(Object* parent, const char* name)
 {
-	Object* obj = new Object();
-	objects.push_back(obj);
+	return new Object(parent, name);
+}
 
-	return obj;
+void m1Objects::DeleteObject(Object* obj)
+{
+	if (obj->parent != nullptr)
+		obj->parent->children.erase(std::find(obj->parent->children.begin(), obj->parent->children.end(), obj));
+
+	delete obj;
 }
 
 bool m1Objects::Start()
@@ -39,18 +41,29 @@ UpdateStatus m1Objects::Update()
 {
 	PROFILE_FUNCTION();
 
-	App->render->GetViewport("scene")->Begin();
+	if (layer_root_selected != nullptr) {
+		App->render->GetViewport("scene")->Begin();
 
-	auto shader = App->render->GetShader("default");
-	shader->Use();
+		auto shader = App->render->GetShader("default");
+		shader->Use();
 
-	for (auto i = objects.begin(); i != objects.end(); ++i) {
-		(*i)->Update();
+		//layer_root_selected->Update();
+
+		shader->SetMat4("model", float4x4::identity);
+
+		App->render->GetViewport("scene")->End();
 	}
 
-	shader->SetMat4("model", float4x4::identity);
-
-	App->render->GetViewport("scene")->End();
-
 	return UpdateStatus::UPDATE_CONTINUE;
+}
+
+const Object* m1Objects::GetSelected() const
+{
+	return selected;
+}
+
+void m1Objects::Unselect()
+{
+	selected = nullptr;
+	layer_root_selected = nullptr;
 }

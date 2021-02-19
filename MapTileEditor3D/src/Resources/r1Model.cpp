@@ -1,213 +1,356 @@
-#include "Resources/r1Model.h"
-
-#include "Core/Application.h"
-#include "Modules/m1Resources.h"
-#include "Modules/m1Objects.h"
-#include "Tools/FileSystem.h"
-
-#include "Objects/Object.h"
-#include "Objects/Components/c1Mesh.h"
-#include "Objects/Components/c1Transform.h"
-
-#include "Resources/r1Mesh.h"
-#include "Resources/r1Texture.h"
+#include "r1Model.h"
 
 #include "ExternalTools/Assimp/include/Importer.hpp"
 #include "ExternalTools/Assimp/include/scene.h"
 #include "ExternalTools/Assimp/include/postprocess.h"
-#include "ExternalTools/Assimp/include/cimport.h"
-#include "ExternalTools/Assimp/include/metadata.h"
 
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
+#include "Modules/m1Objects.h"
+#include "Objects/Object.h"
+#include "Objects/Components/c1Mesh.h"
+#include "Objects/Components/c1Material.h"
+#include "Objects/Components/c1Transform.h"
+#include "Resources/r1Mesh.h"
+
+#include "Core/Application.h"
+#include "Modules/m1Resources.h"
+
+#include "Tools/FileSystem.h"
+
+#include "Tools/OpenGL/OpenGLHelper.h"
+
 #include "Tools/System/Logger.h"
 
-#include "ExternalTools/mmgr/mmgr.h"
-
-r1Model::r1Model(const uint64_t& id) : Resource(Resource::Type::Model, id)
+r1Model::r1Model(const uint64_t& uid) : Resource(Resource::Type::Model, uid)
 {
 }
 
 r1Model::~r1Model()
 {
-}
-
-//void r1Model::GenerateFiles()
-//{
-	//Assimp::Importer importer;
-	//const aiScene* scene = importer.ReadFile(path.c_str(), aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_FlipUVs);
-	//
-	//if (scene != nullptr && scene->mRootNode != nullptr) {
-	//	std::vector<uint64_t> meshes;
-	//	std::vector<uint64_t> textures;
-
-	//	double factor = 0.0;
-	//	if (scene->mMetaData->Get("UnitScaleFactor", factor)) {
-	//		LOG("SCALE FACTOR: %f", factor);
-	//	}
-
-	//	for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
-	//		r1Mesh* m = App->resources->CreateResource<r1Mesh>(path.c_str(), 0Ui64, false);
-	//		m->GenerateFiles(scene->mMeshes[i]);
-	//		meshes.push_back(m->GetUID());
-	//	}
-
-	//	for (unsigned int i = 0; i < scene->mNumMaterials; ++i) { //TODO
-	//		const aiMaterial* mat = scene->mMaterials[i];
-	//		unsigned int n_tex = mat->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE);
-	//		for (unsigned int i = 0; i < n_tex; ++i) {
-	//			aiString path;
-	//			if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS) {
-	//				if (FileSystem::IsFileInFolder(FileSystem::GetNameFile(path.C_Str(), true).c_str(), "Assets/", true)) {
-	//					auto res = App->resources->Get(App->resources->FindByName(FileSystem::GetNameFile(path.C_Str(), false).c_str()));
-	//					if (res != nullptr)
-	//						textures.push_back(res->GetUID());
-	//				}
-	//			}
-	//		}
-
-	//		/*r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
-	//		m->GenerateFiles(scene->mTextures[i]);
-	//		textures.push_back(m->GetUID());*/
-	//	}
-
-	//	for (unsigned int i = 0; i < scene->mNumTextures; ++i) { //TODO
-	//		MLOGW("Textures import from FBX not done already...");
-	//		/*r1Texture* m = App->resources->CreateResource<r1Texture>(assets_path.c_str());
-	//		m->GenerateFiles(scene->mTextures[i]);
-	//		textures.push_back(m->GetUID());*/
-	//	}
-
-	//	Node object = FillNodeHierarchy(scene->mRootNode, meshes, textures);
-	//	nlohmann::json model;
-
-	//	for (auto i = meshes.begin(); i != meshes.end(); ++i) {
-	//		model["Meshes"].push_back(*i);
-	//	}
-
-	//	for (auto i = textures.begin(); i != textures.end(); ++i) {
-	//		model["Textures"].push_back(*i);
-	//	}
-
-	//	model["Hierarchy"] = object.Parse();
-
-	//	FileSystem::SaveJSONFile(library_path.c_str(), model);
-	//}
-//}
-
-Object* r1Model::CreateObject()
-{
-	Object* obj = App->objects->CreateEmptyObject();
-	obj->SetName(name.c_str());
-
-	/*nlohmann::json jobj = FileSystem::OpenJSONFile(library_path.c_str());
-
-	CreateChildren(jobj["Hierarchy"], obj);*/
-	
-	return obj;
-}
-
-void r1Model::CreateChildren(nlohmann::json& jobj, Object* parent)
-{
-	for (auto i = jobj["Children"].begin(); i != jobj["Children"].end(); ++i) {
-		Object* child = parent->CreateChild();
-		child->SetName((*i).value("name", "Object").c_str());
-
-		float3 pos((*i)["position"][0], (*i)["position"][1], (*i)["position"][2]);
-		float3 scale((*i)["scale"][0], (*i)["scale"][1], (*i)["scale"][2]);
-		Quat rot((*i)["rotation"]["x"], (*i)["rotation"]["y"], (*i)["rotation"]["z"], (*i)["rotation"]["w"]);
-		child->transform->SetMatrix(float4x4::FromTRS(pos, rot, scale));
-
-		if ((*i)["meshID"] != 0) {
-			c1Mesh* mesh = child->CreateComponent<c1Mesh>();
-			mesh->SetMesh((*i)["meshID"]);
-			if ((*i)["meshID"] != 0) {
-				//c1Mesh* mesh = child-><c1Mesh>();
-				//mesh->SetMesh((*i)["meshID"]);
-			}
-		}
-
-		if ((*i).find("Children") != (*i).end())
-			CreateChildren(*i, child);
-	}
+	if (root != nullptr)
+		delete root;
 }
 
 void r1Model::Load()
 {
-	//nlohmann::json model = FileSystem::OpenJSONFile(library_path.c_str());
-}
+	Assimp::Importer importer;
 
-void r1Model::Unload()
-{
-}
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
 
-r1Model::Node r1Model::FillNodeHierarchy(const aiNode* parent, const std::vector<uint64_t>& mesh_ids, const std::vector<uint64_t>& tex_ids)
-{
-	Node ret;
-	ret.name.assign(parent->mName.C_Str());
+	if (scene == nullptr) {
+		LOGW("Model %s with path %s not loaded correctly | Error: %s", name.c_str(), path.c_str(), importer.GetErrorString());
+		return;
+	}
 
-	aiVector3D pos, scale;
-	aiQuaternion rot;
-	parent->mTransformation.Decompose(scale, rot, pos);
-	ret.pos[0] = pos.x;
-	ret.pos[1] = pos.y;
-	ret.pos[2] = pos.z;
+	if (scene->mMetaData != nullptr) {
+		LoadMetaData(scene->mMetaData);
+	}
 
-	ret.rot[0] = rot.w;
-	ret.rot[1] = rot.x;
-	ret.rot[2] = rot.y;
-	ret.rot[3] = rot.z;
-	
-	float unit_scale = 1.f;
-	if (scale.Length() >= 99.9f)
-		unit_scale = 100.f;
-
-	ret.scale[0] = scale.x / unit_scale;
-	ret.scale[1] = scale.y / unit_scale;
-	ret.scale[2] = scale.z / unit_scale;
-
-	if (parent->mNumMeshes == 1) {
-		ret.mesh = mesh_ids[parent->mMeshes[0]];
-		ret.texture = 0ULL;//tex_ids[parent->mMeshes[0]];
+	double factor(0.0);
+	bool result = scene->mMetaData->Get("UnitScaleFactor", factor);
+	if (result == false) {
+		LOG("Failed to retrieve  unit scale factor!");
 	}
 	else {
-		for (unsigned int i = 0u; i < parent->mNumMeshes; ++i) {
-			Node mesh;
-			mesh.mesh = mesh_ids[parent->mMeshes[i]];
-			ret.texture = 0ULL;//tex_ids[parent->mMeshes[i]];
-			ret.children.push_back(mesh);
+		LOG("Scale is %lf", factor);
+	}
+
+	nlohmann::json meta = FileSystem::OpenJSONFile((path + ".meta").c_str());
+
+	if (meta.is_null()) {
+		LOGW("meta file of resource %s was not found", path.c_str());
+		return;
+	}
+
+	meta = meta["properties"];
+
+	//Load meshes
+	for (int im = 0; im < scene->mNumMeshes; ++im) {
+		aiMesh* m = scene->mMeshes[im];
+
+		nlohmann::json jmesh = meta["meshes"][im];
+
+		auto mesh = App->resources->CreateResource<r1Mesh>("", jmesh.value("uid", 0ULL), false);
+		mesh->from_model = uid;
+
+		if (m->mMaterialIndex >= 0) {
+			mesh->tex_i = m->mMaterialIndex;
+		}
+
+		oglh::GenVAO(mesh->VAO);
+		
+		mesh->vertices.size = m->mNumVertices;
+		mesh->vertices.data = new float[mesh->vertices.size * 3];
+		memset(mesh->vertices.data, 0.f, sizeof(float) * mesh->vertices.size * 3);
+
+		for (int v = 0; v < m->mNumVertices; ++v) {
+			mesh->vertices.data[v * 3] = m->mVertices[v].x;
+			mesh->vertices.data[v * 3 + 1] = m->mVertices[v].y;
+			mesh->vertices.data[v * 3 + 2] = m->mVertices[v].z;
+		}
+
+		oglh::GenArrayBuffer(mesh->vertices.id, mesh->vertices.size, sizeof(float), 3, mesh->vertices.data, 0, 3);
+
+		if (m->HasNormals()) {
+			mesh->normals.size = m->mNumVertices;
+			mesh->normals.data = new float[mesh->normals.size * 3];
+			memset(mesh->normals.data, 0.f, sizeof(float) * mesh->normals.size * 3);
+
+			for (int n = 0; n < m->mNumVertices; ++n) {
+				mesh->normals.data[n * 3] = m->mNormals[n].x;
+				mesh->normals.data[n * 3 + 1] = m->mNormals[n].y;
+				mesh->normals.data[n * 3 + 2] = m->mNormals[n].z;
+			}
+
+			oglh::GenArrayBuffer(mesh->normals.id, mesh->normals.size, sizeof(float), 3, mesh->normals.data, 2, 3);
+		}
+
+		mesh->indices.size = m->mNumFaces * 3;
+		mesh->indices.data = new unsigned int[mesh->indices.size];
+		memset(mesh->indices.data, 0U, sizeof(unsigned int) * mesh->indices.size);
+
+		for (int f = 0; f < m->mNumFaces; ++f) {
+			for (int n = 0; n < m->mFaces[f].mNumIndices; ++n)
+				mesh->indices.data[f * m->mFaces[f].mNumIndices + n] = m->mFaces[f].mIndices[n];
+		}
+
+		oglh::GenElementBuffer(mesh->indices.id, mesh->indices.size, mesh->indices.data);
+
+		if (m->HasTextureCoords(0)) {
+			mesh->texture.size = m->mNumVertices;
+			mesh->texture.data = new float[mesh->texture.size * 2];
+			memset(mesh->texture.data, 0.f, sizeof(float) * mesh->texture.size * 2);
+
+			for (int n = 0; n < m->mNumVertices; ++n) {
+				mesh->texture.data[n * 2] = m->mTextureCoords[0][n].x;
+				mesh->texture.data[n * 2 + 1] = m->mTextureCoords[0][n].y;
+			}
+
+			oglh::GenArrayBuffer(mesh->texture.id, mesh->texture.size, sizeof(float), 2, mesh->texture.data, 1, 2);
+		}
+
+		meshes.push_back(mesh);
+	}
+
+	for (int it = 0; it < scene->mNumMaterials; ++it) {
+		aiMaterial* mat = scene->mMaterials[it];
+
+		//for (int t = 0; t < (int)aiTextureType_UNKNOWN; ++t) {
+			//int ntex = mat->GetTextureCount((aiTextureType)t);
+		unsigned int ntex = mat->GetTextureCount((aiTextureType::aiTextureType_DIFFUSE));
+		for (unsigned int i = 0; i < ntex; ++i) {
+			aiString p;
+			if (mat->GetTexture(aiTextureType::aiTextureType_DIFFUSE, i, &p) != aiReturn::aiReturn_FAILURE) {
+				LOG("path of texture: %s", p.C_Str());
+				uint64_t t_uid = 0ULL;
+				if (FileSystem::Exists(p.C_Str())) {
+					t_uid = App->resources->FindByPath(p.C_Str());
+				}
+				else {
+					t_uid = App->resources->FindByName(FileSystem::GetNameFile(p.C_Str()).c_str());
+				}
+				materials.push_back(t_uid);
+			}
+			else {
+				LOGE("Error get texture from assimp");
+			}
+		}
+		//}
+	}
+
+	root = new Node();
+	root->name = "root";
+	for (int i = 0; i < scene->mRootNode->mNumChildren; ++i) {
+		Node* c = new Node();
+		LoadNode(scene->mRootNode->mChildren[i], scene, c);
+		c->parent = root;
+		root->children.push_back(c);
+	}
+}
+
+void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
+{
+	n->name = node->mName.C_Str();
+	
+	aiVector3D pos, scale; aiQuaternion rot;
+	node->mTransformation.Decompose(scale, rot, pos);
+	n->transform = float4x4::FromTRS({ pos.x, pos.y, pos.z }, Quat(rot.x, rot.y, rot.z, rot.w), { scale.x, scale.y, scale.z });
+
+	if (node->mMetaData != nullptr) {
+		LOG("Metadata of node %s", node->mName.C_Str());
+		LoadMetaData(node->mMetaData);
+	}
+
+	if (node->mNumMeshes == 1) {
+		for (unsigned int i = 0u; i < node->mNumMeshes; ++i) {
+			n->id_mesh = meshes[node->mMeshes[i]]->GetUID();
+			int m = scene->mMeshes[node->mMeshes[i]]->mMaterialIndex;
+			if (m >= 0 && m < materials.size())
+				n->id_tex = materials[m];
+		}
+	}
+	else if(node->mNumMeshes > 1) {
+		LOGE("TODO: Node with more than 1 mesh");
+	}
+
+	for (unsigned int i = 0u; i < node->mNumChildren; ++i) {
+		Node* child = new Node();
+		LoadNode(node->mChildren[i], scene, child);
+		child->parent = n;
+		n->children.push_back(child);
+	}
+}
+
+void r1Model::CreateHierarchy(nlohmann::json& parent, aiNode* node)
+{
+	parent["name"] = node->mName.C_Str();
+	
+	if (node->mNumMeshes > 0) {
+		if (node->mNumMeshes == 1) {
+			parent["id_mesh"] = node->mMeshes[0];
+		}
+		else {
+			//TODO: create separated object for every mesh
 		}
 	}
 
-	for (unsigned int i = 0u; i < parent->mNumChildren; ++i) {
-		ret.children.push_back(FillNodeHierarchy(parent->mChildren[i], mesh_ids, tex_ids));
+	for (int i = 0; i < node->mNumChildren; ++i) {
+		nlohmann::json child;
+		CreateHierarchy(child, node->mChildren[i]);
+		parent["children"].push_back(child);
 	}
-
-	return ret;
 }
 
-nlohmann::json r1Model::Node::Parse()
+void r1Model::GenerateFiles()
 {
-	nlohmann::json node;
+	Assimp::Importer importer;
 
-	if (mesh != 0ull)
-		node["meshID"] = mesh;
-	if (texture != 0ull)
-		node["texID"] = texture;
+	nlohmann::json meta = FileSystem::OpenJSONFile((path + ".meta").c_str());
 
-	node["name"] = name;
-
-	for (int i = 0; i < 3; ++i) {
-		node["position"].push_back(pos[i]);
-		node["scale"].push_back(scale[i]);
+	if (meta.is_null()) {
+		LOGW("meta file of resource %s was not found", path.c_str());
+		return;
 	}
-	node["rotation"]["w"] = rot[0];
-	node["rotation"]["x"] = rot[1];
-	node["rotation"]["y"] = rot[2];
-	node["rotation"]["z"] = rot[3];
 
-	for (auto i = children.begin(); i != children.end(); ++i)
-		node["Children"].push_back((*i).Parse());
+	auto mprop = meta["properties"];
 
-	return node;
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+
+	if (scene == nullptr) {
+		LOGW("Model %s with path %s not loaded correctly | Error: %s", name.c_str(), path.c_str(), importer.GetErrorString());
+		return;
+	}
+
+	if (scene->mMetaData != nullptr) {
+		LoadMetaData(scene->mMetaData);
+	}
+
+	for (int im = 0; im < scene->mNumMeshes; ++im) {
+		nlohmann::json jmesh;
+		jmesh["uid"] = Random::RandomGUID();
+		jmesh["index"] = im;
+
+		mprop["meshes"].push_back(jmesh);
+	}
+
+	for (int it = 0; it < scene->mNumMaterials; ++it) {
+		LOGN("Material %s", scene->mMaterials[it]->GetName().C_Str());
+		for (int s = 0; s < scene->mMaterials[it]->GetTextureCount(aiTextureType::aiTextureType_SPECULAR); ++s) {
+		}
+		for (int d = 0; d < scene->mMaterials[it]->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE); ++d) {
+			aiString p;
+			aiReturn r = scene->mMaterials[it]->GetTexture(aiTextureType::aiTextureType_DIFFUSE, d, &p);
+			if (r == aiReturn::aiReturn_FAILURE) {
+				LOGE("GetTexture Failed");
+				continue;
+			}
+			LOG("Texture %s", p.C_Str());
+		}
+	}
+
+	for (int it = 0; it < scene->mNumTextures; ++it) {
+		LOGN("Texture %s", scene->mTextures[it]->mFilename.C_Str());
+	}
+
+	CreateHierarchy(mprop["root"], scene->mRootNode);
+
+	meta["properties"] = mprop;
+
+	FileSystem::SaveJSONFile((path + ".meta").c_str(), meta);
+}
+
+void r1Model::UpdateFiles()
+{
+	LOGNE("TODO: fbx Updated");
+}
+
+void r1Model::LoadMetaData(aiMetadata* meta)
+{
+	for (unsigned int i = 0u; i < meta->mNumProperties; ++i) {
+		auto key = meta->mKeys[i];
+		auto val = meta->mValues[i];
+		switch (val.mType)
+		{
+		case AI_BOOL:
+			LOG("Metadata with index %i type: bool key: %s | value: %i", i, key.C_Str(), *(bool*)val.mData);
+			break;
+		case AI_INT32:
+			LOG("Metadata with index %i type: int32_t key: %s | value: %i", i, key.C_Str(), *(int32_t*)val.mData);
+			break;
+		case AI_UINT64:
+			LOG("Metadata with index %i type: uint64_t key: %s | value: %" SDL_PRIu64, i, key.C_Str(), *(uint64_t*)val.mData);
+			break;
+		case AI_FLOAT:
+			LOG("Metadata with index %i type: float key: %s | value: %f", i, key.C_Str(), *(float*)val.mData);
+			break;
+		case AI_DOUBLE:
+			LOG("Metadata with index %i type: double key: %s | value: %lf", i, key.C_Str(), *(double*)val.mData);
+			break;
+		case AI_AISTRING:
+			LOG("Metadata with index %i type: aiString key: %s | value: %s", i, key.C_Str(), (*(aiString*)val.mData).C_Str());
+			break;
+		case AI_AIVECTOR3D: {
+			aiVector3D value = *(aiVector3D*)val.mData;
+			LOG("Metadata with index %i type: aiVector3D key: %s | value: (%f, %f, %f)", i, key.C_Str(), value.x, value.y, value.z);
+		}	break;
+		default:
+			LOG("Metadata with index %i type not handled in the switch | Type: %i", i, val.mType);
+			break;
+		}
+	}
+}
+
+void r1Model::CreateObject(Object* r)
+{
+	if (r == nullptr)
+		return;
+
+	Object* parent = App->objects->CreateEmptyObject(r, name.c_str());
+
+	for (auto i = root->children.begin(); i != root->children.end(); ++i)
+		CreateChildren(*i, parent);
+}
+
+void r1Model::CreateChildren(r1Model::Node* parent, Object* r)
+{
+	Object* o = App->objects->CreateEmptyObject(r);
+
+	o->SetName(parent->name.c_str());
+
+	o->transform->SetLocalMatrix(parent->transform);
+
+	if (parent->id_mesh != 0ULL) {
+		auto mesh = o->CreateComponent<c1Mesh>();
+		mesh->SetMesh(parent->id_mesh);
+
+		if (parent->id_tex != 0ULL) {
+			auto mat = o->GetComponent<c1Material>();
+			mat->SetTexture(parent->id_tex);
+		}
+	}
+
+	for (auto i = parent->children.begin(); i != parent->children.end(); ++i) {
+		CreateChildren((*i), o);
+	}
 }

@@ -4,9 +4,13 @@
 #include "Modules/m1Render3D.h"
 #include "Resources/r1Shader.h"
 
+#include "Modules/m1Objects.h"
+
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
+
+#include "Objects/Object.h"
 
 #include "Tools/OpenGL/OpenGLHelper.h"
 #include "Tools/TypeVar.h"
@@ -22,18 +26,43 @@
 
 OpenGLBuffers Layer::tile = OpenGLBuffers();
 
-Layer::Layer()
+Layer::Layer(Layer::Type t) : type(t)
 {
 	if (tile.vertices.size == 0u)
 		tile.InitData();
 	strcpy_s(buf, 30, name.c_str());
+
+	switch (t)
+	{
+	case Layer::Type::TILE:
+		break;
+	case Layer::Type::OBJECT:
+		root = App->objects->CreateEmptyObject(nullptr, "root");
+		break;
+	case Layer::Type::TERRAIN:
+		break;
+	default:
+		break;
+	}
 }
 
 Layer::~Layer()
 {
-	if (tile_data) {
-		delete[] tile_data;
-		oglh::DeleteTexture(id_tex);
+	switch (type)
+	{
+	case Layer::Type::TILE:
+		if (tile_data) {
+			delete[] tile_data;
+			oglh::DeleteTexture(id_tex);
+		}
+		break;
+	case Layer::Type::OBJECT:
+		App->objects->DeleteObject(root);
+		break;
+	case Layer::Type::TERRAIN:
+		break;
+	default:
+		break;
 	}
 }
 
@@ -41,12 +70,32 @@ void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 {
 	PROFILE_FUNCTION();
 	
-	oglh::BindTexture(id_tex);
+	switch (type)
+	{
+	case Layer::Type::TILE: {
+		oglh::BindTexture(id_tex);
 
-	static auto shader = App->render->GetShader("tilemap");
-	shader->SetMat4("model", float4x4::FromTRS(float3((float)displacement[0] / (float)tile_width, height, (float)displacement[1] / (float)tile_height), Quat::identity, float3((float)size.x, 1.f, (float)size.y))); // TODO: don't create a mat4x4 for every layer
-	shader->SetFloat("alpha", opacity);
-	oglh::DrawElements(tile.indices.size);
+		static auto shader = App->render->GetShader("tilemap");
+		shader->SetMat4("model", float4x4::FromTRS(float3((float)displacement[0] / (float)tile_width, height, (float)displacement[1] / (float)tile_height), Quat::identity, float3((float)size.x, 1.f, (float)size.y))); // TODO: don't create a mat4x4 for every layer
+		shader->SetFloat("alpha", opacity);
+		oglh::DrawElements(tile.indices.size);
+		break; }
+	case Layer::Type::OBJECT: {
+		if (root != nullptr) {
+			oglh::DepthEnable(true);
+			static auto shader = App->render->GetShader("default");
+			shader->Use();
+
+			root->Update();
+
+			oglh::DepthEnable(false);
+
+			shader->SetMat4("model", float4x4::identity);
+		}
+		break; }
+	case Layer::Type::TERRAIN:
+		break;
+	}
 }
 
 void Layer::Reset(const int2& size)
@@ -90,10 +139,11 @@ void Layer::OnInspector()
 {
 	if (ImGui::InputText("Name", buf, 30))
 		name.assign(buf);
+	ImGui::Text("Type: "); ImGui::SameLine(); ImGui::Text(Layer::TypeToString(type).c_str());
 	ImGui::Checkbox("Visible", &visible);
 	ImGui::Checkbox("Lock", &locked);
-	ImGui::DragFloat("Height", &height, 0.1f);
 	ImGui::SliderFloat("Opacity", &opacity, 0.f, 1.f);
+	ImGui::DragFloat("Height", &height, 0.1f);
 	ImGui::DragInt2("Displacement", displacement);
 
 	ImGui::Separator();
@@ -187,6 +237,48 @@ void Layer::SetName(const char* n)
 {
 	name.assign(n);
 	strcpy_s(buf, 30, n);
+}
+
+Layer::Type Layer::GetType() const
+{
+	return type;
+}
+
+void Layer::SetType(Type t)
+{
+	type = t;
+	//TODO: delete all data if exist
+}
+
+std::string Layer::TypeToString(Type t)
+{
+	switch (t)
+	{
+	case Layer::Type::TILE:
+		return std::string("tile");
+		break;
+	case Layer::Type::OBJECT:
+		return std::string("object");
+		break;
+	case Layer::Type::TERRAIN:
+		return std::string("terrain");
+		break;
+	}
+	return std::string("NONE");
+}
+
+Layer::Type Layer::StringToType(const std::string& s)
+{
+	if (s.compare("tile")) {
+		return Layer::Type::TILE;
+	}
+	else if (s.compare("object")) {
+		return Layer::Type::OBJECT;
+	}
+	else if (s.compare("terrain")) {
+		return Layer::Type::TERRAIN;
+	}
+	return Layer::Type::NONE;
 }
 
 OpenGLBuffers::OpenGLBuffers()

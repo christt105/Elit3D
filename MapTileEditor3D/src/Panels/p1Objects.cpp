@@ -2,6 +2,9 @@
 #include "Core/Application.h"
 #include "Modules/m1Objects.h"
 #include "Objects/Object.h"
+#include "Modules/m1GUI.h"
+#include "Modules/m1Events.h"
+#include "Panels/p1Inspector.h"
 
 #include "Tools/System/Logger.h"
 
@@ -16,9 +19,14 @@ p1Objects::~p1Objects()
 
 void p1Objects::Update()
 {
-	for (auto i = App->objects->objects.begin(); i != App->objects->objects.end(); ++i) {
-		TreeNode(*i);
+	if (App->objects->layer_root_selected != nullptr) {
+		for (auto i = App->objects->layer_root_selected->children.begin(); i != App->objects->layer_root_selected->children.end(); ++i)
+			TreeNode(*i);
 	}
+
+	for (auto i = to_destroy.begin(); i != to_destroy.end(); ++i)
+		App->objects->DeleteObject(*i);
+	to_destroy.clear();
 }
 
 void p1Objects::TreeNode(Object* obj)
@@ -31,13 +39,34 @@ void p1Objects::TreeNode(Object* obj)
 		flags |= ImGuiTreeNodeFlags_Leaf;
 
 	bool tree = ImGui::TreeNodeEx(obj->GetName(), flags);
-	if (ImGui::IsItemClicked() && App->objects->selected != obj)
+	ImGui::PushID(obj);
+	if (ImGui::IsItemClicked() && App->objects->selected != obj) {
 		App->objects->selected = obj;
+		App->gui->inspector->SetSelected(obj, p1Inspector::SelectedType::OBJECT);
+	}
+
+	ImGui::OpenPopupOnItemClick("popup_gameobject", ImGuiMouseButton_Right);
+
+	if (ImGui::BeginPopup("popup_gameobject")) {
+		if (ImGui::MenuItem("Create Empty")) {
+			App->objects->CreateEmptyObject(obj);
+		}
+		if (ImGui::MenuItem("Delete")) {
+			to_destroy.push_back(obj);
+			if (App->objects->selected == obj) {
+				App->objects->selected = nullptr;
+				App->gui->inspector->SetSelected(nullptr, p1Inspector::SelectedType::NONE);
+			}
+		}
+
+		ImGui::EndPopup();
+	}
 
 	if (tree) {
-		for (auto i = obj->children.begin(); i != obj->children.end(); ++i) {
-			TreeNode(*i);
-		}
+			for (auto i = obj->children.begin(); i != obj->children.end(); ++i) {
+				TreeNode(*i);
+			}
 		ImGui::TreePop();
 	}
+	ImGui::PopID();
 }

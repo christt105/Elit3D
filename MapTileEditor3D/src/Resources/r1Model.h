@@ -3,37 +3,57 @@
 #include <vector>
 #include "ExternalTools/JSON/json.hpp"
 
+#include "ExternalTools/MathGeoLib/include/Math/float4x4.h"
+
+#include "Tools/OpenGL/Buffer.h"
+
 struct aiNode;
+struct aiScene;
 class Object;
+class r1Mesh;
+struct aiMetadata;
 
 class r1Model :
 	public Resource
 {
 	struct Node {
+		~Node() {
+			for (auto i = children.begin(); i != children.end(); ++i)
+				delete* i;
+		}
 		std::string name;
-		std::vector<Node> children;
 
-		float pos[3] = { 0.f, 0.f, 0.f };
-		float scale[3] = { 1.f, 1.f, 1.f };
-		float rot[4] = { 1.f, 0.f, 0.f, 0.f };
-		uint64_t mesh = 0ull;
-		uint64_t texture = 0ull;
+		uint64_t id_mesh = 0ULL;
+		uint64_t id_tex = 0ULL;
 
-		nlohmann::json Parse();
+		float4x4 transform = float4x4::identity;
+
+		std::vector<Node*> children;
+		Node* parent = nullptr;
 	};
+
 public:
 	r1Model(const uint64_t& uid);
 	~r1Model();
 
-	Object* CreateObject();
-
 	void Load() override;
-	void Unload() override;
+
+	void GenerateFiles() override;
+	void UpdateFiles() override;
+
+	void CreateObject(Object* root);
 
 private:
-	void CreateChildren(nlohmann::json& jobj, Object* obj);
+	void LoadMetaData(aiMetadata* meta);
+	void LoadNode(aiNode* root, const aiScene* scene, Node* parent);
 
-private:
-	Node FillNodeHierarchy(const aiNode* parent, const std::vector<uint64_t>& mesh_ids, const std::vector<uint64_t>& tex_ids);
+	void CreateHierarchy(nlohmann::json& parent, aiNode* node);
+
+	void CreateChildren(r1Model::Node* parent, Object* r);
+
+public:
+	std::vector<r1Mesh*> meshes;
+	std::vector<uint64_t> materials;
+	Node* root = nullptr;
 };
 

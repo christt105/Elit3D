@@ -14,5 +14,7 @@ public:
 
 private:
 	void TreeNode(Object* obj);
+
+	std::vector<Object*> to_destroy;
 };
 

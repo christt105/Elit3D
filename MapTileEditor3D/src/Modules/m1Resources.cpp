@@ -78,8 +78,9 @@ Uint64 m1Resources::FindByName(const char* file)
 Uint64 m1Resources::FindByPath(const char* assets_path)
 {
 	PROFILE_FUNCTION();
+	std::string comp = FileSystem::GetCanonical(assets_path);
 	for (auto i = resources.begin(); i != resources.end(); ++i) {
-		if ((*i).second->path.compare(assets_path) == 0)
+		if ((*i).second->path.compare(comp) == 0)
 			return (*i).first;
 	}
 
@@ -255,26 +256,29 @@ void m1Resources::ImportFiles(const Folder* parent)
 	
 	for (auto file = parent->files.begin(); file != parent->files.end(); ++file) {
 		if (FileSystem::GetFileExtension((*file).first.c_str()).compare("meta") != 0) {
-			if (FileSystem::Exists((parent->full_path + "/" + (*file).first + ".meta").c_str())) {
+			if (FileSystem::Exists((parent->full_path + "/" + (*file).first + ".meta").c_str())) { // Meta already exist
 				nlohmann::json meta = FileSystem::OpenJSONFile((parent->full_path + "/" + (*file).first + ".meta").c_str());
 				uint64_t timestamp = FileSystem::LastTimeWrite((parent->full_path + "/" + (*file).first).c_str());
 				std::string extension = meta.value("extension", "none");
-				if (meta.value("timestamp", 0ULL) != timestamp) {
+
+				auto res = CreateResource(
+					GetTypeFromStr(extension.c_str()),
+					(parent->full_path + "/" + (*file).first).c_str(),
+					meta.value("UID", 0ULL));
+
+				if (meta.value("timestamp", 0ULL) != timestamp) {									// file updated
 					meta["timestamp"] = timestamp;
 					FileSystem::SaveJSONFile((parent->full_path + "/" + (*file).first + ".meta").c_str(), meta);
+					res->UpdateFiles();
 				}
-				CreateResource(
-					GetTypeFromStr(extension.c_str()), 
-					(parent->full_path + "/" + (*file).first).c_str(), 
-					meta.value("UID", 0ULL)
-				);
 			}
 			else {
-				CreateResource(
+				auto res = CreateResource(
 					GetTypeFromStr(FileSystem::GetFileExtension((*file).first.c_str()).c_str()),	//type
 					(parent->full_path + "/" + (*file).first).c_str(),								//path
 					GenerateMeta((parent->full_path + (*file).first).c_str())						//meta
 				);
+				res->GenerateFiles();
 			}
 		}
 	}
