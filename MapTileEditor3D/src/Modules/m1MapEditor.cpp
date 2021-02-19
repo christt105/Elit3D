@@ -174,7 +174,7 @@ void m1MapEditor::Mouse(const Ray& ray)
 		return;
 
 	int index = panel_layers->GetSelected();
-	if (m->layers[index]->type != Layer::Type::TILE || index >= (int)m->layers.size() || index < 0 || !App->gui->tileset->SelectTex())
+	if (index >= (int)m->layers.size() || index < 0 || m->layers[index]->type != Layer::Type::TILE || !App->gui->tileset->SelectTex())
 		return;
 
 	float t = 0.f;
