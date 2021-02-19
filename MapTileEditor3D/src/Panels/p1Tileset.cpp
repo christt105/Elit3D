@@ -112,7 +112,7 @@ void p1Tileset::DisplayImage(r1Texture* texture, r1Tileset* tile)
 			ImGui::EndTooltip();
 
 			ImVec2 min = ImGui::GetItemRectMin() + ImVec2(tile_mouse.x * tileSize.x, tile_mouse.y * tileSize.y);
-			ImVec2 max = min + ImVec2((float)tileSize.x, (float)tileSize.y);
+			ImVec2 max = min + ImVec2(tileSize.x, tileSize.y);
 
 			auto draw_list = ImGui::GetCurrentWindow()->DrawList;
 
@@ -128,8 +128,8 @@ void p1Tileset::DisplayImage(r1Texture* texture, r1Tileset* tile)
 		if (tile_selected[0] != -1) {
 			auto draw_list = ImGui::GetCurrentWindow()->DrawList;
 
-			ImVec2 min = ImGui::GetItemRectMin() + ImVec2((float)(tile_selected[0] * tileSize.x), (float)(tile_selected[1] * tileSize.y));
-			ImVec2 max = min + ImVec2((float)tileSize.x, (float)tileSize.y);
+			ImVec2 min = ImGui::GetItemRectMin() + ImVec2((float)tile_selected[0] * tileSize.x, (float)tile_selected[1] * tileSize.y);
+			ImVec2 max = min + ImVec2(tileSize.x, tileSize.y);
 
 			draw_list->AddRectFilled(min, max, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 0.3f)));
 			draw_list->AddRect(min, max, ImGui::GetColorU32(ImVec4(1.f, 0.654f, 0.141f, 1.f)));
