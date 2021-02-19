@@ -41,6 +41,7 @@ void r1Map::Save(const uint64_t& tileset)
 		
 		file["size"] = { size.x, size.y };
 		file["tileset"] = tileset;
+		file["version"] = App->GetVersion();
 
 		properties.SaveProperties(file["properties"]);
 
@@ -97,6 +98,7 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 
 			map.append_attribute("width").set_value(size.x);
 			map.append_attribute("height").set_value(size.y);
+			map.append_attribute("version").set_value(App->GetVersion());
 
 			pugi::xml_node ntileset = map.append_child("tileset");
 			auto tile = (r1Tileset*)App->resources->Get(tileset);
@@ -173,6 +175,7 @@ void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor
 			nlohmann::json file;
 
 			file["size"] = { size.x, size.y };
+			file["version"] = App->GetVersion();
 			auto image = App->resources->Get(tileset);
 			if (image != nullptr)
 				file["tileset"] = image->path; //TODO: object tileset. All info of tileset binded on map file exported

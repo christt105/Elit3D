@@ -22,10 +22,11 @@ class Logger
 	friend struct LineLog;
 public:
 	enum class LogType {
-		INFO, WARNING, ERR
+		INFO, WARNING, ERR, ENGINE
 	};
-	Logger();
-	~Logger();
+
+	Logger() = default;
+	~Logger() = default;
 
 	static void Log(int type, const char file[], const char func[], int line, const char* text, ...);
 
@@ -38,14 +39,13 @@ private:
 };
 
 struct LineLog {
-	LineLog() {}
 	LineLog(Logger::LogType t, const char* str, const tm* time);
 
 	Logger::LogType type = Logger::LogType::INFO;
 	std::string last_line;
 	std::string identifier;
 	ImGuiTextBuffer buffer;
-	int moment[3] = { 0,0,0 };
+	int timestamp[3] = { 0,0,0 };
 	unsigned int references = 1U;
 	bool opened = false;
 };
