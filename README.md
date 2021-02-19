@@ -6,9 +6,6 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/christt105/TileMapEditor3D)
 ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/christt105/TileMapEditor3D/latest)
 
-![GitHub repo size](https://img.shields.io/github/repo-size/christt105/TileMapEditor3D)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/christt105/TileMapEditor3D)
-
 Tile Map Editor 3D is a tile-based map editor in 3D. Composed of several layers of tiles and 3D objects, it allows you to export the maps in different formats.
 
 ## Getting Started
