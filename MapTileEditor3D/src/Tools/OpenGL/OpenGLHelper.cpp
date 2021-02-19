@@ -139,6 +139,11 @@ void oglh::BindBuffers(unsigned int vao, unsigned int vertex, unsigned int eleme
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements);
 }
 
+void oglh::BindBuffer(unsigned int id)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, id);
+}
+
 void oglh::DeleteBuffer(unsigned int& id)
 {
 	glDeleteBuffers(1, &id);

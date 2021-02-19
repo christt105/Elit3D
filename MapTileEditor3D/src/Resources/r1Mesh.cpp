@@ -61,7 +61,7 @@ void r1Mesh::Unload()
 	}
 }
 
-void r1Mesh::GenerateFiles(const aiMesh* mesh)
+void r1Mesh::GenerateFiles()
 {
 	/*nlohmann::json file;
 

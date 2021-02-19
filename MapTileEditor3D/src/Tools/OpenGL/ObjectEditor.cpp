@@ -50,8 +50,32 @@ ObjectEditor::~ObjectEditor() {
 void ObjectEditor::Draw(r1Shader* shader)
 {
 	oglh::BindBuffers(VAO, vertices.id, indices.id);
+	oglh::BindBuffer(uv.id);
 
 	shader->SetMat4("model", float4x4::FromTRS(position, rot, float3(size * scale, 1.f)));
 
 	oglh::DrawElements(indices.size);
+}
+
+nlohmann::json ObjectEditor::ToJson()
+{
+	nlohmann::json mesh;
+
+	float4x4 mat = float4x4::FromTRS(position, rot, float3(size * scale, 1.f));
+	for (int i = 0; i < 4; ++i) {
+		float3 v = mat.MulPos(float3(vertices.data[i * 3], vertices.data[i * 3 + 1], vertices.data[i * 3 + 2]));
+		mesh["object"]["vertices"].push_back(v.x);
+		mesh["object"]["vertices"].push_back(v.y);
+		mesh["object"]["vertices"].push_back(v.z);
+		mesh["object"]["texCoords"].push_back(uv.data[i * 2]);
+		mesh["object"]["texCoords"].push_back(uv.data[i * 2 + 1]);
+	}
+
+	mesh["mesh"]["name"] = name;
+	mesh["mesh"]["position"] = position.SerializeToString();
+	mesh["mesh"]["size"] = size.SerializeToString();
+	mesh["mesh"]["scale"] = scale;
+	mesh["mesh"]["rotation"] = rot.SerializeToString();
+
+	return mesh;
 }

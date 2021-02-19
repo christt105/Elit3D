@@ -89,6 +89,10 @@ public:
 	*/
 	static void BindBuffers(unsigned int vao, unsigned int vertex, unsigned int elements);
 	/**
+	 * Bind buffers
+	*/
+	static void BindBuffer(unsigned int id);
+	/**
 	 * Unbind VAO, vertex and elements buffers
 	*/
 	static void UnBindBuffers();

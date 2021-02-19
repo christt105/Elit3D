@@ -5,6 +5,7 @@
 #include "ExternalTools/MathGeoLib/include/Math/float3.h"
 #include "ExternalTools/MathGeoLib/include/Math/float2.h"
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
+#include "ExternalTools/JSON/json.hpp"
 
 class r1Shader;
 
@@ -16,7 +17,8 @@ public:
 	~ObjectEditor();
 
 	void Draw(r1Shader* shader);
-	bool OnGui(bool& sel);
+
+	nlohmann::json ToJson();
 
 private:
 	std::string name = "Mesh";

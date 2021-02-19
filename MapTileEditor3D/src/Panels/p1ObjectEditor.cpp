@@ -5,6 +5,8 @@
 
 #include "Modules/m1Input.h"
 
+#include "Tools/FileSystem.h"
+
 #include "Resources/r1Shader.h"
 #include "Resources/r1Texture.h"
 #include "Modules/m1Resources.h"
@@ -40,8 +42,8 @@ void p1ObjectEditor::Start()
 
 	meshes.push_back(new ObjectEditor());
 
-	texture = (r1Texture*)App->resources->FindGet("tree01_lm2");
-	texture->Attach();
+	//texture = (r1Texture*)App->resources->FindGet("tree01_lm2");
+	//texture->Attach();
 }
 
 void p1ObjectEditor::Update()
@@ -136,12 +138,12 @@ void p1ObjectEditor::InfoWindow()
 			}
 			ImGui::EndChild();
 
-			ImGui::BeginChild("meshesChild");
+			ImGui::BeginChild("meshesChild", { ImGui::GetWindowContentRegionWidth(),ImGui::GetWindowContentRegionWidth()*0.8f });
 			auto i = meshes.begin();
 			while (i != meshes.end())
 			{
 				ImGui::PushID(*i);
-				if (ImGui::TreeNodeEx(this, ImGuiTreeNodeFlags_CollapsingHeader | ImGuiTreeNodeFlags_NoTreePushOnOpen, (*i)->name.c_str())) {
+				if (ImGui::TreeNodeEx(*i, ImGuiTreeNodeFlags_CollapsingHeader | ImGuiTreeNodeFlags_NoTreePushOnOpen, (*i)->name.c_str())) {
 					ImGui::Indent();
 
 					if (ImGui::Selectable("Select", selected == i - meshes.begin()))
@@ -173,9 +175,25 @@ void p1ObjectEditor::InfoWindow()
 				++i;
 				ImGui::PopID();
 			}
-			if (ImGui::Button("Create"))
-				meshes.push_back(new ObjectEditor());
 			ImGui::EndChild();
+
+			if (ImGui::Button("Create Mesh"))
+				meshes.push_back(new ObjectEditor());
+			ImGui::SameLine();
+			if (ImGui::Button("Save")) {
+				nlohmann::json object;
+				for (auto i = meshes.begin(); i != meshes.end(); ++i) {
+					nlohmann::json jm = (*i)->ToJson();
+					object["meshes"].push_back(jm["mesh"]);
+					for (int v = 0; v < 4*3; ++v) {
+						object["vertices"].push_back(jm["object"]["vertices"][v]);
+						if (v < 4 * 2)
+							object["texCoords"].push_back(jm["object"]["texCoords"][v]);
+					}
+					
+				}
+				FileSystem::SaveJSONFile("Export/object.object", object);
+			}
 		}
 	}
 
@@ -241,6 +259,7 @@ void p1ObjectEditor::DrawUVs(float width, float height)
 			break;
 		}
 		mesh->size = float2(uvs[2] - uvs[0], uvs[7] - uvs[1]);
+		oglh::BindBuffers(mesh->VAO, mesh->vertices.id, mesh->indices.id);
 		oglh::BindTexture(mesh->uv.id);
 		oglh::SetArrayBuffer(mesh->uv.id, mesh->uv.size, sizeof(float), 2, mesh->uv.data, 1, 2);
 		oglh::UnBindTexture();

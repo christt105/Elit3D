@@ -2,8 +2,6 @@
 #include "Resources/Base/Resource.h"
 #include "Tools/OpenGL/Buffer.h"
 
-struct aiMesh;
-
 class r1Mesh :
 	public Resource
 {
@@ -15,7 +13,7 @@ public:
 	void Load() override;
 	void Unload() override;
 
-	void GenerateFiles(const aiMesh* mesh);
+	void GenerateFiles();
 
 private:
 	void GenerateBuffers();
