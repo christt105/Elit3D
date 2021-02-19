@@ -42,8 +42,8 @@ void p1ObjectEditor::Start()
 
 	meshes.push_back(new ObjectEditor());
 
-	//texture = (r1Texture*)App->resources->FindGet("tree01_lm2");
-	//texture->Attach();
+	texture = (r1Texture*)App->resources->FindGet("tree");
+	texture->Attach();
 }
 
 void p1ObjectEditor::Update()

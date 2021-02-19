@@ -24,6 +24,8 @@ public:
 	void Begin() const;
 	void End() const;
 
+	inline Camera* GetCamera() const { return camera; }
+
 public:
 	float color[3] = { .2f, .2f, .2f };
 
