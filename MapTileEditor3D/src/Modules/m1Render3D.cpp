@@ -152,14 +152,14 @@ r1Shader* m1Render3D::GetShader(const char* name)
 void m1Render3D::LoadShaders()
 {
     //load all shaders
-    Folder* fshaders = FileSystem::GetPtrFolder((FileSystem::sAppdata + "/Configuration/Shader/Shaders/").c_str(), true);
+    Folder* fshaders = FileSystem::GetPtrFolder((FileSystem::sAppdata + "Configuration/Shader/Shaders/").c_str(), true);
 
     for (auto shader : fshaders->files) {
-        shaders[shader.first] = r1Shader::Compile(fshaders->full_path + "/" + shader.first);
+        shaders[shader.first] = r1Shader::Compile(fshaders->full_path + shader.first);
     }
 
     //link
-    std::string link = FileSystem::OpenTextFile((FileSystem::sAppdata + "/Configuration/Shader/shaders_link.txt").c_str());
+    std::string link = FileSystem::OpenTextFile((FileSystem::sAppdata + "Configuration/Shader/shaders_link.txt").c_str());
 
     std::istringstream iss(link);
 
