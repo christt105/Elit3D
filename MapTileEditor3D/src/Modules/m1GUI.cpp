@@ -209,11 +209,11 @@ void m1GUI::MainMenuBar()
 
 			if (ImGui::Button("Create")) {
 				if (!std::string(buf).empty()) {
-					std::string path = ("Assets/Maps/" + std::string(buf) + ".scene");
+					std::string path = ("./Assets/Maps/" + std::string(buf) + ".scene");
 					if (App->resources->FindByPath(path.c_str()) != 0ULL) {
-						int repeat = 0;
+						int repeat = 1;
 						while (App->resources->FindByPath(path.c_str()) != 0ULL) {
-							path = "Assets/Maps/" + std::string(buf) + "(" + std::to_string(repeat++) + ")" + ".scene";
+							path = "Assets/Maps/" + std::string(buf) + " (" + std::to_string(repeat++) + ")" + ".scene";
 						}
 					}
 					App->resources->PauseFileWatcher(true);

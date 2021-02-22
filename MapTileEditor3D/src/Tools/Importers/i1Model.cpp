@@ -20,11 +20,11 @@ void i1Model::Import(const char* path)
 
 	std::string assets_file; 
 
-	if (FileSystem::IsFileInFolder(FileSystem::GetNameFile(path).c_str(), ASSETS_MODELS_PATH, true)) {
+	/*if (FileSystem::IsFileInFolder(FileSystem::GetNameFile(path).c_str(), ASSETS_MODELS_PATH, true)) {
 		assets_file.assign(ASSETS_MODELS_PATH + FileSystem::GetNameFile(path) + "(1)" + FileSystem::GetFileExtension(path, true)); //TODO ADD number of instancies if there is already a (1)
 	}
 	else
-		assets_file.assign(ASSETS_MODELS_PATH + FileSystem::GetNameFile(path, true));
+		assets_file.assign(ASSETS_MODELS_PATH + FileSystem::GetNameFile(path, true));*/
 
 	if (FileSystem::CopyTo(path, assets_file.c_str())) {
 		uint64_t meta = App->resources->GenerateMeta(assets_file.c_str());

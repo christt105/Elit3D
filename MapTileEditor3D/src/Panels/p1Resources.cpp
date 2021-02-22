@@ -192,20 +192,20 @@ void p1Project::Update()
 				ImGui::BeginGroup();
 				if (ImGui::ImageButtonGL((ImTextureID)ids[GetEType(extension)], ImVec2(size * 80.f, size * 100.6f), 2)) {
 					static std::string path;
-					path = FileSystem::GetCanonical((selected->full_path + (*i).first).c_str());
+					path = FileSystem::NormalizePath(selected->full_path + (*i).first);
 					App->gui->inspector->SetSelected((void*)&(path), GetInspectorType(extension));
 				}
 				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
 					std::string ext = FileSystem::GetFileExtension((*i).first.c_str());
 
 					if (ext == "fbx") { //TODO ugly place to put that code here
-						auto model = (r1Model*)App->resources->Get(App->resources->FindByPath((selected->full_path + "/" + (*i).first).c_str()));
+						auto model = (r1Model*)App->resources->Get(App->resources->FindByPath((selected->full_path + (*i).first).c_str()));
 						model->Attach();
 						auto map = App->map_editor->GetObjectLayer(true, true);
 						model->CreateObject(map->root);
 					}
 					else if (ext == "scene") {
-						App->map_editor->LoadMap(App->resources->FindByPath((selected->full_path + "/" + (*i).first).c_str()));
+						App->map_editor->LoadMap(App->resources->FindByPath((selected->full_path + (*i).first).c_str()));
 					}
 				}
 				ImGui::Text(FileSystem::GetNameFile((*i).first.c_str()).c_str());
