@@ -1,5 +1,5 @@
 # Changelog
-## [0.4.0] - 2021-02-19
+## [0.4.0] - 2021-02-22
 ### Added
 * premake5 project generator
 * Layer objects type

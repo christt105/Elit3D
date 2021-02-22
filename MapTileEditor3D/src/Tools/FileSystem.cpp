@@ -371,7 +371,7 @@ void FileSystem::GenerateFolders()
     appdata = GetFolders(sAppdata.c_str());
     //TODO: Installation setup
 #elif DISTP
-    sAppdata = NormalizePath(sCurrDir);
+    sAppdata = NormalizePath(sCurrDir) + "/";
     appdata = GetFolders(sAppdata.c_str());
     std::string parent(sCurrDir.c_str(), sCurrDir.size() - sizeof(APP_NAME) + 1);
     std::string newDir(parent + "project");
