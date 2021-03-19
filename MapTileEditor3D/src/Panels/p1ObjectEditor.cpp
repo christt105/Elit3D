@@ -191,6 +191,7 @@ void p1ObjectEditor::InfoWindow()
 					if (ImGui::Button("Delete")) {
 						if (i - meshes.begin() == selected)
 							selected = -1;
+						delete* i;
 						i = meshes.erase(i);
 
 					}
