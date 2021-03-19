@@ -316,6 +316,8 @@ void m1Resources::ReimportResource(const char* file)
 	}
 }
 
+
+
 std::vector<Resource*> m1Resources::GetVectorOf(Resource::Type type)
 {
 	std::vector<Resource*> ret;
@@ -323,6 +325,17 @@ std::vector<Resource*> m1Resources::GetVectorOf(Resource::Type type)
 	for (auto i = resources.begin(); i != resources.end(); ++i)
 		if ((*i).second->type == type)
 			ret.push_back((*i).second);
+
+	return ret;
+}
+
+std::vector<r1Texture*> m1Resources::GetVectorOfTextures() const
+{
+	std::vector<r1Texture*> ret;
+
+	for (auto i = resources.begin(); i != resources.end(); ++i)
+		if ((*i).second->type == Resource::Type::Texture)
+			ret.push_back((r1Texture*)(*i).second);
 
 	return ret;
 }

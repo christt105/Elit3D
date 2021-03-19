@@ -84,7 +84,7 @@ void p1ObjectEditor::ViewportWindow()
 	ImGui::SetCursorScreenPos(ImGui::GetWindowPos());
 
 	ImVec2 window_size = ImGui::GetContentRegionAvail();
-	viewport->UpdateSize((int)window_size.x, (int)window_size.y); // TODO: Extract to a viewport function
+	viewport->UpdateSize((int)window_size.x, (int)window_size.y);
 
 	viewport->Update();
 
@@ -103,13 +103,13 @@ void p1ObjectEditor::InfoWindow()
 
 	if (meshes.empty()) {
 		if (ImGui::Button("Create")) {
-			ImGui::OpenPopup("CreateObject");
+			ImGui::OpenPopup("OECreateObject");
 			ImGui::SetNextWindowCentered(ImVec2(500.f, 300.f));
 		}
 		if (ImGui::Button("Load")) {
-
+			
 		}
-		if (ImGui::BeginPopupModal("CreateObject")) {
+		if (ImGui::BeginPopupModal("OECreateObject")) {
 			static char buf[35]{ "" };
 			ImGui::InputText("Name", buf, 35);
 			if (ImGui::Button("Create")) {
@@ -126,7 +126,37 @@ void p1ObjectEditor::InfoWindow()
 	}
 	else {
 		if (texture == nullptr) {
-			ImGui::Button("Load Texture");
+			static bool selectTexture_modal = true;
+			if (ImGui::Button("Load Texture")) {
+				ImGui::OpenPopup("OE SelectTexture");
+				selectTexture_modal = true;
+				ImGui::SetNextWindowCentered(ImVec2(500.f, 300.f));
+
+				auto textures = App->resources->GetVectorOfTextures();
+				for (auto i : textures) {
+					if (!i->tileset)
+						i->Attach();
+				}
+			}
+			if (ImGui::BeginPopupModal("OE SelectTexture", &selectTexture_modal)) {
+				auto textures = App->resources->GetVectorOfTextures(); //TODO: only once?
+
+				int count = 1;
+				for (auto i = textures.begin(); i != textures.end(); ++i) {
+					if (!(*i)->tileset) {
+						if (ImGui::ImageButtonGL((ImTextureID)(*i)->GetBufferID(), ImVec2(100.f, 100.f))) {
+							texture = *i;
+							for (auto j = textures.begin(); j != textures.end(); ++j)
+								if (!(*j)->tileset && *j != *i)
+									(*j)->Detach();
+						}
+						if (count++ % 3 != 0)
+							ImGui::SameLine();
+					}
+				}
+
+				ImGui::EndPopup();
+			}
 		}
 		else {
 			float width = ImGui::GetWindowContentRegionWidth();

@@ -5,6 +5,7 @@
 
 struct Folder;
 class FileWatch;
+class r1Texture;
 
 #define ASSETS_PATH "Assets/"
 #define ASSETS_TEXTURES_PATH "Assets/Textures/"
@@ -71,6 +72,7 @@ public:
 	void ReimportResource(const char* file);
 
 	std::vector<Resource*> GetVectorOf(Resource::Type type);
+	std::vector<r1Texture*> GetVectorOfTextures() const;
 
 private:
 	void GenerateLibrary();
