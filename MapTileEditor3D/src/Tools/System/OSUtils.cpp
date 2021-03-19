@@ -8,27 +8,37 @@
 
 #include "Tools/System/Logger.h"
 
+#define USE_SDL_OPENURL 1
 
 void OSUtils::ExecuteURL(const char* url)
 {
-	// TODO: set it for linux and mac
+#if USE_SDL_OPENURL
+	if (SDL_OpenURL(url) != 0)
+		LOGE("Error opening url %s | error: %s", url, SDL_GetError());
+#else
 	int err = (int)ShellExecute(0, 0, url, 0, 0, SW_SHOW);
 	if (err <= 32)
 		CheckShellErrors(err);
+#endif
 }
 
 void OSUtils::Open(const char* complete_path)
 {
+#if USE_SDL_OPENURL
+	if (SDL_OpenURL(complete_path) != 0)
+		LOGE("Error opening url %s | error: %s", complete_path, SDL_GetError());
+#else
 	int err = (int)ShellExecute(0, "open", complete_path, 0, 0, SW_SHOW);
 	if (err <= 32)
 		CheckShellErrors(err);
+#endif
 }
 
 void OSUtils::OpenAndSelect(const char* complete_path)
 {
-	ITEMIDLIST* pidl = ILCreateFromPath(complete_path);
+	ITEMIDLIST* pidl = ILCreateFromPath(complete_path); //TODO: Set for linux and mac
 	if (pidl) {
-		SHOpenFolderAndSelectItems(pidl, 0, 0, 0);
+		SHOpenFolderAndSelectItems(pidl, 0, nullptr, 0);
 		ILFree(pidl);
 	}
 }
