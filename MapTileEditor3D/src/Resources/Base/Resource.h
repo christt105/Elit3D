@@ -16,6 +16,7 @@ public:
 		Model, 
 		Texture,
 		Tileset,
+		Object,
 		Map,
 
 		MAX

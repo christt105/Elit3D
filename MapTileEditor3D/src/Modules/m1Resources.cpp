@@ -5,6 +5,7 @@
 #include "Resources/r1Mesh.h"
 #include "Resources/r1Tileset.h"
 #include "Resources/r1Map.h"
+#include "Resources/r1Object.h"
 
 #include "Tools/FileSystem.h"
 
@@ -130,6 +131,7 @@ Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_pa
 	case Resource::Type::Texture:	ret = new r1Texture((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
 	case Resource::Type::Tileset:	ret = new r1Tileset((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
 	case Resource::Type::Map:		ret = new r1Map((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
+	case Resource::Type::Object:	ret = new r1Object((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
 	default:
 		LOGW("Resource %i from %s could not be created, resource not setted in switch", (int)type, assets_path);
 		break;
@@ -172,7 +174,7 @@ void m1Resources::DeleteResource(const uint64_t& uid)
 void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 {
 	if (strcmp(assets_path, "") != 0) {
-		ret->path = FileSystem::GetCanonical(assets_path);
+		ret->path = assets_path;
 		ret->name = FileSystem::GetNameFile(assets_path);
 		ret->extension.assign(FileSystem::GetFileExtension(assets_path));
 	}
@@ -266,12 +268,12 @@ void m1Resources::ImportFiles(const Folder* parent)
 				}
 			}
 			else {
-				auto res = CreateResource(
+				if (auto res = CreateResource(
 					GetTypeFromStr(FileSystem::GetFileExtension((*file).first.c_str()).c_str()),	//type
 					(parent->full_path + "/" + (*file).first).c_str(),								//path
 					GenerateMeta((parent->full_path + (*file).first).c_str())						//meta
-				);
-				res->GenerateFiles();
+				))
+					res->GenerateFiles();
 			}
 		}
 	}
@@ -350,6 +352,8 @@ Resource::Type m1Resources::GetTypeFromStr(const char* type) const
 		return Resource::Type::Tileset;
 	else if (strcmp(type, "scene") == 0)
 		return Resource::Type::Map;
+	else if (strcmp(type, "object") == 0)
+		return Resource::Type::Object;
 
 	LOGW("No library path found to type %i", (int)type);
 
