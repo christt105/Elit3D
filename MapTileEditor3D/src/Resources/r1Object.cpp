@@ -26,10 +26,6 @@ void r1Object::Load()
 		obj->size = float2::FromString((*m).value("size", float2::one.SerializeToString()));
 		obj->scale = (*m).value("scale", 1.f);
 
-		for (int v = 0; v < 3 * 4; ++v) {
-			//obj->vertices.data[v] = json["vertices"][v + i * 3 * 4];
-		}
-
 		for (int t = 0; t < 2 * 4; ++t) {
 			obj->uv.data[t] = json["texCoords"][t + i * 2 * 4];
 		}
@@ -42,4 +38,16 @@ void r1Object::Load()
 
 	if (texture = (r1Texture*)App->resources->Get(json["texture"]))
 		texture->Attach();
+}
+
+void r1Object::Unload()
+{
+	for (auto m : meshes)
+		delete m;
+	meshes.clear();
+
+	if (texture)
+		texture->Detach();
+
+	
 }

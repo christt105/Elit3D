@@ -14,6 +14,7 @@ public:
     ~r1Object();
 
     void Load() override;
+    void Unload() override;
 
     std::vector<ObjectEditor*> meshes;
     r1Texture* texture = nullptr;

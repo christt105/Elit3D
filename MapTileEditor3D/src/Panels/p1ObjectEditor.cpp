@@ -248,6 +248,13 @@ void p1ObjectEditor::InfoWindow()
 
 				FileSystem::SaveJSONFile(object->path.c_str(), json_object);
 			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Change")) {
+				//TODO: modal window sure change without saving
+				object->Unload();
+				object = nullptr;
+			}
 		}
 	}
 
