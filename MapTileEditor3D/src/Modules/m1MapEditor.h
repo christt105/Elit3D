@@ -38,6 +38,7 @@ public:
     void ReLoadMap();
 
     void Mouse(const Ray& ray);
+    void MouseTileObject(r1Map* m, int selected, const math::Ray& ray);
     void MouseTile(r1Map* m, const math::Ray& ray);
     void ResizeMap(int width, int height);
     int2 GetMapSize() const;

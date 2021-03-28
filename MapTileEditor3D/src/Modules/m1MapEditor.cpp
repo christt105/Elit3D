@@ -182,23 +182,47 @@ void m1MapEditor::Mouse(const Ray& ray)
 		MouseTile(m, ray);
 	}
 	else if (m->layers[selected]->GetType() == Layer::Type::OBJECT) {
-		float t = 0.f;
-		if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[selected]->height, ray.pos, ray.dir, t) && t > 0.f) {
-			float3 position = ray.GetPoint(t);
-			auto col = (int)floor(position.z);
-			auto row = (int)floor(position.x);
-			//TODO Draw transparent
+		MouseTileObject(m, selected, ray);
+	}
+}
 
-			if (App->input->IsMouseButtonPressed(1) && row >= 0 && col >= 0 && row < m->size.x && col < m->size.y && !m->layers[selected]->locked) {
+void m1MapEditor::MouseTileObject(r1Map* m, int selected, const math::Ray& ray)
+{
+	float t = 0.f;
+	if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[selected]->height, ray.pos, ray.dir, t) && t > 0.f) {
+		float3 position = ray.GetPoint(t);
+		auto col = (int)floor(position.z);
+		auto row = (int)floor(position.x);
+		//TODO Draw transparent
+
+		if (App->input->IsMouseButtonPressed(1) && row >= 0 && col >= 0 && row < m->size.x && col < m->size.y && !m->layers[selected]->locked) {
+			switch (panel_tools->GetSelectedTool())
+			{
+				/*case p1Tools::Tools::BRUSH:
+					break;*/
+			case p1Tools::Tools::ERASER:
+				if (m->layers[selected]->object_tile_data[m->size.x * col + row] != 0ULL) {
+					if (Resource* res = App->resources->Get(m->layers[selected]->object_tile_data[m->size.x * col + row]))
+						res->Detach();
+				}
+				m->layers[selected]->object_tile_data[m->size.x * col + row] = 0ULL;
+				break;
+				/*case p1Tools::Tools::BUCKET:
+					break;
+				case p1Tools::Tools::EYEDROPPER:
+					break;
+				case p1Tools::Tools::RECTANGLE:
+					break;*/
+			default:
 				uint64_t tile_id = App->gui->objects->GetObjectSelected();
 				if (tile_id != 0ULL && tile_id != m->layers[selected]->object_tile_data[m->size.x * col + row]) {
 					Resource* res = App->resources->Get(tile_id);
 					if (res != nullptr) {
 						res->Attach();
 						m->layers[selected]->object_tile_data[m->size.x * col + row] = tile_id;
-						LOG("map with size (%s) object on (%i)", m->size.ToString().c_str(), m->size.x * row + col)
 					}
 				}
+				break;
 			}
 		}
 	}
