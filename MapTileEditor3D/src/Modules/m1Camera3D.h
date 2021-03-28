@@ -9,6 +9,7 @@ class m1Camera3D :
 	public Module
 {
 	friend class p1Configuration;
+	friend class m1Scene;
 public:
 	m1Camera3D(bool start_enabled = true);
 	~m1Camera3D();

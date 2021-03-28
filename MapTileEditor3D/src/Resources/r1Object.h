@@ -1,5 +1,6 @@
 #pragma once
 #include "Resources/Base/Resource.h"
+#include "Tools/OpenGL/Buffer.h"
 
 #include <vector>
 
@@ -15,6 +16,12 @@ public:
 
     void Load() override;
     void Unload() override;
+
+    unsigned int VAO = 0u;
+
+    Buffer<float> bvertices;
+    Buffer<unsigned int> bindices;
+    Buffer<float> btexture;
 
     std::vector<ObjectEditor*> meshes;
     r1Texture* texture = nullptr;

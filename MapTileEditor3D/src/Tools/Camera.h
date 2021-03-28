@@ -20,6 +20,8 @@ public:
 	void ImGuiControl();
 	void LookAt(const float3& position);
 
+	inline const Frustum& GetFrustum() const { return frustum; }
+
 public:
 	bool is_active = true;
 

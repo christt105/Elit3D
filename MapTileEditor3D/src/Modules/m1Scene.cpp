@@ -71,11 +71,11 @@ UpdateStatus m1Scene::Update()
 			mouse_panel.y = size_panel.y - mouse_panel.y;
 			float2 mouse_perc(2 * ((float)mouse_panel.x) / ((float)size_panel.x) - 1, 2 * ((float)mouse_panel.y) / ((float)size_panel.y) - 1);
 
-			/*auto ray = App->camera->frustum.UnProject(mouse_perc);
+			auto ray = App->camera->scene->GetFrustum().UnProject(mouse_perc.x, mouse_perc.y);
 			App->map_editor->Mouse(ray);
-			shader->Use();
+			//shader->Use();
 
-			if (App->input->IsMouseButtonPressed(1)) {
+			/*if (App->input->IsMouseButtonPressed(1)) {
 				xd0 = ray.pos;
 				xd1 = ray.pos + ray.dir * 250.f;
 			}*/

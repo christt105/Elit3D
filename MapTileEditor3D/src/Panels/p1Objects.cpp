@@ -5,6 +5,8 @@
 #include "Modules/m1GUI.h"
 #include "Modules/m1Events.h"
 #include "Panels/p1Inspector.h"
+#include "Modules/m1Resources.h"
+#include "Resources/r1Object.h"
 
 #include "Tools/System/Logger.h"
 
@@ -19,6 +21,8 @@ p1Objects::~p1Objects()
 
 void p1Objects::Update()
 {
+	float height = ImGui::GetContentRegionAvail().y;
+	ImGui::BeginChild("Tree Objects", ImVec2(0.f, height*0.5f), true);
 	if (App->objects->layer_root_selected != nullptr) {
 		for (auto i = App->objects->layer_root_selected->children.begin(); i != App->objects->layer_root_selected->children.end(); ++i)
 			TreeNode(*i);
@@ -27,6 +31,29 @@ void p1Objects::Update()
 	for (auto i = to_destroy.begin(); i != to_destroy.end(); ++i)
 		App->objects->DeleteObject(*i);
 	to_destroy.clear();
+	ImGui::EndChild();
+
+	ImGui::BeginChild("Objects", ImVec2(0.f, 0.f), true);
+	ImGui::Text("Objects");
+	ImGui::Separator();
+	ImGui::Indent();
+	auto obj = App->resources->GetVectorOf(Resource::Type::Object);
+	for (auto i = obj.begin(); i != obj.end(); ++i) {
+		ImGui::PushID(*i);
+		if (ImGui::Selectable((*i)->name.c_str(), selected == *i)) {
+			selected = (r1Object*)*i;
+		}
+		ImGui::PopID();
+	}
+	ImGui::Unindent();
+	ImGui::EndChild();
+}
+
+uint64_t p1Objects::GetObjectSelected() const
+{
+	if (selected != nullptr)
+		return selected->GetUID();
+	return 0ULL;
 }
 
 void p1Objects::TreeNode(Object* obj)

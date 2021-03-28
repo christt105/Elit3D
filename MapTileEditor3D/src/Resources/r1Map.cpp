@@ -308,6 +308,8 @@ void r1Map::LoadLayers(nlohmann::json& file)
 		}
 		case Layer::Type::OBJECT:
 			layer->root->Unparse((*l)["root"]);
+			layer->object_tile_data = new uint64_t[size.x * size.y];
+			memset(layer->object_tile_data, 0, sizeof(uint64_t) * size.x * size.y);
 			break;
 		default:
 			break;

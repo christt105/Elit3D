@@ -19,6 +19,8 @@
 
 #include "Tools/System/Logger.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 p1ObjectEditor::p1ObjectEditor(bool start_active, bool appear_mainmenubar, bool can_close)
 	: Panel("Object Editor", start_active, appear_mainmenubar, can_close, ICON_FA_DRAW_POLYGON /*other: https://fontawesome.com/icons/pencil-ruler?style=solid | https://fontawesome.com/icons/tree?style=solid | https://fontawesome.com/icons/hammer?style=solid*/)
 {
@@ -182,7 +184,7 @@ void p1ObjectEditor::InfoWindow()
 		}
 		else {
 			float width = ImGui::GetWindowContentRegionWidth();
-			ImGui::BeginChild("imageChild", ImVec2(width, width));
+			ImGui::BeginChild("imageChild", ImVec2(width, width), false, ImGuiWindowFlags_HorizontalScrollbar);
 			float height = object->texture->GetHeight() * width / object->texture->GetWidth();
 			ImGui::Image((ImTextureID)object->texture->GetBufferID(), ImVec2(width, height), ImVec2(0, 0), ImVec2(1, -1));
 			if (selected != -1 && selected < object->meshes.size()) {
@@ -319,7 +321,8 @@ void p1ObjectEditor::DrawUVs(float width, float height)
 			uvs[5] = uvs[7];
 			break;
 		}
-		mesh->size = float2(uvs[2] - uvs[0], uvs[7] - uvs[1]);
+		mesh->size = float2((uvs[2] - uvs[0]) * object->texture->GetWidth(), (uvs[7] - uvs[1]) * object->texture->GetHeight());
+		mesh->size.Normalize();
 		oglh::BindBuffers(mesh->VAO, mesh->vertices.id, mesh->indices.id);
 		oglh::BindTexture(mesh->uv.id);
 		oglh::SetArrayBuffer(mesh->uv.id, mesh->uv.size, sizeof(float), 2, mesh->uv.data, 1, 2);

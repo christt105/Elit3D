@@ -4,6 +4,7 @@
 
 #include "Tools/Math/int2.h"
 #include "Tools/OpenGL/Buffer.h"
+#include "ExternalTools/MathGeoLib/include/Math/float3.h"
 
 #include "Core/Globals.h"
 
@@ -85,11 +86,12 @@ public:
 
     union {
         TILE_DATA_TYPE* tile_data = nullptr; //TODO: Research about set id with short or int
-        Object* root;
+        uint64_t* object_tile_data;
     };
+    Object* root;
+
 private:
     static OpenGLBuffers tile;
-
 
     Properties properties;
 

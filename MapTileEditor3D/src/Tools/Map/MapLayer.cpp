@@ -5,6 +5,9 @@
 #include "Resources/r1Shader.h"
 
 #include "Modules/m1Objects.h"
+#include "Modules/m1Resources.h"
+#include "Resources/r1Object.h"
+#include "Resources/r1Texture.h"
 
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
@@ -58,6 +61,9 @@ Layer::~Layer()
 		break;
 	case Layer::Type::OBJECT:
 		App->objects->DeleteObject(root);
+		if (object_tile_data) {
+			delete[] object_tile_data;
+		}
 		break;
 	case Layer::Type::TERRAIN:
 		break;
@@ -88,8 +94,23 @@ void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 
 			root->Update();
 
-			oglh::DepthEnable(false);
+			for (int i = size.x * size.y - 1; i >= 0; --i) {
+				if (object_tile_data[i] == 0ULL)
+					continue;
+				r1Object* obj = (r1Object*)App->resources->Get(object_tile_data[i]);
+				if (obj == nullptr)
+					continue;
 
+				oglh::BindBuffers(obj->VAO, obj->bvertices.id, obj->bindices.id);
+
+				shader->SetMat4("model", float4x4::FromTRS(float3(i % size.x, height, i / size.x), Quat::identity, float3::one));
+
+				if (obj->texture != nullptr) obj->texture->Bind();
+				shader->SetBool("useTexture", obj->texture != nullptr);
+				oglh::DrawElements(obj->bindices.size);
+				if (obj->texture != nullptr) obj->texture->Unbind();
+			}
+			oglh::DepthEnable(false);
 			shader->SetMat4("model", float4x4::identity);
 		}
 		break; }
@@ -100,17 +121,34 @@ void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 
 void Layer::Reset(const int2& size)
 {
-	if (tile_data != nullptr)
-		delete[] tile_data;
-	tile_data = new TILE_DATA_TYPE[size.x * size.y];
-	memset(tile_data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
+	switch (type)
+	{
+	case Layer::Type::TILE: {
+		if (tile_data != nullptr)
+			delete[] tile_data;
+		tile_data = new TILE_DATA_TYPE[size.x * size.y];
+		memset(tile_data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
 
-	unsigned char* tex = new unsigned char[size.x * size.y * 3];
-	memset(tex, 0, sizeof(unsigned char) * size.x * size.y * 3);
+		unsigned char* tex = new unsigned char[size.x * size.y * 3];
+		memset(tex, 0, sizeof(unsigned char) * size.x * size.y * 3);
 
-	oglh::GenTextureData(id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex);
+		oglh::GenTextureData(id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex);
 
-	delete[] tex;
+		delete[] tex;
+		break;
+	}
+	case Layer::Type::OBJECT:
+		root = App->objects->CreateEmptyObject();
+		if (object_tile_data != nullptr)
+			delete[] object_tile_data;
+		object_tile_data = new uint64_t[size.x * size.y];
+		memset(object_tile_data, 0, sizeof(uint64_t) * size.x * size.y);
+		break;
+	case Layer::Type::TERRAIN:
+		break;
+	default:
+		break;
+	}
 }
 
 void Layer::SelectTex() const
