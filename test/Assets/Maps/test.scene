@@ -76,6 +76,7 @@
             "visible": false
         },
         {
+            "data": "eNrjMrQwNrM0MzQxMjIyMDM0NjY3sjTRoYWgARDSzTLiBbkMdNAhve3GGVx4HYRTgguHctKEibCfJIvomqTwOBtLfOM1hmvAUgexdhuQZCYpgQKBXESkEJIDhwsAnT7gxg==",
             "displacement": [
                 0,
                 0
@@ -844,5 +845,6 @@
         14,
         10
     ],
-    "tileset": 14610671625611851776
+    "tileset": 14610671625611851776,
+    "version": "0.4.0"
 }

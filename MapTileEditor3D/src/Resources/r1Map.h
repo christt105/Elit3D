@@ -22,6 +22,8 @@ public:
 
     void Save(const uint64_t& tileset);
     void Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor::MapTypeExport t);
+    void ExportJSON(const uint64_t& tileset, Layer::DataTypeExport d);
+    void ExportXML(const uint64_t& tileset, Layer::DataTypeExport d);
     void SaveInImage();
     void Load() override;
     void Unload() override;

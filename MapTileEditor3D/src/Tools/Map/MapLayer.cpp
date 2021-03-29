@@ -195,32 +195,37 @@ std::string Layer::Parse(int sizeX, int sizeY, DataTypeExport d) const
 {
 	std::string ret;
 
-	if (d != Layer::DataTypeExport::CSV_NO_NEWLINE)
-		ret = '\n';
+		if (d != Layer::DataTypeExport::CSV_NO_NEWLINE)
+			ret = '\n';
 
-	for (int i = sizeY - 1; i >= 0; --i) {
-		for (int j = 0; j < sizeX; ++j) {
-			ret.append(std::to_string(tile_data[i * sizeX + j]) + ','); // TODO: encode 4 bytes array
+		for (int i = sizeY - 1; i >= 0; --i) {
+			for (int j = 0; j < sizeX; ++j) {
+				if (type == Layer::Type::TILE) {
+					ret.append(std::to_string(tile_data[i * sizeX + j]) + ','); // TODO: encode 4 bytes array
+				}
+				else if (type == Layer::Type::OBJECT) {
+					ret.append(std::to_string(object_tile_data[i * sizeX + j]) + ','); // TODO: encode 4 bytes array
+				}
+			}
+
+			if (i == 0)
+				ret.pop_back();
+			if (d != Layer::DataTypeExport::CSV_NO_NEWLINE)
+				ret += '\n';
 		}
 
-		if (i == 0)
-			ret.pop_back();
-		if (d != Layer::DataTypeExport::CSV_NO_NEWLINE)
-			ret += '\n';
-	}
-
-	switch (d)
-	{
-	case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
-		ret = base64_encode(ret);
-		break;
-	case Layer::DataTypeExport::BASE64_ZLIB:
-		ret = compress_string(ret);
-		ret = base64_encode(ret);
-		break;
-	default:
-		break;
-	}
+		switch (d)
+		{
+		case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
+			ret = base64_encode(ret);
+			break;
+		case Layer::DataTypeExport::BASE64_ZLIB:
+			ret = compress_string(ret);
+			ret = base64_encode(ret);
+			break;
+		default:
+			break;
+		}
 
 	return ret;
 }
@@ -245,7 +250,7 @@ void Layer::Unparse(int sizeX, int sizeY, const std::string& raw_data)
 	if (*i == '\n')
 		++i;
 	int x = 0;
-	int y = sizeY-1;
+	int y = sizeY - 1;
 	while (i != data.end()) {
 		std::string n;
 		while (i != data.end() && *i != ',') {
@@ -258,7 +263,14 @@ void Layer::Unparse(int sizeX, int sizeY, const std::string& raw_data)
 			i++;
 		}
 		if (!n.empty()) {
-			tile_data[sizeX * y + x] = (TILE_DATA_TYPE)std::stoul(n);
+			if (type == Type::TILE)
+				tile_data[sizeX * y + x] = (TILE_DATA_TYPE)std::stoul(n);
+			else if (type == Type::OBJECT) {
+				uint64_t uid = std::stoull(n);
+				if (uid != 0)
+					if (Resource* res = App->resources->Get(uid)) res->Attach();
+				object_tile_data[sizeX * y + x] = uid;
+			}
 			++x;
 		}
 		if (i != data.end())
