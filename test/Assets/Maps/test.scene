@@ -46,21 +46,6 @@
             "visible": false
         },
         {
-            "data": "eNrjMtDBDbkok7QwxidrboohbmhggWw0jEu5swwNDFGlDQ0sdbBbgs9wLgBf+TUR",
-            "displacement": [
-                0,
-                0
-            ],
-            "encoding": "base64-zlib",
-            "height": 0.0,
-            "locked": false,
-            "name": "Items",
-            "opacity": 1.0,
-            "properties": null,
-            "type": 0,
-            "visible": true
-        },
-        {
             "data": "eNqdy7kBAEEIw8DctTjg3YP+GzvXQKBMg+hhejK7WfUx37KsWDHqsVptqlCujDVLxBQvGLGCB4z4jBeMyOQFI1zzAcOrecFwG16w4PKCBY0HjB/pC23m",
             "displacement": [
                 0,
@@ -74,6 +59,46 @@
             "properties": null,
             "type": 0,
             "visible": false
+        },
+        {
+            "data": "eNrFTksKgFAQ2s9Z3mJ+zoz3v1i1rqhFEIKCCio2CnYnrA5mhNfSW4j+FAaMaRjX0CTRnA+HrJMA0tSngqWlfe4/fxALp6Fjehc6ujDrvXn5TjYfr03L",
+            "displacement": [
+                0,
+                0
+            ],
+            "height": 0.0,
+            "locked": false,
+            "name": "Items",
+            "opacity": 1.0,
+            "properties": null,
+            "root": {
+                "active": true,
+                "children": [],
+                "components": [
+                    {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "w": 1.0,
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "type": 1
+                    }
+                ],
+                "name": "Object"
+            },
+            "type": 1,
+            "visible": true
         },
         {
             "data": "eNrjMrQwNrM0MzQxMjIyMDM0NjY3sjTRoYWgARDSzTLiBbkMdNAhve3GGVx4HYRTgguHctKEibCfJIvomqTwOBtLfOM1hmvAUgexdhuQZCYpgQKBXESkEJIDhwsAnT7gxg==",

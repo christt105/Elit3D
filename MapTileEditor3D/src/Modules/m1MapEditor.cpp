@@ -71,51 +71,60 @@ UpdateStatus m1MapEditor::Update()
 {
 	PROFILE_FUNCTION();
 
-	if (map != 0ULL) {
-		App->render->GetViewport("scene")->Begin();
+	if (map == 0ULL)
+		return UpdateStatus::UPDATE_CONTINUE;
 
-		static auto shader = App->render->GetShader("tilemap");
-		shader->Use();
-
-		auto m = (r1Map*)App->resources->Get(map);
-		if (m == nullptr) {
-			map = 0ULL;
-			panel_tileset->SelectTileset(0ULL);
-			return UpdateStatus::UPDATE_CONTINUE;
-		}
-
-		Layer::SelectBuffers();
-		oglh::ActiveTexture(0);
-		if (panel_tileset->SelectTex()) {
-			shader->SetBool("tilemap_selected", true);
-			panel_tileset->SelectTransparentColor(shader);
-			shader->SetInt("tileAtlas", 0); // for now we only can draw a map with a single texture (TODO)
-			shader->SetInt2("ntilesMap", m->size);
-			shader->SetBool("debugPaint", App->debug.draw_debug_map);
-			oglh::ActiveTexture(1);
-			shader->SetInt("tilemap", 1);
-			panel_tileset->SetColumnUniform(shader);
-
-			for (auto layer = m->layers.begin(); layer != m->layers.end(); ++layer) {
-				if ((*layer)->visible) {
-					(*layer)->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
-				}
-			}
-
-			for (int i = 0; i < 2; ++i) {
-				oglh::ActiveTexture(i);
-				oglh::UnBindTexture();
-			}
-		}
-		else {
-			shader->SetBool("tilemap_selected", false);
-			Layer::DrawTile(m->size);
-		}
-
-		oglh::ActiveTexture(0);
-
-		App->render->GetViewport("scene")->End();
+	auto m = (r1Map*)App->resources->Get(map);
+	if (m == nullptr) {
+		map = 0ULL;
+		panel_tileset->SelectTileset(0ULL);
+		return UpdateStatus::UPDATE_CONTINUE;
 	}
+
+	App->render->GetViewport("scene")->Begin();
+
+	static auto shader = App->render->GetShader("tilemap");
+	shader->Use();
+
+	Layer::SelectBuffers();
+	oglh::ActiveTexture(0);
+	if (panel_tileset->SelectTex()) {
+		shader->SetBool("tilemap_selected", true);
+		panel_tileset->SelectTransparentColor(shader);
+		shader->SetInt("tileAtlas", 0); // for now we only can draw a map with a single texture (TODO)
+		shader->SetInt2("ntilesMap", m->size);
+		shader->SetBool("debugPaint", App->debug.draw_debug_map);
+		oglh::ActiveTexture(1);
+		shader->SetInt("tilemap", 1);
+		panel_tileset->SetColumnUniform(shader);
+
+		for (auto layer = m->layers.begin(); layer != m->layers.end(); ++layer) {
+			if ((*layer)->type == Layer::Type::TILE && (*layer)->visible) {
+				(*layer)->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
+			}
+		}
+
+		for (int i = 0; i < 2; ++i) {
+			oglh::ActiveTexture(i);
+			oglh::UnBindTexture();
+		}
+
+		oglh::ActiveTexture(0);
+
+		for (auto layer = m->layers.begin(); layer != m->layers.end(); ++layer) { //TODO: Draw all tiles at the same time
+			if ((*layer)->type == Layer::Type::OBJECT && (*layer)->visible) {
+				(*layer)->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth());
+			}
+		}
+	}
+	else {
+		shader->SetBool("tilemap_selected", false);
+		Layer::DrawTile(m->size);
+	}
+
+	oglh::ActiveTexture(0);
+
+	App->render->GetViewport("scene")->End();
 
 	return UpdateStatus::UPDATE_CONTINUE;
 }
