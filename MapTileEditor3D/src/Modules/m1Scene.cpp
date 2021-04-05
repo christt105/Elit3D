@@ -39,6 +39,7 @@ bool m1Scene::Start()
 	PROFILE_FUNCTION();
 
 	panel_scene = App->gui->scene;
+	sceneViewport = App->render->GetViewport("scene");
 
 	return true;
 }
@@ -47,60 +48,39 @@ UpdateStatus m1Scene::Update()
 {
 	PROFILE_FUNCTION();
 
-	{
-		static Viewport const * v = App->render->GetViewport("scene");
-		v->Begin();
+	if(sceneViewport == nullptr)
+		sceneViewport = App->render->GetViewport("scene");
 
-		if (draw_grid) {
-			static auto shader1 = App->render->GetShader("grid");
-			shader1->Use();
-			oglh::DepthEnable(true);
-			oglh::DrawArrays(6);
-			oglh::DepthEnable(false);
-		}
+	sceneViewport->Begin();
 
-		static auto shader = App->render->GetShader("default");
-		shader->Use();
-		shader->SetMat4("model", float4x4::identity);
+	static auto shader = App->render->GetShader("default");
+	shader->Use();
+	shader->SetMat4("model", float4x4::identity);
 
-		static float3 xd0 = float3::zero;
-		static float3 xd1 = float3::one;
-		if (panel_scene->IsOnHover()) {
-			int2 mouse_panel = panel_scene->GetMousePosition();
-			int2 size_panel = panel_scene->GetSize();
-			mouse_panel.y = size_panel.y - mouse_panel.y;
-			float2 mouse_perc(2 * ((float)mouse_panel.x) / ((float)size_panel.x) - 1, 2 * ((float)mouse_panel.y) / ((float)size_panel.y) - 1);
+	static float3 xd0 = float3::zero;
+	static float3 xd1 = float3::one;
+	if (panel_scene->IsOnHover()) {
+		int2 mouse_panel = panel_scene->GetMousePosition();
+		int2 size_panel = panel_scene->GetSize();
+		mouse_panel.y = size_panel.y - mouse_panel.y;
+		float2 mouse_perc(2 * ((float)mouse_panel.x) / ((float)size_panel.x) - 1, 2 * ((float)mouse_panel.y) / ((float)size_panel.y) - 1);
 
-			auto ray = App->camera->scene->GetFrustum().UnProject(mouse_perc.x, mouse_perc.y);
-			App->map_editor->Mouse(ray);
-			//shader->Use();
+		auto ray = App->camera->scene->GetFrustum().UnProject(mouse_perc.x, mouse_perc.y);
+		App->map_editor->Mouse(ray);
+		//shader->Use();
 
-			/*if (App->input->IsMouseButtonPressed(1)) {
-				xd0 = ray.pos;
-				xd1 = ray.pos + ray.dir * 250.f;
-			}*/
-		}
-
-		if (App->debug.draw_mouse_pick_line) {
-			oglh::OldDrawLines(xd0, xd1);
-		}
-
-		v->End();
+		/*if (App->input->IsMouseButtonPressed(1)) {
+			xd0 = ray.pos;
+			xd1 = ray.pos + ray.dir * 250.f;
+		}*/
 	}
 
-	{
-		static Viewport const * v = App->render->GetViewport("object editor");
-		v->Begin();
-
-		static auto shader1 = App->render->GetShader("grid");
-		shader1->Use();
-		oglh::DepthEnable(true);
-		oglh::DrawArrays(6);
-		oglh::DepthEnable(false);
-
-		v->End();
+	if (App->debug.draw_mouse_pick_line) {
+		oglh::OldDrawLines(xd0, xd1);
 	}
-	
+
+	sceneViewport->End();
+
 	return UpdateStatus::UPDATE_CONTINUE;
 }
 

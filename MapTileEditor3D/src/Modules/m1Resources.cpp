@@ -6,6 +6,7 @@
 #include "Resources/r1Tileset.h"
 #include "Resources/r1Map.h"
 #include "Resources/r1Object.h"
+#include "Resources/r1Tileset3d.h"
 
 #include "Tools/FileSystem.h"
 
@@ -124,12 +125,15 @@ Resource* m1Resources::CreateResource(Resource::Type type, const char* assets_pa
 {
 	Resource* ret = nullptr;
 
+	assert((int)Resource::Type::MAX == 7);
+
 	switch (type)
 	{
 	case Resource::Type::Mesh:		ret = new r1Mesh((force_uid == 0) ? Random::RandomGUID() : force_uid);		break;
 	case Resource::Type::Model:		ret = new r1Model((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
 	case Resource::Type::Texture:	ret = new r1Texture((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
 	case Resource::Type::Tileset:	ret = new r1Tileset((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
+	case Resource::Type::Tileset3d:	ret = new r1Tileset3d((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
 	case Resource::Type::Map:		ret = new r1Map((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
 	case Resource::Type::Object:	ret = new r1Object((force_uid == 0) ? Random::RandomGUID() : force_uid);	break;
 	default:
@@ -174,7 +178,7 @@ void m1Resources::DeleteResource(const uint64_t& uid)
 void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 {
 	if (strcmp(assets_path, "") != 0) {
-		ret->path = assets_path;
+		ret->path = FileSystem::GetCanonical(assets_path);
 		ret->name = FileSystem::GetNameFile(assets_path);
 		ret->extension.assign(FileSystem::GetFileExtension(assets_path));
 	}
@@ -344,18 +348,21 @@ std::vector<r1Texture*> m1Resources::GetVectorOfTextures() const
 
 Resource::Type m1Resources::GetTypeFromStr(const char* type) const
 {
-	if (strcmp(type, "fbx") == 0)
+	assert((int)Resource::Type::MAX == 7);
+	if (strcmp(type, "fbx") == 0 || strcmp(type, "obj") == 0)
 		return Resource::Type::Model;
 	else if (strcmp(type, "png") == 0)
 		return Resource::Type::Texture;
 	else if (strcmp(type, "tileset") == 0)
 		return Resource::Type::Tileset;
+	else if (strcmp(type, "tileset3d") == 0)
+		return Resource::Type::Tileset3d;
 	else if (strcmp(type, "scene") == 0)
 		return Resource::Type::Map;
 	else if (strcmp(type, "object") == 0)
 		return Resource::Type::Object;
 
-	LOGW("No library path found to type %i", (int)type);
+	LOGW("No library path found to type %s", type)
 
 	return Resource::Type::NONE;
 }

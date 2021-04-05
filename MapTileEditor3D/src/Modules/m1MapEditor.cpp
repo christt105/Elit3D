@@ -7,6 +7,7 @@
 #include "Panels/p1Tools.h"
 #include "Panels/p1Inspector.h"
 #include "Panels/p1Objects.h"
+#include "Panels/p1Terrain.h"
 #include "Tools/OpenGL/Viewport.h"
 
 #include "Modules/m1Render3D.h"
@@ -18,6 +19,7 @@
 #include "Resources/r1Texture.h"
 #include "Resources/r1Map.h"
 #include "Resources/r1Mesh.h"
+#include "Resources/r1Model.h"
 
 #include "m1Objects.h"
 
@@ -112,7 +114,7 @@ UpdateStatus m1MapEditor::Update()
 		oglh::ActiveTexture(0);
 
 		for (auto layer = m->layers.begin(); layer != m->layers.end(); ++layer) { //TODO: Draw all tiles at the same time
-			if ((*layer)->type == Layer::Type::OBJECT && (*layer)->visible) {
+			if (((*layer)->type == Layer::Type::OBJECT || (*layer)->type == Layer::Type::TERRAIN) && (*layer)->visible) {
 				(*layer)->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth());
 			}
 		}
@@ -187,11 +189,56 @@ void m1MapEditor::Mouse(const Ray& ray)
 	if (selected == -1 || selected >= m->layers.size())
 		return;
 
-	if (m->layers[selected]->GetType() == Layer::Type::TILE) {
+	switch (m->layers[selected]->GetType())
+	{
+	case Layer::Type::TILE:
 		MouseTile(m, ray);
-	}
-	else if (m->layers[selected]->GetType() == Layer::Type::OBJECT) {
+		break;
+	case Layer::Type::OBJECT:
 		MouseTileObject(m, selected, ray);
+		break;
+	case Layer::Type::TERRAIN: {
+		float t = 0.f;
+		if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[selected]->height, ray.pos, ray.dir, t) && t > 0.f) {
+			float3 position = ray.GetPoint(t);
+			auto col = (int)floor(position.z);
+			auto row = (int)floor(position.x);
+			//TODO Draw transparent
+
+			if (App->input->IsMouseButtonPressed(1) && row >= 0 && col >= 0 && row < m->size.x && col < m->size.y && !m->layers[selected]->locked) {
+				switch (panel_tools->GetSelectedTool())
+				{
+					/*case p1Tools::Tools::BRUSH:
+						break;*/
+				case p1Tools::Tools::ERASER: {
+					TILEOBJECT_DATA_TYPE* terrain = std::get<1>(m->layers[selected]->terrain_data[0]);
+					if (terrain[m->size.x * col + row] != 0ULL) {
+						if (Resource* res = App->resources->Get(terrain[m->size.x * col + row]))
+							res->Detach();
+					}
+					terrain[m->size.x * col + row] = 0ULL;
+					break;
+				}
+										   /*case p1Tools::Tools::BUCKET:
+											   break;
+										   case p1Tools::Tools::EYEDROPPER:
+											   break;
+										   case p1Tools::Tools::RECTANGLE:
+											   break;*/
+				default: {
+					auto obj = App->gui->terrain->selected;
+					TILEOBJECT_DATA_TYPE* terrain = std::get<1>(m->layers[selected]->terrain_data[0]);
+					if (obj != -1 && obj != terrain[m->size.x * col + row]) {
+						//obj->Attach();
+						terrain[m->size.x * col + row] = obj;
+					}
+					break;
+				}
+				}
+			}
+		}
+		break;
+	}
 	}
 }
 

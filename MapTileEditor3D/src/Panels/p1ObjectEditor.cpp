@@ -74,21 +74,7 @@ void p1ObjectEditor::ViewportWindow()
 {
 	ImGui::BeginChild("childObjectViewport", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.7f, 0.f));
 
-	viewport->camera->is_active = ImGui::IsWindowHovered();
-
-	ImGui::PushClipRect(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), false);
-	ImGui::SetCursorScreenPos(ImGui::GetWindowPos());
-
-	ImVec2 window_size = ImGui::GetContentRegionAvail();
-	viewport->UpdateSize((int)window_size.x, (int)window_size.y);
-
-	viewport->Update();
-
-	viewport->Blit();
-
-	ImGui::Image((ImTextureID)viewport->GetTexture(), window_size, ImVec2(0, 0), ImVec2(1, -1));
-
-	ImGui::PopClipRect();
+	viewport->RenderOnImGui();
 
 	ImGui::EndChild();
 }

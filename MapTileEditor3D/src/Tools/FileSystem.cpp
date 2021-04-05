@@ -314,7 +314,23 @@ std::string FileSystem::GetFullPath(const char* path)
 
 std::string FileSystem::GetCanonical(const char* path)
 {
-    return fs::canonical(path).u8string();
+    std::string ret;
+    std::string spath(path);
+
+    auto i = spath.begin();
+    while ( i != spath.end()) {
+        if (*i == '/' || *i == '\\') {
+            ret.push_back('/');
+            while (i != spath.end() && (*i == '/' || *i == '\\'))
+                ++i;
+        }
+        else {
+            ret.push_back(*i);
+            ++i;
+        }
+    }
+    
+    return ret;
 }
 
 Folder* FileSystem::GetPtrFolder(const char* folder, bool is_appdata)
@@ -403,7 +419,7 @@ void FileSystem::DeleteRoot()
     delete appdata;
 }
 
-Folder::Folder(const char* n, Folder* parent) :full_path(fs::canonical(n).u8string() + "/"), parent(parent)
+Folder::Folder(const char* n, Folder* parent) :full_path(FileSystem::GetCanonical(n)), parent(parent)
 {
     for (auto i = full_path.rbegin(); i != full_path.rend(); ++i) {
         if (i != full_path.rbegin()) {

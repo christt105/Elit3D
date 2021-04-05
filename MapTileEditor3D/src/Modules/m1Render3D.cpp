@@ -97,8 +97,11 @@ UpdateStatus m1Render3D::PreUpdate()
 {
     PROFILE_FUNCTION();
 
-    for (auto i = viewports.begin(); i != viewports.end(); ++i)
+    for (auto i = viewports.begin(); i != viewports.end(); ++i) {
         (*i).second->Clear();
+        if ((*i).second->drawGrid)
+            (*i).second->DrawGrid();
+    }
 
     return UpdateStatus::UPDATE_CONTINUE;
 }

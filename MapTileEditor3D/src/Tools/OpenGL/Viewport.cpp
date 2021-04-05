@@ -4,7 +4,11 @@
 #include "Tools/OpenGL/OpenGLHelper.h"
 
 #include "Core/Application.h"
+#include "Modules/m1Render3D.h"
 #include "Modules/m1Camera3D.h"
+#include "Resources/r1Shader.h"
+
+#include "ExternalTools/ImGui/imgui.h"
 
 Viewport::Viewport()
 {
@@ -135,4 +139,36 @@ void Viewport::Begin() const
 void Viewport::End() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Viewport::RenderOnImGui()
+{
+	camera->is_active = ImGui::IsWindowHovered();
+
+	ImGui::PushClipRect(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), false);
+	ImGui::SetCursorScreenPos(ImGui::GetWindowPos());
+
+	ImVec2 window_size = ImGui::GetContentRegionAvail();
+	UpdateSize((int)window_size.x, (int)window_size.y);
+
+	Update();
+
+	Blit();
+
+	ImGui::Image((ImTextureID)GetTexture(), window_size, ImVec2(0, 0), ImVec2(1, -1));
+
+	ImGui::PopClipRect();
+}
+
+void Viewport::DrawGrid()
+{
+	Begin();
+
+	static auto shader1 = App->render->GetShader("grid");
+	shader1->Use();
+	oglh::DepthEnable(true);
+	oglh::DrawArrays(6);
+	oglh::DepthEnable(false);
+
+	End();
 }

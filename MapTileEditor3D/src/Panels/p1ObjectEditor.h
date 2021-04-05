@@ -24,7 +24,7 @@ private:
 
 private:
     Viewport* viewport = nullptr;
-    r1Object* object = nullptr; //resource?
+    r1Object* object = nullptr;
     int selected = -1;
     int dragging = -1;
 };

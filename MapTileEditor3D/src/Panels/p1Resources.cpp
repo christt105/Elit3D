@@ -8,6 +8,8 @@
 #include "Modules/m1GUI.h"
 #include "Modules/m1MapEditor.h"
 
+#include "Panels/p1Inspector.h"
+
 #include "Resources/r1Model.h"
 #include "Resources/r1Map.h"
 #include "Tools/Map/MapLayer.h"
@@ -180,7 +182,7 @@ void p1Project::Update()
 				if (ImGui::Selectable("##files")) { //TODO: make it bigger
 					static std::string path;
 					path = selected->full_path + (*i).first;
-					App->gui->inspector->SetSelected((void*)&(path), GetInspectorType(extension));
+					App->gui->inspector->SetSelected((void*)&(path), p1Inspector::SelectedType::RESOURCE);
 				}
 				ImGui::SameLine();
 				ImGui::Image((ImTextureID)ids[GetEType(extension)], ImVec2(0.15f * 80.f, 0.15f * 100.6f), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
@@ -193,12 +195,12 @@ void p1Project::Update()
 				if (ImGui::ImageButtonGL((ImTextureID)ids[GetEType(extension)], ImVec2(size * 80.f, size * 100.6f), 2)) {
 					static std::string path;
 					path = FileSystem::GetCanonical((selected->full_path + (*i).first).c_str());
-					App->gui->inspector->SetSelected((void*)&(path), GetInspectorType(extension));
+					App->gui->inspector->SetSelected((void*)&(path), p1Inspector::SelectedType::RESOURCE);
 				}
 				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
 					std::string ext = FileSystem::GetFileExtension((*i).first.c_str());
 
-					if (ext == "fbx") { //TODO ugly place to put that code here
+					if (ext == "fbx" || ext == "obj") { //TODO ugly place to put that code here
 						auto model = (r1Model*)App->resources->Get(App->resources->FindByPath((selected->full_path + "/" + (*i).first).c_str()));
 						model->Attach();
 						auto map = App->map_editor->GetObjectLayer(true, true);
@@ -325,19 +327,4 @@ m1Resources::EResourceType p1Project::GetEType(const std::string& extension) con
 
 
 	return m1Resources::EResourceType::UNKNOWN;
-}
-
-p1Inspector::SelectedType p1Project::GetInspectorType(const std::string& extension) const
-{
-	if (extension.compare("png") == 0)
-		return p1Inspector::SelectedType::PNG;
-	if (extension.compare("scene") == 0)
-		return p1Inspector::SelectedType::MAP;
-	if (extension.compare("fbx") == 0)
-		return p1Inspector::SelectedType::FBX;
-	if (extension.compare("tileset") == 0)
-		return p1Inspector::SelectedType::TILESET;
-
-
-	return p1Inspector::SelectedType::NONE;
 }

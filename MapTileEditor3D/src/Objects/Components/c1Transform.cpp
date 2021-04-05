@@ -21,8 +21,6 @@ void c1Transform::OnInspector()
 		bool changed = false;
 		if (ImGui::DragFloat3("Position", position.ptr()))
 			changed = true;
-		float3 euler = rotation.ToEulerXYZ();
-		euler = { RadToDeg(euler.x), RadToDeg(euler.y),RadToDeg(euler.z) };
 		if (ImGui::DragFloat3("Rotation", euler.ptr())) {
 			changed = true;
 			rotation = Quat::FromEulerXYZ(DegToRad(euler.x), DegToRad(euler.y), DegToRad(euler.z));
@@ -38,6 +36,7 @@ void c1Transform::OnInspector()
 void c1Transform::SetLocalMatrix(const float4x4& m)
 {
 	m.Decompose(position, rotation, scale);
+	euler = RadToDeg(rotation.ToEulerXYZ());
 
 	CalculateGlobalMatrix();
 }
@@ -97,13 +96,14 @@ void c1Transform::SetScale(float x, float y, float z)
 void c1Transform::CalculateGlobalMatrix()
 {
 	mat = gmat = float4x4::FromTRS(position, rotation, scale);
-	if(object->parent != nullptr) {
+	if(object && object->parent != nullptr) {
 		gmat = object->parent->transform->GetGlobalMatrix() * mat;
 	}
 
-	for (auto i = object->children.begin(); i != object->children.end(); ++i) {
-		(*i)->transform->CalculateGlobalMatrix();
-	}
+	if(object)
+		for (auto i = object->children.begin(); i != object->children.end(); ++i) {
+			(*i)->transform->CalculateGlobalMatrix();
+		}
 }
 
 nlohmann::json c1Transform::Parse()
@@ -130,6 +130,7 @@ void c1Transform::Unparse(const nlohmann::json& node)
 {
 	position = { node["position"].value("x", 0.f),node["position"].value("y", 0.f), node["position"].value("z", 0.f) };
 	rotation = Quat(node["rotation"].value("x", 0.f), node["rotation"].value("y", 0.f), node["rotation"].value("z", 0.f), node["rotation"].value("w", 0.f));
+	euler = RadToDeg(rotation.ToEulerXYZ());
 	scale = { node["scale"].value("x", 0.f),node["scale"].value("y", 0.f), node["scale"].value("z", 0.f) };
 
 	CalculateGlobalMatrix();

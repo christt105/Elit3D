@@ -1,22 +1,23 @@
 {
-    "UID": 7394429600141277289,
+    "UID": 17530744886418058532,
     "extension": "fbx",
     "properties": {
+        "isTerrainTile": true,
         "meshes": [
             {
                 "index": 0,
-                "uid": 1017685707989930541
+                "uid": 9321281936313880613
             }
         ],
         "root": {
             "children": [
                 {
                     "id_mesh": 0,
-                    "name": "Cube"
+                    "name": "map"
                 }
             ],
             "name": "RootNode"
         }
     },
-    "timestamp": 1616171215
+    "timestamp": 1617447160
 }

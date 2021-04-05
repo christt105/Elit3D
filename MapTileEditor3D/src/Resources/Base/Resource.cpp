@@ -51,25 +51,22 @@ Resource::Type Resource::GetType() const
 
 std::string Resource::GetStrType() const
 {
+	assert((int)Resource::Type::MAX == 7);
 	switch (type)
 	{
 	case Resource::Type::NONE:
 		return std::string("None");
-		break;
 	case Resource::Type::Mesh:
 		return std::string("Mesh");
-		break;
 	case Resource::Type::Model:
 		return std::string("Model");
-		break;
 	case Resource::Type::Texture:
 		return std::string("Texture");
-		break;
 	case Resource::Type::Tileset:
 		return std::string("Tileset");
-		break;
+	case Resource::Type::Tileset3d:
+		return std::string("Tileset3d");
 	default:
 		return std::string("None");
-		break;
 	}
 }

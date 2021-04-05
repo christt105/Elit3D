@@ -18,6 +18,7 @@ public:
 		Tileset,
 		Object,
 		Map,
+		Tileset3d,
 
 		MAX
 	};

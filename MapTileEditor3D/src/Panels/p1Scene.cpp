@@ -22,7 +22,7 @@
 #include "ExternalTools/MathGeoLib/include/Math/MathFunc.h"
 
 p1Scene::p1Scene(bool start_enabled, bool appear_mainmenubar, bool can_close)
-	: Panel("Scene", start_enabled, appear_mainmenubar, can_close, ICON_FA_CUBES)
+	: Panel("Scene", start_enabled, appear_mainmenubar, can_close, ICON_FA_CUBES) /*ICON_FA_GLOBE_EUROPE | ICON_FA_TREE*/
 {
 	flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse 
 		| ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse 

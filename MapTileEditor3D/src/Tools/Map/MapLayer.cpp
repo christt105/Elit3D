@@ -8,6 +8,8 @@
 #include "Modules/m1Resources.h"
 #include "Resources/r1Object.h"
 #include "Resources/r1Texture.h"
+#include "Resources/r1Model.h"
+#include "Resources/r1Mesh.h"
 
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
@@ -43,6 +45,9 @@ Layer::Layer(Layer::Type t) : type(t)
 		root = App->objects->CreateEmptyObject(nullptr, "root");
 		break;
 	case Layer::Type::TERRAIN:
+		terrain_data.push_back(std::make_tuple(-1.f, nullptr));
+		terrain_data.push_back(std::make_tuple( 0.f, nullptr));
+		terrain_data.push_back(std::make_tuple( 1.f, nullptr));
 		break;
 	default:
 		break;
@@ -66,6 +71,11 @@ Layer::~Layer()
 		}
 		break;
 	case Layer::Type::TERRAIN:
+		for (auto i = terrain_data.begin(); i != terrain_data.end(); ++i) {
+			if (std::get<1>(*i) != nullptr) {
+				delete[] std::get<1>(*i);
+			}
+		}
 		break;
 	default:
 		break;
@@ -75,7 +85,7 @@ Layer::~Layer()
 void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 {
 	PROFILE_FUNCTION();
-	
+
 	switch (type)
 	{
 	case Layer::Type::TILE: {
@@ -114,8 +124,38 @@ void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 			shader->SetMat4("model", float4x4::identity);
 		}
 		break; }
-	case Layer::Type::TERRAIN:
+	case Layer::Type::TERRAIN: {
+		oglh::DepthEnable(true);
+		static auto shader = App->render->GetShader("default");
+		shader->Use();
+		for (auto& t : terrain_data) {
+			TILEOBJECT_DATA_TYPE* layer = std::get<1>(t);
+			if (layer == nullptr)
+				continue;
+			for (int i = size.x * size.y - 1; i >= 0; --i) {
+				if (layer[i] == 0ULL)
+					continue;
+				r1Model* obj = (r1Model*)App->resources->Get(layer[i]);
+				if (obj == nullptr)
+					continue;
+				
+				for (auto& m : obj->meshes) {
+					oglh::BindBuffers(m->VAO, m->vertices.id, m->indices.id);
+					
+					shader->SetMat4("model", float4x4::FromTRS(float3(i % size.x + 1, height /*+ std::get<0>(t)*/, i / size.x), Quat::FromEulerXYZ(DegToRad(90.f), 0.f, 0.f) /*I know, I know, is ugly I will change it (TODO)*/, float3::one));
+					
+					auto tex = (r1Texture*)App->resources->Get(obj->materials[m->tex_i]);
+					if (tex != nullptr) tex->Bind();
+					shader->SetBool("useTexture", m->texture.data != nullptr);
+					//shader->SetBool("useTexture", false);
+					oglh::DrawElements(m->indices.size);
+					if (tex != nullptr) tex->Unbind();
+				}
+			}
+		}
+		oglh::DepthEnable(false);
 		break;
+	}
 	}
 }
 
@@ -145,6 +185,12 @@ void Layer::Reset(const int2& size)
 		memset(object_tile_data, 0, sizeof(uint64_t) * size.x * size.y);
 		break;
 	case Layer::Type::TERRAIN:
+		for (auto& i : terrain_data) {
+			if (std::get<1>(i) != nullptr)
+				delete[] std::get<1>(i);
+			std::get<1>(i) = new TILEOBJECT_DATA_TYPE[size.x * size.y];
+			memset(std::get<1>(i), 0, sizeof(TILEOBJECT_DATA_TYPE) * size.x * size.y);
+		}
 		break;
 	default:
 		break;

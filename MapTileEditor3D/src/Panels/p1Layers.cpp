@@ -86,13 +86,13 @@ void p1Layers::DisplayLayers(std::vector<Layer*>* layers)
 			ImGui::Text(ICON_FA_BORDER_ALL);
 			break;
 		case Layer::Type::OBJECT:
-			ImGui::Text(ICON_FA_CUBES);
+			ImGui::Text(ICON_FA_CUBE);
 			break;
 		case Layer::Type::TERRAIN:
-			//TODO: MOUNTAIN || SHOVEL?
+			ImGui::Text(ICON_FA_CUBES); //ICON_FA_MOUNTAIN TODO: MACRO TERRAIN_ICON and other types
 			break;
 		default:
-			//LOGNW("Type %i not handled on switch", (*l)->GetType());
+			LOGNW("Type %i not handled on switch", (*l)->GetType())
 			break;
 		}
 		if ((*l)->locked) {
@@ -116,10 +116,15 @@ void p1Layers::Buttons(std::vector<Layer*>*& layers)
 			App->map_editor->AddLayer(Layer::Type::TILE);
 			ImGui::CloseCurrentPopup();
 		}
-		if (ImGui::Button(ICON_FA_CUBES" Object Layer")) {
+		if (ImGui::Button(ICON_FA_CUBE" Object Layer")) {
 			App->map_editor->AddLayer(Layer::Type::OBJECT);
 			ImGui::CloseCurrentPopup();
 		}
+		if (ImGui::Button(ICON_FA_CUBES" Terrain Layer")) {
+			App->map_editor->AddLayer(Layer::Type::TERRAIN);
+			ImGui::CloseCurrentPopup();
+		}
+
 		ImGui::EndPopup();
 	}
 	ImGui::SameLine();
