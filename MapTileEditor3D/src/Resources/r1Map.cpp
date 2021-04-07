@@ -19,6 +19,8 @@
 #include "ExternalTools/DevIL/include/IL/il.h"
 #include "ExternalTools/DevIL/include/IL/ilut.h"
 
+#include "Tools/System/Logger.h"
+
 #include "Tools/System/Profiler.h"
 
 #include "ExternalTools/pugixml/pugixml.hpp"
@@ -61,20 +63,17 @@ void r1Map::Save(const uint64_t& tileset)
 
 			switch ((*l)->type)
 			{
-			case Layer::Type::TILE: {
+			case Layer::Type::TILE:
+			case Layer::Type::TERRAIN:
 				lay["encoding"] = "base64-zlib";
 				lay["data"] = (*l)->Parse(size.x, size.y, Layer::DataTypeExport::BASE64_ZLIB);
 				break;
-			}
-			case Layer::Type::OBJECT: {
+			case Layer::Type::OBJECT:
 				lay["root"] = (*l)->root->Parse();
 				lay["data"] = (*l)->Parse(size.x, size.y, Layer::DataTypeExport::BASE64_ZLIB);
 				break;
-			}
-			case Layer::Type::TERRAIN: {
-				break;
-			}
 			default:
+				LOGE("could not save the layer of type %i, not set on switch", (*l)->type);
 				break;
 			}
 
@@ -131,7 +130,8 @@ void r1Map::ExportJSON(const uint64_t& tileset, Layer::DataTypeExport d)
 
 		switch ((*l)->type)
 		{
-		case Layer::Type::TILE: {
+		case Layer::Type::TILE:
+		case Layer::Type::TERRAIN:
 			switch (d)
 			{
 			case Layer::DataTypeExport::CSV:
@@ -151,13 +151,8 @@ void r1Map::ExportJSON(const uint64_t& tileset, Layer::DataTypeExport d)
 				break;
 			}
 			break;
-		}
-		case Layer::Type::OBJECT: {
+		case Layer::Type::OBJECT:
 			break;
-		}
-		case Layer::Type::TERRAIN: {
-			break;
-		}
 		default:
 			break;
 		}
@@ -212,7 +207,8 @@ void r1Map::ExportXML(const uint64_t& tileset, Layer::DataTypeExport d)
 
 		switch ((*l)->type)
 		{
-		case Layer::Type::TILE: {
+		case Layer::Type::TILE:
+		case Layer::Type::TERRAIN: {
 			auto data = layer.append_child("data");
 			auto encoding = data.append_attribute("encoding");
 			switch (d)
@@ -233,12 +229,8 @@ void r1Map::ExportXML(const uint64_t& tileset, Layer::DataTypeExport d)
 			data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
 			break;
 		}
-		case Layer::Type::OBJECT: {
+		case Layer::Type::OBJECT:
 			break;
-		}
-		case Layer::Type::TERRAIN: {
-			break;
-		}
 		default:
 			break;
 		}
@@ -318,6 +310,10 @@ void r1Map::LoadLayers(nlohmann::json& file)
 			layer->root->Unparse((*l)["root"]);
 			layer->object_tile_data = new uint64_t[size.x * size.y];
 			layer->Unparse(size.x, size.y, (*l).value("data", "0"));
+			break;
+		case Layer::Type::TERRAIN:
+			layer->tile_data = new TILE_DATA_TYPE[size.x * size.y];
+			layer->Unparse(size.x, size.y, (*l).value("data", "0")/*TODO: unparse type (csv, base64, zlib...)*/);
 			break;
 		default:
 			break;

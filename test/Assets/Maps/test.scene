@@ -863,6 +863,21 @@
             },
             "type": 1,
             "visible": true
+        },
+        {
+            "data": "eNrjMtDBDbkGWtIQCDEkDeEQq068ktgMxe8gLgDGBzKg",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "type": 2,
+            "visible": true
         }
     ],
     "properties": null,

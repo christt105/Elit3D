@@ -150,12 +150,11 @@ void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 				for (auto& m : obj->meshes) {
 					oglh::BindBuffers(m->VAO, m->vertices.id, m->indices.id);
 					
-					shader->SetMat4("model",  float4x4::FromTRS(float3(i % size.x, height /*+ std::get<0>(t)*/, i / size.x), Quat::identity /*I know, I know, is ugly I will change it (TODO)*/, float3::one) * tile->transform.GetGlobalMatrix());
+					shader->SetMat4("model",  float4x4::FromTRS(float3(i % size.x, height, i / size.x), Quat::identity, float3::one) * tile->transform.GetGlobalMatrix());
 					
 					auto tex = (r1Texture*)App->resources->Get(obj->materials[m->tex_i]);
 					if (tex != nullptr) tex->Bind();
 					shader->SetBool("useTexture", m->texture.data != nullptr);
-					//shader->SetBool("useTexture", false);
 					oglh::DrawElements(m->indices.size);
 					if (tex != nullptr) tex->Unbind();
 				}
@@ -258,7 +257,7 @@ std::string Layer::Parse(int sizeX, int sizeY, DataTypeExport d) const
 
 		for (int i = sizeY - 1; i >= 0; --i) {
 			for (int j = 0; j < sizeX; ++j) {
-				if (type == Layer::Type::TILE) {
+				if (type == Layer::Type::TILE || type == Layer::Type::TERRAIN) {
 					ret.append(std::to_string(tile_data[i * sizeX + j]) + ','); // TODO: encode 4 bytes array
 				}
 				else if (type == Layer::Type::OBJECT) {
@@ -321,7 +320,7 @@ void Layer::Unparse(int sizeX, int sizeY, const std::string& raw_data)
 			i++;
 		}
 		if (!n.empty()) {
-			if (type == Type::TILE)
+			if (type == Type::TILE || type == Type::TERRAIN)
 				tile_data[sizeX * y + x] = (TILE_DATA_TYPE)std::stoul(n);
 			else if (type == Type::OBJECT) {
 				uint64_t uid = std::stoull(n);
