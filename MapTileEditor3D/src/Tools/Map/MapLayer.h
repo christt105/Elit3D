@@ -88,7 +88,6 @@ public:
         TILE_DATA_TYPE* tile_data = nullptr; //TODO: Research about set id with short or int
         uint64_t* object_tile_data; //TODO set object int map_id and bind with tile_data
     };
-    std::vector<std::tuple<float, TILEOBJECT_DATA_TYPE*>> terrain_data;
     Object* root;
 
 private:

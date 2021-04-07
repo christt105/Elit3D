@@ -16,6 +16,10 @@ public:
     r1Tileset3d(const uint64_t& uid);
     ~r1Tileset3d();
 
+    void GenerateFiles() override;
+    void Load() override;
+    void LoadVars() override;
+
     std::vector<Tile3d*> tiles;
 };
 

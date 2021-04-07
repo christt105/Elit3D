@@ -36,6 +36,7 @@ public:
 	r1Model(const uint64_t& uid);
 	~r1Model();
 
+	void Unload() override;
 	void Load() override;
 	void LoadVars() override;
 

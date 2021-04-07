@@ -23,6 +23,7 @@ p1Terrain::p1Terrain(bool start_enabled, bool appear_mainmenubar, bool can_close
 void p1Terrain::Start()
 {
 	tileset = (r1Tileset3d*)App->resources->Get(11311841969679106682);
+	tileset->Attach();
 
 	viewport = App->render->CreateViewport("tileset3d editor");
 	viewport->camera->is_active = false;
@@ -40,21 +41,24 @@ void p1Terrain::Update()
 		ImGui::SetNextWindowCentered(ImVec2(850.f, 600.f));
 	}
 
+	ImGui::Separator();
+
 	if (ImGui::BeginPopupModal("Edit Tileset")) {
 		{
 			ImGui::BeginChild("EditTilesetInfo", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, ImGui::GetContentRegionAvail().y));
 			{
-				ImGui::BeginChild("TileList", ImVec2(ImGui::GetWindowWidth() * 0.3, ImGui::GetWindowHeight() * 0.75));
+				ImGui::BeginChild("TileList", ImVec2(ImGui::GetWindowWidth() * 0.3f, ImGui::GetWindowHeight() * 0.75f));
 				for (int i = 0; i < tileset->tiles.size(); ++i) {
 					ImGui::PushID(i);
 					if (ImGui::Selectable(tileset->tiles[i]->name.c_str(), selected == i) && selected != i) {
-						if (selected > -1 && selected < tileset->tiles.size())
+						//TODO Memory Leak
+						/*if (selected > -1 && selected < tileset->tiles.size())
 							if (auto r = App->resources->Get(tileset->tiles[selected]->uidObject))
-								r->Detach();
+								r->Detach();*/
 						selected = i;
-						if (auto r = App->resources->Get(tileset->tiles[i]->uidObject)) {
+						/*if (auto r = App->resources->Get(tileset->tiles[i]->uidObject)) {
 							r->Attach();
-						}
+						}*/
 						strcpy_s(bufname, sizeof(char) * 30, tileset->tiles[i]->name.c_str());
 					}
 					ImGui::PopID();
@@ -109,6 +113,7 @@ void p1Terrain::Update()
 					ImGui::PushID(i);
 					if (ImGui::Button(i->name.c_str())) {
 						tileset->tiles.push_back(new r1Tileset3d::Tile3d(i->GetUID(), i->name));
+						i->Attach();
 						ImGui::PopID();
 						ImGui::CloseCurrentPopup();
 						break;

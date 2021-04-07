@@ -4,6 +4,10 @@
 #include "Modules/m1Render3D.h"
 #include "Resources/r1Shader.h"
 
+#include "Modules/m1GUI.h"
+#include "Panels/p1Terrain.h"
+#include "Resources/r1Tileset3d.h"
+
 #include "Modules/m1Objects.h"
 #include "Modules/m1Resources.h"
 #include "Resources/r1Object.h"
@@ -45,9 +49,9 @@ Layer::Layer(Layer::Type t) : type(t)
 		root = App->objects->CreateEmptyObject(nullptr, "root");
 		break;
 	case Layer::Type::TERRAIN:
-		terrain_data.push_back(std::make_tuple(-1.f, nullptr));
+		/*terrain_data.push_back(std::make_tuple(-1.f, nullptr));
 		terrain_data.push_back(std::make_tuple( 0.f, nullptr));
-		terrain_data.push_back(std::make_tuple( 1.f, nullptr));
+		terrain_data.push_back(std::make_tuple( 1.f, nullptr));*/
 		break;
 	default:
 		break;
@@ -59,9 +63,11 @@ Layer::~Layer()
 	switch (type)
 	{
 	case Layer::Type::TILE:
+	case Layer::Type::TERRAIN:
 		if (tile_data) {
 			delete[] tile_data;
-			oglh::DeleteTexture(id_tex);
+			if (type == Layer::Type::TILE)
+				oglh::DeleteTexture(id_tex);
 		}
 		break;
 	case Layer::Type::OBJECT:
@@ -70,13 +76,13 @@ Layer::~Layer()
 			delete[] object_tile_data;
 		}
 		break;
-	case Layer::Type::TERRAIN:
+	/*case Layer::Type::TERRAIN:
 		for (auto i = terrain_data.begin(); i != terrain_data.end(); ++i) {
 			if (std::get<1>(*i) != nullptr) {
 				delete[] std::get<1>(*i);
 			}
 		}
-		break;
+		break;*/
 	default:
 		break;
 	}
@@ -128,21 +134,23 @@ void Layer::Draw(const int2& size, int tile_width, int tile_height) const
 		oglh::DepthEnable(true);
 		static auto shader = App->render->GetShader("default");
 		shader->Use();
-		for (auto& t : terrain_data) {
-			TILEOBJECT_DATA_TYPE* layer = std::get<1>(t);
-			if (layer == nullptr)
-				continue;
+		/*for (auto& t : terrain_data)*/ {
+			TILE_DATA_TYPE* layer = tile_data;
+			if (layer != nullptr)
+				//continue;
 			for (int i = size.x * size.y - 1; i >= 0; --i) {
-				if (layer[i] == 0ULL)
+				if (layer[i] == 0U)
 					continue;
-				r1Model* obj = (r1Model*)App->resources->Get(layer[i]);
+				r1Tileset3d* tileset = App->gui->terrain->tileset;
+				r1Tileset3d::Tile3d* tile = tileset->tiles[layer[i]-1];
+				r1Model* obj = (r1Model*)App->resources->Get(tile->uidObject);
 				if (obj == nullptr)
 					continue;
 				
 				for (auto& m : obj->meshes) {
 					oglh::BindBuffers(m->VAO, m->vertices.id, m->indices.id);
 					
-					shader->SetMat4("model", float4x4::FromTRS(float3(i % size.x + 1, height /*+ std::get<0>(t)*/, i / size.x), Quat::FromEulerXYZ(DegToRad(90.f), 0.f, 0.f) /*I know, I know, is ugly I will change it (TODO)*/, float3::one));
+					shader->SetMat4("model",  float4x4::FromTRS(float3(i % size.x, height /*+ std::get<0>(t)*/, i / size.x), Quat::identity /*I know, I know, is ugly I will change it (TODO)*/, float3::one) * tile->transform.GetGlobalMatrix());
 					
 					auto tex = (r1Texture*)App->resources->Get(obj->materials[m->tex_i]);
 					if (tex != nullptr) tex->Bind();
@@ -185,12 +193,16 @@ void Layer::Reset(const int2& size)
 		memset(object_tile_data, 0, sizeof(uint64_t) * size.x * size.y);
 		break;
 	case Layer::Type::TERRAIN:
-		for (auto& i : terrain_data) {
+		if (tile_data != nullptr)
+			delete[] tile_data;
+		tile_data = new TILE_DATA_TYPE[size.x * size.y];
+		memset(tile_data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
+		/*for (auto& i : terrain_data) {
 			if (std::get<1>(i) != nullptr)
 				delete[] std::get<1>(i);
 			std::get<1>(i) = new TILEOBJECT_DATA_TYPE[size.x * size.y];
 			memset(std::get<1>(i), 0, sizeof(TILEOBJECT_DATA_TYPE) * size.x * size.y);
-		}
+		}*/
 		break;
 	default:
 		break;

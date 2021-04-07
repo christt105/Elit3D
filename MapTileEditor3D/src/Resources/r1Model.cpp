@@ -23,14 +23,35 @@
 
 #include "Tools/System/Logger.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 r1Model::r1Model(const uint64_t& uid) : Resource(Resource::Type::Model, uid)
 {
 }
 
 r1Model::~r1Model()
 {
-	if (root != nullptr)
+	if (references > 0)
+		Unload();
+}
+
+void r1Model::Unload()
+{
+	if (root) {
 		delete root;
+		root = nullptr;
+	}
+
+	for (auto& i : meshes) {
+		i->Detach();
+	}
+	meshes.clear();
+
+	for (auto i : materials) {
+		if (auto r = App->resources->Get(i))
+			r->Detach();
+	}
+	materials.clear();
 }
 
 void r1Model::Load()
@@ -65,6 +86,7 @@ void r1Model::Load()
 
 		auto mesh = App->resources->CreateResource<r1Mesh>("", jmesh.value("uid", 0ULL), false);
 		mesh->from_model = uid;
+		mesh->Attach();
 
 		if (m->mMaterialIndex >= 0) {
 			mesh->tex_i = m->mMaterialIndex;
@@ -151,6 +173,8 @@ void r1Model::Load()
 			materials.push_back(t_uid);
 		}
 	}
+
+	assert(root == nullptr, "root is not nullptr");
 
 	root = new Node();
 	root->name = "root";

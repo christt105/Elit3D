@@ -211,10 +211,10 @@ void m1MapEditor::Mouse(const Ray& ray)
 					/*case p1Tools::Tools::BRUSH:
 						break;*/
 				case p1Tools::Tools::ERASER: {
-					TILEOBJECT_DATA_TYPE* terrain = std::get<1>(m->layers[selected]->terrain_data[0]);
+					TILEOBJECT_DATA_TYPE* terrain = m->layers[selected]->tile_data;
 					if (terrain[m->size.x * col + row] != 0ULL) {
-						if (Resource* res = App->resources->Get(terrain[m->size.x * col + row]))
-							res->Detach();
+						/*if (Resource* res = App->gui->terrain->tileset[terrain[m->size.x * col + row]])
+							res->Detach();*/
 					}
 					terrain[m->size.x * col + row] = 0ULL;
 					break;
@@ -226,9 +226,9 @@ void m1MapEditor::Mouse(const Ray& ray)
 										   case p1Tools::Tools::RECTANGLE:
 											   break;*/
 				default: {
-					auto obj = App->gui->terrain->selected;
-					TILEOBJECT_DATA_TYPE* terrain = std::get<1>(m->layers[selected]->terrain_data[0]);
-					if (obj != -1 && obj != terrain[m->size.x * col + row]) {
+					int obj = App->gui->terrain->selected+1;
+					TILEOBJECT_DATA_TYPE* terrain = m->layers[selected]->tile_data;
+					if (obj != 0 && obj != terrain[m->size.x * col + row]) {
 						//obj->Attach();
 						terrain[m->size.x * col + row] = obj;
 					}
