@@ -1,6 +1,10 @@
 {
     "UID": 5436827936476395175,
     "extension": "png",
-    "properties": {},
-    "timestamp": 1617126663
+    "properties": {
+        "filter": 0,
+        "tileset": false,
+        "wrap": 2
+    },
+    "timestamp": 1617792151
 }

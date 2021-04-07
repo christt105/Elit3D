@@ -23,7 +23,10 @@ r1Mesh::~r1Mesh()
 
 void r1Mesh::Load()
 {
-	/*auto file = FileSystem::OpenJSONFile(path.c_str());
+	if (extension != "mesh")
+		return;
+
+	auto file = FileSystem::OpenJSONFile(path.c_str());
 
 	vertices.size = file["nVertex"];
 	vertices.data = new float[vertices.size * 3];
@@ -43,7 +46,7 @@ void r1Mesh::Load()
 		texture.data[i] = file["Tex"][i];
 	}
 
-	GenerateBuffers();*/
+	GenerateBuffers();
 }
 
 void r1Mesh::Unload()
