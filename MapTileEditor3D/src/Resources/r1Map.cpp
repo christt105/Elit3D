@@ -380,9 +380,7 @@ void r1Map::CreateNewMap(int width, int height, const char* file)
 	MapLayerTile layer;
 	layer.Reset({ width, height });	
 
-	data["data"] = layer.Parse(width, height, MapLayer::DataTypeExport::BASE64_ZLIB);
-
-	map["layers"].push_back(data);
+	map["layers"].push_back(layer.Serialize({ width, height }));
 
 	FileSystem::SaveJSONFile(file, map);
 }
