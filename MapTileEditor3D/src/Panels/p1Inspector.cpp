@@ -36,7 +36,7 @@ void p1Inspector::Update()
 			break;
 		}
 		case p1Inspector::SelectedType::LAYER:
-			((Layer*)selected)->OnInspector();
+			((MapLayer*)selected)->OnInspector();
 			break;
 		case p1Inspector::SelectedType::EDITOR_MAP:
 			((r1Map*)selected)->OnInspector();

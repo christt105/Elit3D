@@ -13,7 +13,9 @@
 #include "Modules/m1Render3D.h"
 #include "Resources/r1Shader.h"
 
-#include "Tools/Map/MapLayer.h"
+#include "Tools/Map/MapLayerTile.h"
+#include "Tools/Map/MapLayerObject.h"
+#include "Tools/Map/MapLayerTerrain.h"
 
 #include "Modules/m1Resources.h"
 #include "Resources/r1Texture.h"
@@ -36,6 +38,8 @@
 #include "Tools/FileSystem.h"
 
 #include "Tools/System/Profiler.h"
+
+#include "ExternalTools/mmgr/mmgr.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
@@ -88,7 +92,7 @@ UpdateStatus m1MapEditor::Update()
 	static auto shader = App->render->GetShader("tilemap");
 	shader->Use();
 
-	Layer::SelectBuffers();
+	MapLayer::SelectBuffers();
 	oglh::ActiveTexture(0);
 	if (panel_tileset->SelectTex()) {
 		shader->SetBool("tilemap_selected", true);
@@ -100,9 +104,11 @@ UpdateStatus m1MapEditor::Update()
 		shader->SetInt("tilemap", 1);
 		panel_tileset->SetColumnUniform(shader);
 
+		int tileWidth = panel_tileset->GetTileWidth();
+		int tileHeight = panel_tileset->GetTileHeight();
 		for (auto layer = m->layers.begin(); layer != m->layers.end(); ++layer) {
-			if ((*layer)->type == Layer::Type::TILE && (*layer)->visible) {
-				(*layer)->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth()); //TODO: optimize get tile width and height
+			if ((*layer)->type == MapLayer::Type::TILE && (*layer)->visible) {
+				(*layer)->Draw(m->size, tileWidth, tileHeight);
 			}
 		}
 
@@ -114,14 +120,14 @@ UpdateStatus m1MapEditor::Update()
 		oglh::ActiveTexture(0);
 
 		for (auto layer = m->layers.begin(); layer != m->layers.end(); ++layer) { //TODO: Draw all tiles at the same time
-			if (((*layer)->type == Layer::Type::OBJECT || (*layer)->type == Layer::Type::TERRAIN) && (*layer)->visible) {
+			if (((*layer)->type == MapLayer::Type::OBJECT || (*layer)->type == MapLayer::Type::TERRAIN) && (*layer)->visible) {
 				(*layer)->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth());
 			}
 		}
 	}
 	else {
 		shader->SetBool("tilemap_selected", false);
-		Layer::DrawTile(m->size);
+		MapLayer::DrawTile(m->size);
 	}
 
 	oglh::ActiveTexture(0);
@@ -186,82 +192,155 @@ void m1MapEditor::Mouse(const Ray& ray)
 		return;
 
 	int selected = panel_layers->GetSelected();
-	if (selected == -1 || selected >= m->layers.size())
+	if (selected < 0 || selected >= m->layers.size())
 		return;
 
-	switch (m->layers[selected]->GetType())
-	{
-	case Layer::Type::TILE:
-		MouseTile(m, ray);
-		break;
-	case Layer::Type::OBJECT:
-		MouseTileObject(m, selected, ray);
-		break;
-	case Layer::Type::TERRAIN: {
-		float t = 0.f;
-		if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[selected]->height, ray.pos, ray.dir, t) && t > 0.f) {
+	float t = 0.f;
+	if (!Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[selected]->height, ray.pos, ray.dir, t) && t >= 0.f)
+		return;
+
 			float3 position = ray.GetPoint(t);
 			auto col = (int)floor(position.z);
 			auto row = (int)floor(position.x);
-			//TODO Draw transparent
 
-			if (App->input->IsMouseButtonPressed(1) && row >= 0 && col >= 0 && row < m->size.x && col < m->size.y && !m->layers[selected]->locked) {
-				switch (panel_tools->GetSelectedTool())
-				{
-					/*case p1Tools::Tools::BRUSH:
-						break;*/
-				case p1Tools::Tools::ERASER: {
-					TILEOBJECT_DATA_TYPE* terrain = m->layers[selected]->tile_data;
-					if (terrain[m->size.x * col + row] != 0ULL) {
-						/*if (Resource* res = App->gui->terrain->tileset[terrain[m->size.x * col + row]])
-							res->Detach();*/
-					}
-					terrain[m->size.x * col + row] = 0ULL;
-					break;
-				}
-										   /*case p1Tools::Tools::BUCKET:
-											   break;
-										   case p1Tools::Tools::EYEDROPPER:
-											   break;
-										   case p1Tools::Tools::RECTANGLE:
-											   break;*/
-				default: {
-					int obj = App->gui->terrain->selected+1;
-					TILEOBJECT_DATA_TYPE* terrain = m->layers[selected]->tile_data;
-					if (obj != 0 && obj != terrain[m->size.x * col + row]) {
-						//obj->Attach();
-						terrain[m->size.x * col + row] = obj;
-					}
-					break;
-				}
-				}
-			}
-		}
+	switch (m->layers[selected]->GetType())
+	{
+	case MapLayer::Type::TILE:
+		MouseTile(m, (MapLayerTile*)m->layers[selected], { col, row });
 		break;
-	}
+	case MapLayer::Type::OBJECT:
+		MouseTileObject((MapLayerObject*)m->layers[selected], { col, row }, m->size);
+		break;
+	case MapLayer::Type::TERRAIN:
+		MouseTileTerrain(m, { col, row }, (MapLayerTerrain*)m->layers[selected]);
+		break;
 	}
 }
 
-void m1MapEditor::MouseTileObject(r1Map* m, int selected, const math::Ray& ray)
+void m1MapEditor::MouseTileTerrain(r1Map* m, const int2& tile, MapLayerTerrain* layer)
 {
-	float t = 0.f;
-	if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[selected]->height, ray.pos, ray.dir, t) && t > 0.f) {
-		float3 position = ray.GetPoint(t);
-		auto col = (int)floor(position.z);
-		auto row = (int)floor(position.x);
-		//TODO Draw transparent
+	//TODO Draw transparent
 
-		if (App->input->IsMouseButtonPressed(1) && row >= 0 && col >= 0 && row < m->size.x && col < m->size.y && !m->layers[selected]->locked) {
+	if (App->input->IsMouseButtonPressed(1) && m->CheckBoundaries({ tile.y, tile.x }, 1, p1Tools::Tools::BRUSH, p1Tools::Shape::RECTANGLE) && !layer->locked) {
+		switch (panel_tools->GetSelectedTool())
+		{
+		case p1Tools::Tools::ERASER: {
+			layer->tile_data[m->size.x * tile.x + tile.y] = 0ULL;
+			break;
+		}
+		default:
+			if (int obj = App->gui->terrain->selected + 1;  obj != 0) {
+				layer->tile_data[m->size.x * tile.x + tile.y] = obj;
+			}
+			break;
+		}
+	}
+}
+
+void m1MapEditor::MouseTile(r1Map* m, MapLayerTile* layer, const int2& tile)
+{
+	if (!App->gui->tileset->SelectTex())
+		return;
+
+	auto r = (r1Mesh*)App->resources->EGet(m1Resources::EResourceType::TILE);
+
+	oglh::ActiveTexture(0);
+
+	int brushSize = panel_tools->GetToolSize();
+	p1Tools::Tools tool = panel_tools->GetSelectedTool();
+	p1Tools::Shape shape = panel_tools->GetToolShape();
+
+	static r1Shader* shader = App->render->GetShader("selectTile");
+	shader->Use();
+	shader->SetInt2("tileSelected", panel_tileset->GetTileSelected());
+	//if (tool != p1Tools::Tools::BUCKET) { TODO: Fix
+	shader->SetMat4("model",
+		float4x4::FromTRS(
+			float3(tile.y - brushSize + 1 + brushSize / 2, layer->height, tile.x - brushSize + 1 + brushSize / 2),
+			Quat::identity,
+			float3(brushSize, 1.f, brushSize)));
+	/*}
+	else {
+	shader->SetMat4("model",
+	float4x4::FromTRS(
+	float3::zero,
+	Quat::identity,
+	float3(m->size.x, 1.f, m->size.y)));
+	}*/
+	shader->SetInt("tool", (int)tool);
+	shader->SetBool("locked", layer->locked);
+	shader->SetInt("brushSize", brushSize);
+	shader->SetInt("brushShape", (int)shape);
+	if (tool == p1Tools::Tools::BUCKET) {
+		oglh::ActiveTexture(1);
+		shader->SetInt("TextureMap", 1);
+		layer->SelectTex();
+		shader->SetVec2("sizeMap", { (float)tile.x, (float)tile.y });
+		shader->SetVec2("mousePos", { (float)tile.y, (float)tile.x });
+	}
+
+	oglh::BindBuffers(r->VAO, r->vertices.id, r->indices.id);
+	oglh::DrawElements(r->indices.size);
+	if (App->input->IsMouseButtonPressed(1) && !layer->locked && m->CheckBoundaries({ tile.y, tile.x }, brushSize, tool, shape)) {
+		switch (tool)
+		{
+		case p1Tools::Tools::BUCKET:
+		case p1Tools::Tools::BRUSH: {
+			if (!App->input->IsMouseButtonUp(1)) {
+				TILE_DATA_TYPE tile_id = panel_tileset->GetTileIDSelected();
+				if (tile_id != 0) {
+
+					// tile.y = A * 256 + B
+					unsigned char A = 0;
+					unsigned char B = 0;
+
+					A = tile_id / UCHAR_MAX;
+					B = tile_id % UCHAR_MAX;
+
+					m->Edit(layer, tile.x, tile.y, brushSize, tool, shape, tile_id, A, B);
+				}
+			}
+			break;
+		}
+		case p1Tools::Tools::ERASER:
+			m->Edit(layer, tile.x, tile.y, brushSize, tool, shape, 0, 0, 0);
+			break;
+		case p1Tools::Tools::EYEDROPPER:
+			if (App->input->IsMouseButtonUp(1)) {
+				for (auto i = m->layers.rbegin(); i != m->layers.rend(); ++i) {
+					if ((*i)->type != MapLayer::Type::TILE || !(*i)->visible || ((MapLayerTile*)(*i))->tile_data[m->size.x * tile.x + tile.y] == 0)
+						continue;
+
+					panel_tileset->SetTileIDSelected(((MapLayerTile*)(*i))->tile_data[m->size.x * tile.x + tile.y]);
+					break;
+				}
+			}
+			break;
+		case p1Tools::Tools::RECTANGLE:
+			break;
+		default:
+			break;
+		}
+	}
+	if (tool == p1Tools::Tools::BUCKET) {
+		oglh::UnBindTexture();
+		oglh::ActiveTexture(0);
+	}
+}
+
+void m1MapEditor::MouseTileObject(MapLayerObject* layer, const int2& tile, const int2& mapSize)
+{
+		if (App->input->IsMouseButtonPressed(1) && tile.y >= 0 && tile.x >= 0 && tile.y < mapSize.x && tile.x < mapSize.y && !layer->locked) {
 			switch (panel_tools->GetSelectedTool())
 			{
 				/*case p1Tools::Tools::BRUSH:
 					break;*/
 			case p1Tools::Tools::ERASER:
-				if (m->layers[selected]->object_tile_data[m->size.x * col + row] != 0ULL) {
-					if (Resource* res = App->resources->Get(m->layers[selected]->object_tile_data[m->size.x * col + row]))
+				if (layer->object_tile_data[mapSize.x * tile.x + tile.y] != 0ULL) {
+					if (Resource* res = App->resources->Get(layer->object_tile_data[mapSize.x * tile.x + tile.y]))
 						res->Detach();
 				}
-				m->layers[selected]->object_tile_data[m->size.x * col + row] = 0ULL;
+				layer->object_tile_data[mapSize.x * tile.x + tile.y] = 0ULL;
 				break;
 				/*case p1Tools::Tools::BUCKET:
 					break;
@@ -271,118 +350,16 @@ void m1MapEditor::MouseTileObject(r1Map* m, int selected, const math::Ray& ray)
 					break;*/
 			default:
 				uint64_t tile_id = App->gui->objects->GetObjectSelected();
-				if (tile_id != 0ULL && tile_id != m->layers[selected]->object_tile_data[m->size.x * col + row]) {
+				if (tile_id != 0ULL && tile_id != layer->object_tile_data[mapSize.x * tile.x + tile.y]) {
 					Resource* res = App->resources->Get(tile_id);
 					if (res != nullptr) {
 						res->Attach();
-						m->layers[selected]->object_tile_data[m->size.x * col + row] = tile_id;
+						layer->object_tile_data[mapSize.x * tile.x + tile.y] = tile_id;
 					}
 				}
 				break;
 			}
 		}
-	}
-}
-
-void m1MapEditor::MouseTile(r1Map* m, const math::Ray& ray)
-{
-	if (App->gui->tileset->SelectTex()) {
-		int index = panel_layers->GetSelected();
-		float t = 0.f;
-		auto r = (r1Mesh*)App->resources->EGet(m1Resources::EResourceType::TILE);
-		if (index < (int)m->layers.size() && index > -1) {
-			if (Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[index]->height, ray.pos, ray.dir, t) && t > 0.f) {
-				float3 position = ray.GetPoint(t);
-				auto col = (int)floor(position.z);
-				auto row = (int)floor(position.x);
-
-				oglh::ActiveTexture(0);
-				//select tileset
-
-				int brushSize = panel_tools->GetToolSize();
-				p1Tools::Tools tool = panel_tools->GetSelectedTool();
-				p1Tools::Shape shape = panel_tools->GetToolShape();
-
-				static r1Shader* shader = App->render->GetShader("selectTile");
-				shader->Use();
-				shader->SetInt2("tileSelected", panel_tileset->GetTileSelected());
-				//if (tool != p1Tools::Tools::BUCKET) { TODO: Fix
-				shader->SetMat4("model",
-					float4x4::FromTRS(
-						float3(row - brushSize + 1 + brushSize / 2, m->layers[index]->height, col - brushSize + 1 + brushSize / 2),
-						Quat::identity,
-						float3(brushSize, 1.f, brushSize)));
-				/*}
-				else {
-				shader->SetMat4("model",
-				float4x4::FromTRS(
-				float3::zero,
-				Quat::identity,
-				float3(m->size.x, 1.f, m->size.y)));
-				}*/
-				shader->SetInt("tool", (int)tool);
-				shader->SetBool("locked", m->layers[index]->locked);
-				shader->SetInt("brushSize", brushSize);
-				shader->SetInt("brushShape", (int)shape);
-				if (tool == p1Tools::Tools::BUCKET) {
-					oglh::ActiveTexture(1);
-					shader->SetInt("TextureMap", 1);
-					m->layers[index]->SelectTex();
-					shader->SetVec2("sizeMap", { (float)m->size.x, (float)m->size.y });
-					shader->SetVec2("mousePos", { (float)row, (float)col });
-				}
-
-				oglh::BindBuffers(r->VAO, r->vertices.id, r->indices.id);
-				oglh::DrawElements(r->indices.size);
-				if (App->input->IsMouseButtonPressed(1) && !m->layers[index]->locked) {
-					if (m->CheckBoundaries({ row, col }, brushSize, tool, shape)) {
-						switch (tool)
-						{
-						case p1Tools::Tools::BUCKET:
-						case p1Tools::Tools::BRUSH: {
-							if (!App->input->IsMouseButtonUp(1)) {
-								TILE_DATA_TYPE tile_id = panel_tileset->GetTileIDSelected();
-								if (tile_id != 0) {
-
-									// tile.y = A * 256 + B
-									unsigned char A = 0;
-									unsigned char B = 0;
-
-									A = tile_id / UCHAR_MAX;
-									B = tile_id % UCHAR_MAX;
-
-									m->Edit(index, col, row, brushSize, tool, shape, tile_id, A, B);
-								}
-							}
-							break;
-						}
-						case p1Tools::Tools::ERASER:
-							m->Edit(index, col, row, brushSize, tool, shape, 0, 0, 0);
-							break;
-						case p1Tools::Tools::EYEDROPPER:
-							if (App->input->IsMouseButtonUp(1)) {
-								for (auto i = m->layers.rbegin(); i != m->layers.rend(); ++i) {
-									if ((*i)->type == Layer::Type::TILE && (*i)->visible && (*i)->tile_data[m->size.x * col + row] != 0) {
-										panel_tileset->SetTileIDSelected((*i)->tile_data[m->size.x * col + row]);
-										break;
-									}
-								}
-							}
-							break;
-						case p1Tools::Tools::RECTANGLE:
-							break;
-						default:
-							break;
-						}
-					}
-				}
-				if (tool == p1Tools::Tools::BUCKET) {
-					oglh::UnBindTexture();
-					oglh::ActiveTexture(0);
-				}
-			}
-		}
-	}
 }
 
 void m1MapEditor::ResizeMap(int width, int height)
@@ -394,32 +371,45 @@ void m1MapEditor::ResizeMap(int width, int height)
 
 int2 m1MapEditor::GetMapSize() const
 {
-	auto m = (r1Map*)App->resources->Get(map);
-	if (m)
+	if (auto m = (r1Map*)App->resources->Get(map))
 		return m->size;
 	return int2(-1, -1);
 }
 
-void m1MapEditor::ReorderLayers()
+void m1MapEditor::ReorderLayers() const
 {
 	auto m = (r1Map*)App->resources->Get(map);
 	if (m != nullptr)
-		std::sort(m->layers.begin(), m->layers.end(), Layer::HeightOrder);
+		std::sort(m->layers.begin(), m->layers.end(), MapLayer::HeightOrder);
 }
 
-Layer* m1MapEditor::AddLayer(Layer::Type t)
+MapLayer* m1MapEditor::AddLayer(MapLayer::Type t)
 {
 	auto m = (r1Map*)App->resources->Get(map);
-	if (m) {
-		Layer* layer = new Layer(t);
-		layer->Reset(m->size);
-		if (t == Layer::Type::OBJECT) {
-			layer->root = App->objects->CreateEmptyObject();
-		}
-		m->layers.push_back(layer);
-		return layer;
+	if (m == nullptr)
+		return nullptr;
+
+	MapLayer* layer = nullptr;
+	switch (t)
+	{
+	case MapLayer::Type::TILE:
+		layer = new MapLayerTile();
+		break;
+	case MapLayer::Type::OBJECT:
+		layer = new MapLayerObject();
+		break;
+	case MapLayer::Type::TERRAIN:
+		layer = new MapLayerTerrain();
+		break;
 	}
-	return nullptr;
+
+	if (layer == nullptr)
+		return nullptr;
+
+	layer->Reset(m->size);
+	m->layers.push_back(layer);
+
+	return layer;
 }
 
 void m1MapEditor::EraseLayer(int index)
@@ -442,7 +432,7 @@ r1Map* m1MapEditor::GetMap() const
 	return (r1Map*)App->resources->Get(map);
 }
 
-bool m1MapEditor::GetLayers(std::vector<Layer*>* &vec) const
+bool m1MapEditor::GetLayers(std::vector<MapLayer*>* &vec) const
 {
 	auto m = (r1Map*)App->resources->Get(map);
 	if (m == nullptr)
@@ -453,27 +443,26 @@ bool m1MapEditor::GetLayers(std::vector<Layer*>* &vec) const
 	return true;
 }
 
-Layer* m1MapEditor::GetObjectLayer(bool create_if_no_exist, bool select)
+MapLayerObject* m1MapEditor::GetObjectLayer(bool create_if_no_exist, bool select)
 {
 	auto m = GetMap();
 	if(m == nullptr)
 		return nullptr;
 
-	int sel = panel_layers->GetSelected();
-	if (sel != -1)
-		if (m->layers[sel]->type == Layer::Type::OBJECT)
-			return m->layers[sel];
+	if (int sel = panel_layers->GetSelected(); sel != -1)
+		if (m->layers[sel]->type == MapLayer::Type::OBJECT)
+			return (MapLayerObject*)m->layers[sel];
 
 	for (int i = 0; i < m->layers.size(); ++i) {
-		if (m->layers[i]->type == Layer::Type::OBJECT) {
+		if (m->layers[i]->type == MapLayer::Type::OBJECT) {
 			if (select)
 				panel_layers->SetSelected(i);
-			return m->layers[i];
+			return (MapLayerObject*)m->layers[i];
 		}
 	}
 
 	if (create_if_no_exist) {
-		auto l = AddLayer(Layer::Type::OBJECT);
+		auto l = (MapLayerObject*)AddLayer(MapLayer::Type::OBJECT);
 		if (select)
 			panel_layers->SetSelected(m->layers.size()-1);
 		return l;
@@ -482,7 +471,7 @@ Layer* m1MapEditor::GetObjectLayer(bool create_if_no_exist, bool select)
 	return nullptr;
 }
 
-void m1MapEditor::ExportMap(MapTypeExport t, Layer::DataTypeExport d) const
+void m1MapEditor::ExportMap(MapTypeExport t, MapLayer::DataTypeExport d) const
 {
 	if (map != 0)
 		((r1Map*)App->resources->Get(map))->Export(panel_tileset->GetTileset(), d, t);

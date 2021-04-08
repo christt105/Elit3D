@@ -1,7 +1,7 @@
 {
     "layers": [
         {
-            "data": "eNrjMrGw0CEHc41qHNEauQAtT3ID",
+            "data": "eNrjMrGw0BkIzDVILLbErtDSEIltQFjN4PKxJREWY7jecojEMa7oIGyxJc2CmIo+tqRhqiYz5Q6FfEzLILaklY8tSXIcjbKTIUExLux50JK6CQpLvuaiVQExhFI1OGgJJRRLilM+F9UTEt5osMRhMbImmIGUxieOxDlQccwFAEoJ580=",
             "displacement": [
                 0,
                 0
@@ -16,7 +16,7 @@
             "visible": true
         },
         {
-            "data": "eNqNkFEOgDAIQ/85ix8zMin3v5gGIiLZ4rLw0z7abdS2+SGGDg2W04EQcJjI6IF0V0QcfLK+RlVY95SaDcBmMdnRAdysIht6w/yOoKRrvcxs1J5P+Ufws+I9tNoQK3QBGFJTvA==",
+            "data": "eNrdlEEOgCAMBO99iwfBUuD/H7MaNEYbWdGDIWQONHR3IQCNQ/ugDps5LTgDj0lxDIooscy9MhlwV4J5ggXPAT7K+TNZYSUYiHlooCy2gjipe42YSmMeoPWXvqPhWpCyJWmj2msZQiL6gCU1kAHDStLbrwhKv9fKzWJNxvkZAdnFxXwzXHAP8e3H9sKQZgeiStc=",
             "displacement": [
                 0,
                 0
@@ -31,37 +31,7 @@
             "visible": true
         },
         {
-            "data": "eNrjMtAx0DE2NAJiY6IxF05NBhZAbIoV49ZkaKJjgAQhCg1MsJhihqkQFxxsklwA5/hBHQ==",
-            "displacement": [
-                0,
-                0
-            ],
-            "encoding": "base64-zlib",
-            "height": 0.0,
-            "locked": false,
-            "name": "Water",
-            "opacity": 1.0,
-            "properties": null,
-            "type": 0,
-            "visible": false
-        },
-        {
-            "data": "eNqdy7kBAEEIw8DctTjg3YP+GzvXQKBMg+hhejK7WfUx37KsWDHqsVptqlCujDVLxBQvGLGCB4z4jBeMyOQFI1zzAcOrecFwG16w4PKCBY0HjB/pC23m",
-            "displacement": [
-                0,
-                0
-            ],
-            "encoding": "base64-zlib",
-            "height": 0.0,
-            "locked": false,
-            "name": "Layer",
-            "opacity": 1.0,
-            "properties": null,
-            "type": 0,
-            "visible": false
-        },
-        {
-            "data": "eNrFTksKgFAQ2s9Z3mJ+zoz3v1i1rqhFEIKCCio2CnYnrA5mhNfSW4j+FAaMaRjX0CTRnA+HrJMA0tSngqWlfe4/fxALp6Fjehc6ujDrvXn5TjYfr03L",
+            "data": "eNrdU8sKwzAMu+dbcvBD8uP/f2wtu25j7VpKR8CBBMmWLQ+ZWsLOBDXW2O4WU+bffwyZ+8/4kG8nn1wG3qzEqQ1lmbigm9n17HSiSULFKrxDQvL2cnURmraAxNI7TRo8or53TdxI95rm60mcYmZ1a2V65XK1MYM17/J4k6U9AawKR4BOmNhi8wz8woeEqyFau9a1MdQFdIfbYVcd4wFBy2Ud",
             "displacement": [
                 0,
                 0
@@ -101,7 +71,7 @@
             "visible": true
         },
         {
-            "data": "eNrjMrQwNrM0MzQxMjIyMDM0NjY3sjTRoYWgARDSzTLiBbkMdNAhve3GGVx4HYRTgguHctKEibCfJIvomqTwOBtLfOM1hmvAUgexdhuQZCYpgQKBXESkEJIDhwsAnT7gxg==",
+            "data": "eNrjMtAhH3KNah7VTFCzoYWxmaWZoYmRkZGBmaGxsbmRpYkOLQRBttHNMtKcRWLoDja3EdRLWnyQl2RwGkaEHWQ5g0SH0DVJU+AtHLmZzCDCYt6gSb3Eus2AJDupGeiUFKEkRCM5TuYCAL1Ihok=",
             "displacement": [
                 0,
                 0
@@ -326,9 +296,9 @@
                         "components": [
                             {
                                 "position": {
-                                    "x": 4.449999809265137,
+                                    "x": 9.449999809265137,
                                     "y": -0.10000000149011612,
-                                    "z": 8.880000114440918
+                                    "z": 15.880000114440918
                                 },
                                 "rotation": {
                                     "w": -1.1082997854964388e-13,
@@ -517,9 +487,9 @@
                         "components": [
                             {
                                 "position": {
-                                    "x": 10.989999771118164,
+                                    "x": 23.989999771118164,
                                     "y": -0.10000000149011612,
-                                    "z": 8.380000114440918
+                                    "z": 12.380000114440918
                                 },
                                 "rotation": {
                                     "w": -1.1082997854964388e-13,
@@ -667,9 +637,9 @@
                         "components": [
                             {
                                 "position": {
-                                    "x": 1.5,
+                                    "x": 6.5,
                                     "y": 0.0,
-                                    "z": 7.28000020980835
+                                    "z": 14.279999732971191
                                 },
                                 "rotation": {
                                     "w": -1.1082997854964388e-13,
@@ -865,7 +835,7 @@
             "visible": true
         },
         {
-            "data": "eNrjMtDBDbloLGmuYwyEFtglTcCkKbUlzXQMgdCIaNdyAQDbaDLN",
+            "data": "eNrjMtAhH3KNaqaTZnMdY/I1m1Bi86hmemo20zEczRgkQi4ASzvYdA==",
             "displacement": [
                 0,
                 0
@@ -878,12 +848,27 @@
             "properties": null,
             "type": 2,
             "visible": true
+        },
+        {
+            "data": "eNrjMtAhH3KNah4ams0p0Wwyqpk0aDaaPOmpmQsALvDYaA==",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 1.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "type": 2,
+            "visible": true
         }
     ],
     "properties": null,
     "size": [
-        14,
-        10
+        30,
+        20
     ],
     "tileset": 14610671625611851776,
     "version": "0.4.0"

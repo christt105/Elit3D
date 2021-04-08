@@ -10,6 +10,7 @@
 #include "Modules/m1Objects.h"
 
 #include "Tools/Map/MapLayer.h"
+#include "Tools/Map/MapLayerObject.h"
 
 #include "ExternalTools/ImGui/imgui_internal.h"
 
@@ -24,14 +25,14 @@ p1Layers::~p1Layers() = default;
 
 void p1Layers::Update()
 {
-	if (std::vector<Layer*>* layers = nullptr; App->map_editor->GetLayers(layers)) {
+	if (std::vector<MapLayer*>* layers = nullptr; App->map_editor->GetLayers(layers)) {
 		Buttons(layers);
 		ImGui::Separator(); //TODO: Child window
 		DisplayLayers(layers);
 	}
 }
 
-void p1Layers::DisplayLayers(std::vector<Layer*>* layers)
+void p1Layers::DisplayLayers(std::vector<MapLayer*>* layers)
 {
 	ImGui::Columns(2, "##layers", false);
 	ImGui::SetColumnWidth(0, 60.f);
@@ -66,14 +67,14 @@ void p1Layers::DisplayLayers(std::vector<Layer*>* layers)
 			if (l_selected) {
 				selected = -1;
 				App->gui->inspector->SetSelected(nullptr, p1Inspector::SelectedType::NONE);
-				if ((*l)->type == Layer::Type::OBJECT)
+				if ((*l)->type == MapLayer::Type::OBJECT)
 					App->objects->layer_root_selected = nullptr;
 			}
 			else {
 				selected = layers->size() - (l - layers->rbegin()) - 1;
 				App->gui->inspector->SetSelected(*l, p1Inspector::SelectedType::LAYER);
-				if ((*l)->type == Layer::Type::OBJECT)
-					App->objects->layer_root_selected = (*l)->root;
+				if ((*l)->type == MapLayer::Type::OBJECT)
+					App->objects->layer_root_selected = ((MapLayerObject*)(*l))->root;
 				else App->objects->layer_root_selected = nullptr;
 			}
 		}
@@ -82,13 +83,13 @@ void p1Layers::DisplayLayers(std::vector<Layer*>* layers)
 		ImGui::SetCursorPosX(s.x + 50.f);
 		switch ((*l)->GetType())
 		{
-		case Layer::Type::TILE:
+		case MapLayer::Type::TILE:
 			ImGui::Text(ICON_FA_BORDER_ALL);
 			break;
-		case Layer::Type::OBJECT:
+		case MapLayer::Type::OBJECT:
 			ImGui::Text(ICON_FA_CUBE);
 			break;
-		case Layer::Type::TERRAIN:
+		case MapLayer::Type::TERRAIN:
 			ImGui::Text(ICON_FA_CUBES); //ICON_FA_MOUNTAIN TODO: MACRO TERRAIN_ICON and other types
 			break;
 		default:
@@ -105,7 +106,7 @@ void p1Layers::DisplayLayers(std::vector<Layer*>* layers)
 	ImGui::Columns();
 }
 
-void p1Layers::Buttons(std::vector<Layer*>*& layers)
+void p1Layers::Buttons(std::vector<MapLayer*>*& layers)
 {
 	if (ImGui::Button(ICON_FA_PLUS)) {
 		ImGui::OpenPopup("layer_type_create");
@@ -113,15 +114,15 @@ void p1Layers::Buttons(std::vector<Layer*>*& layers)
 	if (ImGui::BeginPopup("layer_type_create"))
 	{
 		if (ImGui::Button(ICON_FA_BORDER_ALL" Tile Layer")) {
-			App->map_editor->AddLayer(Layer::Type::TILE);
+			App->map_editor->AddLayer(MapLayer::Type::TILE);
 			ImGui::CloseCurrentPopup();
 		}
 		if (ImGui::Button(ICON_FA_CUBE" Object Layer")) {
-			App->map_editor->AddLayer(Layer::Type::OBJECT);
+			App->map_editor->AddLayer(MapLayer::Type::OBJECT);
 			ImGui::CloseCurrentPopup();
 		}
 		if (ImGui::Button(ICON_FA_CUBES" Terrain Layer")) {
-			App->map_editor->AddLayer(Layer::Type::TERRAIN);
+			App->map_editor->AddLayer(MapLayer::Type::TERRAIN);
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -193,11 +194,11 @@ void p1Layers::SetSelected(int i)
 {
 	selected = i;
 	
-	if (std::vector<Layer*>* layers; App->map_editor->GetLayers(layers)) {
-		Layer* layer = (*layers)[i];
+	if (std::vector<MapLayer*>* layers; App->map_editor->GetLayers(layers)) {
+		MapLayer* layer = (*layers)[i];
 		App->gui->inspector->SetSelected(layer, p1Inspector::SelectedType::LAYER);
-		if (layer->type == Layer::Type::OBJECT) {
-			App->objects->layer_root_selected = layer->root;
+		if (layer->type == MapLayer::Type::OBJECT) {
+			App->objects->layer_root_selected = ((MapLayerObject*)layer)->root;
 		}
 	}
 }
