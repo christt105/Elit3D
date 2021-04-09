@@ -1,0 +1,875 @@
+{
+    "layers": [
+        {
+            "data": "eNrjMrGw0BkIzDVILLbErtDSEIltQFjN4PKxJREWY7jecojEMa7oIGyxJc2CmIo+tqRhqiYz5Q6FfEzLILaklY8tSXIcjbKTIUExLux50JK6CQpLvuaiVQExhFI1OGgJJRRLilM+F9UTEt5osMRhMbImmIGUxieOxDlQccwFAEoJ580=",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Background",
+            "opacity": 1.0,
+            "properties": null,
+            "type": 0,
+            "visible": true
+        },
+        {
+            "data": "eNrdlEEOgCAMBO99iwfBUuD/H7MaNEYbWdGDIWQONHR3IQCNQ/ugDps5LTgDj0lxDIooscy9MhlwV4J5ggXPAT7K+TNZYSUYiHlooCy2gjipe42YSmMeoPWXvqPhWpCyJWmj2msZQiL6gCU1kAHDStLbrwhKv9fKzWJNxvkZAdnFxXwzXHAP8e3H9sKQZgeiStc=",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Dirt",
+            "opacity": 1.0,
+            "properties": null,
+            "type": 0,
+            "visible": true
+        },
+        {
+            "data": "eNrdU8sKAyEQu/stHuaRef3/j9Wl0FNbutZlu0VQUJJJJk6jzklWETD2bS9V8U797x8a9fnV3tSb5KPTwLudqHGBLYWUUGVRee90oMwMTJKu5eQUl7fLw2jIAJGEVggVbIW+V03cSfec5uMkDvnMrFJsoRnjKLFwy36Vy0fuK2gWafmJuTkAzAyFw9QgJGOwwvENHwLKAi+u3AZVkCfQLQ59Uke7ARFNfOc=",
+            "displacement": [
+                0,
+                0
+            ],
+            "height": 0.0,
+            "locked": false,
+            "name": "Items",
+            "opacity": 1.0,
+            "properties": null,
+            "root": {
+                "active": true,
+                "children": [],
+                "components": [
+                    {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "w": 1.0,
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "type": 1
+                    }
+                ],
+                "name": "Object"
+            },
+            "type": 1,
+            "visible": true
+        },
+        {
+            "data": "eNrjMtAhH3KNah7VTFCzoYWxmaWZoYmRkZGBmaGxsbmRpYkOLQRBttHNMtKcRWLoDja3EdRLWnyQl2RwGkaEHWQ5g0SH0DVJU+AtHLmZzCDCYt6gSb3Eus2AJDupGeiUFKEkRCM5TuYCAL1Ihok=",
+            "displacement": [
+                0,
+                0
+            ],
+            "height": 0.0,
+            "locked": false,
+            "name": "Objects",
+            "opacity": 1.0,
+            "properties": null,
+            "root": {
+                "active": true,
+                "children": [
+                    {
+                        "active": true,
+                        "children": [
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 14152896075196767269,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 3394069498312192643,
+                                        "type": 0,
+                                        "uid": 14365171375532175678
+                                    }
+                                ],
+                                "name": "polygon0.004"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 15958814670731058268,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 3394069498312192643,
+                                        "type": 0,
+                                        "uid": 10582951613684610212
+                                    }
+                                ],
+                                "name": "polygon1.003"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 2615342371971442742,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 3394069498312192643,
+                                        "type": 0,
+                                        "uid": 8148660334040105343
+                                    }
+                                ],
+                                "name": "polygon2.003"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 15760110143799685780,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 3394069498312192643,
+                                        "type": 0,
+                                        "uid": 17425869447569865197
+                                    }
+                                ],
+                                "name": "polygon3.003"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 578241557047487262,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 3394069498312192643,
+                                        "type": 0,
+                                        "uid": 2835446429811890585
+                                    }
+                                ],
+                                "name": "polygon4.002"
+                            }
+                        ],
+                        "components": [
+                            {
+                                "position": {
+                                    "x": 9.449999809265137,
+                                    "y": -0.10000000149011612,
+                                    "z": 15.880000114440918
+                                },
+                                "rotation": {
+                                    "w": -1.1082997854964388e-13,
+                                    "x": 4.371138828673793e-08,
+                                    "y": 1.0,
+                                    "z": 9.099629210140847e-07
+                                },
+                                "scale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                },
+                                "type": 1
+                            }
+                        ],
+                        "name": "house_main"
+                    },
+                    {
+                        "active": true,
+                        "children": [
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 14444081630151501538,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 12850121501923073388,
+                                        "type": 0,
+                                        "uid": 10729584307119805200
+                                    }
+                                ],
+                                "name": "polygon0.005"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 14444081630151501538,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 12850121501923073388,
+                                        "type": 0,
+                                        "uid": 16881986914118556888
+                                    }
+                                ],
+                                "name": "polygon1.004"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 15760110143799685780,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 12850121501923073388,
+                                        "type": 0,
+                                        "uid": 2851037648136459727
+                                    }
+                                ],
+                                "name": "polygon2.004"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 13073247494352537906,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 12850121501923073388,
+                                        "type": 0,
+                                        "uid": 12506228582607284330
+                                    }
+                                ],
+                                "name": "polygon3.004"
+                            }
+                        ],
+                        "components": [
+                            {
+                                "position": {
+                                    "x": 23.989999771118164,
+                                    "y": -0.10000000149011612,
+                                    "z": 12.380000114440918
+                                },
+                                "rotation": {
+                                    "w": -1.1082997854964388e-13,
+                                    "x": 4.371138828673793e-08,
+                                    "y": 1.0,
+                                    "z": 9.099629210140847e-07
+                                },
+                                "scale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                },
+                                "type": 1
+                            }
+                        ],
+                        "name": "house"
+                    },
+                    {
+                        "active": true,
+                        "children": [
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 100.0,
+                                            "y": 100.0,
+                                            "z": 100.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 5223184751917082839,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 15309261173520732776,
+                                        "type": 0,
+                                        "uid": 13598160112440964729
+                                    }
+                                ],
+                                "name": "polygon0.001"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 100.0,
+                                            "y": 100.0,
+                                            "z": 100.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 14134340929225825492,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 15309261173520732776,
+                                        "type": 0,
+                                        "uid": 4591624319369476499
+                                    }
+                                ],
+                                "name": "polygon1.001"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 100.0,
+                                            "y": 100.0,
+                                            "z": 100.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 15760110143799685780,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 15309261173520732776,
+                                        "type": 0,
+                                        "uid": 11596050297423200890
+                                    }
+                                ],
+                                "name": "polygon2.001"
+                            }
+                        ],
+                        "components": [
+                            {
+                                "position": {
+                                    "x": 6.5,
+                                    "y": 0.0,
+                                    "z": 14.279999732971191
+                                },
+                                "rotation": {
+                                    "w": -1.1082997854964388e-13,
+                                    "x": 4.371138828673793e-08,
+                                    "y": 1.0,
+                                    "z": 9.099629210140847e-07
+                                },
+                                "scale": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.5
+                                },
+                                "type": 1
+                            }
+                        ],
+                        "name": "mailbox"
+                    },
+                    {
+                        "active": true,
+                        "children": [
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 100.0,
+                                            "y": 100.0,
+                                            "z": 100.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 5223184751917082839,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 105949328755732084,
+                                        "type": 0,
+                                        "uid": 8937517673651191016
+                                    }
+                                ],
+                                "name": "polygon0"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 100.0,
+                                            "y": 100.0,
+                                            "z": 100.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 14134340929225825492,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 105949328755732084,
+                                        "type": 0,
+                                        "uid": 13017913289165802688
+                                    }
+                                ],
+                                "name": "polygon1"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 100.0,
+                                            "y": 100.0,
+                                            "z": 100.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 15760110143799685780,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 105949328755732084,
+                                        "type": 0,
+                                        "uid": 4585966547348789559
+                                    }
+                                ],
+                                "name": "polygon2"
+                            }
+                        ],
+                        "components": [
+                            {
+                                "position": {
+                                    "x": 8.5,
+                                    "y": 0.0,
+                                    "z": 4.46999979019165
+                                },
+                                "rotation": {
+                                    "w": -8.240829622429419e-14,
+                                    "x": 4.371138828673793e-08,
+                                    "y": 1.0,
+                                    "z": 9.099629210140847e-07
+                                },
+                                "scale": {
+                                    "x": 0.5,
+                                    "y": 0.5,
+                                    "z": 0.5
+                                },
+                                "type": 1
+                            }
+                        ],
+                        "name": "sign"
+                    }
+                ],
+                "components": [
+                    {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "w": 1.0,
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "type": 1
+                    }
+                ],
+                "name": "Object"
+            },
+            "type": 1,
+            "visible": true
+        },
+        {
+            "data": "eNrjMtAhH3KNaqaTZnMdY/I1m1Bi86hmemo20zEczRgkQi4ASzvYdA==",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "type": 2,
+            "visible": true
+        },
+        {
+            "data": "eNrjMtAhH3KNah4ams0p0Wwyqpk0aDaaPOmpmQsALvDYaA==",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 1.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "type": 2,
+            "visible": true
+        }
+    ],
+    "properties": null,
+    "size": [
+        30,
+        20
+    ],
+    "tileset": 14610671625611851776,
+    "version": "0.4.0"
+}

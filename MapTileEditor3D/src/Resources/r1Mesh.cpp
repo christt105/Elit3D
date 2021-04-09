@@ -17,13 +17,15 @@ r1Mesh::r1Mesh(const uint64_t& id) : Resource(Resource::Type::Mesh, id)
 
 r1Mesh::~r1Mesh()
 {
-	Unload();
+	if (references > 0)
+		Unload();
 }
 
 void r1Mesh::Load()
 {
 	if (path.empty() || !FileSystem::Exists(path.c_str()) || extension != "mesh")
 		return;
+		
 	auto file = FileSystem::OpenJSONFile(path.c_str());
 
 	vertices.size = file["nVertex"];
@@ -52,14 +54,18 @@ void r1Mesh::Unload()
 	oglh::DeleteVAO(VAO, vertices.id, indices.id);
 
 	delete[] vertices.data;
+	vertices.data = nullptr;
 	delete[] indices.data;
+	indices.data = nullptr;
 	if (texture.data != nullptr) {
 		oglh::DeleteBuffer(texture.id);
 		delete[] texture.data;
+		texture.data = nullptr;
 	}
 	if (normals.data != nullptr) {
 		oglh::DeleteBuffer(normals.id);
 		delete[] normals.data;
+		normals.data = nullptr;
 	}
 }
 

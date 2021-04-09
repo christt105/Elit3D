@@ -1,0 +1,74 @@
+{
+    "UID": 223629654092962988,
+    "extension": "fbx",
+    "properties": {
+        "meshes": [
+            {
+                "index": 0,
+                "uid": 17628406934730095267
+            },
+            {
+                "index": 1,
+                "uid": 13607665984462763925
+            },
+            {
+                "index": 2,
+                "uid": 14503996621539729963
+            },
+            {
+                "index": 3,
+                "uid": 7335131212582936511
+            },
+            {
+                "index": 4,
+                "uid": 10168881740659866321
+            },
+            {
+                "index": 5,
+                "uid": 12198255466904697457
+            },
+            {
+                "index": 6,
+                "uid": 16702228653593691150
+            }
+        ],
+        "root": {
+            "children": [
+                {
+                    "children": [
+                        {
+                            "id_mesh": 1,
+                            "name": "Body"
+                        },
+                        {
+                            "children": [
+                                {
+                                    "id_mesh": 3,
+                                    "name": "Border"
+                                },
+                                {
+                                    "id_mesh": 4,
+                                    "name": "Back Cube"
+                                },
+                                {
+                                    "id_mesh": 5,
+                                    "name": "Front Cube"
+                                }
+                            ],
+                            "id_mesh": 2,
+                            "name": "Helmet"
+                        }
+                    ],
+                    "id_mesh": 0,
+                    "name": "Suzanne"
+                },
+                {
+                    "id_mesh": 6,
+                    "name": "Icosphere"
+                }
+            ],
+            "name": "RootNode"
+        }
+    },
+    "timestamp": 1617956499
+}

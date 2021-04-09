@@ -175,7 +175,7 @@ void Properties::DisplayProperties()
 	}
 }
 
-void Properties::SaveProperties(nlohmann::json& propParent)
+void Properties::SaveProperties(nlohmann::json& propParent) const
 {
 	for (auto p = properties.begin(); p != properties.end(); ++p) {
 		nlohmann::json prop = nlohmann::json::object();
@@ -202,7 +202,7 @@ void Properties::SaveProperties(nlohmann::json& propParent)
 	}
 }
 
-void Properties::SaveProperties(pugi::xml_node& propParent)
+void Properties::SaveProperties(pugi::xml_node& propParent) const
 {
 	for (auto p = properties.begin(); p != properties.end(); ++p) {
 		pugi::xml_node prop = propParent.append_child("property");
@@ -228,7 +228,7 @@ void Properties::SaveProperties(pugi::xml_node& propParent)
 	}
 }
 
-void Properties::LoadProperties(nlohmann::json& propParent)
+void Properties::LoadProperties(const nlohmann::json& propParent)
 {
 	for (auto p = propParent.begin(); p != propParent.end(); ++p) {
 		switch ((TypeVar::Type)(*p).value("type", 0))
@@ -251,7 +251,7 @@ void Properties::LoadProperties(nlohmann::json& propParent)
 	}
 }
 
-void Properties::LoadProperties(pugi::xml_node& propParent)
+void Properties::LoadProperties(const pugi::xml_node& propParent)
 {
 }
 

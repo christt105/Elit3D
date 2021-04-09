@@ -4,6 +4,7 @@
 #include "Tools/Math/int2.h"
 
 class p1Scene;
+class Viewport;
 
 class m1Scene :
 	public Module
@@ -22,5 +23,6 @@ private:
 
 public:
 	bool draw_grid = true;
+	Viewport* sceneViewport = nullptr;
 };
 

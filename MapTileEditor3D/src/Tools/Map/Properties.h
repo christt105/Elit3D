@@ -13,11 +13,11 @@ public:
 
 	void Display();
 
-	void SaveProperties(nlohmann::json& propParent);
-	void SaveProperties(pugi::xml_node& propParent);
+	void SaveProperties(nlohmann::json& propParent) const;
+	void SaveProperties(pugi::xml_node& propParent) const;
 
-	void LoadProperties(nlohmann::json& propParent);
-	void LoadProperties(pugi::xml_node& propParent);
+	void LoadProperties(const nlohmann::json& propParent);
+	void LoadProperties(const pugi::xml_node& propParent);
 
 	void Clear();
 

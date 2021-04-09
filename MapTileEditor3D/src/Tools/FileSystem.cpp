@@ -10,6 +10,8 @@
 #include "Tools/System/Profiler.h"
 #include "SDL.h"
 
+#include "ExternalTools/JSON/json.hpp"
+
 #include "ExternalTools/mmgr/mmgr.h"
 
 namespace fs = std::filesystem;
@@ -23,10 +25,13 @@ nlohmann::json FileSystem::OpenJSONFile(const char* path)
     PROFILE_FUNCTION();
 	std::ifstream f(path);
 	if (f.good()) {
-		nlohmann::json j;
-		f >> j;
-		f.close();
-		return j;
+        try {
+            nlohmann::json j;
+            f >> j;
+            f.close();
+            return j;
+        }
+        catch(...) {}
 	}
     LOGE("Cannot open json with path %s", path);
 
@@ -379,7 +384,7 @@ void FileSystem::GenerateFolders()
     sAppdata = NormalizePath(sCurrDir + "/installation_dir/");
     appdata = GetFolders(sAppdata.c_str());
     std::string parent(sCurrDir.c_str(), sCurrDir.size() - sizeof(APP_NAME) + 1);
-    std::string newDir(parent + "project");
+    std::string newDir(parent + "test");
 #endif
 
     if (SetCurrentDirectoryA(newDir.c_str()) == 0) {

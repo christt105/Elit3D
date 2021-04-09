@@ -35,6 +35,12 @@ bool m1Render3D::Init(const nlohmann::json& node)
     PROFILE_FUNCTION();
 	bool ret = true;
 
+    /*
+    * TODO: Fix texture issue on OpenGL version changes
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, node.value("major_version", 3));
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, node.value("minor_version", 3));*/
+
     context = SDL_GL_CreateContext(App->window->window);
 
     if (context == NULL) {
@@ -58,9 +64,9 @@ bool m1Render3D::Init(const nlohmann::json& node)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, node.value("major_version", 3));
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, node.value("minor_version", 3));
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -91,8 +97,11 @@ UpdateStatus m1Render3D::PreUpdate()
 {
     PROFILE_FUNCTION();
 
-    for (auto i = viewports.begin(); i != viewports.end(); ++i)
+    for (auto i = viewports.begin(); i != viewports.end(); ++i) {
         (*i).second->Clear();
+        if ((*i).second->drawGrid)
+            (*i).second->DrawGrid();
+    }
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
