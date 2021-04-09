@@ -1,4 +1,35 @@
 # Changelog
+## [0.4.0] - 2021-02-22
+### Added
+* premake5 project generator
+* Layer objects type
+* 3D objects system
+* Load .fbx from Assimp
+* Set 3D models in scene
+* Transform component with position, rotation and scale for every object
+* Textures in 3D models
+* 3D models normals
+* Save and Load Objects in map file
+* Allow multiple viewports
+* New camera system to handle multiple viewports
+* Object Editor (WIP)
+	* Panel to create 3D objects with 2D sprites
+	* Save objects in Json
+
+### Changed
+* New UI style (WIP)
+* Improved Panel Console
+	* Better performance for big amount of logs
+	* Log type buttons
+* Save App version in map file to handle future complications
+* Agroup files in its folders
+* Split installation folder and project folder
+
+### Fixed
+* Tileset scale with panel width on Panel Tileset
+* Paint not working after 3D Models version
+* Painting in a Object layer crash
+
 ## [0.3.0] - 2021-01-04
 ### Added
 * Tools to modify the map

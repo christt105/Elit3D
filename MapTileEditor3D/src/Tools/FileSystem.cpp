@@ -90,9 +90,8 @@ uint64_t FileSystem::LastTimeWrite(const char* path)
     return 0ULL;
 }
 
-std::string FileSystem::NormalizePath(const char* path)
+std::string FileSystem::NormalizePath(const std::string& p)
 {
-    std::string p(path);
     std::string ret;
     auto i = p.begin();
     while (i != p.end()) {
@@ -151,14 +150,14 @@ bool FileSystem::MoveTo(const char* source, const char* dst)
     return false;
 }
 
-bool FileSystem::IsFileInFolder(const char* file, const char* folder, bool recursive)
+/*bool FileSystem::IsFileInFolder(const char* file, const char* folder, bool recursive)
 {
     auto f = GetPtrFolder(folder);
     for (auto i = f->files.begin(); i != f->files.end(); ++i)
         if ((*i).first.compare(file) == 0)
             return true;
     return false;
-}
+}*/
 
 Folder* FileSystem::GetFolders(const char* path)
 {
@@ -317,54 +316,33 @@ std::string FileSystem::GetFullPath(const char* path)
     return fs::absolute(path).string();
 }
 
-std::string FileSystem::GetCanonical(const char* path)
-{
-    std::string ret;
-    std::string spath(path);
-
-    auto i = spath.begin();
-    while ( i != spath.end()) {
-        if (*i == '/' || *i == '\\') {
-            ret.push_back('/');
-            while (i != spath.end() && (*i == '/' || *i == '\\'))
-                ++i;
-        }
-        else {
-            ret.push_back(*i);
-            ++i;
-        }
-    }
-    
-    return ret;
-}
-
 Folder* FileSystem::GetPtrFolder(const char* folder, bool is_appdata)
 {
     std::stack<Folder*> s;
     std::string sfolder;
     if (is_appdata) {
-        if (appdata->full_path.compare(fs::canonical(folder).u8string()) == 0)
+        if (appdata->full_path.compare(NormalizePath(folder)) == 0)
             return appdata;
 
         s.push(appdata);
-        sfolder = fs::canonical(folder).u8string();
+        sfolder = NormalizePath(folder);
     }
     else {
-        if (GetCanonical(root->full_path.c_str()).compare(GetCanonical(folder)) == 0)
+        if (NormalizePath(root->full_path).compare(NormalizePath(folder)) == 0)
             return root;
 
         s.push(root);
-        sfolder = fs::canonical(std::string("./") + folder).u8string();
+        sfolder = NormalizePath(std::string("./") + folder);
     }
 
     while (s.empty() == false) {
         auto f = s.top();
         s.pop();
         for (auto i = f->folders.begin(); i != f->folders.end(); ++i) {
-            if (fs::canonical((*i)->full_path).u8string().compare(sfolder) == 0) {
+            if (NormalizePath((*i)->full_path).compare(sfolder) == 0) {
                 return *i;
             }
-            if (sfolder.find(fs::canonical((*i)->full_path).u8string()) != std::string::npos) {
+            if (sfolder.find(NormalizePath((*i)->full_path)) != std::string::npos) {
                 s.push(*i);
             }
         }
@@ -394,16 +372,16 @@ void FileSystem::GenerateFolders()
     std::string sCurrDir = currDir;
 
 #ifdef DISTI
-    sAppdata = GetCanonical(SDL_GetPrefPath(ORGANIZATION, APP_NAME));
+    sAppdata = NormalizePath(SDL_GetPrefPath(ORGANIZATION, APP_NAME));
     appdata = GetFolders(sAppdata.c_str());
     //TODO: Installation setup
 #elif DISTP
-    sAppdata = fs::canonical(sCurrDir).u8string();
+    sAppdata = NormalizePath(sCurrDir) + "/";
     appdata = GetFolders(sAppdata.c_str());
     std::string parent(sCurrDir.c_str(), sCurrDir.size() - sizeof(APP_NAME) + 1);
     std::string newDir(parent + "project");
 #else
-    sAppdata = fs::canonical(sCurrDir + "/installation_dir").u8string();
+    sAppdata = NormalizePath(sCurrDir + "/installation_dir/");
     appdata = GetFolders(sAppdata.c_str());
     std::string parent(sCurrDir.c_str(), sCurrDir.size() - sizeof(APP_NAME) + 1);
     std::string newDir(parent + "test");
@@ -424,7 +402,7 @@ void FileSystem::DeleteRoot()
     delete appdata;
 }
 
-Folder::Folder(const char* n, Folder* parent) :full_path(FileSystem::GetCanonical(n)), parent(parent)
+Folder::Folder(const char* n, Folder* parent) :full_path(FileSystem::NormalizePath(n)), parent(parent)
 {
     for (auto i = full_path.rbegin(); i != full_path.rend(); ++i) {
         if (i != full_path.rbegin()) {

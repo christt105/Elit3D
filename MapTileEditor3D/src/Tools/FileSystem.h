@@ -6,7 +6,7 @@ struct Folder {
 	friend class FileSystem;
 	friend class FileWatch;
 private:
-	Folder() {}
+	Folder() = default;
 	Folder(const char* n, Folder* parent = nullptr);
 public:
 	~Folder() {
@@ -19,7 +19,7 @@ public:
 	std::string name;
 	Folder* parent = nullptr;
 
-	bool operator==(std::string path) {
+	bool operator==(const std::string& path) const {
 		return full_path.compare(path) == 0;
 	}
 };
@@ -36,7 +36,7 @@ public:
 
 	static uint64_t LastTimeWrite(const char* path);
 
-	static std::string NormalizePath(const char* path);
+	static std::string NormalizePath(const std::string& path);
 
 	static bool CreateFolder(const char* path);
 	static bool fDeleteFile(const char* path);
@@ -44,7 +44,7 @@ public:
 	static bool CopyTo(const char* source, const char* dst);
 	static bool MoveTo(const char* source, const char* dst);
 
-	static bool IsFileInFolder(const char* file, const char* folder, bool recursive = false);
+	//TODO static bool IsFileInFolder(const char* file, const char* folder, bool recursive = false);
 
 	static std::string GetFileExtension(const char* file, bool with_dot = false);
 	static std::string GetNameFile(const char* file, bool with_extension = false);
@@ -52,7 +52,6 @@ public:
 	static std::string GetNameFolder(const char* path, bool with_slash = true);
 	static std::string GetParentFolder(const char* path);
 	static std::string GetFullPath(const char* path);
-	static std::string GetCanonical(const char* path);
 
 	static Folder* GetPtrFolder(const char* folder, bool is_appdata = false);
 	static Folder* GetRootFolder();

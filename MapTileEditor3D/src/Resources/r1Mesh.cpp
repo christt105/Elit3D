@@ -23,9 +23,9 @@ r1Mesh::~r1Mesh()
 
 void r1Mesh::Load()
 {
-	if (extension != "mesh")
+	if (path.empty() || !FileSystem::Exists(path.c_str()) || extension != "mesh")
 		return;
-
+		
 	auto file = FileSystem::OpenJSONFile(path.c_str());
 
 	vertices.size = file["nVertex"];

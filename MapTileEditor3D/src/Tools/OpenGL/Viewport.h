@@ -28,6 +28,7 @@ public:
 
 	void DrawGrid();
 	bool drawGrid = true;
+	inline Camera* GetCamera() const { return camera; }
 
 public:
 	float color[3] = { .2f, .2f, .2f };

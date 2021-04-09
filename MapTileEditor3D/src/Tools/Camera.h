@@ -32,9 +32,9 @@ public:
 	bool pan_mov = true;
 	bool zoom_mov = true;
 
-private:
 	Frustum frustum;
 
+private:
 	const char* id = "";
 
 	float2 lastRight = { -1.f, -1.f };

@@ -1,0 +1,22 @@
+{
+    "UID": 7394429600141277289,
+    "extension": "fbx",
+    "properties": {
+        "meshes": [
+            {
+                "index": 0,
+                "uid": 1017685707989930541
+            }
+        ],
+        "root": {
+            "children": [
+                {
+                    "id_mesh": 0,
+                    "name": "Cube"
+                }
+            ],
+            "name": "RootNode"
+        }
+    },
+    "timestamp": 1617956499
+}

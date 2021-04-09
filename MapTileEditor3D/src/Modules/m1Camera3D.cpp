@@ -103,6 +103,11 @@ void m1Camera3D::UpdateShaders(Camera* cam)
 	shader->Use();
 	shader->SetMat4("view", cam->frustum.ViewMatrix());
 	shader->SetMat4("projection", cam->frustum.ProjectionMatrix());
+	
+	shader = App->render->GetShader("selectTile");
+	shader->Use();
+	shader->SetMat4("view", cam->frustum.ViewMatrix());
+	shader->SetMat4("projection", cam->frustum.ProjectionMatrix());
 }
 
 void m1Camera3D::Save(nlohmann::json& node)

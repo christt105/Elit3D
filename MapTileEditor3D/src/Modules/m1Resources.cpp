@@ -80,9 +80,9 @@ Uint64 m1Resources::FindByName(const char* file)
 Uint64 m1Resources::FindByPath(const char* assets_path)
 {
 	PROFILE_FUNCTION();
-	std::string comp = FileSystem::GetCanonical(assets_path);
+
 	for (auto i = resources.begin(); i != resources.end(); ++i) {
-		if ((*i).second->path.compare(comp) == 0)
+		if ((*i).second->path.compare(assets_path) == 0)
 			return (*i).first;
 	}
 
@@ -178,7 +178,7 @@ void m1Resources::DeleteResource(const uint64_t& uid)
 void m1Resources::SetResourceStrings(Resource* ret, const char* assets_path)
 {
 	if (strcmp(assets_path, "") != 0) {
-		ret->path = FileSystem::GetCanonical(assets_path);
+		ret->path = FileSystem::NormalizePath(assets_path);
 		ret->name = FileSystem::GetNameFile(assets_path);
 		ret->extension.assign(FileSystem::GetFileExtension(assets_path));
 	}
@@ -194,12 +194,12 @@ void m1Resources::LoadEngineResources()
 {
 	PROFILE_FUNCTION();
 
-	auto models = FileSystem::GetPtrFolder((FileSystem::sAppdata + "/Configuration/EngineResources/3DModels/").c_str(), true);
+	auto models = FileSystem::GetPtrFolder((FileSystem::sAppdata + "Configuration/EngineResources/3DModels/").c_str(), true);
 
 	for (auto i = models->files.begin(); i != models->files.end(); ++i) {
 		r1Mesh* m = new r1Mesh(0ULL);
 
-		m->path = FileSystem::GetCanonical((models->full_path + "/" + (*i).first).c_str());
+		m->path = FileSystem::NormalizePath((models->full_path + (*i).first).c_str());
 		m->name = (*i).first;
 		m->extension = "mesh";
 		
@@ -211,12 +211,12 @@ void m1Resources::LoadEngineResources()
 		}
 	}
 
-	auto textures = FileSystem::GetPtrFolder((FileSystem::sAppdata + "/Configuration/EngineResources/Textures/").c_str(), true);
+	auto textures = FileSystem::GetPtrFolder((FileSystem::sAppdata + "Configuration/EngineResources/Textures/").c_str(), true);
 
 	for (auto i = textures->files.begin(); i != textures->files.end(); ++i) {
 		r1Texture* t = new r1Texture(0ULL);
 
-		t->path = FileSystem::GetCanonical((textures->full_path + "/" + (*i).first).c_str());
+		t->path = FileSystem::NormalizePath(textures->full_path + (*i).first);
 		t->name = (*i).first;
 		t->extension = "png";
 
@@ -255,26 +255,26 @@ void m1Resources::ImportFiles(const Folder* parent)
 	
 	for (auto file = parent->files.begin(); file != parent->files.end(); ++file) {
 		if (FileSystem::GetFileExtension((*file).first.c_str()).compare("meta") != 0) {
-			if (FileSystem::Exists((parent->full_path + "/" + (*file).first + ".meta").c_str())) { // Meta already exist
-				nlohmann::json meta = FileSystem::OpenJSONFile((parent->full_path + "/" + (*file).first + ".meta").c_str());
-				uint64_t timestamp = FileSystem::LastTimeWrite((parent->full_path + "/" + (*file).first).c_str());
+			if (FileSystem::Exists((parent->full_path + (*file).first + ".meta").c_str())) { // Meta already exist
+				nlohmann::json meta = FileSystem::OpenJSONFile((parent->full_path + (*file).first + ".meta").c_str());
+				uint64_t timestamp = FileSystem::LastTimeWrite((parent->full_path + (*file).first).c_str());
 				std::string extension = meta.value("extension", "none");
 
 				auto res = CreateResource(
 					GetTypeFromStr(extension.c_str()),
-					(parent->full_path + "/" + (*file).first).c_str(),
+					(parent->full_path + (*file).first).c_str(),
 					meta.value("UID", 0ULL));
 
 				if (meta.value("timestamp", 0ULL) != timestamp) {									// file updated
 					meta["timestamp"] = timestamp;
-					FileSystem::SaveJSONFile((parent->full_path + "/" + (*file).first + ".meta").c_str(), meta);
+					FileSystem::SaveJSONFile((parent->full_path + (*file).first + ".meta").c_str(), meta);
 					res->UpdateFiles();
 				}
 			}
 			else {
 				if (auto res = CreateResource(
 					GetTypeFromStr(FileSystem::GetFileExtension((*file).first.c_str()).c_str()),	//type
-					(parent->full_path + "/" + (*file).first).c_str(),								//path
+					(parent->full_path + (*file).first).c_str(),									//path
 					GenerateMeta((parent->full_path + (*file).first).c_str())						//meta
 				))
 					res->GenerateFiles();
