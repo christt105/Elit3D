@@ -3,7 +3,7 @@
 #include <SDL_scancode.h>
 #include "ExternalTools/SDL2/include/SDL_mouse.h"
 
-#define SDL_MAX_KEYS 300 // SDL has 512 values of SDL_Scancode but we only want to have 300 as maximum
+#define SDL_MAX_KEYS 231 // SDL has 512 values of SDL_Scancode but we only want to have 231 as maximum
 
 class m1Input :
 	public Module
