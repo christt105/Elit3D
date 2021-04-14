@@ -98,7 +98,7 @@ void p1ObjectEditor::InfoWindow()
 				ImGui::PushID(i);
 				if (ImGui::Selectable((*i).name.c_str())) {
 					object = (r1Object*)i;
-					object->Load();
+					object->Attach();
 					ImGui::CloseCurrentPopup();
 					ImGui::PopID();
 					break;
@@ -240,7 +240,7 @@ void p1ObjectEditor::InfoWindow()
 			ImGui::SameLine();
 			if (ImGui::Button("Change")) {
 				//TODO: modal window sure change without saving
-				object->Unload();
+				object->Detach();
 				object = nullptr;
 			}
 		}

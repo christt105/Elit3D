@@ -835,7 +835,7 @@
             "visible": true
         },
         {
-            "data": "eNrjMtAhH3KNaqaTZnMdY/I1m1Bi86hmemo20zEczRgkQi4ASzvYdA==",
+            "data": "eNrjMtAhH3KNaqaTZnMdY/I1m1Bi86hmemo20zGEaAZFOAhakJPCTKAcU3I0g5wAgkZDJVdxAQB2wNig",
             "displacement": [
                 0,
                 0
@@ -843,7 +843,7 @@
             "encoding": "base64-zlib",
             "height": 0.0,
             "locked": false,
-            "name": "Layer",
+            "name": "Cliff0",
             "opacity": 1.0,
             "properties": null,
             "type": 2,
@@ -858,10 +858,25 @@
             "encoding": "base64-zlib",
             "height": 1.0,
             "locked": false,
-            "name": "Layer",
+            "name": "Cliff1",
             "opacity": 1.0,
             "properties": null,
             "type": 2,
+            "visible": true
+        },
+        {
+            "data": "eNrjMtAhH3KNah7VPKp5EGo2sbCA45Hhcy4AQyvZow==",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 1.0,
+            "locked": false,
+            "name": "Parte verde de la montañita",
+            "opacity": 1.0,
+            "properties": null,
+            "type": 0,
             "visible": true
         }
     ],

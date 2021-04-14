@@ -103,22 +103,22 @@ UpdateStatus m1Input::PreUpdate()
 void m1Input::HandleKeyboard()
 {
     PROFILE_FUNCTION();
-    const Uint8* keys = SDL_GetKeyboardState(NULL);
+    static const Uint8* keys = SDL_GetKeyboardState(nullptr);
 
     for (int i = 0; i < SDL_MAX_KEYS; ++i) {
-        if (keys[i] == 1) {
-            if (keyboard[i] == KeyState::IDLE)
-                keyboard[i] = KeyState::DOWN;
-            else if (keyboard[i] == KeyState::DOWN)
+        if (keys[i]) {
+            if (keyboard[i] == KeyState::DOWN)
                 keyboard[i] = KeyState::REPEAT;
-            else if (keyboard[i] == KeyState::UP)
+            else
                 keyboard[i] = KeyState::DOWN;
         }
         else {
-            if (keyboard[i] == KeyState::REPEAT || keyboard[i] == KeyState::DOWN)
-                keyboard[i] = KeyState::UP;
-            else
+            if (keyboard[i] == KeyState::IDLE)
+                continue;
+            if (keyboard[i] == KeyState::UP)
                 keyboard[i] = KeyState::IDLE;
+            else
+                keyboard[i] = KeyState::UP;
         }
     }
 }
