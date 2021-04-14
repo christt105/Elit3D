@@ -15,10 +15,7 @@ public:
 		LAYER,
 		EDITOR_MAP,
 
-		PNG,
-		FBX,
-		TILESET,
-		MAP,
+		RESOURCE,
 
 		MAX
 	};

@@ -24,10 +24,15 @@ public:
 	void Begin() const;
 	void End() const;
 
+	void RenderOnImGui();
+
+	void DrawGrid();
+	bool drawGrid = true;
 	inline Camera* GetCamera() const { return camera; }
 
 public:
 	float color[3] = { .2f, .2f, .2f };
+	Camera* camera = nullptr;
 
 private:
 	int smaa = 32;
@@ -44,6 +49,5 @@ private:
 	};
 	unsigned int ID[6];
 
-	Camera* camera = nullptr;
 };
 

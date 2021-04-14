@@ -3,7 +3,7 @@
 
 #include <vector>
 
-class Layer;
+class MapLayer;
 
 class p1Layers :
     public Panel
@@ -18,8 +18,8 @@ public:
     void SetSelected(int i);
 
 private:
-    void DisplayLayers(std::vector<Layer*>* layers);
-    void Buttons(std::vector<Layer*>*& layers);
+    void DisplayLayers(std::vector<MapLayer*>* layers);
+    void Buttons(std::vector<MapLayer*>*& layers);
 
 private:
     int selected = -1;

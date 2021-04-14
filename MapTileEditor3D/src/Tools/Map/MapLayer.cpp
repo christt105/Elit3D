@@ -4,7 +4,16 @@
 #include "Modules/m1Render3D.h"
 #include "Resources/r1Shader.h"
 
+#include "Modules/m1GUI.h"
+#include "Panels/p1Terrain.h"
+#include "Resources/r1Tileset3d.h"
+
 #include "Modules/m1Objects.h"
+#include "Modules/m1Resources.h"
+#include "Resources/r1Object.h"
+#include "Resources/r1Texture.h"
+#include "Resources/r1Model.h"
+#include "Resources/r1Mesh.h"
 
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
@@ -24,122 +33,37 @@
 #include "ExternalTools/mmgr/mmgr.h"
 
 
-OpenGLBuffers Layer::tile = OpenGLBuffers();
+OpenGLBuffers MapLayer::tile = OpenGLBuffers();
 
-Layer::Layer(Layer::Type t) : type(t)
+MapLayer::MapLayer(MapLayer::Type t) : type(t)
 {
 	if (tile.vertices.size == 0u)
 		tile.InitData();
 	strcpy_s(buf, 30, name.c_str());
-
-	switch (t)
-	{
-	case Layer::Type::TILE:
-		break;
-	case Layer::Type::OBJECT:
-		root = App->objects->CreateEmptyObject(nullptr, "root");
-		break;
-	case Layer::Type::TERRAIN:
-		break;
-	default:
-		break;
-	}
 }
 
-Layer::~Layer()
-{
-	switch (type)
-	{
-	case Layer::Type::TILE:
-		if (tile_data) {
-			delete[] tile_data;
-			oglh::DeleteTexture(id_tex);
-		}
-		break;
-	case Layer::Type::OBJECT:
-		App->objects->DeleteObject(root);
-		break;
-	case Layer::Type::TERRAIN:
-		break;
-	default:
-		break;
-	}
-}
-
-void Layer::Draw(const int2& size, int tile_width, int tile_height) const
-{
-	PROFILE_FUNCTION();
-	
-	switch (type)
-	{
-	case Layer::Type::TILE: {
-		oglh::BindTexture(id_tex);
-
-		static auto shader = App->render->GetShader("tilemap");
-		shader->SetMat4("model", float4x4::FromTRS(float3((float)displacement[0] / (float)tile_width, height, (float)displacement[1] / (float)tile_height), Quat::identity, float3((float)size.x, 1.f, (float)size.y))); // TODO: don't create a mat4x4 for every layer
-		shader->SetFloat("alpha", opacity);
-		oglh::DrawElements(tile.indices.size);
-		break; }
-	case Layer::Type::OBJECT: {
-		if (root != nullptr) {
-			oglh::DepthEnable(true);
-			static auto shader = App->render->GetShader("default");
-			shader->Use();
-
-			root->Update();
-
-			oglh::DepthEnable(false);
-
-			shader->SetMat4("model", float4x4::identity);
-		}
-		break; }
-	case Layer::Type::TERRAIN:
-		break;
-	}
-}
-
-void Layer::Reset(const int2& size)
-{
-	if (tile_data != nullptr)
-		delete[] tile_data;
-	tile_data = new TILE_DATA_TYPE[size.x * size.y];
-	memset(tile_data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
-
-	unsigned char* tex = new unsigned char[size.x * size.y * 3];
-	memset(tex, 0, sizeof(unsigned char) * size.x * size.y * 3);
-
-	oglh::GenTextureData(id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex);
-
-	delete[] tex;
-}
-
-void Layer::SelectTex() const
-{
-	oglh::BindTexture(id_tex);
-}
-
-void Layer::SelectBuffers()
+void MapLayer::SelectBuffers()
 {
 	oglh::BindBuffers(tile.VAO, tile.vertices.id, tile.indices.id);
 }
 
-void Layer::DrawTile(const int2& size)
+void MapLayer::DrawTile(const int2& size)
 {
 	static auto shader = App->render->GetShader("tilemap");
 	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, 0.f, 0.f), Quat::identity, float3((float)size.x, 1.f, (float)size.y))/* height of layer */);
 	oglh::DrawElements(tile.indices.size);
 }
 
-bool Layer::HeightOrder(const Layer* l1, const Layer* l2)
+bool MapLayer::HeightOrder(const MapLayer* l1, const MapLayer* l2)
 {
 	return l1->height < l2->height;
 }
 
-void Layer::OnInspector()
+void MapLayer::OnInspector()
 {
 	if (ImGui::InputText("Name", buf, 30))
 		name.assign(buf);
-	ImGui::Text("Type: "); ImGui::SameLine(); ImGui::Text(Layer::TypeToString(type).c_str());
+	ImGui::Text("Type: "); ImGui::SameLine(); ImGui::Text(MapLayer::TypeToString(type).c_str());
 	ImGui::Checkbox("Visible", &visible);
 	ImGui::Checkbox("Lock", &locked);
 	ImGui::SliderFloat("Opacity", &opacity, 0.f, 1.f);
@@ -153,136 +77,95 @@ void Layer::OnInspector()
 	}
 }
 
-std::string Layer::Parse(int sizeX, int sizeY, DataTypeExport d) const
+nlohmann::json MapLayer::Serialize(const int2& size) const
 {
-	std::string ret;
+	nlohmann::json lay = nlohmann::json::object();
 
-	if (d != Layer::DataTypeExport::CSV_NO_NEWLINE)
-		ret = '\n';
+	properties.SaveProperties(lay["properties"]);
 
-	for (int i = sizeY - 1; i >= 0; --i) {
-		for (int j = 0; j < sizeX; ++j) {
-			ret.append(std::to_string(tile_data[i * sizeX + j]) + ','); // TODO: encode 4 bytes array
-		}
+	lay["name"] = name;
+	lay["height"] = height;
+	lay["opacity"] = opacity;
+	lay["visible"] = visible;
+	lay["locked"] = locked;
+	lay["displacement"] = { displacement[0], displacement[1] };
 
-		if (i == 0)
-			ret.pop_back();
-		if (d != Layer::DataTypeExport::CSV_NO_NEWLINE)
-			ret += '\n';
-	}
+	lay["type"] = type;
 
-	switch (d)
-	{
-	case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
-		ret = base64_encode(ret);
-		break;
-	case Layer::DataTypeExport::BASE64_ZLIB:
-		ret = compress_string(ret);
-		ret = base64_encode(ret);
-		break;
-	default:
-		break;
-	}
-
-	return ret;
+	return lay;
 }
 
-nlohmann::json Layer::Parse(int sizeX, int sizeY) const
+void MapLayer::Deserialize(const nlohmann::json& json, const int2& size)
 {
-	nlohmann::json ret;
-
-	for (int i = sizeY - 1; i >= 0; --i) {
-		for (int j = 0; j < sizeX; ++j) {
-			ret.push_back(tile_data[i * sizeX + j]); // TODO: encode 4 bytes array
-		}
+	name	= json.value("name", "Layer");
+	height	= json.value("height", 0.f);
+	opacity = json.value("opacity", 1.f);
+	visible = json.value("visible", true);
+	locked	= json.value("locked", false);
+	if (json.find("displacement") != json.end()) {
+		displacement[0] = json["displacement"][0];
+		displacement[1] = json["displacement"][1];
 	}
 
-	return ret;
+	properties.LoadProperties(json["properties"]);
 }
 
-void Layer::Unparse(int sizeX, int sizeY, const std::string& raw_data)
-{
-	std::string data = decompress_string(base64_decode(raw_data));
-	auto i = data.begin();
-	if (*i == '\n')
-		++i;
-	int x = 0;
-	int y = sizeY-1;
-	while (i != data.end()) {
-		std::string n;
-		while (i != data.end() && *i != ',') {
-			if (*i == '\n' && (i + 1) != data.end()) { // Weird way to load cause the origin on textures is Bottom-Left and not Top-Left. TODO?
-				x = 0;
-				--y;
-				break;
-			}
-			n += *i;
-			i++;
-		}
-		if (!n.empty()) {
-			tile_data[sizeX * y + x] = (TILE_DATA_TYPE)std::stoul(n);
-			++x;
-		}
-		if (i != data.end())
-			i++;
-	}
-}
-
-const char* Layer::GetName() const
+const char* MapLayer::GetName() const
 {
 	return name.c_str();
 }
 
-void Layer::SetName(const char* n)
+void MapLayer::SetName(const char* n)
 {
 	name.assign(n);
 	strcpy_s(buf, 30, n);
 }
 
-Layer::Type Layer::GetType() const
+MapLayer::Type MapLayer::GetType() const
 {
 	return type;
 }
 
-void Layer::SetType(Type t)
-{
-	type = t;
-	//TODO: delete all data if exist
-}
-
-std::string Layer::TypeToString(Type t)
+std::string MapLayer::TypeToString(Type t)
 {
 	switch (t)
 	{
-	case Layer::Type::TILE:
+	case MapLayer::Type::TILE:
 		return std::string("tile");
-		break;
-	case Layer::Type::OBJECT:
+	case MapLayer::Type::OBJECT:
 		return std::string("object");
-		break;
-	case Layer::Type::TERRAIN:
+	case MapLayer::Type::TERRAIN:
 		return std::string("terrain");
-		break;
 	}
 	return std::string("NONE");
 }
 
-Layer::Type Layer::StringToType(const std::string& s)
+std::string MapLayer::ToString() const
 {
-	if (s.compare("tile")) {
-		return Layer::Type::TILE;
+	switch (type)
+	{
+	case MapLayer::Type::TILE:
+		return "tile";
+	case MapLayer::Type::OBJECT:
+		return "object";
+	case MapLayer::Type::TERRAIN:
+		return "terrain";
 	}
-	else if (s.compare("object")) {
-		return Layer::Type::OBJECT;
-	}
-	else if (s.compare("terrain")) {
-		return Layer::Type::TERRAIN;
-	}
-	return Layer::Type::NONE;
+	return std::string("NONE");
 }
 
-OpenGLBuffers::OpenGLBuffers()
+MapLayer::Type MapLayer::StringToType(const std::string& s)
 {
+	if (s.compare("tile")) {
+		return MapLayer::Type::TILE;
+	}
+	else if (s.compare("object")) {
+		return MapLayer::Type::OBJECT;
+	}
+	else if (s.compare("terrain")) {
+		return MapLayer::Type::TERRAIN;
+	}
+	return MapLayer::Type::NONE;
 }
 
 OpenGLBuffers::~OpenGLBuffers()

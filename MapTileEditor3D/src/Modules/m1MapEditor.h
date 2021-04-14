@@ -12,6 +12,10 @@ class p1Tileset;
 class p1Layers;
 class p1Tools;
 
+class MapLayerObject;
+class MapLayerTerrain;
+class MapLayerTile;
+
 class m1MapEditor :
     public Module
 {
@@ -38,21 +42,24 @@ public:
     void ReLoadMap();
 
     void Mouse(const Ray& ray);
+    void MouseTileTerrain(r1Map* m, const int2& tile, MapLayerTerrain* layer);
+    void MouseTileObject(MapLayerObject* layer, const int2& tile, const int2& mapSize);
+    void MouseTile(r1Map* m, MapLayerTile* layer, const int2& tile);
     void ResizeMap(int width, int height);
     int2 GetMapSize() const;
 
-    void ReorderLayers();
+    void ReorderLayers() const;
 
-    Layer* AddLayer(Layer::Type t);
+    MapLayer* AddLayer(MapLayer::Type t);
     void EraseLayer(int index);
 
     bool ValidMap() const;
     r1Map* GetMap() const;
-    bool GetLayers(std::vector<Layer*>* &vec) const;
+    bool GetLayers(std::vector<MapLayer*>* &vec) const;
 
-    Layer* GetObjectLayer(bool create_if_no_exist, bool select);
+    MapLayerObject* GetObjectLayer(bool create_if_no_exist, bool select);
 
-    void ExportMap(MapTypeExport t, Layer::DataTypeExport d) const;
+    void ExportMap(MapTypeExport t, MapLayer::DataTypeExport d) const;
 
 private:
     uint64_t map = 0ULL;

@@ -36,7 +36,9 @@ public:
 	r1Model(const uint64_t& uid);
 	~r1Model();
 
+	void Unload() override;
 	void Load() override;
+	void LoadVars() override;
 
 	void GenerateFiles() override;
 	void UpdateFiles() override;
@@ -57,5 +59,7 @@ public:
 	std::vector<r1Mesh*> meshes;
 	std::vector<uint64_t> materials;
 	Node* root = nullptr;
+
+	bool isTerrain = false;
 };
 

@@ -3,7 +3,6 @@
 #include "Tools/FileSystem.h"
 
 #include "Modules/m1Resources.h"
-#include "Panels/p1Inspector.h"
 
 class p1Project :
 	public Panel
@@ -22,7 +21,6 @@ private:
 
 private:
 	m1Resources::EResourceType GetEType(const std::string& file) const; //TODO inline
-	p1Inspector::SelectedType GetInspectorType(const std::string& file) const; //TODO inline
 
 private:
 	Folder* root = nullptr;

@@ -1,0 +1,38 @@
+{
+    "UID": 15309261173520732776,
+    "extension": "fbx",
+    "properties": {
+        "meshes": [
+            {
+                "index": 0,
+                "uid": 13598160112440964729
+            },
+            {
+                "index": 1,
+                "uid": 4591624319369476499
+            },
+            {
+                "index": 2,
+                "uid": 11596050297423200890
+            }
+        ],
+        "root": {
+            "children": [
+                {
+                    "id_mesh": 0,
+                    "name": "polygon0.001"
+                },
+                {
+                    "id_mesh": 1,
+                    "name": "polygon1.001"
+                },
+                {
+                    "id_mesh": 2,
+                    "name": "polygon2.001"
+                }
+            ],
+            "name": "RootNode"
+        }
+    },
+    "timestamp": 1617960579
+}

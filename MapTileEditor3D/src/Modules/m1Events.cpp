@@ -106,7 +106,7 @@ UpdateStatus m1Events::PreUpdate()
 			App->map_editor->SaveMap();
 			break;
 		case Event::Type::EXPORT_MAP:
-			App->map_editor->ExportMap((m1MapEditor::MapTypeExport)(e->info["basic_info"]->iGetValue()), (Layer::DataTypeExport)((iTypeVar*)e->info["datatype"])->value);
+			App->map_editor->ExportMap((m1MapEditor::MapTypeExport)(e->info["basic_info"]->iGetValue()), (MapLayer::DataTypeExport)((iTypeVar*)e->info["datatype"])->value);
 			break;
 		case Event::Type::SAVE_CONFIGURATION:
 			App->SaveConfiguration();

@@ -42,7 +42,7 @@ void p1Configuration::Update()
 	}
 	if (ImGui::CollapsingHeader("Render", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::Text("FrameRate: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%.0f", ImGui::GetIO().Framerate);
-		ImGui::Checkbox("Draw Grid", &App->scene->draw_grid);
+		ImGui::Checkbox("Draw Grid", &App->scene->sceneViewport->drawGrid);
 		static bool wired = false;
 		if (ImGui::Checkbox("Wired Mode", &wired))
 			oglh::PolygonMode(wired);

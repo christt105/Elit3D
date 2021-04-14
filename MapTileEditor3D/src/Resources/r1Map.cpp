@@ -14,10 +14,13 @@
 #include "Resources/r1Tileset.h"
 
 #include "Tools/Map/MapLayer.h"
+#include "Tools/Map/MapLayerTile.h"
 #include "Objects/Object.h"
 
 #include "ExternalTools/DevIL/include/IL/il.h"
 #include "ExternalTools/DevIL/include/IL/ilut.h"
+
+#include "Tools/System/Logger.h"
 
 #include "Tools/System/Profiler.h"
 
@@ -46,38 +49,7 @@ void r1Map::Save(const uint64_t& tileset)
 		properties.SaveProperties(file["properties"]);
 
 		for (auto l = layers.begin(); l != layers.end(); ++l) {
-			nlohmann::json lay = nlohmann::json::object();
-
-			(*l)->properties.SaveProperties(lay["properties"]);
-
-			lay["name"] = (*l)->GetName();
-			lay["height"] = (*l)->height;
-			lay["opacity"] = (*l)->opacity;
-			lay["visible"] = (*l)->visible;
-			lay["locked"] = (*l)->locked;
-			lay["displacement"] = { (*l)->displacement[0], (*l)->displacement[1] };
-
-			lay["type"] = (*l)->type;
-
-			switch ((*l)->type)
-			{
-			case Layer::Type::TILE: {
-				lay["encoding"] = "base64-zlib";
-				lay["data"] = (*l)->Parse(size.x, size.y, Layer::DataTypeExport::BASE64_ZLIB);
-				break;
-			}
-			case Layer::Type::OBJECT: {
-				lay["root"] = (*l)->root->Parse();
-				break;
-			}
-			case Layer::Type::TERRAIN: {
-				break;
-			}
-			default:
-				break;
-			}
-
-			file["layers"].push_back(lay);
+			file["layers"].push_back((*l)->Serialize({ size.x, size.y }));
 		}
 
 		FileSystem::SaveJSONFile(path.c_str(), file);
@@ -87,156 +59,158 @@ void r1Map::Save(const uint64_t& tileset)
 	}
 }
 
-void r1Map::Export(const uint64_t& tileset, Layer::DataTypeExport d, m1MapEditor::MapTypeExport t)
+void r1Map::Export(const uint64_t& tileset, MapLayer::DataTypeExport d, m1MapEditor::MapTypeExport t)
 {
 	if (references > 0) {
-		switch (t)
+		switch (t) //TODO: Export UID objects table
 		{
-		case m1MapEditor::MapTypeExport::XML: {
-			pugi::xml_document doc;
-			pugi::xml_node map = doc.append_child("map");
-
-			map.append_attribute("width").set_value(size.x);
-			map.append_attribute("height").set_value(size.y);
-			map.append_attribute("version").set_value(App->GetVersion());
-
-			pugi::xml_node ntileset = map.append_child("tileset");
-			auto tile = (r1Tileset*)App->resources->Get(tileset);
-			if (tile != nullptr) {
-				ntileset.append_attribute("name").set_value(tile->name.c_str());
-				ntileset.append_attribute("tilewidth").set_value(tile->GetWidth());
-				ntileset.append_attribute("tileheight").set_value(tile->GetHeight());
-				ntileset.append_attribute("spacing").set_value(tile->GetSpacing());
-				ntileset.append_attribute("margin").set_value(tile->GetMargin());
-				ntileset.append_attribute("ntiles").set_value(tile->GetNTiles());
-				ntileset.append_attribute("columns").set_value(tile->GetColumns());
-
-				ntileset.append_child("image").append_attribute("src").set_value(tile->path.c_str());
-			}
-
-			pugi::xml_node xmlproperties = map.append_child("properties");
-			properties.SaveProperties(xmlproperties);
-
-			for (auto l = layers.begin(); l != layers.end(); ++l) {
-				pugi::xml_node layer = map.append_child("layer");
-
-				xmlproperties = layer.append_child("properties");
-				(*l)->properties.SaveProperties(xmlproperties);
-
-				layer.append_attribute("name").set_value((*l)->GetName());
-				layer.append_attribute("visible").set_value((*l)->visible);
-				layer.append_attribute("locked").set_value((*l)->locked);
-				layer.append_attribute("height").set_value((*l)->height);
-				layer.append_attribute("opacity").set_value((*l)->opacity);
-				layer.append_attribute("displacementx").set_value((*l)->displacement[0]);
-				layer.append_attribute("displacementy").set_value((*l)->displacement[1]);
-
-				layer.append_attribute("type").set_value(Layer::TypeToString((*l)->type).c_str());
-
-				switch ((*l)->type)
-				{
-				case Layer::Type::TILE: {
-					auto data = layer.append_child("data");
-					auto encoding = data.append_attribute("encoding");
-					switch (d)
-					{
-					case Layer::DataTypeExport::CSV:
-					case Layer::DataTypeExport::CSV_NO_NEWLINE:
-						encoding.set_value("csv");
-						break;
-					case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
-						encoding.set_value("base64");
-						break;
-					case Layer::DataTypeExport::BASE64_ZLIB:
-						encoding.set_value("base64-zlib");
-						break;
-					default:
-						break;
-					}
-					data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
-					break;
-				}
-				case Layer::Type::OBJECT: {
-					break;
-				}
-				case Layer::Type::TERRAIN: {
-					break;
-				}
-				default:
-					break;
-				}
-			}
-
-			doc.save_file("Export/Test.xml");
+		case m1MapEditor::MapTypeExport::XML:
+			ExportXML(tileset, d);
 			break;
-		}
 		case m1MapEditor::MapTypeExport::JSON:
-		{
-			nlohmann::json file;
-
-			file["size"] = { size.x, size.y };
-			file["version"] = App->GetVersion();
-			auto image = App->resources->Get(tileset);
-			if (image != nullptr)
-				file["tileset"] = image->path; //TODO: object tileset. All info of tileset binded on map file exported
-
-			properties.SaveProperties(file["properties"]);
-
-			for (auto l = layers.begin(); l != layers.end(); ++l) {
-				nlohmann::json lay = nlohmann::json::object();
-
-				(*l)->properties.SaveProperties(lay["properties"]);
-
-				lay["name"] = (*l)->GetName();
-				lay["height"] = (*l)->height;
-				lay["opacity"] = (*l)->opacity;
-				lay["visible"] = (*l)->visible;
-				lay["locked"] = (*l)->locked;
-				lay["displacement"] = { (*l)->displacement[0], (*l)->displacement[1] };
-
-				lay["type"] = Layer::TypeToString((*l)->type);
-
-				switch ((*l)->type)
-				{
-				case Layer::Type::TILE: {
-					switch (d)
-					{
-					case Layer::DataTypeExport::CSV:
-					case Layer::DataTypeExport::CSV_NO_NEWLINE:
-						lay["encoding"] = "csv";
-						lay["data"] = (*l)->Parse(size.x, size.y);
-						break;
-					case Layer::DataTypeExport::BASE64_NO_COMPRESSION:
-						lay["encoding"] = "base64";
-						lay["data"] = (*l)->Parse(size.x, size.y, d);
-						break;
-					case Layer::DataTypeExport::BASE64_ZLIB:
-						lay["encoding"] = "base64-zlib";
-						lay["data"] = (*l)->Parse(size.x, size.y, d);
-						break;
-					default:
-						break;
-					}
-					break;
-				}
-				case Layer::Type::OBJECT: {
-					break;
-				}
-				case Layer::Type::TERRAIN: {
-					break;
-				}
-				default:
-					break;
-				}
-
-				file["layers"].push_back(lay);
-			}
-
-			FileSystem::SaveJSONFile("Export/Test.json", file);
+			ExportJSON(tileset, d);
 			break;
-		}
 		}
 	}
+}
+
+void r1Map::ExportJSON(const uint64_t& tileset, MapLayer::DataTypeExport d)
+{
+	nlohmann::json file;
+
+	file["size"] = { size.x, size.y };
+	file["version"] = App->GetVersion();
+	auto image = App->resources->Get(tileset);
+	if (image != nullptr)
+		file["tileset"] = image->path; //TODO: object tileset. All info of tileset binded on map file exported
+
+	properties.SaveProperties(file["properties"]);
+
+	for (auto l = layers.begin(); l != layers.end(); ++l) {
+		nlohmann::json lay = nlohmann::json::object();
+
+		(*l)->properties.SaveProperties(lay["properties"]);
+
+		lay["name"] = (*l)->GetName();
+		lay["height"] = (*l)->height;
+		lay["opacity"] = (*l)->opacity;
+		lay["visible"] = (*l)->visible;
+		lay["locked"] = (*l)->locked;
+		lay["displacement"] = { (*l)->displacement[0], (*l)->displacement[1] };
+
+		lay["type"] = MapLayer::TypeToString((*l)->type);
+
+		switch ((*l)->type)
+		{
+		case MapLayer::Type::TILE:
+		case MapLayer::Type::TERRAIN:
+			switch (d)
+			{
+			case MapLayer::DataTypeExport::CSV:
+			case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
+				lay["encoding"] = "csv";
+				lay["data"] = (*l)->Parse(size.x, size.y);
+				break;
+			case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
+				lay["encoding"] = "base64";
+				lay["data"] = (*l)->Parse(size.x, size.y, d);
+				break;
+			case MapLayer::DataTypeExport::BASE64_ZLIB:
+				lay["encoding"] = "base64-zlib";
+				lay["data"] = (*l)->Parse(size.x, size.y, d);
+				break;
+			default:
+				break;
+			}
+			break;
+		case MapLayer::Type::OBJECT:
+			//TODO
+			break;
+		default:
+			break;
+		}
+
+		file["layers"].push_back(lay);
+	}
+
+	FileSystem::SaveJSONFile("Export/Test.json", file);
+}
+
+void r1Map::ExportXML(const uint64_t& tileset, MapLayer::DataTypeExport d)
+{
+	pugi::xml_document doc;
+	pugi::xml_node map = doc.append_child("map");
+
+	map.append_attribute("width").set_value(size.x);
+	map.append_attribute("height").set_value(size.y);
+	map.append_attribute("version").set_value(App->GetVersion());
+
+	pugi::xml_node ntileset = map.append_child("tileset");
+	auto tile = (r1Tileset*)App->resources->Get(tileset);
+	if (tile != nullptr) {
+		ntileset.append_attribute("name").set_value(tile->name.c_str());
+		ntileset.append_attribute("tilewidth").set_value(tile->GetWidth());
+		ntileset.append_attribute("tileheight").set_value(tile->GetHeight());
+		ntileset.append_attribute("spacing").set_value(tile->GetSpacing());
+		ntileset.append_attribute("margin").set_value(tile->GetMargin());
+		ntileset.append_attribute("ntiles").set_value(tile->GetNTiles());
+		ntileset.append_attribute("columns").set_value(tile->GetColumns());
+
+		ntileset.append_child("image").append_attribute("src").set_value(tile->path.c_str());
+	}
+
+	pugi::xml_node xmlproperties = map.append_child("properties");
+	properties.SaveProperties(xmlproperties);
+
+	for (auto l = layers.begin(); l != layers.end(); ++l) {
+		pugi::xml_node layer = map.append_child("layer");
+
+		xmlproperties = layer.append_child("properties");
+		(*l)->properties.SaveProperties(xmlproperties);
+
+		layer.append_attribute("name").set_value((*l)->GetName());
+		layer.append_attribute("visible").set_value((*l)->visible);
+		layer.append_attribute("locked").set_value((*l)->locked);
+		layer.append_attribute("height").set_value((*l)->height);
+		layer.append_attribute("opacity").set_value((*l)->opacity);
+		layer.append_attribute("displacementx").set_value((*l)->displacement[0]);
+		layer.append_attribute("displacementy").set_value((*l)->displacement[1]);
+
+		layer.append_attribute("type").set_value(MapLayer::TypeToString((*l)->type).c_str());
+
+		switch ((*l)->type)
+		{
+		case MapLayer::Type::TILE:
+		case MapLayer::Type::TERRAIN: {
+			auto data = layer.append_child("data");
+			auto encoding = data.append_attribute("encoding");
+			switch (d)
+			{
+			case MapLayer::DataTypeExport::CSV:
+			case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
+				encoding.set_value("csv");
+				break;
+			case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
+				encoding.set_value("base64");
+				break;
+			case MapLayer::DataTypeExport::BASE64_ZLIB:
+				encoding.set_value("base64-zlib");
+				break;
+			default:
+				break;
+			}
+			data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
+			break;
+		}
+		case MapLayer::Type::OBJECT:
+			//TODO
+			break;
+		default:
+			break;
+		}
+	}
+
+	doc.save_file("Export/Test.xml");
 }
 
 void r1Map::SaveInImage()
@@ -248,7 +222,9 @@ void r1Map::SaveInImage()
 
 	ilEnable(IL_FILE_OVERWRITE);
 	for (auto i = layers.begin(); i != layers.end(); ++i) {
-		ilutGLSaveImage((char*)("Export/Debug/MAP_IMAGE_LAYER_" + name + std::to_string(i - layers.begin()) + ".png").c_str(), layers[i - layers.begin()]->id_tex); // TODO: crash on application quit
+		if ((*i)->type != MapLayer::Type::TILE)
+			continue;
+		ilutGLSaveImage((char*)("Export/Debug/MAP_IMAGE_LAYER_" + name + std::to_string(i - layers.begin()) + ".png").c_str(), ((MapLayerTile*)layers[i - layers.begin()])->id_tex); // TODO: crash on application quit
 	}
 }
 
@@ -263,60 +239,12 @@ void r1Map::Load()
 
 	properties.LoadProperties(file["properties"]);
 
-	LoadLayers(file);
-}
-
-void r1Map::LoadLayers(nlohmann::json& file)
-{
 	for (auto l = file["layers"].begin(); l != file["layers"].end(); ++l) {
-		Layer* layer = new Layer((*l).value("type", Layer::Type::TILE));
-		layer->SetName((*l).value("name", "Layer").c_str());
-		layer->height = (*l).value("height", 0.f);
-		layer->opacity = (*l).value("opacity", 1.f);
-		layer->visible = (*l).value("visible", true);
-		layer->locked = (*l).value("locked", false);
-		if ((*l).find("displacement") != (*l).end()) {
-			layer->displacement[0] = (*l)["displacement"][0];
-			layer->displacement[1] = (*l)["displacement"][1];
-		}
-
-		layer->properties.LoadProperties((*l)["properties"]);
-
-
-		switch (layer->type)
-		{
-		case Layer::Type::TILE: {
-			layer->tile_data = new TILE_DATA_TYPE[size.x * size.y];
-			layer->Unparse(size.x, size.y, (*l).value("data", "0")/*TODO: unparse type (csv, base64, zlib...)*/);
-
-			unsigned char* tex_data = new unsigned char[size.x * size.y * 3];
-			memset(tex_data, 254, sizeof(unsigned char) * size.x * size.y * 3);
-
-			for (int i = 0; i < size.x * size.y; ++i) {
-				if (layer->tile_data[i] != 0) {
-					tex_data[i * 3] = (unsigned char)(layer->tile_data[i] / UCHAR_MAX);
-					tex_data[i * 3 + 1] = 0;
-					tex_data[i * 3 + 2] = (unsigned char)(layer->tile_data[i] % UCHAR_MAX);
-				}
-			}
-
-			glEnable(GL_TEXTURE_2D);
-			oglh::GenTextureData(layer->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex_data);
-			oglh::UnBindTexture();
-			delete[] tex_data;
-			break;
-		}
-		case Layer::Type::OBJECT:
-			layer->root->Unparse((*l)["root"]);
-			break;
-		default:
-			break;
-		}
-
-		layers.push_back(layer);
+		MapLayer* layer = App->map_editor->AddLayer((*l).value("type", MapLayer::Type::TILE));
+		layer->Deserialize(*l, size);
 	}
 
-	std::sort(layers.begin(), layers.end(), Layer::HeightOrder);
+	std::sort(layers.begin(), layers.end(), MapLayer::HeightOrder);
 	App->gui->layers->SetSelected(0);
 }
 
@@ -333,51 +261,14 @@ void r1Map::Resize(int width, int height)
 	PROFILE_AND_LOG("Map Resize");
 
 	for (auto l = layers.begin(); l != layers.end(); ++l) {
-		if ((*l)->type != Layer::Type::TILE)
-			continue;
-
-		TILE_DATA_TYPE* new_data = new TILE_DATA_TYPE[width * height];
-		memset(new_data, 0, sizeof(TILE_DATA_TYPE) * width * height);
-
-		{
-			PROFILE_SECTION("Copy data");
-			for (int i = 0; i < size.x * size.y; ++i) {
-				int2 colrow = int2(i % size.x, (i / size.x));
-				if (colrow.x < width && colrow.y < height) {
-					int new_index = (colrow.x + width * colrow.y);
-					int old_index = (colrow.x + size.x * colrow.y);
-					new_data[new_index] = (*l)->tile_data[old_index];
-				}
-			}
-		}
-
-		{
-			PROFILE_SECTION("Gen Texture");
-			delete[](*l)->tile_data;
-			(*l)->tile_data = new_data;
-
-			unsigned char* tex = new unsigned char[width * height * 3];
-			memset(tex, 0, sizeof(unsigned char) * width * height * 3);
-			int tileset_width = App->gui->tileset->GetTilesetSize().x;
-			for (auto i = 0; i < width * height; ++i) {
-				if (new_data[i] != 0) {
-					tex[i * 3] = (unsigned char)(new_data[i] / UCHAR_MAX);
-					tex[i * 3 + 1] = 0;
-					tex[i * 3 + 2] = (unsigned char)(new_data[i] % UCHAR_MAX);
-				}
-			}
-
-			oglh::DeleteTexture((*l)->id_tex);
-			oglh::GenTextureData((*l)->id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, width, height, tex); //TODO: research a faster way to do this
-			delete[] tex;
-		}
+		(*l)->Resize(size, { width, height });
 	}
 	size = { width, height };
 }
 
-void r1Map::Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape, TILE_DATA_TYPE id, unsigned char g, unsigned char b)
+void r1Map::Edit(MapLayerTile* layer, int row, int col, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape, TILE_DATA_TYPE id, unsigned char g, unsigned char b)
 {
-	oglh::BindTexture(layers[layer]->id_tex);
+	oglh::BindTexture(layer->id_tex);
 	unsigned char bits[3] = { g, 0, b };
 
 	switch (tool)
@@ -391,8 +282,8 @@ void r1Map::Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool
 				for (int j = (brushSize % 2 == 0) ? row - brushSize / 2 + 1 : row - brushSize / 2; j < row + brushSize / 2 + 1; ++j) {
 					if (i >= 0 && j >= 0 && i < size.x && j < size.y) {
 						int index = size.x * j + i;
-						if (index >= 0 && layers[layer]->tile_data[index] != id && index < size.x * size.y) {
-							layers[layer]->tile_data[index] = id;
+						if (index >= 0 && layer->tile_data[index] != id && index < size.x * size.y) {
+							layer->tile_data[index] = id;
 							oglh::TexSubImage2D(i, j, 1, 1, bits); //TODO: TexSubImage2d of all rectangle
 						}
 					}
@@ -411,8 +302,8 @@ void r1Map::Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool
 							((float)i - col) * ((float)i - col) + ((float)j - row) * ((float)j - row);
 						if (check <= r2) {
 							int index = size.x * j + i;
-							if (index >= 0 && layers[layer]->tile_data[index] != id && index < size.x * size.y) {
-								layers[layer]->tile_data[index] = id;
+							if (index >= 0 && layer->tile_data[index] != id && index < size.x * size.y) {
+								layer->tile_data[index] = id;
 								oglh::TexSubImage2D(i, j, 1, 1, bits); //TODO: TexSubImage2d of all rectangle
 							}
 						}
@@ -431,34 +322,34 @@ void r1Map::Edit(int layer, int row, int col, int brushSize, p1Tools::Tools tool
 		std::queue<std::pair<int, int>> queue;
 		visited[size.x * row + col] = true;
 		queue.push({col, row});
-		int baseIndex = layers[layer]->tile_data[size.x * row + col];
+		int baseIndex = layer->tile_data[size.x * row + col];
 
 		while (!queue.empty()) {
 			auto t = queue.front(); queue.pop();
-			layers[layer]->tile_data[size.x * t.second + t.first] = id;
+			layer->tile_data[size.x * t.second + t.first] = id;
 			oglh::TexSubImage2D(t.first, t.second, 1, 1, bits);
 			
 			if (t.first + 1 >= 0 && t.second >= 0 && t.first + 1 < size.x && t.second < size.y &&
 				!visited[size.x * t.second + t.first + 1] &&
-				layers[layer]->tile_data[size.x * t.second + t.first + 1] == baseIndex) {
+				layer->tile_data[size.x * t.second + t.first + 1] == baseIndex) {
 				visited[size.x * t.second + t.first + 1] = true;
 				queue.push({ t.first + 1, t.second });
 			}
 			if (t.first - 1 >= 0 && t.second >= 0 && t.first - 1 < size.x && t.second < size.y &&
 				!visited[size.x * t.second + t.first - 1] &&
-				layers[layer]->tile_data[size.x * t.second + t.first - 1] == baseIndex) {
+				layer->tile_data[size.x * t.second + t.first - 1] == baseIndex) {
 				visited[size.x * t.second + t.first - 1] = true;
 				queue.push({ t.first - 1, t.second });
 			}
 			if (t.first >= 0 && t.second + 1 >= 0 && t.first < size.x && t.second + 1 < size.y &&
 				!visited[size.x * (t.second + 1) + t.first] &&
-				layers[layer]->tile_data[size.x * (t.second + 1) + t.first] == baseIndex) {
+				layer->tile_data[size.x * (t.second + 1) + t.first] == baseIndex) {
 				visited[size.x * (t.second + 1) + t.first] = true;
 				queue.push({ t.first, t.second + 1 });
 			}
 			if (t.first >= 0 && t.second - 1 >= 0 && t.first < size.x && t.second - 1 < size.y &&
 				!visited[size.x * (t.second - 1) + t.first] &&
-				layers[layer]->tile_data[size.x * (t.second - 1) + t.first] == baseIndex) {
+				layer->tile_data[size.x * (t.second - 1) + t.first] == baseIndex) {
 				visited[size.x * (t.second - 1) + t.first] = true;
 				queue.push({ t.first, t.second - 1 });
 			}
@@ -486,12 +377,10 @@ void r1Map::CreateNewMap(int width, int height, const char* file)
 
 	nlohmann::json data = nlohmann::json::object();
 
-	Layer layer(Layer::Type::TILE);
+	MapLayerTile layer;
 	layer.Reset({ width, height });	
 
-	data["data"] = layer.Parse(width, height, Layer::DataTypeExport::BASE64_ZLIB);
-
-	map["layers"].push_back(data);
+	map["layers"].push_back(layer.Serialize({ width, height }));
 
 	FileSystem::SaveJSONFile(file, map);
 }

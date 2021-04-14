@@ -4,6 +4,7 @@
 
 #include "Tools/Math/int2.h"
 #include "Tools/OpenGL/Buffer.h"
+#include "ExternalTools/MathGeoLib/include/Math/float3.h"
 
 #include "Core/Globals.h"
 
@@ -15,7 +16,7 @@ class Object;
 
 class OpenGLBuffers {
 public:
-    OpenGLBuffers();
+    OpenGLBuffers() = default;
     ~OpenGLBuffers();
 
     void InitData();
@@ -27,7 +28,7 @@ public:
     Buffer<float> texture;
 };
 
-class Layer {
+class MapLayer { //TODO: Inheritance 
     friend class r1Map;
     friend class m1MapEditor;
     friend class p1Layers;
@@ -54,42 +55,36 @@ public:
         MAX
     };
 
-    Layer(Layer::Type t);
-    ~Layer();
+    MapLayer(MapLayer::Type t);
+    virtual ~MapLayer() = default;
 
-    float height = 0.f;
-
-    unsigned int id_tex = 0u;
-
-    void Draw(const int2& size, int tile_width, int tile_height) const;
-    void Reset(const int2& size);
-    void SelectTex() const;
+    virtual void Draw(const int2& size, int tile_width, int tile_height) const = 0;
+    virtual void Reset(const int2& size) = 0;
+    virtual void Resize(const int2& oldSize, const int2& newSize) {}
+    
 
     static void SelectBuffers();
     static void DrawTile(const int2& size);
-    static bool HeightOrder(const Layer* l1, const Layer* l2);
+    static bool HeightOrder(const MapLayer* l1, const MapLayer* l2);
 
     void OnInspector();
 
-    std::string Parse(int sizeX, int sizeY, DataTypeExport d) const;
-    nlohmann::json Parse(int sizeX, int sizeY) const;
-    void Unparse(int sizeX, int sizeY, const std::string& data);
+    virtual std::string Parse(int sizeX, int sizeY, DataTypeExport d) const = 0;
+    virtual nlohmann::json Parse(int sizeX, int sizeY) const = 0;
+    virtual void Unparse(int sizeX, int sizeY, const std::string& data) = 0;
+
+    virtual nlohmann::json Serialize(const int2& size) const;
+    virtual void           Deserialize(const nlohmann::json& json, const int2& size);
 
     const char* GetName() const;
     void SetName(const char* n);
 
     Type GetType() const;
-    void SetType(Type t);
     static std::string TypeToString(Type t);
-    static Layer::Type StringToType(const std::string& s);
+    std::string ToString() const;
+    static MapLayer::Type StringToType(const std::string& s);
 
-    union {
-        TILE_DATA_TYPE* tile_data = nullptr; //TODO: Research about set id with short or int
-        Object* root;
-    };
-private:
     static OpenGLBuffers tile;
-
 
     Properties properties;
 
@@ -99,6 +94,7 @@ private:
     bool locked = false;
     float opacity = 1.f;
     int displacement[2] = { 0,0 };
+    float height = 0.f;
 
-    Type type = Type::TILE;
+    const Type type = Type::TILE;
 };

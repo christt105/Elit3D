@@ -12,6 +12,7 @@ class r1Shader;
 class ObjectEditor
 {
 	friend class p1ObjectEditor;
+	friend class r1Object;
 public:
 	ObjectEditor();
 	~ObjectEditor();

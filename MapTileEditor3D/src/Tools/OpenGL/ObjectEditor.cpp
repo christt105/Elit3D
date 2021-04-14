@@ -8,6 +8,8 @@
 #include "ExternalTools/ImGui/imgui.h"
 #include "ExternalTools/MathGeoLib/include/Math/float4x4.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 ObjectEditor::ObjectEditor() {
 	vertices.size = 4; //Quad
 	vertices.data = new float[vertices.size * 3]{

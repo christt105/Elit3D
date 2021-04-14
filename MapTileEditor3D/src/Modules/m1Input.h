@@ -3,7 +3,9 @@
 #include <SDL_scancode.h>
 #include "ExternalTools/SDL2/include/SDL_mouse.h"
 
-#define SDL_MAX_KEYS 300 // SDL has 512 values of SDL_Scancode but we only want to have 300 as maximum
+#define SDL_MAX_KEYS 231 // SDL has 512 values of SDL_Scancode but we only want to have 231 as maximum
+
+class int2;
 
 class m1Input :
 	public Module
@@ -21,23 +23,24 @@ public:
 
 	void HandleKeyboard();
 
-	bool IsKeyDown(SDL_Scancode scancode);
-	bool IsKeyRepeating(SDL_Scancode scancode);
-	bool IsKeyUp(SDL_Scancode scancode);
+	bool IsKeyDown(SDL_Scancode scancode) const;
+	bool IsKeyRepeating(SDL_Scancode scancode) const;
+	bool IsKeyUp(SDL_Scancode scancode) const;
 
-	bool IsKeyPressed(SDL_Scancode scancode);
+	bool IsKeyPressed(SDL_Scancode scancode) const;
 
-	bool IsMouseButtonDown(const int& button);
-	bool IsMouseButtonRepeating(const int& button);
-	bool IsMouseButtonUp(const int& button);
+	bool IsMouseButtonDown(const int& button) const;
+	bool IsMouseButtonRepeating(const int& button) const;
+	bool IsMouseButtonUp(const int& button) const;
 
-	bool IsMouseButtonPressed(const int& button);
+	bool IsMouseButtonPressed(const int& button) const;
 
-	int GetMouseX();
-	int GetMouseY();
-	int GetMouseZ();
+	int GetMouseX() const;
+	int GetMouseY() const;
+	int GetMouseZ() const;
 
-	void GetMousePosition(int* x, int* y);
+	void GetMousePosition(int* x, int* y) const;
+	int2 GetMousePosition() const;
 
 private:
 	KeyState* keyboard = nullptr;

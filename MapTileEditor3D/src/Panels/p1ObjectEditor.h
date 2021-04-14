@@ -1,9 +1,9 @@
 #pragma once
 #include "Panels/Base/Panel.h"
+#include "Resources/r1Object.h"
 
 class Viewport;
 class r1Texture;
-class ObjectEditor;
 
 class p1ObjectEditor :
     public Panel
@@ -24,10 +24,7 @@ private:
 
 private:
     Viewport* viewport = nullptr;
-    
-    std::vector<ObjectEditor*> meshes;
+    r1Object* object = nullptr;
     int selected = -1;
     int dragging = -1;
-    r1Texture* texture = nullptr;
 };
-

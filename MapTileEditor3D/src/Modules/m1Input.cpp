@@ -10,6 +10,7 @@
 #include "Tools/System/Logger.h"
 
 #include "Tools/System/Profiler.h"
+#include "Tools/Math/int2.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
@@ -43,8 +44,8 @@ UpdateStatus m1Input::PreUpdate()
             }
         }
 
-    SDL_GetMouseState(&mouseX, &mouseY);
-    mouseZ = 0;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        mouseZ = 0;
     }
 
     {
@@ -103,82 +104,87 @@ UpdateStatus m1Input::PreUpdate()
 void m1Input::HandleKeyboard()
 {
     PROFILE_FUNCTION();
-    const Uint8* keys = SDL_GetKeyboardState(NULL);
+    static const Uint8* keys = SDL_GetKeyboardState(nullptr);
 
     for (int i = 0; i < SDL_MAX_KEYS; ++i) {
-        if (keys[i] == 1) {
-            if (keyboard[i] == KeyState::IDLE)
-                keyboard[i] = KeyState::DOWN;
-            else if (keyboard[i] == KeyState::DOWN)
+        if (keys[i]) {
+            if (keyboard[i] == KeyState::DOWN)
                 keyboard[i] = KeyState::REPEAT;
-            else if (keyboard[i] == KeyState::UP)
+            else
                 keyboard[i] = KeyState::DOWN;
         }
         else {
-            if (keyboard[i] == KeyState::REPEAT || keyboard[i] == KeyState::DOWN)
-                keyboard[i] = KeyState::UP;
-            else
+            if (keyboard[i] == KeyState::IDLE)
+                continue;
+            if (keyboard[i] == KeyState::UP)
                 keyboard[i] = KeyState::IDLE;
+            else
+                keyboard[i] = KeyState::UP;
         }
     }
 }
 
-bool m1Input::IsKeyDown(SDL_Scancode scancode)
+bool m1Input::IsKeyDown(SDL_Scancode scancode) const
 {
     return keyboard[scancode] == KeyState::DOWN;
 }
 
-bool m1Input::IsKeyRepeating(SDL_Scancode scancode)
+bool m1Input::IsKeyRepeating(SDL_Scancode scancode) const
 {
     return keyboard[scancode] == KeyState::REPEAT;
 }
 
-bool m1Input::IsKeyUp(SDL_Scancode scancode)
+bool m1Input::IsKeyUp(SDL_Scancode scancode) const
 {
     return keyboard[scancode] == KeyState::UP;
 }
 
-bool m1Input::IsKeyPressed(SDL_Scancode scancode)
+bool m1Input::IsKeyPressed(SDL_Scancode scancode) const
 {
     return keyboard[scancode] != KeyState::IDLE;
 }
 
-bool m1Input::IsMouseButtonDown(const int& button)
+bool m1Input::IsMouseButtonDown(const int& button) const
 {
     return mouse[button-1] == KeyState::DOWN;
 }
 
-bool m1Input::IsMouseButtonRepeating(const int& button)
+bool m1Input::IsMouseButtonRepeating(const int& button) const
 {
     return mouse[button-1] == KeyState::REPEAT;
 }
 
-bool m1Input::IsMouseButtonUp(const int& button)
+bool m1Input::IsMouseButtonUp(const int& button) const
 {
     return mouse[button-1] == KeyState::UP;
 }
 
-bool m1Input::IsMouseButtonPressed(const int& button)
+bool m1Input::IsMouseButtonPressed(const int& button) const
 {
     return mouse[button-1] != KeyState::IDLE;
 }
 
-int m1Input::GetMouseX()
+int2 m1Input::GetMousePosition() const
+{
+    return int2(mouseX, mouseY);
+}
+
+int m1Input::GetMouseX() const
 {
     return mouseX;
 }
 
-int m1Input::GetMouseY()
+int m1Input::GetMouseY() const
 {
     return mouseY;
 }
 
-int m1Input::GetMouseZ()
+int m1Input::GetMouseZ() const
 {
 	return mouseZ;
 }
 
-void m1Input::GetMousePosition(int* x, int* y)
+void m1Input::GetMousePosition(int* x, int* y) const
 {
     *x = mouseX;
     *y = mouseY;

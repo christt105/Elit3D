@@ -12,6 +12,7 @@
 #include "Objects/Components/c1Material.h"
 #include "Objects/Components/c1Transform.h"
 #include "Resources/r1Mesh.h"
+#include "Resources/r1Texture.h"
 
 #include "Core/Application.h"
 #include "Modules/m1Resources.h"
@@ -22,14 +23,35 @@
 
 #include "Tools/System/Logger.h"
 
+#include "ExternalTools/mmgr/mmgr.h"
+
 r1Model::r1Model(const uint64_t& uid) : Resource(Resource::Type::Model, uid)
 {
 }
 
 r1Model::~r1Model()
 {
-	if (root != nullptr)
+	if (references > 0)
+		Unload();
+}
+
+void r1Model::Unload()
+{
+	if (root) {
 		delete root;
+		root = nullptr;
+	}
+
+	for (auto& i : meshes) {
+		i->Detach();
+	}
+	meshes.clear();
+
+	for (auto i : materials) {
+		if (auto r = App->resources->Get(i))
+			r->Detach();
+	}
+	materials.clear();
 }
 
 void r1Model::Load()
@@ -64,6 +86,7 @@ void r1Model::Load()
 
 		auto mesh = App->resources->CreateResource<r1Mesh>("", jmesh.value("uid", 0ULL), false);
 		mesh->from_model = uid;
+		mesh->Attach();
 
 		if (m->mMaterialIndex >= 0) {
 			mesh->tex_i = m->mMaterialIndex;
@@ -143,9 +166,15 @@ void r1Model::Load()
 			else {
 				t_uid = App->resources->FindByName(FileSystem::GetNameFile(p.C_Str()).c_str());
 			}
+			auto t = (r1Texture*)App->resources->Get(t_uid);
+			if (t) {
+				t->Attach();
+			}
 			materials.push_back(t_uid);
 		}
 	}
+
+	assert(root == nullptr, "root is not nullptr");
 
 	root = new Node();
 	root->name = "root";
@@ -154,6 +183,15 @@ void r1Model::Load()
 		LoadNode(scene->mRootNode->mChildren[i], scene, c);
 		c->parent = root;
 		root->children.push_back(c);
+	}
+}
+
+void r1Model::LoadVars()
+{
+	nlohmann::json meta = FileSystem::OpenJSONFile((path + ".meta").c_str());
+
+	if (meta.find("properties") != meta.end()) {
+		isTerrain = meta["properties"].value("isTerrainTile", false);
 	}
 }
 
@@ -325,7 +363,20 @@ void r1Model::OnInspector()
 
 	ImGui::Separator();
 
+	ImGui::Checkbox("Is Terrain Tile", &isTerrain);
 
+	if (ImGui::Button("Apply")) {
+		if (references > 0) {
+			Unload();
+			Load();
+		}
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Save")) {
+		nlohmann::json meta = FileSystem::OpenJSONFile((path + ".meta").c_str());
+		meta["properties"]["isTerrainTile"] = isTerrain;
+		FileSystem::SaveJSONFile((path + ".meta").c_str(), meta);
+	}
 }
 
 void r1Model::CreateChildren(r1Model::Node* parent, Object* r)

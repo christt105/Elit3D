@@ -36,15 +36,12 @@ void p1Inspector::Update()
 			break;
 		}
 		case p1Inspector::SelectedType::LAYER:
-			((Layer*)selected)->OnInspector();
+			((MapLayer*)selected)->OnInspector();
 			break;
 		case p1Inspector::SelectedType::EDITOR_MAP:
 			((r1Map*)selected)->OnInspector();
 			break;
-		case p1Inspector::SelectedType::TILESET:
-		case p1Inspector::SelectedType::FBX:
-		case p1Inspector::SelectedType::MAP:
-		case p1Inspector::SelectedType::PNG:
+		case p1Inspector::SelectedType::RESOURCE:
 		{
 			auto r = App->resources->FindGet(((std::string*)selected)->c_str(), false);
 			if (r)
