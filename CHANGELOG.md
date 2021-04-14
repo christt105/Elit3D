@@ -1,4 +1,22 @@
 # Changelog
+
+## [0.4.1] - 2021-04-14
+### Added
+* Object Editor
+	* Save and Load
+	* Edit Objects
+	* Place Object on map
+* 3D Terrains
+	* Tilemap 3D Terrains editor
+	* Place Terrains on Map in Terrain Layers
+
+### Changed
+* Update SDL to 2.0.14
+
+### Fixed
+* Draw Map
+* Selected tile on draw map
+
 ## [0.4.0] - 2021-02-22
 ### Added
 * premake5 project generator
