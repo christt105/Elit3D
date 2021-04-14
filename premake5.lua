@@ -1,13 +1,13 @@
-workspace "MapTileEditor3D"
+workspace "Elit3d"
 	configurations { "Debug", "Release", "DistPortable", "DistInstall" }
 	platforms { "x86", "x64" }
 	
-project "MapTileEditor3D"
+project "Elit3d"
 	kind "WindowedApp"
 	language "C++"
 	cppdialect "C++17"
-	targetdir "MapTileEditor3D/bin/%{cfg.architecture}/%{cfg.buildcfg}"
-	location "MapTileEditor3D"
+	targetdir "Elit3d/bin/%{cfg.architecture}/%{cfg.buildcfg}"
+	location "Elit3d"
 	
 	characterset "MBCS"
 	
@@ -16,10 +16,10 @@ project "MapTileEditor3D"
 	staticruntime "on"
 	
 	includedirs	{
-		"%{wks.location}/MapTileEditor3D/src/ExternalTools/GLEW/include",
-		"%{wks.location}/MapTileEditor3D/src/ExternalTools/SDL2/include",
-		"%{wks.location}/MapTileEditor3D/src/ExternalTools/DevIL/include",
-		"%{wks.location}/MapTileEditor3D/src"
+		"%{wks.location}/Elit3d/src/ExternalTools/GLEW/include",
+		"%{wks.location}/Elit3d/src/ExternalTools/SDL2/include",
+		"%{wks.location}/Elit3d/src/ExternalTools/DevIL/include",
+		"%{wks.location}/Elit3d/src"
 	}
 	
 	links {
@@ -43,9 +43,9 @@ project "MapTileEditor3D"
 
 	files { "**.hpp", "**.cpp", "**.h", "**.c", "**.rc", "**.ico" }
 	excludes { 
-		"%{wks.location}/MapTileEditor3D/src/ExternalTools/ImGui/misc/**.cpp", 
-		"%{wks.location}/MapTileEditor3D/src/ExternalTools/ImGui/misc/**.h",
-		"%{wks.location}/MapTileEditor3D/src/ExternalTools/DevIL/include/IL/luadevil.c"
+		"%{wks.location}/Elit3d/src/ExternalTools/ImGui/misc/**.cpp", 
+		"%{wks.location}/Elit3d/src/ExternalTools/ImGui/misc/**.h",
+		"%{wks.location}/Elit3d/src/ExternalTools/DevIL/include/IL/luadevil.c"
 	}
 
 	filter "configurations:Debug"
@@ -67,10 +67,10 @@ project "MapTileEditor3D"
 		system "Windows"
 		architecture "x86"
 		libdirs {
-			"%{wks.location}/MapTileEditor3D/src/ExternalTools/SDL2/libx86",
-			"%{wks.location}/MapTileEditor3D/src/ExternalTools/GLEW/libx86",
-			"%{wks.location}/MapTileEditor3D/src/ExternalTools/Assimp/libx86",
-			"%{wks.location}/MapTileEditor3D/src/ExternalTools/DevIL/libx86"
+			"%{wks.location}/Elit3d/src/ExternalTools/SDL2/libx86",
+			"%{wks.location}/Elit3d/src/ExternalTools/GLEW/libx86",
+			"%{wks.location}/Elit3d/src/ExternalTools/Assimp/libx86",
+			"%{wks.location}/Elit3d/src/ExternalTools/DevIL/libx86"
 		}
 		
 		postbuildcommands { 
@@ -86,10 +86,10 @@ project "MapTileEditor3D"
 		system "Windows"
 		architecture "x64"
 		libdirs {
-			"%{wks.location}/MapTileEditor3D/src/ExternalTools/GLEW/libx64",
-			"%{wks.location}/MapTileEditor3D/src/ExternalTools/SDL2/libx64",
-			"%{wks.location}/MapTileEditor3D/src/ExternalTools/Assimp/libx64",
-			"%{wks.location}/MapTileEditor3D/src/ExternalTools/DevIL/libx64"
+			"%{wks.location}/Elit3d/src/ExternalTools/GLEW/libx64",
+			"%{wks.location}/Elit3d/src/ExternalTools/SDL2/libx64",
+			"%{wks.location}/Elit3d/src/ExternalTools/Assimp/libx64",
+			"%{wks.location}/Elit3d/src/ExternalTools/DevIL/libx64"
 		}
 		
 		postbuildcommands { 

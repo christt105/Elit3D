@@ -6,4 +6,4 @@
 #define INVALID_TILE 0
 
 #define ORGANIZATION "christt105"
-#define APP_NAME "MapTileEditor3D"
+#define APP_NAME "Elit3d"
