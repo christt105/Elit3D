@@ -10,6 +10,7 @@
 #include "Tools/System/Logger.h"
 
 #include "Tools/System/Profiler.h"
+#include "Tools/Math/int2.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
@@ -43,8 +44,8 @@ UpdateStatus m1Input::PreUpdate()
             }
         }
 
-    SDL_GetMouseState(&mouseX, &mouseY);
-    mouseZ = 0;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        mouseZ = 0;
     }
 
     {
@@ -123,62 +124,67 @@ void m1Input::HandleKeyboard()
     }
 }
 
-bool m1Input::IsKeyDown(SDL_Scancode scancode)
+bool m1Input::IsKeyDown(SDL_Scancode scancode) const
 {
     return keyboard[scancode] == KeyState::DOWN;
 }
 
-bool m1Input::IsKeyRepeating(SDL_Scancode scancode)
+bool m1Input::IsKeyRepeating(SDL_Scancode scancode) const
 {
     return keyboard[scancode] == KeyState::REPEAT;
 }
 
-bool m1Input::IsKeyUp(SDL_Scancode scancode)
+bool m1Input::IsKeyUp(SDL_Scancode scancode) const
 {
     return keyboard[scancode] == KeyState::UP;
 }
 
-bool m1Input::IsKeyPressed(SDL_Scancode scancode)
+bool m1Input::IsKeyPressed(SDL_Scancode scancode) const
 {
     return keyboard[scancode] != KeyState::IDLE;
 }
 
-bool m1Input::IsMouseButtonDown(const int& button)
+bool m1Input::IsMouseButtonDown(const int& button) const
 {
     return mouse[button-1] == KeyState::DOWN;
 }
 
-bool m1Input::IsMouseButtonRepeating(const int& button)
+bool m1Input::IsMouseButtonRepeating(const int& button) const
 {
     return mouse[button-1] == KeyState::REPEAT;
 }
 
-bool m1Input::IsMouseButtonUp(const int& button)
+bool m1Input::IsMouseButtonUp(const int& button) const
 {
     return mouse[button-1] == KeyState::UP;
 }
 
-bool m1Input::IsMouseButtonPressed(const int& button)
+bool m1Input::IsMouseButtonPressed(const int& button) const
 {
     return mouse[button-1] != KeyState::IDLE;
 }
 
-int m1Input::GetMouseX()
+int2 m1Input::GetMousePosition() const
+{
+    return int2(mouseX, mouseY);
+}
+
+int m1Input::GetMouseX() const
 {
     return mouseX;
 }
 
-int m1Input::GetMouseY()
+int m1Input::GetMouseY() const
 {
     return mouseY;
 }
 
-int m1Input::GetMouseZ()
+int m1Input::GetMouseZ() const
 {
 	return mouseZ;
 }
 
-void m1Input::GetMousePosition(int* x, int* y)
+void m1Input::GetMousePosition(int* x, int* y) const
 {
     *x = mouseX;
     *y = mouseY;
