@@ -24,6 +24,8 @@ public:
 	Camera* CreateCamera(const char* id);
 	void UpdateShaders(Camera* cam);
 
+	void FitOnMap() const;
+
 	void Save(nlohmann::json& node) override;
 	void Load(const nlohmann::json& node) override;
 

@@ -7,6 +7,7 @@
 #include "Panels/p1Inspector.h"
 #include "Modules/m1Resources.h"
 #include "Resources/r1Object.h"
+#include "Panels/p1ObjectEditor.h"
 
 #include "Tools/System/Logger.h"
 
@@ -35,6 +36,10 @@ void p1Objects::Update()
 
 	ImGui::BeginChild("Objects", ImVec2(0.f, 0.f), true);
 	ImGui::Text("Objects");
+	ImGui::SameLine(100.f);
+	if (ImGui::Button("Edit Objects")) {
+		App->gui->object_editor->SetActive(true);
+	}
 	ImGui::Separator();
 	ImGui::Indent();
 	auto obj = App->resources->GetVectorOf(Resource::Type::Object);

@@ -396,6 +396,23 @@ void r1Map::OnInspector()
 	}
 }
 
+int2 r1Map::GetSize() const
+{
+	return size;
+}
+
+void r1Map::GetSize(int& x, int& y) const
+{
+	x = size.x;
+	y = size.y;
+}
+
+void r1Map::GetSize(int2& size) const
+{
+	size.x = this->size.x;
+	size.y = this->size.y;
+}
+
 bool r1Map::CheckBoundaries(const int2& point, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape) const
 {
 	switch (tool)

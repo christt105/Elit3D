@@ -36,6 +36,10 @@ public:
 
     void OnInspector() override;
 
+    int2 GetSize() const;
+    void GetSize(int& x, int& y) const;
+    void GetSize(int2& size) const;
+
     bool CheckBoundaries(const int2& point, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape) const;
 
 private:
