@@ -10,6 +10,7 @@
 #include "Modules/m1Events.h"
 #include "Modules/m1MapEditor.h"
 #include "Modules/m1Resources.h"
+#include "Modules/m1Camera3D.h"
 #include "Resources/r1Map.h"
 
 #include "Panels/p1Configuration.h"
@@ -278,6 +279,17 @@ void m1GUI::MainMenuBar()
 
 			ImGui::End();
 		}
+
+	if (ImGui::BeginMenu("Camera")) {
+		if (ImGui::MenuItem("Reset")) {
+
+		}
+		if (ImGui::MenuItem("Fit on Map")) {
+			App->camera->FitOnMap();
+		}
+
+		ImGui::EndMenu();
+	}
 
 	if (ImGui::BeginMenu("Panels")) {
 		for (auto i = panels.begin(); i != panels.end(); ++i) {

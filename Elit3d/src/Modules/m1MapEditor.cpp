@@ -23,6 +23,8 @@
 #include "Resources/r1Mesh.h"
 #include "Resources/r1Model.h"
 
+#include "Modules/m1Camera3D.h"
+
 #include "m1Objects.h"
 
 #include "ExternalTools/MathGeoLib/include/Geometry/Plane.h"
@@ -62,8 +64,10 @@ bool m1MapEditor::Start()
 	nlohmann::json locals = FileSystem::OpenJSONFile("prefs/locals.json");
 	if (!locals.is_null()) {
 		if (locals.find("last_map_used") != locals.end()) {
-			if (locals.value("last_map_used", 0ULL) != 0ULL)
+			if (locals.value("last_map_used", 0ULL) != 0ULL) {
 				LoadMap(locals.value("last_map_used", 0ULL));
+				App->camera->FitOnMap();
+			}
 		}
 	}
 

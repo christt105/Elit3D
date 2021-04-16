@@ -26,7 +26,7 @@ void Properties::CreateProperty()
 	static const char* types[4] = { "Int", "String", "Float", "Bool" };
 	static int selected = 0;
 	ImGui::PushID("##properties name");
-	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.5f);
+	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.45f);
 	ImGui::InputText("Name", buffer, 30);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.25f);
@@ -37,29 +37,27 @@ void Properties::CreateProperty()
 		ImGui::EndCombo();
 	}
 	ImGui::SameLine();
-	if (ImGui::Button(ICON_FA_PLUS)) {
-		if (!std::string(buffer).empty()) {
-			if (properties.find(buffer) == properties.end()) {
-				switch (selected)
-				{
-				case 0:
-					properties[buffer] = new iTypeVar(0);
-					break;
-				case 1:
-					properties[buffer] = new sTypeVar();
-					break;
-				case 2:
-					properties[buffer] = new fTypeVar(0.f);
-					break;
-				case 3:
-					properties[buffer] = new bTypeVar(false);
-					break;
-				default:
-					break;
-				}
+	if (ImGui::Button(ICON_FA_PLUS) && !std::string(buffer).empty()) {
+		if (properties.find(buffer) == properties.end()) {
+			switch (selected)
+			{
+			case 0:
+				properties[buffer] = new iTypeVar(0);
+				break;
+			case 1:
+				properties[buffer] = new sTypeVar();
+				break;
+			case 2:
+				properties[buffer] = new fTypeVar(0.f);
+				break;
+			case 3:
+				properties[buffer] = new bTypeVar(false);
+				break;
+			default:
+				break;
 			}
-			strcpy_s(buffer, 30, "");
 		}
+		strcpy_s(buffer, 30, "");
 	}
 	ImGui::PopID();
 }
