@@ -7,7 +7,7 @@
                 0
             ],
             "encoding": "base64-zlib",
-            "height": 0.0,
+            "height": -0.0020000000949949026,
             "locked": false,
             "name": "Background",
             "opacity": 1.0,
@@ -841,7 +841,7 @@
                 0
             ],
             "encoding": "base64-zlib",
-            "height": 0.0,
+            "height": 0.009999999776482582,
             "locked": false,
             "name": "Cliff0",
             "opacity": 1.0,
@@ -873,7 +873,7 @@
             "encoding": "base64-zlib",
             "height": 1.0,
             "locked": false,
-            "name": "Parte verde de la montañita",
+            "name": "Green",
             "opacity": 1.0,
             "properties": null,
             "type": 0,
@@ -886,5 +886,5 @@
         20
     ],
     "tileset": 14610671625611851776,
-    "version": "0.4.0"
+    "version": "0.4.1"
 }

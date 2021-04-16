@@ -251,10 +251,10 @@ void oglh::EnableCullFace(bool active)
 
 void oglh::DepthEnable(bool active)
 {
-	if (active)
+	//if (active)
 		glEnable(GL_DEPTH_TEST);
-	else
-		glDisable(GL_DEPTH_TEST);
+	/*else
+		glDisable(GL_DEPTH_TEST);*/
 }
 
 std::string oglh::GetVersion()
