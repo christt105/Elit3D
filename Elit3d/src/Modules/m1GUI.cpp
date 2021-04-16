@@ -198,6 +198,10 @@ void m1GUI::MainMenuBar()
 				}
 				ImGui::EndMenu();
 			}
+			if (ImGui::MenuItem("OBJ")) {
+				auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::OBJ);
+				App->events->AddEvent(e);
+			}
 			ImGui::EndMenu();
 		}
 

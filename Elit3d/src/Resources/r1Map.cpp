@@ -20,6 +20,9 @@
 #include "ExternalTools/DevIL/include/IL/il.h"
 #include "ExternalTools/DevIL/include/IL/ilut.h"
 
+#include "ExternalTools/Assimp/include/scene.h"
+#include "ExternalTools/Assimp/include/Exporter.hpp"
+
 #include "Tools/System/Logger.h"
 
 #include "Tools/System/Profiler.h"
@@ -69,6 +72,9 @@ void r1Map::Export(const uint64_t& tileset, MapLayer::DataTypeExport d, m1MapEdi
 			break;
 		case m1MapEditor::MapTypeExport::JSON:
 			ExportJSON(tileset, d);
+			break;
+		case m1MapEditor::MapTypeExport::OBJ:
+			ExportOBJ();
 			break;
 		}
 	}
@@ -211,6 +217,41 @@ void r1Map::ExportXML(const uint64_t& tileset, MapLayer::DataTypeExport d)
 	}
 
 	doc.save_file("Export/Test.xml");
+}
+
+void r1Map::ExportOBJ() const
+{
+	std::unique_ptr<aiScene> scene(new aiScene());
+
+	scene->mRootNode = new aiNode();
+
+	std::vector<aiMesh*> meshes;
+
+	aiNode** children = new aiNode*[layers.size()];
+	int i = 0;
+	for (auto& l : layers) {
+		children[i++] = l->Parse(meshes);
+	}
+	scene->mRootNode->addChildren(layers.size(), children);
+
+	scene->mNumMeshes = meshes.size();
+	scene->mMeshes = new aiMesh * [scene->mNumMeshes];
+	i = 0;
+	for (auto& m : meshes) {
+		scene->mMeshes[i++] = m;
+	}
+	scene->mNumMaterials = 1;
+	scene->mMaterials = new aiMaterial * [1];
+	scene->mMaterials[0] = new aiMaterial();
+	//scene->mRootNode->mNumMeshes = 0;
+	//scene->mRootNode->mMeshes = new unsigned int[0];
+	//scene->mRootNode->mMeshes[0] = 0;
+
+	Assimp::Exporter exporter;
+	if (exporter.Export(scene.get(), "obj", "test.obj") != AI_SUCCESS)
+		LOGE(exporter.GetErrorString())
+
+		scene.release();
 }
 
 void r1Map::SaveInImage()
@@ -377,7 +418,7 @@ void r1Map::CreateNewMap(int width, int height, const char* file)
 
 	nlohmann::json data = nlohmann::json::object();
 
-	MapLayerTile layer;
+	MapLayerTile layer(nullptr);
 	layer.Reset({ width, height });	
 
 	map["layers"].push_back(layer.Serialize({ width, height }));

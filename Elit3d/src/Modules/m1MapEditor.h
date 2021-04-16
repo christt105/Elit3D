@@ -25,6 +25,7 @@ public:
 
         XML,
         JSON,
+        OBJ,
 
         MAX
     };

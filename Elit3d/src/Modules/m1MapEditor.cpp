@@ -397,13 +397,13 @@ MapLayer* m1MapEditor::AddLayer(MapLayer::Type t)
 	switch (t)
 	{
 	case MapLayer::Type::TILE:
-		layer = new MapLayerTile();
+		layer = new MapLayerTile(m);
 		break;
 	case MapLayer::Type::OBJECT:
-		layer = new MapLayerObject();
+		layer = new MapLayerObject(m);
 		break;
 	case MapLayer::Type::TERRAIN:
-		layer = new MapLayerTerrain();
+		layer = new MapLayerTerrain(m);
 		break;
 	}
 

@@ -35,7 +35,7 @@
 
 OpenGLBuffers MapLayer::tile = OpenGLBuffers();
 
-MapLayer::MapLayer(MapLayer::Type t) : type(t)
+MapLayer::MapLayer(MapLayer::Type t, r1Map* m) : type(t), map(m)
 {
 	if (tile.vertices.size == 0u)
 		tile.InitData();

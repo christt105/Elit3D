@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ASSIMP_BUILD_NO_EXPORT
 
 // Public ASSIMP data structures
-#include <assimp/types.h>
+#include "types.h"
 
 #ifdef __cplusplus
 extern "C" {

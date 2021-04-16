@@ -7,15 +7,19 @@
 #include "ExternalTools/MathGeoLib/include/Math/float4x4.h"
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
+#include "ExternalTools/Assimp/include/scene.h"
+
 #include "Tools/OpenGL/OpenGLHelper.h"
 #include "ExternalTools/base64/base64.h"
 #include "ExternalTools/zlib/zlib_strings.h"
+
+#include "Resources/r1Map.h"
 
 #include "Tools/System/Profiler.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-MapLayerTile::MapLayerTile() : MapLayer(MapLayer::Type::TILE)
+MapLayerTile::MapLayerTile(r1Map* map) : MapLayer(MapLayer::Type::TILE, map)
 {
 }
 
@@ -139,6 +143,39 @@ nlohmann::json MapLayerTile::Parse(int sizeX, int sizeY) const
 			ret.push_back(tile_data[i * sizeX + j]); // TODO: encode 4 bytes array
 		}
 	}
+
+	return ret;
+}
+
+aiNode* MapLayerTile::Parse(std::vector<aiMesh*>& meshes) const
+{
+	aiNode* ret = new aiNode();
+
+	ret->mName = name;
+	ret->mNumMeshes = 1;
+	
+	aiMesh* mesh = new aiMesh();
+	mesh->mNumVertices = 4;
+	mesh->mVertices = new aiVector3D[4]{
+		{aiVector3D(0.f, 0.f, 0.f)},
+		{aiVector3D(1.f, 0.f, 0.f)},
+		{aiVector3D(1.f, 0.f, 1.f)},
+		{aiVector3D(0.f, 0.f, 1.f)}
+	};
+	mesh->mNumFaces = 2;
+	mesh->mFaces = new aiFace[2];
+	mesh->mFaces[0].mNumIndices = 3;
+	mesh->mFaces[0].mIndices = new unsigned int[3]{ 0, 1, 2 };
+	mesh->mFaces[1].mNumIndices = 3;
+	mesh->mFaces[1].mIndices = new unsigned int[3]{ 0, 2, 3 };
+	mesh->mName = name;
+
+	meshes.push_back(mesh);
+
+	ret->mMeshes = new unsigned int[1];
+	ret->mMeshes[0] = meshes.size() - 1;
+
+	ret->mTransformation = aiMatrix4x4(aiVector3D(map->GetSize().x, 1, map->GetSize().y), aiQuaternion(), aiVector3D(displacement[0], height, displacement[1]));
 
 	return ret;
 }

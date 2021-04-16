@@ -12,13 +12,16 @@
 #include "Tools/OpenGL/OpenGLHelper.h"
 #include "Modules/m1Render3D.h"
 #include "Resources/r1Shader.h"
+#include "Resources/r1Map.h"
+
+#include "ExternalTools/Assimp/include/scene.h"
 
 #include "ExternalTools/base64/base64.h"
 #include "ExternalTools/zlib/zlib_strings.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-MapLayerObject::MapLayerObject() : MapLayer(MapLayer::Type::OBJECT)
+MapLayerObject::MapLayerObject(r1Map* map) : MapLayer(MapLayer::Type::OBJECT, map)
 {
 	root = App->objects->CreateEmptyObject(nullptr, "root");
 }
@@ -127,6 +130,55 @@ std::string MapLayerObject::Parse(int sizeX, int sizeY, DataTypeExport d) const
 nlohmann::json MapLayerObject::Parse(int sizeX, int sizeY) const
 {
 	return nlohmann::json();
+}
+
+aiNode* MapLayerObject::Parse(std::vector<aiMesh*>& meshes) const
+{
+	aiNode* ret = new aiNode();
+
+	ret->mName = name;
+	int2 size = map->GetSize();
+	std::vector<unsigned int> objMeshes;
+
+	for (int i = 0; i < size.x * size.y; ++i) {
+		if (object_tile_data[i] == 0ULL) {
+			continue;
+		}
+
+		r1Object* obj = (r1Object*)App->resources->Get(object_tile_data[i]);
+		if (obj == nullptr)
+			continue;
+
+		aiMesh* mesh = new aiMesh();
+		mesh->mName = obj->name;
+		mesh->mNumVertices = obj->bvertices.size;
+		mesh->mVertices = new aiVector3D[obj->bvertices.size];
+		for (int j = 0; j < mesh->mNumVertices; ++j) {
+			mesh->mVertices[j] = aiVector3D(i % size.x, height, i / size.x) + aiVector3D(obj->bvertices.data[j * 3], obj->bvertices.data[j * 3 + 1], obj->bvertices.data[j * 3 + 2]);
+		}
+
+		mesh->mNumFaces = obj->bindices.size / 3;
+		mesh->mFaces = new aiFace[mesh->mNumFaces];
+		for (int j = 0; j < mesh->mNumFaces; ++j) {
+			mesh->mFaces[j].mNumIndices = 3;
+			mesh->mFaces[j].mIndices = new unsigned int[3]{
+				obj->bindices.data[j],
+				obj->bindices.data[j * 3 + 2],
+				obj->bindices.data[j * 3 + 1]
+			};
+		}
+
+		meshes.push_back(mesh);
+		objMeshes.push_back(meshes.size() - 1);
+	}
+
+	ret->mNumMeshes = objMeshes.size();
+	ret->mMeshes = new unsigned int[ret->mNumMeshes];
+	for (int i = 0; i < objMeshes.size(); ++i) {
+		ret->mMeshes[i] = objMeshes[i];
+	}
+
+	return ret;
 }
 
 void MapLayerObject::Unparse(int sizeX, int sizeY, const std::string& raw_data)

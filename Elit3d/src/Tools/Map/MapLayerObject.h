@@ -7,7 +7,7 @@ class MapLayerObject :
     public MapLayer
 {
 public:
-    MapLayerObject();
+    MapLayerObject(r1Map* map);
     ~MapLayerObject() override;
 
     void Draw(const int2& size, int tile_width, int tile_height) const override;
@@ -16,6 +16,7 @@ public:
 
     std::string Parse(int sizeX, int sizeY, DataTypeExport d) const override;
     nlohmann::json Parse(int sizeX, int sizeY) const override;
+    aiNode* Parse(std::vector<aiMesh*>& meshes) const override;
     void Unparse(int sizeX, int sizeY, const std::string& data) override;
 
     nlohmann::json  Serialize(const int2& size) const override;

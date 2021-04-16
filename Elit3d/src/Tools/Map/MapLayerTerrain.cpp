@@ -13,6 +13,8 @@
 #include "Resources/r1Mesh.h"
 #include "Resources/r1Texture.h"
 
+#include "ExternalTools/Assimp/include/scene.h"
+
 #include "ExternalTools/base64/base64.h"
 #include "ExternalTools/zlib/zlib_strings.h"
 
@@ -20,7 +22,7 @@
 
 #include "ExternalTools/mmgr/mmgr.h"
 
-MapLayerTerrain::MapLayerTerrain() : MapLayer(MapLayer::Type::TERRAIN)
+MapLayerTerrain::MapLayerTerrain(r1Map* map) : MapLayer(MapLayer::Type::TERRAIN, map)
 {
 }
 
@@ -134,6 +136,11 @@ nlohmann::json MapLayerTerrain::Parse(int sizeX, int sizeY) const
 	}
 
 	return ret;
+}
+
+aiNode* MapLayerTerrain::Parse(std::vector<aiMesh*>& meshes) const
+{
+	return new aiNode();
 }
 
 void MapLayerTerrain::Unparse(int sizeX, int sizeY, const std::string& raw_data)

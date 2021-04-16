@@ -41,7 +41,7 @@ void r1Model::Unload()
 		delete root;
 		root = nullptr;
 	}
-
+	
 	for (auto& i : meshes) {
 		i->Detach();
 	}
