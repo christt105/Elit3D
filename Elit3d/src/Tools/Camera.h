@@ -17,6 +17,7 @@ private:
 public:
 	void CameraMovement();
 	void UpdateFrustum(int sizeX, int sizeY);
+	void Zoom(float value);
 	void ImGuiControl();
 	void LookAt(const float3& position);
 

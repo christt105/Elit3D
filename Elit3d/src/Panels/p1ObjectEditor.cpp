@@ -33,6 +33,7 @@ p1ObjectEditor::~p1ObjectEditor()
 void p1ObjectEditor::Start()
 {
 	viewport = App->render->CreateViewport("object editor");
+	viewport->camera->frustum.SetVerticalFovAndAspectRatio(DegToRad(60.f), (float)size.x / (float)size.y);
 	viewport->camera->is_active = false;
 	viewport->camera->pan_mov = false;
 	viewport->camera->rotation = Camera::RotationType::Orbit;

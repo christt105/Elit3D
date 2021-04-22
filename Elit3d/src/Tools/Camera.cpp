@@ -12,7 +12,7 @@ Camera::Camera(const char* id) : id(id)
 {
 	frustum.SetFrame({ 2.f, 7.f, -10.f }, float3::unitZ, float3::unitY);
 	frustum.SetKind(FrustumProjectiveSpace::FrustumSpaceGL, FrustumHandedness::FrustumLeftHanded);
-
+	FOV = DegToRad(60.f);
 	frustum.SetViewPlaneDistances(0.1f, 1000.f);
 }
 
@@ -28,9 +28,9 @@ void Camera::CameraMovement()
 			if (App->input->IsKeyPressed(SDL_SCANCODE_LSHIFT))
 				speed *= turbo_speed;
 			if (App->input->IsKeyPressed(SDL_SCANCODE_W))
-				frustum.Translate(frustum.Front().Normalized() * speed * App->GetDt());
+				Zoom(speed * App->GetDt());
 			if (App->input->IsKeyPressed(SDL_SCANCODE_S))
-				frustum.Translate(-frustum.Front().Normalized() * speed * App->GetDt());
+				Zoom(-speed * App->GetDt());
 			if (App->input->IsKeyPressed(SDL_SCANCODE_A))
 				frustum.Translate(frustum.Front().Cross(frustum.Up()) * speed * App->GetDt());
 			if (App->input->IsKeyPressed(SDL_SCANCODE_D))
@@ -92,28 +92,31 @@ void Camera::CameraMovement()
 	}
 
 	if (zoom_mov && App->input->GetMouseZ() != 0) {
-		switch (frustum.Type())
-		{
-		case FrustumType::OrthographicFrustum: {
-			/*float val = (float)App->input->GetMouseZ() * zoom_speed * App->GetDt();
-			static float size = 5.f;
-			size += val;
-			frustum.orthographicHeight = 2.f * val;
-			frustum.orthographicWidth = 2.f* frustum.orthographicHeight * frustum.AspectRatio();*/
-			break;
-		}
-		case FrustumType::PerspectiveFrustum:
-			frustum.Translate(frustum.Front() * (float)App->input->GetMouseZ() * zoom_speed * App->GetDt());
-			break;
-		default:
-			break;
-		}
+		Zoom((float)App->input->GetMouseZ() * zoom_speed * App->GetDt());
 	}
 }
 
 void Camera::UpdateFrustum(int sizeX, int sizeY)
 {
-	frustum.SetVerticalFovAndAspectRatio(DegToRad(60.f), (float)sizeX / (float)sizeY);
+	if (frustum.Type() == FrustumType::PerspectiveFrustum) {
+		frustum.SetVerticalFovAndAspectRatio(FOV, (float)sizeX / (float)sizeY);
+	}
+	else {
+		float aspect = (float)sizeX / (float)sizeY;
+		frustum.SetOrthographic(frustum.OrthographicWidth(), frustum.OrthographicWidth() / aspect);
+	}
+}
+
+void Camera::Zoom(float value) {
+	if (frustum.Type() == FrustumType::PerspectiveFrustum) {
+		frustum.Translate(frustum.Front() * value);
+	}
+	else {
+		value *= -2.f;
+		float aspect = frustum.OrthographicWidth() / frustum.OrthographicHeight();
+		if (frustum.OrthographicWidth() + value > 0.f)
+			frustum.SetOrthographic(frustum.OrthographicWidth() + value, (frustum.OrthographicWidth() + value) / aspect);
+	}
 }
 
 void Camera::ImGuiControl()
@@ -129,7 +132,6 @@ void Camera::ImGuiControl()
 	ImGui::SliderFloat("Turbo Speed", &turbo_speed, 1.f, 50.f);
 	if (float fov_deg = RadToDeg(FOV); ImGui::SliderFloat("FOV", &fov_deg, 30.f, 120.f)) {
 		FOV = DegToRad(fov_deg);
-		//SetFov();
 	}
 }
 

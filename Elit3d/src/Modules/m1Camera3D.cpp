@@ -10,6 +10,9 @@
 #include "Modules/m1Render3D.h"
 #include "Modules/m1GUI.h"
 
+#include "Modules/m1MapEditor.h"
+#include "Resources/r1Map.h"
+
 #include "Panels/p1Scene.h"
 
 #include "Resources/r1Shader.h"
@@ -108,6 +111,37 @@ void m1Camera3D::UpdateShaders(Camera* cam)
 	shader->Use();
 	shader->SetMat4("view", cam->frustum.ViewMatrix());
 	shader->SetMat4("projection", cam->frustum.ProjectionMatrix());
+}
+
+void m1Camera3D::FitOnMap() const
+{
+	r1Map const* map = App->map_editor->GetMap();
+	if (map == nullptr)
+		return;
+	int2 size = map->GetSize();
+	scene->frustum.SetPos(float3((float)size.x * 0.5f, 20.f, -10.f)); //TODO: Improve the fit
+	scene->LookAt(float3((float)size.x * 0.5f, 0.f, (float)size.y * 0.5f));
+}
+
+void m1Camera3D::TopView() const
+{
+	r1Map const* map = App->map_editor->GetMap();
+	if (map == nullptr)
+		return;
+	int2 size = map->GetSize();
+	scene->frustum.SetPos(float3((float)size.x * 0.5f, 20.f, (float)size.y * 0.5f)); //TODO: Improve the fit
+	scene->LookAt(float3((float)size.x * 0.5f, 0.f, (float)size.y * 0.5f));
+}
+
+void m1Camera3D::FrontView() const
+{
+	r1Map const* map = App->map_editor->GetMap();
+	if (map == nullptr)
+		return;
+	int2 size = map->GetSize();
+	scene->frustum.SetPos(float3((float)size.x * 0.5f, 5.f, -10.f)); //TODO: Improve the fit
+	scene->frustum.SetFront(float3::unitZ);
+	scene->frustum.SetUp(float3::unitY);
 }
 
 void m1Camera3D::Save(nlohmann::json& node)

@@ -20,6 +20,9 @@
 #include "ExternalTools/DevIL/include/IL/il.h"
 #include "ExternalTools/DevIL/include/IL/ilut.h"
 
+#include "ExternalTools/Assimp/include/scene.h"
+#include "ExternalTools/Assimp/include/Exporter.hpp"
+
 #include "Tools/System/Logger.h"
 
 #include "Tools/System/Profiler.h"
@@ -70,6 +73,9 @@ void r1Map::Export(const uint64_t& tileset, MapLayer::DataTypeExport d, m1MapEdi
 		case m1MapEditor::MapTypeExport::JSON:
 			ExportJSON(tileset, d);
 			break;
+		case m1MapEditor::MapTypeExport::OBJ:
+			ExportOBJ();
+			break;
 		}
 	}
 }
@@ -100,35 +106,25 @@ void r1Map::ExportJSON(const uint64_t& tileset, MapLayer::DataTypeExport d)
 
 		lay["type"] = MapLayer::TypeToString((*l)->type);
 
-		switch ((*l)->type)
+		switch (d)
 		{
-		case MapLayer::Type::TILE:
-		case MapLayer::Type::TERRAIN:
-			switch (d)
-			{
-			case MapLayer::DataTypeExport::CSV:
-			case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
-				lay["encoding"] = "csv";
-				lay["data"] = (*l)->Parse(size.x, size.y);
-				break;
-			case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
-				lay["encoding"] = "base64";
-				lay["data"] = (*l)->Parse(size.x, size.y, d);
-				break;
-			case MapLayer::DataTypeExport::BASE64_ZLIB:
-				lay["encoding"] = "base64-zlib";
-				lay["data"] = (*l)->Parse(size.x, size.y, d);
-				break;
-			default:
-				break;
-			}
+		case MapLayer::DataTypeExport::CSV:
+		case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
+			lay["encoding"] = "csv";
+			lay["data"] = (*l)->Parse(size.x, size.y);
 			break;
-		case MapLayer::Type::OBJECT:
-			//TODO
+		case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
+			lay["encoding"] = "base64";
+			lay["data"] = (*l)->Parse(size.x, size.y, d);
+			break;
+		case MapLayer::DataTypeExport::BASE64_ZLIB:
+			lay["encoding"] = "base64-zlib";
+			lay["data"] = (*l)->Parse(size.x, size.y, d);
 			break;
 		default:
 			break;
 		}
+		break;
 
 		file["layers"].push_back(lay);
 	}
@@ -178,39 +174,63 @@ void r1Map::ExportXML(const uint64_t& tileset, MapLayer::DataTypeExport d)
 
 		layer.append_attribute("type").set_value(MapLayer::TypeToString((*l)->type).c_str());
 
-		switch ((*l)->type)
+		auto data = layer.append_child("data");
+		auto encoding = data.append_attribute("encoding");
+		switch (d)
 		{
-		case MapLayer::Type::TILE:
-		case MapLayer::Type::TERRAIN: {
-			auto data = layer.append_child("data");
-			auto encoding = data.append_attribute("encoding");
-			switch (d)
-			{
-			case MapLayer::DataTypeExport::CSV:
-			case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
-				encoding.set_value("csv");
-				break;
-			case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
-				encoding.set_value("base64");
-				break;
-			case MapLayer::DataTypeExport::BASE64_ZLIB:
-				encoding.set_value("base64-zlib");
-				break;
-			default:
-				break;
-			}
-			data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
+		case MapLayer::DataTypeExport::CSV:
+		case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
+			encoding.set_value("csv");
 			break;
-		}
-		case MapLayer::Type::OBJECT:
-			//TODO
+		case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
+			encoding.set_value("base64");
+			break;
+		case MapLayer::DataTypeExport::BASE64_ZLIB:
+			encoding.set_value("base64-zlib");
 			break;
 		default:
 			break;
 		}
+
+		data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
 	}
 
 	doc.save_file("Export/Test.xml");
+}
+
+void r1Map::ExportOBJ() const
+{
+	std::unique_ptr<aiScene> scene(new aiScene());
+
+	scene->mRootNode = new aiNode();
+
+	std::vector<aiMesh*> meshes;
+
+	aiNode** children = new aiNode*[layers.size()];
+	int i = 0;
+	for (auto& l : layers) {
+		children[i++] = l->Parse(meshes);
+	}
+	scene->mRootNode->addChildren(layers.size(), children);
+
+	scene->mNumMeshes = meshes.size();
+	scene->mMeshes = new aiMesh * [scene->mNumMeshes];
+	i = 0;
+	for (auto& m : meshes) {
+		scene->mMeshes[i++] = m;
+	}
+	scene->mNumMaterials = 1;
+	scene->mMaterials = new aiMaterial * [1];
+	scene->mMaterials[0] = new aiMaterial();
+	//scene->mRootNode->mNumMeshes = 0;
+	//scene->mRootNode->mMeshes = new unsigned int[0];
+	//scene->mRootNode->mMeshes[0] = 0;
+
+	Assimp::Exporter exporter;
+	if (exporter.Export(scene.get(), "obj", "test.obj") != AI_SUCCESS)
+		LOGE(exporter.GetErrorString())
+
+		scene.release();
 }
 
 void r1Map::SaveInImage()
@@ -241,7 +261,8 @@ void r1Map::Load()
 
 	for (auto l = file["layers"].begin(); l != file["layers"].end(); ++l) {
 		MapLayer* layer = App->map_editor->AddLayer((*l).value("type", MapLayer::Type::TILE));
-		layer->Deserialize(*l, size);
+		if (layer != nullptr)
+			layer->Deserialize(*l, size);
 	}
 
 	std::sort(layers.begin(), layers.end(), MapLayer::HeightOrder);
@@ -377,7 +398,7 @@ void r1Map::CreateNewMap(int width, int height, const char* file)
 
 	nlohmann::json data = nlohmann::json::object();
 
-	MapLayerTile layer;
+	MapLayerTile layer(nullptr);
 	layer.Reset({ width, height });	
 
 	map["layers"].push_back(layer.Serialize({ width, height }));
@@ -394,6 +415,23 @@ void r1Map::OnInspector()
 	if (ImGui::CollapsingHeader("Custom Properties", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen)) {
 		properties.Display();
 	}
+}
+
+int2 r1Map::GetSize() const
+{
+	return size;
+}
+
+void r1Map::GetSize(int& x, int& y) const
+{
+	x = size.x;
+	y = size.y;
+}
+
+void r1Map::GetSize(int2& size) const
+{
+	size.x = this->size.x;
+	size.y = this->size.y;
 }
 
 bool r1Map::CheckBoundaries(const int2& point, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape) const

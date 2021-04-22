@@ -13,6 +13,8 @@
 class r1Mesh;
 struct TypeVar;
 class Object;
+class aiNode;
+class aiMesh;
 
 class OpenGLBuffers {
 public:
@@ -50,12 +52,11 @@ public:
 
         TILE,
         OBJECT,
-        TERRAIN,
 
         MAX
     };
 
-    MapLayer(MapLayer::Type t);
+    MapLayer(MapLayer::Type t, r1Map* m);
     virtual ~MapLayer() = default;
 
     virtual void Draw(const int2& size, int tile_width, int tile_height) const = 0;
@@ -71,6 +72,7 @@ public:
 
     virtual std::string Parse(int sizeX, int sizeY, DataTypeExport d) const = 0;
     virtual nlohmann::json Parse(int sizeX, int sizeY) const = 0;
+    virtual aiNode* Parse(std::vector<aiMesh*>& meshes) const { return nullptr; }
     virtual void Unparse(int sizeX, int sizeY, const std::string& data) = 0;
 
     virtual nlohmann::json Serialize(const int2& size) const;
@@ -95,6 +97,8 @@ public:
     float opacity = 1.f;
     int displacement[2] = { 0,0 };
     float height = 0.f;
+
+    r1Map* map = nullptr;
 
     const Type type = Type::TILE;
 };

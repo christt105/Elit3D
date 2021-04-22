@@ -26,6 +26,7 @@ public:
     void Export(const uint64_t& tileset, MapLayer::DataTypeExport d, m1MapEditor::MapTypeExport t);
     void ExportJSON(const uint64_t& tileset, MapLayer::DataTypeExport d);
     void ExportXML(const uint64_t& tileset, MapLayer::DataTypeExport d);
+    void ExportOBJ() const;
     void SaveInImage();
     void Load() override;
     void Unload() override;
@@ -35,6 +36,10 @@ public:
     static void CreateNewMap(int width, int height, const char* path);
 
     void OnInspector() override;
+
+    int2 GetSize() const;
+    void GetSize(int& x, int& y) const;
+    void GetSize(int2& size) const;
 
     bool CheckBoundaries(const int2& point, int brushSize, p1Tools::Tools tool, p1Tools::Shape shape) const;
 

@@ -10,7 +10,7 @@
 #include "Modules/m1Objects.h"
 
 #include "Tools/Map/MapLayer.h"
-#include "Tools/Map/MapLayerObject.h"
+#include "Tools/Map/MapLayerTerrain.h"
 
 #include "ExternalTools/ImGui/imgui_internal.h"
 
@@ -74,7 +74,7 @@ void p1Layers::DisplayLayers(std::vector<MapLayer*>* layers)
 				selected = layers->size() - (l - layers->rbegin()) - 1;
 				App->gui->inspector->SetSelected(*l, p1Inspector::SelectedType::LAYER);
 				if ((*l)->type == MapLayer::Type::OBJECT)
-					App->objects->layer_root_selected = ((MapLayerObject*)(*l))->root;
+					App->objects->layer_root_selected = ((MapLayerTerrain*)(*l))->root;
 				else App->objects->layer_root_selected = nullptr;
 			}
 		}
@@ -87,9 +87,6 @@ void p1Layers::DisplayLayers(std::vector<MapLayer*>* layers)
 			ImGui::Text(ICON_FA_BORDER_ALL);
 			break;
 		case MapLayer::Type::OBJECT:
-			ImGui::Text(ICON_FA_CUBE);
-			break;
-		case MapLayer::Type::TERRAIN:
 			ImGui::Text(ICON_FA_CUBES); //ICON_FA_MOUNTAIN TODO: MACRO TERRAIN_ICON and other types
 			break;
 		default:
@@ -117,12 +114,8 @@ void p1Layers::Buttons(std::vector<MapLayer*>*& layers)
 			App->map_editor->AddLayer(MapLayer::Type::TILE);
 			ImGui::CloseCurrentPopup();
 		}
-		if (ImGui::Button(ICON_FA_CUBE" Object Layer")) {
+		if (ImGui::Button(ICON_FA_CUBES" Object Layer")) {
 			App->map_editor->AddLayer(MapLayer::Type::OBJECT);
-			ImGui::CloseCurrentPopup();
-		}
-		if (ImGui::Button(ICON_FA_CUBES" Terrain Layer")) {
-			App->map_editor->AddLayer(MapLayer::Type::TERRAIN);
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -198,7 +191,7 @@ void p1Layers::SetSelected(int i)
 		MapLayer* layer = (*layers)[i];
 		App->gui->inspector->SetSelected(layer, p1Inspector::SelectedType::LAYER);
 		if (layer->type == MapLayer::Type::OBJECT) {
-			App->objects->layer_root_selected = ((MapLayerObject*)layer)->root;
+			App->objects->layer_root_selected = ((MapLayerTerrain*)layer)->root;
 		}
 	}
 }

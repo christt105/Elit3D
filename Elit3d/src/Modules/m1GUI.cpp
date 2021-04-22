@@ -10,6 +10,7 @@
 #include "Modules/m1Events.h"
 #include "Modules/m1MapEditor.h"
 #include "Modules/m1Resources.h"
+#include "Modules/m1Camera3D.h"
 #include "Resources/r1Map.h"
 
 #include "Panels/p1Configuration.h"
@@ -24,7 +25,6 @@
 #include "Panels/p1DebugResources.h"
 #include "Panels/p1Tools.h"
 #include "Panels/p1ObjectEditor.h"
-#include "Panels/p1Terrain.h"
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5Brands.h"
@@ -58,7 +58,6 @@ bool m1GUI::Init(const nlohmann::json& node)
 	dbg_resources	= new p1DebugResources(false, false);
 	tools			= new p1Tools(true, false, false);
 	object_editor	= new p1ObjectEditor(false, true, true);
-	terrain			= new p1Terrain();
 
 	panels.push_back(objects);
 	panels.push_back(configuration);
@@ -70,7 +69,6 @@ bool m1GUI::Init(const nlohmann::json& node)
 	panels.push_back(tileset);
 	panels.push_back(layers);
 	panels.push_back(tools);
-	panels.push_back(terrain);
 	panels.push_back(object_editor);
 	panels.push_back(dbg_resources);
 
@@ -83,7 +81,7 @@ bool m1GUI::Start()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
-	LOGN("ImGui initialized with version %s", ImGui::GetVersion());
+	LOGN("ImGui initialized with version %s", ImGui::GetVersion())
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.Fonts->AddFontDefault();
@@ -197,6 +195,10 @@ void m1GUI::MainMenuBar()
 				}
 				ImGui::EndMenu();
 			}
+			if (ImGui::MenuItem("OBJ")) {
+				auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::OBJ);
+				App->events->AddEvent(e);
+			}
 			ImGui::EndMenu();
 		}
 
@@ -278,6 +280,20 @@ void m1GUI::MainMenuBar()
 
 			ImGui::End();
 		}
+
+	if (ImGui::BeginMenu("Camera")) {
+		if (ImGui::MenuItem("Top")) {
+			App->camera->TopView();
+		}
+		if (ImGui::MenuItem("Front")) {
+			App->camera->FrontView();
+		}
+		if (ImGui::MenuItem("Fit on Map")) {
+			App->camera->FitOnMap();
+		}
+
+		ImGui::EndMenu();
+	}
 
 	if (ImGui::BeginMenu("Panels")) {
 		for (auto i = panels.begin(); i != panels.end(); ++i) {

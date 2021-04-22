@@ -150,21 +150,25 @@ void p1Scene::PopUpLoadMap()
 void p1Scene::MenuBar()
 {
 	if (ImGui::BeginMenuBar()) {
-		/*if (App->camera->frustum.type == FrustumType::PerspectiveFrustum) {
+		Camera* cam = viewport->camera;
+		if (cam->frustum.Type() == FrustumType::PerspectiveFrustum) {
 			if (ImGui::Button("2D")) {
-				App->camera->frustum.front = -float3::unitY;
+				//viewport->camera->frustum.
+				cam->frustum.SetOrthographic(viewport->size.x / 50.f, viewport->size.y / 50.f);
+				/*App->camera->frustum.front = -float3::unitY;
 				App->camera->frustum.up = float3::unitX;
 				App->camera->frustum.type = FrustumType::OrthographicFrustum;
 				App->camera->frustum.orthographicHeight = 10;
-				App->camera->frustum.orthographicWidth = 20 / App->camera->frustum.AspectRatio();
+				App->camera->frustum.orthographicWidth = 20 / App->camera->frustum.AspectRatio();*/
 			}
 		}
 		else {
 			if (ImGui::Button("3D")) {
-				App->camera->frustum.type = FrustumType::PerspectiveFrustum;
-				App->camera->SetFov();
+				cam->frustum.SetPerspective(1.f, 1.f);
+				//App->camera->frustum.type = FrustumType::PerspectiveFrustum;
+				//App->camera->SetFov();
 			}
-		}*/
+		}
 
 		ImGui::EndMenuBar();
 	}

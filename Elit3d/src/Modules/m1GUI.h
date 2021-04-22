@@ -14,7 +14,6 @@ class p1DebugResources;
 class p1Layers;
 class p1Tools;
 class p1ObjectEditor;
-class p1Terrain;
 
 struct ImFont;
 
@@ -57,7 +56,6 @@ public: //TODO private
 	p1Layers*			layers = nullptr;
 	p1Tools*			tools = nullptr;
 	p1ObjectEditor*		object_editor = nullptr;
-	p1Terrain*			terrain = nullptr;
 	
 	p1DebugResources* dbg_resources = nullptr;
 

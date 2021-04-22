@@ -5,7 +5,6 @@
 #include "Resources/r1Shader.h"
 
 #include "Modules/m1GUI.h"
-#include "Panels/p1Terrain.h"
 #include "Resources/r1Tileset3d.h"
 
 #include "Modules/m1Objects.h"
@@ -35,7 +34,7 @@
 
 OpenGLBuffers MapLayer::tile = OpenGLBuffers();
 
-MapLayer::MapLayer(MapLayer::Type t) : type(t)
+MapLayer::MapLayer(MapLayer::Type t, r1Map* m) : type(t), map(m)
 {
 	if (tile.vertices.size == 0u)
 		tile.InitData();
@@ -134,8 +133,6 @@ std::string MapLayer::TypeToString(Type t)
 		return std::string("tile");
 	case MapLayer::Type::OBJECT:
 		return std::string("object");
-	case MapLayer::Type::TERRAIN:
-		return std::string("terrain");
 	}
 	return std::string("NONE");
 }
@@ -148,8 +145,6 @@ std::string MapLayer::ToString() const
 		return "tile";
 	case MapLayer::Type::OBJECT:
 		return "object";
-	case MapLayer::Type::TERRAIN:
-		return "terrain";
 	}
 	return std::string("NONE");
 }
@@ -161,9 +156,6 @@ MapLayer::Type MapLayer::StringToType(const std::string& s)
 	}
 	else if (s.compare("object")) {
 		return MapLayer::Type::OBJECT;
-	}
-	else if (s.compare("terrain")) {
-		return MapLayer::Type::TERRAIN;
 	}
 	return MapLayer::Type::NONE;
 }
