@@ -81,7 +81,7 @@ bool m1GUI::Start()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
-	LOGN("ImGui initialized with version %s", ImGui::GetVersion());
+	LOGN("ImGui initialized with version %s", ImGui::GetVersion())
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.Fonts->AddFontDefault();
@@ -282,8 +282,11 @@ void m1GUI::MainMenuBar()
 		}
 
 	if (ImGui::BeginMenu("Camera")) {
-		if (ImGui::MenuItem("Reset")) {
-
+		if (ImGui::MenuItem("Top")) {
+			App->camera->TopView();
+		}
+		if (ImGui::MenuItem("Front")) {
+			App->camera->FrontView();
 		}
 		if (ImGui::MenuItem("Fit on Map")) {
 			App->camera->FitOnMap();

@@ -1,7 +1,7 @@
 {
     "layers": [
         {
-            "data": "eNrjMrGw0BkIzDVILLbErtDSEIltQFjN4PKxJREWY7jecojEMa7oIGyxJc2CmIo+tqRhqiYz5Q6FfEzLILaklY8tSXIcjbKTIUExLux50JK6CQpLvuaiVQExhFI1OGgJJRRLilM+F9UTEt5osMRhMbImmIGUxieOxDlQccwFAEoJ580=",
+            "data": "eNrVVbENwCAM231Lh1bqgP9/rBMSQkkpTSLCgMRgSIwdg7uUY8VCksKUgbya/TnGxDPmbyy+dc9NNNbkGBf2ZEhPxjQ3iSmmk841aMyMAUITHrEmYoLI7PwBeQbpayhhrhEVELv8TvVp6RQakebqPfAqA5XC7aF6oVVPxZyrNMYDcXrn1g==",
             "displacement": [
                 0,
                 0
@@ -31,13 +31,13 @@
             "visible": true
         },
         {
-            "data": "eNrjMtAhH3IZQmgKKS6K3EBFD9DXbmIUWWIRM9cxpsThJsTYbUmJZrw2E+twS1rYbaqDiRBqsEpjUUcNp5Cr2UzHEKIZlApA0IKcZGcC5aD43phY3SA3gKARsm5DSpI87XVzAQCLs+Ar",
+            "data": "eNrjMtAhH3IZQmgKKS6K3EBFD9DXbmIUWWIRM9cxpsThJsTYbUmJZrw2E+twS1rYbaqDiRBqsEpjUUcNp5Cr2UzHkEbJztCYIt2Gg1s3FwBfid//",
             "displacement": [
                 0,
                 0
             ],
             "encoding": "base64-zlib",
-            "height": 0.0,
+            "height": 0.0010000000474974513,
             "locked": false,
             "name": "Objects",
             "opacity": 1.0,
@@ -834,21 +834,6 @@
                 "name": "Object"
             },
             "type": 1,
-            "visible": true
-        },
-        {
-            "data": "eNrjMtAhH3KNah7VPKp5EGo2sbCA45Hhcy4AQyvZow==",
-            "displacement": [
-                0,
-                0
-            ],
-            "encoding": "base64-zlib",
-            "height": 1.0,
-            "locked": false,
-            "name": "Green",
-            "opacity": 1.0,
-            "properties": null,
-            "type": 0,
             "visible": true
         }
     ],

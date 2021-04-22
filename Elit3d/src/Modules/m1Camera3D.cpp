@@ -123,6 +123,27 @@ void m1Camera3D::FitOnMap() const
 	scene->LookAt(float3((float)size.x * 0.5f, 0.f, (float)size.y * 0.5f));
 }
 
+void m1Camera3D::TopView() const
+{
+	r1Map const* map = App->map_editor->GetMap();
+	if (map == nullptr)
+		return;
+	int2 size = map->GetSize();
+	scene->frustum.SetPos(float3((float)size.x * 0.5f, 20.f, (float)size.y * 0.5f)); //TODO: Improve the fit
+	scene->LookAt(float3((float)size.x * 0.5f, 0.f, (float)size.y * 0.5f));
+}
+
+void m1Camera3D::FrontView() const
+{
+	r1Map const* map = App->map_editor->GetMap();
+	if (map == nullptr)
+		return;
+	int2 size = map->GetSize();
+	scene->frustum.SetPos(float3((float)size.x * 0.5f, 5.f, -10.f)); //TODO: Improve the fit
+	scene->frustum.SetFront(float3::unitZ);
+	scene->frustum.SetUp(float3::unitY);
+}
+
 void m1Camera3D::Save(nlohmann::json& node)
 {
 	/*node["FOV"] = FOV;
