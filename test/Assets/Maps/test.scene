@@ -31,51 +31,12 @@
             "visible": true
         },
         {
-            "data": "eNrdU8sKAyEQu/stHuaRef3/j9Wl0FNbutZlu0VQUJJJJk6jzklWETD2bS9V8U797x8a9fnV3tSb5KPTwLudqHGBLYWUUGVRee90oMwMTJKu5eQUl7fLw2jIAJGEVggVbIW+V03cSfec5uMkDvnMrFJsoRnjKLFwy36Vy0fuK2gWafmJuTkAzAyFw9QgJGOwwvENHwLKAi+u3AZVkCfQLQ59Uke7ARFNfOc=",
+            "data": "eNrjMtAhH3IZQmgKKS6K3EBFD9DXbmIUWWIRM9cxpsThJsTYbUmJZrw2E+twS1rYbaqDiRBqsEpjUUcNp5Cr2UzHEKIZlApA0IKcZGcC5aD43phY3SA3gKARsm5DSpI87XVzAQCLs+Ar",
             "displacement": [
                 0,
                 0
             ],
-            "height": 0.0,
-            "locked": false,
-            "name": "Items",
-            "opacity": 1.0,
-            "properties": null,
-            "root": {
-                "active": true,
-                "children": [],
-                "components": [
-                    {
-                        "position": {
-                            "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
-                        },
-                        "rotation": {
-                            "w": 1.0,
-                            "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
-                        },
-                        "scale": {
-                            "x": 1.0,
-                            "y": 1.0,
-                            "z": 1.0
-                        },
-                        "type": 1
-                    }
-                ],
-                "name": "Object"
-            },
-            "type": 1,
-            "visible": true
-        },
-        {
-            "data": "eNrjMtAhH3KNah7VTFCzoYWxmaWZoYmRkZGBmaGxsbmRpYkOLQRBttHNMtKcRWLoDja3EdRLWnyQl2RwGkaEHWQ5g0SH0DVJU+AtHLmZzCDCYt6gSb3Eus2AJDupGeiUFKEkRCM5TuYCAL1Ihok=",
-            "displacement": [
-                0,
-                0
-            ],
+            "encoding": "base64-zlib",
             "height": 0.0,
             "locked": false,
             "name": "Objects",
@@ -835,21 +796,6 @@
             "visible": true
         },
         {
-            "data": "eNrjMtAhH3KNaqaTZnMdY/I1m1Bi86hmemo20zGEaAZFOAhakJPCTKAcU3I0g5wAgkZDJVdxAQB2wNig",
-            "displacement": [
-                0,
-                0
-            ],
-            "encoding": "base64-zlib",
-            "height": 0.009999999776482582,
-            "locked": false,
-            "name": "Cliff0",
-            "opacity": 1.0,
-            "properties": null,
-            "type": 2,
-            "visible": true
-        },
-        {
             "data": "eNrjMtAhH3KNah4ams0p0Wwyqpk0aDaaPOmpmQsALvDYaA==",
             "displacement": [
                 0,
@@ -858,10 +804,36 @@
             "encoding": "base64-zlib",
             "height": 1.0,
             "locked": false,
-            "name": "Cliff1",
+            "name": "Items",
             "opacity": 1.0,
             "properties": null,
-            "type": 2,
+            "root": {
+                "active": true,
+                "children": [],
+                "components": [
+                    {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "w": 1.0,
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "type": 1
+                    }
+                ],
+                "name": "Object"
+            },
+            "type": 1,
             "visible": true
         },
         {

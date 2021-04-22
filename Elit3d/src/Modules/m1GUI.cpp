@@ -25,7 +25,6 @@
 #include "Panels/p1DebugResources.h"
 #include "Panels/p1Tools.h"
 #include "Panels/p1ObjectEditor.h"
-#include "Panels/p1Terrain.h"
 
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5.h"
 #include "ExternalTools/ImGui/IconsFontAwesome5/IconsFontAwesome5Brands.h"
@@ -59,7 +58,6 @@ bool m1GUI::Init(const nlohmann::json& node)
 	dbg_resources	= new p1DebugResources(false, false);
 	tools			= new p1Tools(true, false, false);
 	object_editor	= new p1ObjectEditor(false, true, true);
-	terrain			= new p1Terrain();
 
 	panels.push_back(objects);
 	panels.push_back(configuration);
@@ -71,7 +69,6 @@ bool m1GUI::Init(const nlohmann::json& node)
 	panels.push_back(tileset);
 	panels.push_back(layers);
 	panels.push_back(tools);
-	panels.push_back(terrain);
 	panels.push_back(object_editor);
 	panels.push_back(dbg_resources);
 

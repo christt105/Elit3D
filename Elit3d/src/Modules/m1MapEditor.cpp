@@ -7,14 +7,12 @@
 #include "Panels/p1Tools.h"
 #include "Panels/p1Inspector.h"
 #include "Panels/p1Objects.h"
-#include "Panels/p1Terrain.h"
 #include "Tools/OpenGL/Viewport.h"
 
 #include "Modules/m1Render3D.h"
 #include "Resources/r1Shader.h"
 
 #include "Tools/Map/MapLayerTile.h"
-#include "Tools/Map/MapLayerObject.h"
 #include "Tools/Map/MapLayerTerrain.h"
 
 #include "Modules/m1Resources.h"
@@ -35,13 +33,13 @@
 
 #include "Tools/System/Logger.h"
 
+#include <GL/glew.h>
+
 #include "Tools/OpenGL/OpenGLHelper.h"
 
 #include "Tools/FileSystem.h"
 
 #include "Tools/System/Profiler.h"
-
-#include "ExternalTools/mmgr/mmgr.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
 
@@ -110,7 +108,7 @@ UpdateStatus m1MapEditor::Update()
 
 		int tileWidth = panel_tileset->GetTileWidth();
 		int tileHeight = panel_tileset->GetTileHeight();
-		for (auto layer = m->layers.begin(); layer != m->layers.end(); ++layer) {
+		for (auto layer = m->layers.rbegin(); layer != m->layers.rend(); ++layer) {
 			if ((*layer)->type == MapLayer::Type::TILE && (*layer)->visible) {
 				(*layer)->Draw(m->size, tileWidth, tileHeight);
 			}
@@ -124,7 +122,7 @@ UpdateStatus m1MapEditor::Update()
 		oglh::ActiveTexture(0);
 
 		for (auto layer = m->layers.begin(); layer != m->layers.end(); ++layer) { //TODO: Draw all tiles at the same time
-			if (((*layer)->type == MapLayer::Type::OBJECT || (*layer)->type == MapLayer::Type::TERRAIN) && (*layer)->visible) {
+			if (((*layer)->type == MapLayer::Type::OBJECT) && (*layer)->visible) {
 				(*layer)->Draw(m->size, panel_tileset->GetTileWidth(), panel_tileset->GetTileWidth());
 			}
 		}
@@ -213,9 +211,6 @@ void m1MapEditor::Mouse(const Ray& ray)
 		MouseTile(m, (MapLayerTile*)m->layers[selected], { col, row });
 		break;
 	case MapLayer::Type::OBJECT:
-		MouseTileObject((MapLayerObject*)m->layers[selected], { col, row }, m->size);
-		break;
-	case MapLayer::Type::TERRAIN:
 		MouseTileTerrain(m, { col, row }, (MapLayerTerrain*)m->layers[selected]);
 		break;
 	}
@@ -233,7 +228,7 @@ void m1MapEditor::MouseTileTerrain(r1Map* m, const int2& tile, MapLayerTerrain* 
 			break;
 		}
 		default:
-			if (int obj = App->gui->terrain->selected + 1;  obj != 0) {
+			if (int obj = App->gui->objects->selected + 1;  obj != 0) {
 				layer->tile_data[m->size.x * tile.x + tile.y] = obj;
 			}
 			break;
@@ -332,13 +327,13 @@ void m1MapEditor::MouseTile(r1Map* m, MapLayerTile* layer, const int2& tile)
 	}
 }
 
-void m1MapEditor::MouseTileObject(MapLayerObject* layer, const int2& tile, const int2& mapSize)
+/*void m1MapEditor::MouseTileObject(MapLayerObject* layer, const int2& tile, const int2& mapSize)
 {
 		if (App->input->IsMouseButtonPressed(1) && tile.y >= 0 && tile.x >= 0 && tile.y < mapSize.x && tile.x < mapSize.y && !layer->locked) {
 			switch (panel_tools->GetSelectedTool())
 			{
 				/*case p1Tools::Tools::BRUSH:
-					break;*/
+					break;
 			case p1Tools::Tools::ERASER:
 				if (layer->object_tile_data[mapSize.x * tile.x + tile.y] != 0ULL) {
 					if (Resource* res = App->resources->Get(layer->object_tile_data[mapSize.x * tile.x + tile.y]))
@@ -351,7 +346,7 @@ void m1MapEditor::MouseTileObject(MapLayerObject* layer, const int2& tile, const
 				case p1Tools::Tools::EYEDROPPER:
 					break;
 				case p1Tools::Tools::RECTANGLE:
-					break;*/
+					break;
 			default:
 				uint64_t tile_id = App->gui->objects->GetObjectSelected();
 				if (tile_id != 0ULL && tile_id != layer->object_tile_data[mapSize.x * tile.x + tile.y]) {
@@ -364,7 +359,7 @@ void m1MapEditor::MouseTileObject(MapLayerObject* layer, const int2& tile, const
 				break;
 			}
 		}
-}
+}*/
 
 void m1MapEditor::ResizeMap(int width, int height)
 {
@@ -400,13 +395,10 @@ MapLayer* m1MapEditor::AddLayer(MapLayer::Type t)
 		layer = new MapLayerTile(m);
 		break;
 	case MapLayer::Type::OBJECT:
-		layer = new MapLayerObject(m);
-		break;
-	case MapLayer::Type::TERRAIN:
 		layer = new MapLayerTerrain(m);
 		break;
 	}
-
+	
 	if (layer == nullptr)
 		return nullptr;
 
@@ -447,7 +439,7 @@ bool m1MapEditor::GetLayers(std::vector<MapLayer*>* &vec) const
 	return true;
 }
 
-MapLayerObject* m1MapEditor::GetObjectLayer(bool create_if_no_exist, bool select)
+MapLayerTerrain* m1MapEditor::GetObjectLayer(bool create_if_no_exist, bool select)
 {
 	auto m = GetMap();
 	if(m == nullptr)
@@ -455,18 +447,18 @@ MapLayerObject* m1MapEditor::GetObjectLayer(bool create_if_no_exist, bool select
 
 	if (int sel = panel_layers->GetSelected(); sel != -1)
 		if (m->layers[sel]->type == MapLayer::Type::OBJECT)
-			return (MapLayerObject*)m->layers[sel];
+			return (MapLayerTerrain*)m->layers[sel];
 
 	for (int i = 0; i < m->layers.size(); ++i) {
 		if (m->layers[i]->type == MapLayer::Type::OBJECT) {
 			if (select)
 				panel_layers->SetSelected(i);
-			return (MapLayerObject*)m->layers[i];
+			return (MapLayerTerrain*)m->layers[i];
 		}
 	}
 
 	if (create_if_no_exist) {
-		auto l = (MapLayerObject*)AddLayer(MapLayer::Type::OBJECT);
+		auto l = (MapLayerTerrain*)AddLayer(MapLayer::Type::OBJECT);
 		if (select)
 			panel_layers->SetSelected(m->layers.size()-1);
 		return l;

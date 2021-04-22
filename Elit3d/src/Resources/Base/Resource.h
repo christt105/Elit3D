@@ -36,7 +36,7 @@ public:
 	virtual void GenerateFiles() {}
 	virtual void UpdateFiles() {}
 
-	Resource::Type GetType() const;
+	inline Resource::Type GetType() const { return type; }
 	std::string GetStrType() const;
 	
 public:

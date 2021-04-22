@@ -44,11 +44,6 @@ void Resource::OnInspector()
 	ImGui::TextColored(ImVec4(1.f, 0.6f, 0.6f, 1.f), extension.c_str());
 }
 
-Resource::Type Resource::GetType() const
-{
-	return type;
-}
-
 std::string Resource::GetStrType() const
 {
 	assert((int)Resource::Type::MAX == 7);

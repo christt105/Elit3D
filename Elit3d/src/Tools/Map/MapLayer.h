@@ -52,7 +52,6 @@ public:
 
         TILE,
         OBJECT,
-        TERRAIN,
 
         MAX
     };

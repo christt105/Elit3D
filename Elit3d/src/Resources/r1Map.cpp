@@ -106,35 +106,25 @@ void r1Map::ExportJSON(const uint64_t& tileset, MapLayer::DataTypeExport d)
 
 		lay["type"] = MapLayer::TypeToString((*l)->type);
 
-		switch ((*l)->type)
+		switch (d)
 		{
-		case MapLayer::Type::TILE:
-		case MapLayer::Type::TERRAIN:
-			switch (d)
-			{
-			case MapLayer::DataTypeExport::CSV:
-			case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
-				lay["encoding"] = "csv";
-				lay["data"] = (*l)->Parse(size.x, size.y);
-				break;
-			case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
-				lay["encoding"] = "base64";
-				lay["data"] = (*l)->Parse(size.x, size.y, d);
-				break;
-			case MapLayer::DataTypeExport::BASE64_ZLIB:
-				lay["encoding"] = "base64-zlib";
-				lay["data"] = (*l)->Parse(size.x, size.y, d);
-				break;
-			default:
-				break;
-			}
+		case MapLayer::DataTypeExport::CSV:
+		case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
+			lay["encoding"] = "csv";
+			lay["data"] = (*l)->Parse(size.x, size.y);
 			break;
-		case MapLayer::Type::OBJECT:
-			//TODO
+		case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
+			lay["encoding"] = "base64";
+			lay["data"] = (*l)->Parse(size.x, size.y, d);
+			break;
+		case MapLayer::DataTypeExport::BASE64_ZLIB:
+			lay["encoding"] = "base64-zlib";
+			lay["data"] = (*l)->Parse(size.x, size.y, d);
 			break;
 		default:
 			break;
 		}
+		break;
 
 		file["layers"].push_back(lay);
 	}
@@ -184,36 +174,25 @@ void r1Map::ExportXML(const uint64_t& tileset, MapLayer::DataTypeExport d)
 
 		layer.append_attribute("type").set_value(MapLayer::TypeToString((*l)->type).c_str());
 
-		switch ((*l)->type)
+		auto data = layer.append_child("data");
+		auto encoding = data.append_attribute("encoding");
+		switch (d)
 		{
-		case MapLayer::Type::TILE:
-		case MapLayer::Type::TERRAIN: {
-			auto data = layer.append_child("data");
-			auto encoding = data.append_attribute("encoding");
-			switch (d)
-			{
-			case MapLayer::DataTypeExport::CSV:
-			case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
-				encoding.set_value("csv");
-				break;
-			case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
-				encoding.set_value("base64");
-				break;
-			case MapLayer::DataTypeExport::BASE64_ZLIB:
-				encoding.set_value("base64-zlib");
-				break;
-			default:
-				break;
-			}
-			data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
+		case MapLayer::DataTypeExport::CSV:
+		case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
+			encoding.set_value("csv");
 			break;
-		}
-		case MapLayer::Type::OBJECT:
-			//TODO
+		case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
+			encoding.set_value("base64");
+			break;
+		case MapLayer::DataTypeExport::BASE64_ZLIB:
+			encoding.set_value("base64-zlib");
 			break;
 		default:
 			break;
 		}
+
+		data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
 	}
 
 	doc.save_file("Export/Test.xml");
@@ -282,7 +261,8 @@ void r1Map::Load()
 
 	for (auto l = file["layers"].begin(); l != file["layers"].end(); ++l) {
 		MapLayer* layer = App->map_editor->AddLayer((*l).value("type", MapLayer::Type::TILE));
-		layer->Deserialize(*l, size);
+		if (layer != nullptr)
+			layer->Deserialize(*l, size);
 	}
 
 	std::sort(layers.begin(), layers.end(), MapLayer::HeightOrder);

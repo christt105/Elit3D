@@ -20,6 +20,7 @@ public:
     void            Deserialize(const nlohmann::json& json, const int2& size) override;
 
 public:
+    Object* root = nullptr;
     TILE_DATA_TYPE* tile_data = nullptr;
 };
 

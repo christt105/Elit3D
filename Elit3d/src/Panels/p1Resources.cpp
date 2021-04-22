@@ -13,7 +13,7 @@
 #include "Resources/r1Model.h"
 #include "Resources/r1Map.h"
 #include "Tools/Map/MapLayer.h"
-#include "Tools/Map/MapLayerObject.h"
+#include "Tools/Map/MapLayerTerrain.h"
 
 #include "Tools/System/OSUtils.h"
 

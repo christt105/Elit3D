@@ -44,7 +44,7 @@ public:
 
     void Mouse(const Ray& ray);
     void MouseTileTerrain(r1Map* m, const int2& tile, MapLayerTerrain* layer);
-    void MouseTileObject(MapLayerObject* layer, const int2& tile, const int2& mapSize);
+    //void MouseTileObject(MapLayerObject* layer, const int2& tile, const int2& mapSize);
     void MouseTile(r1Map* m, MapLayerTile* layer, const int2& tile);
     void ResizeMap(int width, int height);
     int2 GetMapSize() const;
@@ -58,7 +58,7 @@ public:
     r1Map* GetMap() const;
     bool GetLayers(std::vector<MapLayer*>* &vec) const;
 
-    MapLayerObject* GetObjectLayer(bool create_if_no_exist, bool select);
+    MapLayerTerrain* GetObjectLayer(bool create_if_no_exist, bool select);
 
     void ExportMap(MapTypeExport t, MapLayer::DataTypeExport d) const;
 
