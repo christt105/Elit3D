@@ -4,6 +4,10 @@
 #include "ExternalTools/MathGeoLib/include/Math/float4x4.h"
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
+namespace pugi {
+	class xml_node;
+}
+
 class c1Transform : public Component
 {
 public:
@@ -30,6 +34,9 @@ public:
 
 	nlohmann::json	Parse() override;
 	void			Unparse(const nlohmann::json& node) override;
+
+	void Serialize(nlohmann::json& node) const;
+	void Serialize(pugi::xml_node& node) const;
 
 private:
 	float4x4 mat = float4x4::identity;

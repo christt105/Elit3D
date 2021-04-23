@@ -70,10 +70,10 @@ public:
 
     void OnInspector();
 
-    virtual void Parse(pugi::xml_node& node, MapLayer::DataTypeExport type) const;
-    virtual void Parse(nlohmann::json& node, MapLayer::DataTypeExport type) const;
+    virtual void Parse(pugi::xml_node& node, MapLayer::DataTypeExport type, bool exporting) const;
+    virtual void Parse(nlohmann::json& node, MapLayer::DataTypeExport type, bool exporting) const;
     virtual aiNode* Parse(std::vector<aiMesh*>& meshes) const { return nullptr; }
-
+    
     virtual void Unparse(const pugi::xml_node& node);
     virtual void Unparse(const nlohmann::json& node);
 

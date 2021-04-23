@@ -2,6 +2,11 @@
 
 #include <stack>
 
+#include "Core/Application.h"
+#include "Modules/m1Resources.h"
+#include "Resources/r1Mesh.h"
+#include "Resources/r1Model.h"
+
 #include "Objects/Components/c1Mesh.h"
 #include "Objects/Components/c1Transform.h"
 #include "Objects/Components/c1Material.h"
@@ -124,6 +129,49 @@ nlohmann::json Object::Parse()
 
 	return n;
 }
+
+void Object::Parse(nlohmann::json& node)
+{
+	for (auto& c : children) {
+		auto m = c->GetComponent<c1Mesh>();
+		if (m != nullptr || !c->children.empty()) {
+			m = c->children[0]->GetComponent<c1Mesh>();
+			if (m == nullptr)
+				continue;
+		}
+		auto res = (r1Mesh*)App->resources->Get(m->GetMesh());
+		if (res == nullptr)
+			continue;
+		auto mod = (r1Model*)App->resources->Get(res->from_model);
+		if (mod == nullptr)
+			continue;
+
+		auto j = nlohmann::json();
+		j["object"] = mod->path;
+		node.push_back(j);
+	}
+}
+
+/*void Object::GetUsedObjects(std::vector<uint64_t>& obj) const
+{
+	for (auto& c : children) {
+		auto m = c->GetComponent<c1Mesh>();
+		if (m != nullptr || !c->children.empty()) {
+			m = c->children[0]->GetComponent<c1Mesh>();
+			if (m == nullptr)
+				continue;
+		}
+		auto res = (r1Mesh*)App->resources->Get(m->GetMesh());
+		if (res == nullptr)
+			continue;
+		auto mod = (r1Model*)App->resources->Get(res->from_model);
+		if (mod == nullptr)
+			continue;
+
+		if (std::find(obj.begin(), obj.end(), mod->GetUID()) == obj.end())
+			obj.push_back(mod->GetUID());
+	}
+}*/
 
 void Object::Unparse(const nlohmann::json& node)
 {

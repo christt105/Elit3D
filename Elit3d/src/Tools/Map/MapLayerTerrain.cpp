@@ -10,6 +10,8 @@
 #include "Objects/Object.h"
 #include "Panels/p1Objects.h"
 
+#include "Objects/Components/c1Mesh.h"
+
 #include "Modules/m1Resources.h"
 #include "Resources/r1Tileset3d.h"
 #include "Resources/r1Model.h"
@@ -104,18 +106,118 @@ void MapLayerTerrain::Reset(const int2& size)
 	memset(data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
 }
 
-void MapLayerTerrain::Parse(pugi::xml_node& node, MapLayer::DataTypeExport t) const
+void MapLayerTerrain::Parse(pugi::xml_node& node, MapLayer::DataTypeExport t, bool exporting) const
 {
-	MapLayer::Parse(node, t);
+	MapLayer::Parse(node, t, exporting);
 
+	auto xobjs = node.append_child("objects");
+	for (auto& c : root->children) {
+		auto m = c->GetComponent<c1Mesh>();
+		if (m != nullptr || !c->children.empty()) {
+			m = c->children[0]->GetComponent<c1Mesh>();
+			if (m == nullptr)
+				continue;
+		}
+		auto res = (r1Mesh*)App->resources->Get(m->GetMesh());
+		if (res == nullptr)
+			continue;
+		auto mod = (r1Model*)App->resources->Get(res->from_model);
+		if (mod == nullptr)
+			continue;
 
+		auto xobj = xobjs.append_child("object");
+		xobj.append_attribute("model").set_value(mod->path.c_str());
+		c->GetComponent<c1Transform>()->Serialize(xobj.append_child("transform"));
+	}
 }
 
-void MapLayerTerrain::Parse(nlohmann::json& node, MapLayer::DataTypeExport t) const
+void MapLayerTerrain::Parse(nlohmann::json& node, MapLayer::DataTypeExport t, bool exporting) const
 {
-	MapLayer::Parse(node, t);
-	node["root"] = root->Parse();
+	MapLayer::Parse(node, t, exporting);
+	if (exporting) {
+		for (auto& c : root->children) {
+			auto m = c->GetComponent<c1Mesh>();
+			if (m != nullptr || !c->children.empty()) {
+				m = c->children[0]->GetComponent<c1Mesh>();
+				if (m == nullptr)
+					continue;
+			}
+			auto res = (r1Mesh*)App->resources->Get(m->GetMesh());
+			if (res == nullptr)
+				continue;
+			auto mod = (r1Model*)App->resources->Get(res->from_model);
+			if (mod == nullptr)
+				continue;
+
+			auto j = nlohmann::json();
+			j["model"] = mod->path;
+			c->GetComponent<c1Transform>()->Serialize(j["transform"]);
+			node["objects"].push_back(j);
+		}
+	}
+	else {
+		node["root"] = root->Parse();
+	}
 }
+
+/*void MapLayerTerrain::AddObjects(nlohmann::json& node, const std::vector<uint64_t>& obj) const
+{
+	for (auto& c : root->children) {
+		auto m = c->GetComponent<c1Mesh>();
+		if (m != nullptr || !c->children.empty()) {
+			m = c->children[0]->GetComponent<c1Mesh>();
+			if (m == nullptr)
+				continue;
+		}
+		auto res = (r1Mesh*)App->resources->Get(m->GetMesh());
+		if (res == nullptr)
+			continue;
+		auto mod = (r1Model*)App->resources->Get(res->from_model);
+		if (mod == nullptr)
+			continue;
+
+		for (int i = 0; i < obj.size(); ++i)
+		{
+			if (obj[i] == mod->GetUID()) {
+				auto j = nlohmann::json();
+				j["object"] = i;
+				j["src"] = mod->path;
+				c->GetComponent<c1Transform>()->Serialize(j["transform"]);
+				node.push_back(j);
+				break;
+			}
+		}
+	}
+}
+
+void MapLayerTerrain::AddObjects(pugi::xml_node& node, const std::vector<uint64_t>& obj) const
+{
+	for (auto& c : root->children) {
+		auto m = c->GetComponent<c1Mesh>();
+		if (m != nullptr || !c->children.empty()) {
+			m = c->children[0]->GetComponent<c1Mesh>();
+			if (m == nullptr)
+				continue;
+		}
+		auto res = (r1Mesh*)App->resources->Get(m->GetMesh());
+		if (res == nullptr)
+			continue;
+		auto mod = (r1Model*)App->resources->Get(res->from_model);
+		if (mod == nullptr)
+			continue;
+
+		for (int i = 0; i < obj.size(); ++i)
+		{
+			if (obj[i] == mod->GetUID()) {
+				auto xobj = node.append_child("object");
+				xobj.append_attribute("id").set_value(i);
+				xobj.append_attribute("src").set_value(mod->path.c_str());
+				c->GetComponent<c1Transform>()->Serialize(xobj.append_child("transform"));
+				break;
+			}
+		}
+	}
+}*/
 
 aiNode* MapLayerTerrain::Parse(std::vector<aiMesh*>& meshes) const
 {

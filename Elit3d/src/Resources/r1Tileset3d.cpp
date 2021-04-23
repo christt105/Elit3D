@@ -55,6 +55,30 @@ void r1Tileset3d::LoadVars()
 	}
 }
 
+void r1Tileset3d::Parse(pugi::xml_node& node) const
+{
+	for (auto& o : tiles) {
+		auto xo = node.append_child("object");
+		xo.append_attribute("name").set_value(o->name.c_str());
+		o->transform.Serialize(xo.append_child("transform"));
+		Resource* res = App->resources->Get(o->uidObject);
+		xo.append_attribute("fromObject").set_value(res->path.c_str());
+	}
+}
+
+void r1Tileset3d::Parse(nlohmann::json& node) const
+{
+	for (auto& o : tiles) {
+		nlohmann::json jo = nlohmann::json();
+		jo["name"] = o->name;
+		o->transform.Serialize(jo["transform"]);
+		Resource* res = App->resources->Get(o->uidObject);
+		jo["fromObject"] = res->path;
+
+		node.push_back(jo);
+	}
+}
+
 r1Tileset3d::Tile3d::Tile3d(const uint64_t& uid, const std::string& str) : uidObject(uid), name(str) 
 {
 }

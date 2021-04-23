@@ -98,6 +98,19 @@ void r1Tileset::Parse(pugi::xml_node& node) const
 	node.append_child("image").append_attribute("src").set_value(path.c_str());
 }
 
+void r1Tileset::Parse(nlohmann::json& node) const
+{
+	node["name"] = name;
+	node["tilewidth"] = width;
+	node["tileheight"] = height;
+	node["spacing"] = spacing;
+	node["margin"] = margin;
+	node["ntiles"] = ntiles;
+	node["columns"] = columns;
+
+	node["image"] = path;
+}
+
 uint64_t r1Tileset::GetTextureUID() const
 {
 	return texture_uid;

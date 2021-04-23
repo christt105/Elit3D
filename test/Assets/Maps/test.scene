@@ -12,7 +12,7 @@
             "name": "Background",
             "opacity": 1.0,
             "properties": null,
-            "type": 0,
+            "type": "tile",
             "visible": true
         },
         {
@@ -27,7 +27,7 @@
             "name": "Dirt",
             "opacity": 1.0,
             "properties": null,
-            "type": 0,
+            "type": "tile",
             "visible": true
         },
         {
@@ -792,7 +792,7 @@
                 ],
                 "name": "Object"
             },
-            "type": 1,
+            "type": "object",
             "visible": true
         },
         {
@@ -807,7 +807,7 @@
             "name": "ground1",
             "opacity": 1.0,
             "properties": null,
-            "type": 0,
+            "type": "tile",
             "visible": true
         },
         {
@@ -848,7 +848,7 @@
                 ],
                 "name": "Object"
             },
-            "type": 1,
+            "type": "object",
             "visible": true
         },
         {
@@ -863,7 +863,7 @@
             "name": "ground2",
             "opacity": 1.0,
             "properties": null,
-            "type": 0,
+            "type": "tile",
             "visible": true
         },
         {
@@ -904,7 +904,7 @@
                 ],
                 "name": "Object"
             },
-            "type": 1,
+            "type": "object",
             "visible": true
         }
     ],

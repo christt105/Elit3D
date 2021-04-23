@@ -96,7 +96,7 @@ void MapLayer::OnInspector()
 	}
 }
 
-void MapLayer::Parse(pugi::xml_node& node, MapLayer::DataTypeExport t) const
+void MapLayer::Parse(pugi::xml_node& node, MapLayer::DataTypeExport t, bool exporting) const
 {
 	properties.SaveProperties(node.append_child("properties"));
 
@@ -113,10 +113,10 @@ void MapLayer::Parse(pugi::xml_node& node, MapLayer::DataTypeExport t) const
 	encoding.set_value(MapLayer::DataTypeToString(t).c_str());
 	ndata.append_child(pugi::node_pcdata).set_value(SerializeData(t).c_str());
 
-	node.append_attribute("type").set_value(MapLayer::TypeToString(type).c_str());
+	node.append_attribute("type").set_value(TypeToString(type).c_str());
 }
 
-void MapLayer::Parse(nlohmann::json& node, MapLayer::DataTypeExport t) const
+void MapLayer::Parse(nlohmann::json& node, MapLayer::DataTypeExport t, bool exporting) const
 {
 	properties.SaveProperties(node["properties"]);
 
@@ -130,7 +130,7 @@ void MapLayer::Parse(nlohmann::json& node, MapLayer::DataTypeExport t) const
 	node["encoding"] = DataTypeToString(t);
 	node["data"] = SerializeData(t);
 
-	node["type"] = type;
+	node["type"] = TypeToString(type);
 }
 
 std::string MapLayer::SerializeData(MapLayer::DataTypeExport t) const
@@ -267,10 +267,10 @@ std::string MapLayer::ToString() const
 
 MapLayer::Type MapLayer::StringToType(const std::string& s)
 {
-	if (s.compare("tile")) {
+	if (s.compare("tile") == 0) {
 		return MapLayer::Type::TILE;
 	}
-	else if (s.compare("object")) {
+	else if (s.compare("object") == 0) {
 		return MapLayer::Type::OBJECT;
 	}
 	return MapLayer::Type::NONE;
