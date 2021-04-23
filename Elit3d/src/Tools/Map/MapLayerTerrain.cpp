@@ -35,8 +35,8 @@ MapLayerTerrain::MapLayerTerrain(r1Map* map) : MapLayer(MapLayer::Type::OBJECT, 
 MapLayerTerrain::~MapLayerTerrain()
 {
 	App->objects->DeleteObject(root);
-	if (tile_data)
-		delete[] tile_data;
+	if (data)
+		delete[] data;
 }
 
 void MapLayerTerrain::Draw(const int2& size, int tile_width, int tile_height) const
@@ -48,16 +48,16 @@ void MapLayerTerrain::Draw(const int2& size, int tile_width, int tile_height) co
 	if (root != nullptr)
 		root->Update();
 
-	if (tile_data == nullptr)
+	if (data == nullptr)
 		return;
 
 	r1Tileset3d* tileset = App->gui->objects->tileset;
 	for (int i = size.x * size.y - 1; i >= 0; --i) {
-		if (tile_data[i] == 0U)
+		if (data[i] == 0U)
 			continue;
-		if (tile_data[i] > tileset->tiles.size())
+		if (data[i] > tileset->tiles.size()) //TODO: draw red cube
 			continue;
-		const r1Tileset3d::Tile3d* tile = tileset->tiles[tile_data[i] - 1];
+		const r1Tileset3d::Tile3d* tile = tileset->tiles[data[i] - 1];
 		Resource* obj = (Resource*)App->resources->Get(tile->uidObject);
 		if (obj == nullptr)
 			continue;
@@ -98,75 +98,23 @@ void MapLayerTerrain::Reset(const int2& size)
 		App->objects->DeleteObject(root);
 	root = App->objects->CreateEmptyObject();
 
-	if (tile_data != nullptr)
-		delete[] tile_data;
-	tile_data = new TILE_DATA_TYPE[size.x * size.y];
-	memset(tile_data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
+	if (data != nullptr)
+		delete[] data;
+	data = new TILE_DATA_TYPE[size.x * size.y];
+	memset(data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
 }
 
-void MapLayerTerrain::Resize(const int2& oldSize, const int2& newSize)
+void MapLayerTerrain::Parse(pugi::xml_node& node, MapLayer::DataTypeExport t) const
 {
-	TILE_DATA_TYPE* new_data = new TILE_DATA_TYPE[newSize.x * newSize.y];
-	memset(new_data, 0, sizeof(TILE_DATA_TYPE) * newSize.x * newSize.y);
+	MapLayer::Parse(node, t);
 
-	for (int i = 0; i < oldSize.x * oldSize.y; ++i) {
-		int2 colrow = int2(i % oldSize.x, (i / oldSize.x));
-		if (colrow.x < newSize.x && colrow.y < newSize.y) {
-			int new_index = (colrow.x + newSize.x * colrow.y);
-			int old_index = (colrow.x + oldSize.x * colrow.y);
-			new_data[new_index] = tile_data[old_index];
-		}
-	}
 
-	delete[] tile_data;
-	tile_data = new_data;
 }
 
-std::string MapLayerTerrain::Parse(int sizeX, int sizeY, DataTypeExport d) const
+void MapLayerTerrain::Parse(nlohmann::json& node, MapLayer::DataTypeExport t) const
 {
-	std::string ret;
-
-	if (d != MapLayer::DataTypeExport::CSV_NO_NEWLINE)
-		ret = '\n';
-
-	for (int i = sizeY - 1; i >= 0; --i) {
-		for (int j = 0; j < sizeX; ++j) {
-			ret.append(std::to_string(tile_data[i * sizeX + j]) + ','); // TODO: encode 4 bytes array
-		}
-
-		if (i == 0)
-			ret.pop_back();
-		if (d != MapLayer::DataTypeExport::CSV_NO_NEWLINE)
-			ret += '\n';
-	}
-
-	switch (d)
-	{
-	case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
-		ret = base64_encode(ret);
-		break;
-	case MapLayer::DataTypeExport::BASE64_ZLIB:
-		ret = compress_string(ret);
-		ret = base64_encode(ret);
-		break;
-	default:
-		break;
-	}
-
-	return ret;
-}
-
-nlohmann::json MapLayerTerrain::Parse(int sizeX, int sizeY) const
-{
-	nlohmann::json ret;
-
-	for (int i = sizeY - 1; i >= 0; --i) {
-		for (int j = 0; j < sizeX; ++j) {
-			ret.push_back(tile_data[i * sizeX + j]); // TODO: encode 4 bytes array
-		}
-	}
-
-	return ret;
+	MapLayer::Parse(node, t);
+	node["root"] = root->Parse();
 }
 
 aiNode* MapLayerTerrain::Parse(std::vector<aiMesh*>& meshes) const
@@ -218,51 +166,13 @@ aiNode* MapLayerTerrain::Parse(std::vector<aiMesh*>& meshes) const
 	return ret;
 }
 
-void MapLayerTerrain::Unparse(int sizeX, int sizeY, const std::string& raw_data)
+void MapLayerTerrain::Unparse(const pugi::xml_node& node)
 {
-	std::string data = decompress_string(base64_decode(raw_data));
-	auto i = data.begin();
-	if (*i == '\n')
-		++i;
-	int x = 0;
-	int y = sizeY - 1;
-	while (i != data.end()) {
-		std::string n;
-		while (i != data.end() && *i != ',') {
-			if (*i == '\n' && (i + 1) != data.end()) { // Weird way to load cause the origin on textures is Bottom-Left and not Top-Left. TODO?
-				x = 0;
-				--y;
-				break;
-			}
-			n += *i;
-			i++;
-		}
-		if (!n.empty()) {
-			tile_data[sizeX * y + x] = (TILE_DATA_TYPE)std::stoul(n);
-			++x;
-		}
-		if (i != data.end())
-			i++;
-	}
 }
 
-nlohmann::json MapLayerTerrain::Serialize(const int2& size) const
+void MapLayerTerrain::Unparse(const nlohmann::json& node)
 {
-	nlohmann::json lay = MapLayer::Serialize(size);
+	MapLayer::Unparse(node);
 
-	lay["root"] = root->Parse();
-
-	lay["encoding"] = "base64-zlib";
-	lay["data"] = Parse(size.x, size.y, MapLayer::DataTypeExport::BASE64_ZLIB);
-
-	return lay;
+	root->Unparse(node["root"]);
 }
-
-void MapLayerTerrain::Deserialize(const nlohmann::json& json, const int2& size)
-{
-	MapLayer::Deserialize(json, size);
-
-	root->Unparse(json["root"]);
-	Unparse(size.x, size.y, json.value("data", "0")/*TODO: unparse type (csv, base64, zlib...)*/);
-}
-

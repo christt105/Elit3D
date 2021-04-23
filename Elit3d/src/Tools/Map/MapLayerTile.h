@@ -14,17 +14,12 @@ public:
 
     void SelectTex() const;
 
-    std::string     Parse(int sizeX, int sizeY, DataTypeExport d) const override;
-    nlohmann::json  Parse(int sizeX, int sizeY) const override;
-    aiNode*         Parse(std::vector<aiMesh*>& meshes) const override;
-    void Unparse(int sizeX, int sizeY, const std::string& data) override;
+    aiNode* Parse(std::vector<aiMesh*>& meshes) const override;
 
-    nlohmann::json  Serialize(const int2& size) const override;
-    void            Deserialize(const nlohmann::json& json, const int2& size) override;
+    void Unparse(const pugi::xml_node& node) override;
+    void Unparse(const nlohmann::json& node) override;
 
 public:
-    TILE_DATA_TYPE* tile_data = nullptr;
-
     unsigned int id_tex = 0u;
 };
 

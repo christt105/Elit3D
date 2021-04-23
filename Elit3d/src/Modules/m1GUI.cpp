@@ -180,7 +180,7 @@ void m1GUI::MainMenuBar()
 			if (ImGui::BeginMenu("JSON")) {
 				if (ImGui::MenuItem("CSV")) {
 					auto e = new m1Events::Event(m1Events::Event::Type::EXPORT_MAP, (int)m1MapEditor::MapTypeExport::JSON);
-					e->info["datatype"] = new iTypeVar((int)MapLayer::DataTypeExport::CSV);
+					e->info["datatype"] = new iTypeVar((int)MapLayer::DataTypeExport::CSV_NO_NEWLINE);
 					App->events->AddEvent(e);
 				}
 				if (ImGui::MenuItem("Base64 no compression")) {

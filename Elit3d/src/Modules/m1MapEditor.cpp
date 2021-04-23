@@ -224,12 +224,12 @@ void m1MapEditor::MouseTileTerrain(r1Map* m, const int2& tile, MapLayerTerrain* 
 		switch (panel_tools->GetSelectedTool())
 		{
 		case p1Tools::Tools::ERASER: {
-			layer->tile_data[m->size.x * tile.x + tile.y] = 0ULL;
+			layer->data[m->size.x * tile.x + tile.y] = 0ULL;
 			break;
 		}
 		default:
 			if (int obj = App->gui->objects->selected + 1;  obj != 0) {
-				layer->tile_data[m->size.x * tile.x + tile.y] = obj;
+				layer->data[m->size.x * tile.x + tile.y] = obj;
 			}
 			break;
 		}
@@ -307,10 +307,10 @@ void m1MapEditor::MouseTile(r1Map* m, MapLayerTile* layer, const int2& tile)
 		case p1Tools::Tools::EYEDROPPER:
 			if (App->input->IsMouseButtonUp(1)) {
 				for (auto i = m->layers.rbegin(); i != m->layers.rend(); ++i) {
-					if ((*i)->type != MapLayer::Type::TILE || !(*i)->visible || ((MapLayerTile*)(*i))->tile_data[m->size.x * tile.x + tile.y] == 0)
+					if ((*i)->type != MapLayer::Type::TILE || !(*i)->visible || ((MapLayerTile*)(*i))->data[m->size.x * tile.x + tile.y] == 0)
 						continue;
 
-					panel_tileset->SetTileIDSelected(((MapLayerTile*)(*i))->tile_data[m->size.x * tile.x + tile.y]);
+					panel_tileset->SetTileIDSelected(((MapLayerTile*)(*i))->data[m->size.x * tile.x + tile.y]);
 					break;
 				}
 			}
