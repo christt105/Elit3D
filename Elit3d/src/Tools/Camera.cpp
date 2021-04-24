@@ -5,6 +5,8 @@
 
 #include "ExternalTools/MathGeoLib/include/Math/Quat.h"
 
+#include "Modules/m1GUI.h"
+
 #include "ExternalTools/ImGui/imgui.h"
 #include "Tools/System/Logger.h"
 
@@ -121,8 +123,9 @@ void Camera::Zoom(float value) {
 
 void Camera::ImGuiControl()
 {
-#define ORANGE ImVec4(0.f,1.f,0.f,1.f)
-	ImGui::Text("Camera Position: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", frustum.Pos().ToString().c_str());
+	ImGui::Text("Camera Position: ");
+	if (float3 pos = frustum.Pos(); ImGui::DragFloat3("##position", pos.ptr()))
+		frustum.SetPos(pos);
 	ImGui::Text("Camera Front Axis: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", frustum.Front().ToString().c_str());
 	ImGui::Text("Camera Up Axis: "); ImGui::SameLine(); ImGui::TextColored(ORANGE, "%s", frustum.Up().ToString().c_str());
 	ImGui::SliderFloat("Pan Speed", &pan_speed, 0.1f, 2.f);
