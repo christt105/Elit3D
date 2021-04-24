@@ -1,6 +1,6 @@
-# Elit3D
+# Elit3D [![GitHub license](https://img.shields.io/github/license/christt105/Elit3D)](https://github.com/christt105/Elit3D/blob/master/LICENSE)
 
-[![GitHub license](https://img.shields.io/github/license/christt105/Elit3D)](https://github.com/christt105/Elit3D/blob/master/LICENSE)
+![Overview](https://raw.githubusercontent.com/christt105/Elit3D/main/docs/images/overview.png)
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/christt105/Elit3D)
 ![GitHub Release Date](https://img.shields.io/github/release-date/christt105/Elit3D)
