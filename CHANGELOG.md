@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.0] - 2021-04-24
+### Added
+* Camera
+	* Orthographic perspective
+	* Buttons to set top and front view
+	* Fit on map
+	* Panel configuration
+
+### Changed
+* Name from MapTileEditor3D to Elit3D
+* Merge Terrain and Object layers
+
 ## [0.4.1] - 2021-04-14
 ### Added
 * Object Editor
