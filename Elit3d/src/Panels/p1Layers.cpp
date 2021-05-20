@@ -187,7 +187,7 @@ void p1Layers::SetSelected(int i)
 {
 	selected = i;
 	
-	if (std::vector<MapLayer*>* layers; App->map_editor->GetLayers(layers)) {
+	if (std::vector<MapLayer*>* layers; App->map_editor->GetLayers(layers) && !layers->empty()) {
 		MapLayer* layer = (*layers)[i];
 		App->gui->inspector->SetSelected(layer, p1Inspector::SelectedType::LAYER);
 		if (layer->type == MapLayer::Type::OBJECT) {

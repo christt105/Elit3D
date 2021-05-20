@@ -95,7 +95,7 @@ void r1Tileset::Parse(pugi::xml_node& node) const
 	node.append_attribute("ntiles").set_value(ntiles);
 	node.append_attribute("columns").set_value(columns);
 
-	node.append_child("image").append_attribute("src").set_value(path.c_str());
+	node.append_child("image").append_attribute("src").set_value(path.c_str());//TODO image!!!!
 }
 
 void r1Tileset::Parse(nlohmann::json& node) const
@@ -108,7 +108,7 @@ void r1Tileset::Parse(nlohmann::json& node) const
 	node["ntiles"] = ntiles;
 	node["columns"] = columns;
 
-	node["image"] = path;
+	node["image"] = path;//TODO image!!!!
 }
 
 uint64_t r1Tileset::GetTextureUID() const

@@ -49,7 +49,7 @@ protected:
 	virtual void LoadVars() {}
 	virtual void Unload() {}
 
-	Uint64 uid = 0ULL;
+	uint64_t uid = 0ULL;
 	Type type = Type::NONE;
 
 	unsigned int references = 0u;
