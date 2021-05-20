@@ -95,7 +95,10 @@ void r1Tileset::Parse(pugi::xml_node& node) const
 	node.append_attribute("ntiles").set_value(ntiles);
 	node.append_attribute("columns").set_value(columns);
 
-	node.append_child("image").append_attribute("src").set_value(path.c_str());//TODO image!!!!
+	if (Resource* tex = App->resources->Get(texture_uid); tex != nullptr)
+		node.append_child("image").append_attribute("src").set_value(path.c_str());
+	else
+		node.append_child("image").append_attribute("src").set_value("unknown");
 }
 
 void r1Tileset::Parse(nlohmann::json& node) const
@@ -108,7 +111,10 @@ void r1Tileset::Parse(nlohmann::json& node) const
 	node["ntiles"] = ntiles;
 	node["columns"] = columns;
 
-	node["image"] = path;//TODO image!!!!
+	if (Resource* tex = App->resources->Get(texture_uid); tex != nullptr)
+		node["image"] = tex->path;
+	else
+		node["image"] = "unknown";
 }
 
 uint64_t r1Tileset::GetTextureUID() const
