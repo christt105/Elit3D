@@ -1,7 +1,7 @@
 {
     "App": {
         "name": "Elit3d",
-        "version": "0.5.0"
+        "version": "0.6.0"
     },
     "Camera3D": {
         "FOV": 60.0,
