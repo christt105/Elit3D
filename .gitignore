@@ -9,3 +9,5 @@ test/Export/
 *.sln
 *.vcxproj
 *.filters
+example/Example/x64
+example/x64

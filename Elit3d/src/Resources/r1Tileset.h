@@ -1,5 +1,12 @@
 #pragma once
 #include "Resources/Base/Resource.h"
+
+#include "ExternalTools/JSON/json.hpp"
+
+namespace pugi {
+	class xml_node;
+}
+
 class r1Tileset :
 	public Resource
 {
@@ -18,6 +25,9 @@ public:
 	int GetSpacing() const;
 	int GetNTiles() const;
 	int GetColumns() const;
+
+	void Parse(pugi::xml_node& node) const;
+	void Parse(nlohmann::json& node) const;
 	
 	uint64_t GetTextureUID() const;
 

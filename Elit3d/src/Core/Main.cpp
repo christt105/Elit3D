@@ -20,7 +20,7 @@ Application* App = nullptr;
 
 int main(int argc, char* argv[]) {
 
-    LOGN("Starting Program...");
+    LOGN("Starting Program...")
 
     int flag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
     flag |= _CRTDBG_LEAK_CHECK_DF;
@@ -32,17 +32,17 @@ int main(int argc, char* argv[]) {
         switch (mainState)
         {
         case MainState::CREATION:
-            LOGN("Application Creation");
+            LOGN("Application Creation")
             App = new Application();
             mainState = MainState::INIT;
             break;
         case MainState::INIT:
-            LOGN("Application Init");
+            LOGN("Application Init")
             if (App->Init()) {
                 mainState = MainState::START;
             }
             else {
-                LOGNE("Application Init() failed, exiting with error");
+                LOGNE("Application Init() failed, exiting with error")
                 mainState = MainState::EXIT_ERROR;
             }
             break;
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
                 mainState = MainState::UPDATE;
             }
             else {
-                LOGNE("Application Start() failed, exiting with error");
+                LOGNE("Application Start() failed, exiting with error")
                 mainState = MainState::EXIT_ERROR;
             }
             break;
@@ -65,29 +65,26 @@ int main(int argc, char* argv[]) {
             case UpdateStatus::UPDATE_ERROR:
                 mainState = MainState::EXIT_ERROR;
                 break;
-            default:
-                break;
             }
             break;
         case MainState::FINISH:
-            LOGN("Application CleanUp");
+            LOGN("Application CleanUp")
             if (App->CleanUp()) {
                 mainState = MainState::EXIT;
             }
             else {
-                LOGNE("Application CleanUp() failed, exiting with error");
+                LOGNE("Application CleanUp() failed, exiting with error")
                 mainState = MainState::EXIT_ERROR;
             }
-
             break;
         case MainState::EXIT:
             Logger::ExportLog();
-            LOGN("Closing program... Bye :)");
+            LOGN("Closing program... Bye :)")
             running = false;
             break;
         case MainState::EXIT_ERROR:
             Logger::ExportLog();
-            LOGN("Exiting with errors :(");
+            LOGN("Exiting with errors :(")
             running = false;
             break;
         default:

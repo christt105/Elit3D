@@ -25,8 +25,8 @@ MapLayerTile::MapLayerTile(r1Map* map) : MapLayer(MapLayer::Type::TILE, map)
 
 MapLayerTile::~MapLayerTile()
 {
-	if (tile_data) {
-		delete[] tile_data;
+	if (data) {
+		delete[] data;
 		oglh::DeleteTexture(id_tex);
 	}
 }
@@ -43,10 +43,10 @@ void MapLayerTile::Draw(const int2& size, int tile_width, int tile_height) const
 
 void MapLayerTile::Reset(const int2& size)
 {
-	if (tile_data != nullptr)
-		delete[] tile_data;
-	tile_data = new TILE_DATA_TYPE[size.x * size.y];
-	memset(tile_data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
+	if (data != nullptr)
+		delete[] data;
+	data = new TILE_DATA_TYPE[size.x * size.y];
+	memset(data, 0, sizeof(TILE_DATA_TYPE) * size.x * size.y);
 
 	unsigned char* tex = new unsigned char[size.x * size.y * 3];
 	memset(tex, 0, sizeof(unsigned char) * size.x * size.y * 3);
@@ -58,34 +58,19 @@ void MapLayerTile::Reset(const int2& size)
 
 void MapLayerTile::Resize(const int2& oldSize, const int2& newSize)
 {
-	TILE_DATA_TYPE* new_data = new TILE_DATA_TYPE[newSize.x * newSize.y];
-	memset(new_data, 0, sizeof(TILE_DATA_TYPE) * newSize.x * newSize.y);
-
-	{
-		PROFILE_SECTION("Copy data");
-		for (int i = 0; i < oldSize.x * oldSize.y; ++i) {
-			int2 colrow = int2(i % oldSize.x, (i / oldSize.x));
-			if (colrow.x < newSize.x && colrow.y < newSize.y) {
-				int new_index = (colrow.x + newSize.x * colrow.y);
-				int old_index = (colrow.x + oldSize.x * colrow.y);
-				new_data[new_index] = tile_data[old_index];
-			}
-		}
-	}
+	MapLayer::Resize(oldSize, newSize);
 
 	{
 		PROFILE_SECTION("Gen Texture");
-		delete[] tile_data;
-		tile_data = new_data;
 
 		unsigned char* tex = new unsigned char[newSize.x * newSize.y * 3];
 		memset(tex, 0, sizeof(unsigned char) * newSize.x * newSize.y * 3);
 
 		for (auto i = 0; i < newSize.x * newSize.y; ++i) {
-			if (new_data[i] != 0) {
-				tex[i * 3] = (unsigned char)(new_data[i] / UCHAR_MAX);
+			if (data[i] != 0) {
+				tex[i * 3] = (unsigned char)(data[i] / UCHAR_MAX);
 				tex[i * 3 + 1] = 0;
-				tex[i * 3 + 2] = (unsigned char)(new_data[i] % UCHAR_MAX);
+				tex[i * 3 + 2] = (unsigned char)(data[i] % UCHAR_MAX);
 			}
 		}
 
@@ -98,53 +83,6 @@ void MapLayerTile::Resize(const int2& oldSize, const int2& newSize)
 void MapLayerTile::SelectTex() const
 {
 	oglh::BindTexture(id_tex);
-}
-
-std::string MapLayerTile::Parse(int sizeX, int sizeY, DataTypeExport d) const
-{
-	std::string ret;
-
-	if (d != MapLayer::DataTypeExport::CSV_NO_NEWLINE)
-		ret = '\n';
-
-	for (int i = sizeY - 1; i >= 0; --i) {
-		for (int j = 0; j < sizeX; ++j) {
-				ret.append(std::to_string(tile_data[i * sizeX + j]) + ','); // TODO: encode 4 bytes array
-		}
-
-		if (i == 0)
-			ret.pop_back();
-		if (d != MapLayer::DataTypeExport::CSV_NO_NEWLINE)
-			ret += '\n';
-	}
-
-	switch (d)
-	{
-	case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
-		ret = base64_encode(ret);
-		break;
-	case MapLayer::DataTypeExport::BASE64_ZLIB:
-		ret = compress_string(ret);
-		ret = base64_encode(ret);
-		break;
-	default:
-		break;
-	}
-
-	return ret;
-}
-
-nlohmann::json MapLayerTile::Parse(int sizeX, int sizeY) const
-{
-	nlohmann::json ret;
-
-	for (int i = sizeY - 1; i >= 0; --i) {
-		for (int j = 0; j < sizeX; ++j) {
-			ret.push_back(tile_data[i * sizeX + j]); // TODO: encode 4 bytes array
-		}
-	}
-
-	return ret;
 }
 
 aiNode* MapLayerTile::Parse(std::vector<aiMesh*>& meshes) const
@@ -180,58 +118,23 @@ aiNode* MapLayerTile::Parse(std::vector<aiMesh*>& meshes) const
 	return ret;
 }
 
-void MapLayerTile::Unparse(int sizeX, int sizeY, const std::string& raw_data)
+void MapLayerTile::Unparse(const pugi::xml_node& node)
 {
-	std::string data = decompress_string(base64_decode(raw_data));
-	auto i = data.begin();
-	if (*i == '\n')
-		++i;
-	int x = 0;
-	int y = sizeY - 1;
-	while (i != data.end()) {
-		std::string n;
-		while (i != data.end() && *i != ',') {
-			if (*i == '\n' && (i + 1) != data.end()) { // Weird way to load cause the origin on textures is Bottom-Left and not Top-Left. TODO?
-				x = 0;
-				--y;
-				break;
-			}
-			n += *i;
-			i++;
-		}
-		if (!n.empty()) {
-			tile_data[sizeX * y + x] = (TILE_DATA_TYPE)std::stoul(n);
-			++x;
-		}
-		if (i != data.end())
-			i++;
-	}
 }
 
-nlohmann::json MapLayerTile::Serialize(const int2& size) const
+void MapLayerTile::Unparse(const nlohmann::json& node)
 {
-	nlohmann::json lay = MapLayer::Serialize(size);
+	MapLayer::Unparse(node);
 
-	lay["encoding"] = "base64-zlib";
-	lay["data"] = Parse(size.x, size.y, MapLayer::DataTypeExport::BASE64_ZLIB);
-
-	return lay;
-}
-
-void MapLayerTile::Deserialize(const nlohmann::json& json, const int2& size)
-{
-	MapLayer::Deserialize(json, size);
-
-	Unparse(size.x, size.y, json.value("data", "0")/*TODO: unparse type (csv, base64, zlib...)*/);
-
+	int2 size = map->GetSize();
 	unsigned char* tex_data = new unsigned char[size.x * size.y * 3];
 	memset(tex_data, 254, sizeof(unsigned char) * size.x * size.y * 3);
 
 	for (int i = 0; i < size.x * size.y; ++i) {
-		if (tile_data[i] != 0) {
-			tex_data[i * 3] = (unsigned char)(tile_data[i] / UCHAR_MAX);
+		if (data[i] != 0) {
+			tex_data[i * 3] = (unsigned char)(data[i] / UCHAR_MAX);
 			tex_data[i * 3 + 1] = 0;
-			tex_data[i * 3 + 2] = (unsigned char)(tile_data[i] % UCHAR_MAX);
+			tex_data[i * 3 + 2] = (unsigned char)(data[i] % UCHAR_MAX);
 		}
 	}
 

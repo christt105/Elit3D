@@ -58,7 +58,7 @@ void main()
 
         //Calculate the pixel of the tile we want to paint
         vec2 pixel = TexCoord * ntilesMap;
-        vec2 tilePos = pixel - floor(pixel);
+        vec2 tilePos = fract(pixel);
 
         //Calculate the position of the atlas
         vec2 atlasPos = (tilePos + colRow.xy) / ntilesAtlas;

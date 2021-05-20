@@ -99,9 +99,15 @@ void p1Objects::ModalEditTileset()
 					ImGui::Text("Unknown");
 				}
 
-				ImGui::NewLine();
+				if (ImGui::Button("Delete")) {
+					tileset->tiles.erase(tileset->tiles.begin() + selected); //TODO: Destroy from memory
+					delete t;
+					selected = -1;
+				}
 
-				t->transform.OnInspector();
+				ImGui::NewLine();
+				if (selected != -1)
+					t->transform.OnInspector();
 
 				ImGui::EndChild();
 			}

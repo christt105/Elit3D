@@ -224,12 +224,12 @@ void m1MapEditor::MouseTileTerrain(r1Map* m, const int2& tile, MapLayerTerrain* 
 		switch (panel_tools->GetSelectedTool())
 		{
 		case p1Tools::Tools::ERASER: {
-			layer->tile_data[m->size.x * tile.x + tile.y] = 0ULL;
+			layer->data[m->size.x * tile.x + tile.y] = 0ULL;
 			break;
 		}
 		default:
 			if (int obj = App->gui->objects->selected + 1;  obj != 0) {
-				layer->tile_data[m->size.x * tile.x + tile.y] = obj;
+				layer->data[m->size.x * tile.x + tile.y] = obj;
 			}
 			break;
 		}
@@ -255,7 +255,7 @@ void m1MapEditor::MouseTile(r1Map* m, MapLayerTile* layer, const int2& tile)
 	//if (tool != p1Tools::Tools::BUCKET) { TODO: Fix
 	shader->SetMat4("model",
 		float4x4::FromTRS(
-			float3(tile.y - brushSize + 1 + brushSize / 2, layer->height, tile.x - brushSize + 1 + brushSize / 2),
+			float3(tile.y - brushSize + 1 + brushSize / 2, layer->height + 0.0001f, tile.x - brushSize + 1 + brushSize / 2),
 			Quat::identity,
 			float3(brushSize, 1.f, brushSize)));
 	/*}
@@ -307,10 +307,10 @@ void m1MapEditor::MouseTile(r1Map* m, MapLayerTile* layer, const int2& tile)
 		case p1Tools::Tools::EYEDROPPER:
 			if (App->input->IsMouseButtonUp(1)) {
 				for (auto i = m->layers.rbegin(); i != m->layers.rend(); ++i) {
-					if ((*i)->type != MapLayer::Type::TILE || !(*i)->visible || ((MapLayerTile*)(*i))->tile_data[m->size.x * tile.x + tile.y] == 0)
+					if ((*i)->type != MapLayer::Type::TILE || !(*i)->visible || ((MapLayerTile*)(*i))->data[m->size.x * tile.x + tile.y] == 0)
 						continue;
 
-					panel_tileset->SetTileIDSelected(((MapLayerTile*)(*i))->tile_data[m->size.x * tile.x + tile.y]);
+					panel_tileset->SetTileIDSelected(((MapLayerTile*)(*i))->data[m->size.x * tile.x + tile.y]);
 					break;
 				}
 			}
@@ -378,8 +378,8 @@ int2 m1MapEditor::GetMapSize() const
 void m1MapEditor::ReorderLayers() const
 {
 	auto m = (r1Map*)App->resources->Get(map);
-	if (m != nullptr)
-		std::sort(m->layers.begin(), m->layers.end(), MapLayer::HeightOrder);
+	/*if (m != nullptr)
+		std::sort(m->layers.begin(), m->layers.end(), MapLayer::HeightOrder);*/
 }
 
 MapLayer* m1MapEditor::AddLayer(MapLayer::Type t)

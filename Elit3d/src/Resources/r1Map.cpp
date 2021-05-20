@@ -9,12 +9,15 @@
 #include "Core/Application.h"
 #include "Modules/m1GUI.h"
 #include "Panels/p1Tileset.h"
+#include "Panels/p1Objects.h"
 #include "Panels/p1Layers.h"
 #include "Modules/m1Resources.h"
 #include "Resources/r1Tileset.h"
+#include "Resources/r1Tileset3d.h"
 
 #include "Tools/Map/MapLayer.h"
 #include "Tools/Map/MapLayerTile.h"
+#include "Tools/Map/MapLayerTerrain.h"
 #include "Objects/Object.h"
 
 #include "ExternalTools/DevIL/include/IL/il.h"
@@ -52,7 +55,9 @@ void r1Map::Save(const uint64_t& tileset)
 		properties.SaveProperties(file["properties"]);
 
 		for (auto l = layers.begin(); l != layers.end(); ++l) {
-			file["layers"].push_back((*l)->Serialize({ size.x, size.y }));
+			auto layer = nlohmann::json();
+			(*l)->Parse(layer, MapLayer::DataTypeExport::BASE64_ZLIB, false);
+			file["layers"].push_back(layer);
 		}
 
 		FileSystem::SaveJSONFile(path.c_str(), file);
@@ -86,45 +91,35 @@ void r1Map::ExportJSON(const uint64_t& tileset, MapLayer::DataTypeExport d)
 
 	file["size"] = { size.x, size.y };
 	file["version"] = App->GetVersion();
-	auto image = App->resources->Get(tileset);
-	if (image != nullptr)
-		file["tileset"] = image->path; //TODO: object tileset. All info of tileset binded on map file exported
+	
+	if (auto tile = (r1Tileset*)App->resources->Get(tileset); tile != nullptr)
+		tile->Parse(file["tileset"]);
+
+	App->gui->objects->tileset->Parse(file["tileset3D"]);
+
+	/*std::vector<uint64_t> usedObjects;
+	for (auto& l : layers) {
+		if (l->type != MapLayer::Type::OBJECT)
+			continue;
+
+		MapLayerTerrain* lay = (MapLayerTerrain*)l;
+		lay->root->GetUsedObjects(usedObjects);
+	}
+
+	for (auto o : usedObjects) {
+		if (auto res = App->resources->Get(o); res != nullptr) {
+			file["objects"].push_back(res->path);
+		}
+	}*/
 
 	properties.SaveProperties(file["properties"]);
 
-	for (auto l = layers.begin(); l != layers.end(); ++l) {
+	for (auto l = layers.rbegin(); l != layers.rend(); ++l) {
 		nlohmann::json lay = nlohmann::json::object();
+		(*l)->Parse(lay, d, true);
 
-		(*l)->properties.SaveProperties(lay["properties"]);
-
-		lay["name"] = (*l)->GetName();
-		lay["height"] = (*l)->height;
-		lay["opacity"] = (*l)->opacity;
-		lay["visible"] = (*l)->visible;
-		lay["locked"] = (*l)->locked;
-		lay["displacement"] = { (*l)->displacement[0], (*l)->displacement[1] };
-
-		lay["type"] = MapLayer::TypeToString((*l)->type);
-
-		switch (d)
-		{
-		case MapLayer::DataTypeExport::CSV:
-		case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
-			lay["encoding"] = "csv";
-			lay["data"] = (*l)->Parse(size.x, size.y);
-			break;
-		case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
-			lay["encoding"] = "base64";
-			lay["data"] = (*l)->Parse(size.x, size.y, d);
-			break;
-		case MapLayer::DataTypeExport::BASE64_ZLIB:
-			lay["encoding"] = "base64-zlib";
-			lay["data"] = (*l)->Parse(size.x, size.y, d);
-			break;
-		default:
-			break;
-		}
-		break;
+		/*if ((*l)->type == MapLayer::Type::OBJECT)
+			((MapLayerTerrain*)(*l))->AddObjects(lay["objects"], usedObjects);*/
 
 		file["layers"].push_back(lay);
 	}
@@ -141,58 +136,37 @@ void r1Map::ExportXML(const uint64_t& tileset, MapLayer::DataTypeExport d)
 	map.append_attribute("height").set_value(size.y);
 	map.append_attribute("version").set_value(App->GetVersion());
 
-	pugi::xml_node ntileset = map.append_child("tileset");
-	auto tile = (r1Tileset*)App->resources->Get(tileset);
-	if (tile != nullptr) {
-		ntileset.append_attribute("name").set_value(tile->name.c_str());
-		ntileset.append_attribute("tilewidth").set_value(tile->GetWidth());
-		ntileset.append_attribute("tileheight").set_value(tile->GetHeight());
-		ntileset.append_attribute("spacing").set_value(tile->GetSpacing());
-		ntileset.append_attribute("margin").set_value(tile->GetMargin());
-		ntileset.append_attribute("ntiles").set_value(tile->GetNTiles());
-		ntileset.append_attribute("columns").set_value(tile->GetColumns());
-
-		ntileset.append_child("image").append_attribute("src").set_value(tile->path.c_str());
+	if (auto tile = (r1Tileset*)App->resources->Get(tileset); tile != nullptr) {
+		tile->Parse(map.append_child("tileset"));
 	}
 
-	pugi::xml_node xmlproperties = map.append_child("properties");
-	properties.SaveProperties(xmlproperties);
+	App->gui->objects->tileset->Parse(map.append_child("tileset3D"));
 
-	for (auto l = layers.begin(); l != layers.end(); ++l) {
-		pugi::xml_node layer = map.append_child("layer");
+	/*std::vector<uint64_t> usedObjects;
+	for (auto& l : layers) {
+		if (l->type != MapLayer::Type::OBJECT)
+			continue;
 
-		xmlproperties = layer.append_child("properties");
-		(*l)->properties.SaveProperties(xmlproperties);
+		MapLayerTerrain* lay = (MapLayerTerrain*)l;
+		lay->root->GetUsedObjects(usedObjects);
+	}*/
 
-		layer.append_attribute("name").set_value((*l)->GetName());
-		layer.append_attribute("visible").set_value((*l)->visible);
-		layer.append_attribute("locked").set_value((*l)->locked);
-		layer.append_attribute("height").set_value((*l)->height);
-		layer.append_attribute("opacity").set_value((*l)->opacity);
-		layer.append_attribute("displacementx").set_value((*l)->displacement[0]);
-		layer.append_attribute("displacementy").set_value((*l)->displacement[1]);
-
-		layer.append_attribute("type").set_value(MapLayer::TypeToString((*l)->type).c_str());
-
-		auto data = layer.append_child("data");
-		auto encoding = data.append_attribute("encoding");
-		switch (d)
-		{
-		case MapLayer::DataTypeExport::CSV:
-		case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
-			encoding.set_value("csv");
-			break;
-		case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
-			encoding.set_value("base64");
-			break;
-		case MapLayer::DataTypeExport::BASE64_ZLIB:
-			encoding.set_value("base64-zlib");
-			break;
-		default:
-			break;
+	/*auto objects = map.append_child("objects");
+	for (auto o : usedObjects) {
+		if (auto res = App->resources->Get(o); res != nullptr) {
+			objects.append_child("objects").append_attribute("path").set_value(res->path.c_str());
 		}
+	}*/
 
-		data.append_child(pugi::node_pcdata).set_value((*l)->Parse(size.x, size.y, d).c_str());
+	properties.SaveProperties(map.append_child("properties"));
+
+	auto maplayers = map.append_child("layers");
+	for (auto l = layers.rbegin(); l != layers.rend(); ++l) {
+		auto xlayer = maplayers.append_child("layer");
+		(*l)->Parse(xlayer, d, true);
+
+		/*if ((*l)->type == MapLayer::Type::OBJECT)
+			((MapLayerTerrain*)(*l))->AddObjects(xlayer.append_child("objects"), usedObjects);*/
 	}
 
 	doc.save_file("Export/Test.xml");
@@ -227,7 +201,7 @@ void r1Map::ExportOBJ() const
 	//scene->mRootNode->mMeshes[0] = 0;
 
 	Assimp::Exporter exporter;
-	if (exporter.Export(scene.get(), "obj", "test.obj") != AI_SUCCESS)
+	if (exporter.Export(scene.get(), "obj", "Export/test.obj") != AI_SUCCESS)
 		LOGE(exporter.GetErrorString())
 
 		scene.release();
@@ -260,9 +234,9 @@ void r1Map::Load()
 	properties.LoadProperties(file["properties"]);
 
 	for (auto l = file["layers"].begin(); l != file["layers"].end(); ++l) {
-		MapLayer* layer = App->map_editor->AddLayer((*l).value("type", MapLayer::Type::TILE));
+		MapLayer* layer = App->map_editor->AddLayer(MapLayer::StringToType((*l).value("type", "tile")));
 		if (layer != nullptr)
-			layer->Deserialize(*l, size);
+			layer->Unparse(*l);
 	}
 
 	std::sort(layers.begin(), layers.end(), MapLayer::HeightOrder);
@@ -303,8 +277,8 @@ void r1Map::Edit(MapLayerTile* layer, int row, int col, int brushSize, p1Tools::
 				for (int j = (brushSize % 2 == 0) ? row - brushSize / 2 + 1 : row - brushSize / 2; j < row + brushSize / 2 + 1; ++j) {
 					if (i >= 0 && j >= 0 && i < size.x && j < size.y) {
 						int index = size.x * j + i;
-						if (index >= 0 && layer->tile_data[index] != id && index < size.x * size.y) {
-							layer->tile_data[index] = id;
+						if (index >= 0 && layer->data[index] != id && index < size.x * size.y) {
+							layer->data[index] = id;
 							oglh::TexSubImage2D(i, j, 1, 1, bits); //TODO: TexSubImage2d of all rectangle
 						}
 					}
@@ -323,8 +297,8 @@ void r1Map::Edit(MapLayerTile* layer, int row, int col, int brushSize, p1Tools::
 							((float)i - col) * ((float)i - col) + ((float)j - row) * ((float)j - row);
 						if (check <= r2) {
 							int index = size.x * j + i;
-							if (index >= 0 && layer->tile_data[index] != id && index < size.x * size.y) {
-								layer->tile_data[index] = id;
+							if (index >= 0 && layer->data[index] != id && index < size.x * size.y) {
+								layer->data[index] = id;
 								oglh::TexSubImage2D(i, j, 1, 1, bits); //TODO: TexSubImage2d of all rectangle
 							}
 						}
@@ -343,34 +317,34 @@ void r1Map::Edit(MapLayerTile* layer, int row, int col, int brushSize, p1Tools::
 		std::queue<std::pair<int, int>> queue;
 		visited[size.x * row + col] = true;
 		queue.push({col, row});
-		int baseIndex = layer->tile_data[size.x * row + col];
+		int baseIndex = layer->data[size.x * row + col];
 
 		while (!queue.empty()) {
 			auto t = queue.front(); queue.pop();
-			layer->tile_data[size.x * t.second + t.first] = id;
+			layer->data[size.x * t.second + t.first] = id;
 			oglh::TexSubImage2D(t.first, t.second, 1, 1, bits);
 			
 			if (t.first + 1 >= 0 && t.second >= 0 && t.first + 1 < size.x && t.second < size.y &&
 				!visited[size.x * t.second + t.first + 1] &&
-				layer->tile_data[size.x * t.second + t.first + 1] == baseIndex) {
+				layer->data[size.x * t.second + t.first + 1] == baseIndex) {
 				visited[size.x * t.second + t.first + 1] = true;
 				queue.push({ t.first + 1, t.second });
 			}
 			if (t.first - 1 >= 0 && t.second >= 0 && t.first - 1 < size.x && t.second < size.y &&
 				!visited[size.x * t.second + t.first - 1] &&
-				layer->tile_data[size.x * t.second + t.first - 1] == baseIndex) {
+				layer->data[size.x * t.second + t.first - 1] == baseIndex) {
 				visited[size.x * t.second + t.first - 1] = true;
 				queue.push({ t.first - 1, t.second });
 			}
 			if (t.first >= 0 && t.second + 1 >= 0 && t.first < size.x && t.second + 1 < size.y &&
 				!visited[size.x * (t.second + 1) + t.first] &&
-				layer->tile_data[size.x * (t.second + 1) + t.first] == baseIndex) {
+				layer->data[size.x * (t.second + 1) + t.first] == baseIndex) {
 				visited[size.x * (t.second + 1) + t.first] = true;
 				queue.push({ t.first, t.second + 1 });
 			}
 			if (t.first >= 0 && t.second - 1 >= 0 && t.first < size.x && t.second - 1 < size.y &&
 				!visited[size.x * (t.second - 1) + t.first] &&
-				layer->tile_data[size.x * (t.second - 1) + t.first] == baseIndex) {
+				layer->data[size.x * (t.second - 1) + t.first] == baseIndex) {
 				visited[size.x * (t.second - 1) + t.first] = true;
 				queue.push({ t.first, t.second - 1 });
 			}
@@ -395,13 +369,6 @@ void r1Map::CreateNewMap(int width, int height, const char* file)
 
 	map["size"] = { width, height };
 	map["properties"] = nlohmann::json::object();
-
-	nlohmann::json data = nlohmann::json::object();
-
-	MapLayerTile layer(nullptr);
-	layer.Reset({ width, height });	
-
-	map["layers"].push_back(layer.Serialize({ width, height }));
 
 	FileSystem::SaveJSONFile(file, map);
 }
