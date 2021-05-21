@@ -16,7 +16,7 @@ Elit3D is a tile-based map editor in 3D. Composed of several layers of tiles and
 
 ## Download
 
-<iframe frameborder="0" src="https://itch.io/embed/1050498?linkback=true&amp;border_width=0&amp;bg_color=222222&amp;fg_color=eeeeee&amp;link_color=20a446&amp;border_color=363636" width="550" height="165"><a href="https://christt105.itch.io/elit3d">Elit3D by christt105</a></iframe>
+Download the latest release on itch.io [christt105.itch.io/elit3d](https://christt105.itch.io/elit3d/purchase) naming your own price (including 0€) or on [releases section](https://github.com/christt105/Elit3D/releases/latest) on GitHub.
 
 ## Getting Started
 
