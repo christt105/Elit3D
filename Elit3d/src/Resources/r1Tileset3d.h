@@ -1,6 +1,7 @@
 #pragma once
 #include "Resources/Base/Resource.h"
 #include "Objects/Components/c1Transform.h"
+#include <ExternalTools/pugixml/pugixml.hpp>
 
 class r1Tileset3d :
     public Resource
@@ -19,6 +20,9 @@ public:
     void GenerateFiles() override;
     void Load() override;
     void LoadVars() override;
+
+    void Parse(pugi::xml_node& node) const;
+    void Parse(nlohmann::json& node) const;
 
     std::vector<Tile3d*> tiles;
 };

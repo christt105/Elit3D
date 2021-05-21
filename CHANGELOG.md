@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.0] - 2021-05-20
+### Added
+* Export
+	* Export all tiles of layer with CSV, Base64 or Base64 with zlib compression format
+	* Export tileset info
+	* Export tileset3D info
+	* Choose to export the map on a JSON or a XML file
+	* Begin of export in .obj format (WIP)
+
 ## [0.5.0] - 2021-04-24
 ### Added
 * Camera

@@ -4,6 +4,8 @@
 #include "Tools/FileSystem.h"
 #include "Resources/r1Texture.h"
 
+#include "ExternalTools/pugixml/pugixml.hpp"
+
 #include "Tools/System/Logger.h"
 
 #include "ExternalTools/mmgr/mmgr.h"
@@ -81,6 +83,38 @@ int r1Tileset::GetNTiles() const
 int r1Tileset::GetColumns() const
 {
 	return columns;
+}
+
+void r1Tileset::Parse(pugi::xml_node& node) const
+{
+	node.append_attribute("name").set_value(name.c_str());
+	node.append_attribute("tilewidth").set_value(width);
+	node.append_attribute("tileheight").set_value(height);
+	node.append_attribute("spacing").set_value(spacing);
+	node.append_attribute("margin").set_value(margin);
+	node.append_attribute("ntiles").set_value(ntiles);
+	node.append_attribute("columns").set_value(columns);
+
+	if (Resource* tex = App->resources->Get(texture_uid); tex != nullptr)
+		node.append_child("image").append_attribute("src").set_value(path.c_str());
+	else
+		node.append_child("image").append_attribute("src").set_value("unknown");
+}
+
+void r1Tileset::Parse(nlohmann::json& node) const
+{
+	node["name"] = name;
+	node["tilewidth"] = width;
+	node["tileheight"] = height;
+	node["spacing"] = spacing;
+	node["margin"] = margin;
+	node["ntiles"] = ntiles;
+	node["columns"] = columns;
+
+	if (Resource* tex = App->resources->Get(texture_uid); tex != nullptr)
+		node["image"] = tex->path;
+	else
+		node["image"] = "unknown";
 }
 
 uint64_t r1Tileset::GetTextureUID() const

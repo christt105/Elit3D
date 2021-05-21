@@ -30,11 +30,11 @@ public:
     Buffer<float> texture;
 };
 
-class MapLayer { //TODO: Inheritance 
+class MapLayer {
     friend class r1Map;
     friend class m1MapEditor;
     friend class p1Layers;
-    friend class p1Resources; //TODO HM
+
 public:
     enum class DataTypeExport {
         NONE = -1,
@@ -61,7 +61,7 @@ public:
 
     virtual void Draw(const int2& size, int tile_width, int tile_height) const = 0;
     virtual void Reset(const int2& size) = 0;
-    virtual void Resize(const int2& oldSize, const int2& newSize) {}
+    virtual void Resize(const int2& oldSize, const int2& newSize);
     
 
     static void SelectBuffers();
@@ -70,13 +70,15 @@ public:
 
     void OnInspector();
 
-    virtual std::string Parse(int sizeX, int sizeY, DataTypeExport d) const = 0;
-    virtual nlohmann::json Parse(int sizeX, int sizeY) const = 0;
+    virtual void Parse(pugi::xml_node& node, MapLayer::DataTypeExport type, bool exporting) const;
+    virtual void Parse(nlohmann::json& node, MapLayer::DataTypeExport type, bool exporting) const;
     virtual aiNode* Parse(std::vector<aiMesh*>& meshes) const { return nullptr; }
-    virtual void Unparse(int sizeX, int sizeY, const std::string& data) = 0;
+    
+    virtual void Unparse(const pugi::xml_node& node);
+    virtual void Unparse(const nlohmann::json& node);
 
-    virtual nlohmann::json Serialize(const int2& size) const;
-    virtual void           Deserialize(const nlohmann::json& json, const int2& size);
+    std::string SerializeData(MapLayer::DataTypeExport t) const;
+    void        DeserializeData(const std::string& strdata, MapLayer::DataTypeExport t) const;
 
     const char* GetName() const;
     void SetName(const char* n);
@@ -85,6 +87,9 @@ public:
     static std::string TypeToString(Type t);
     std::string ToString() const;
     static MapLayer::Type StringToType(const std::string& s);
+
+    static std::string DataTypeToString(DataTypeExport t);
+    static MapLayer::DataTypeExport StringToDataType(const std::string& s);
 
     static OpenGLBuffers tile;
 
@@ -100,5 +105,7 @@ public:
 
     r1Map* map = nullptr;
 
+    TILE_DATA_TYPE* data = nullptr;
+    
     const Type type = Type::TILE;
 };

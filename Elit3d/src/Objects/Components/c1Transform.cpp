@@ -4,6 +4,8 @@
 
 #include "Objects/Object.h"
 
+#include "ExternalTools/pugixml/pugixml.hpp"
+
 #include "ExternalTools/ImGui/imgui.h"
 
 c1Transform::c1Transform(Object* obj) : Component(obj, Type::Transform)
@@ -110,18 +112,7 @@ nlohmann::json c1Transform::Parse()
 {
 	nlohmann::json ret = Component::Parse();
 
-	ret["position"]["x"] = position.x;
-	ret["position"]["y"] = position.y;
-	ret["position"]["z"] = position.z;
-
-	ret["rotation"]["x"] = rotation.x;
-	ret["rotation"]["y"] = rotation.y;
-	ret["rotation"]["z"] = rotation.z;
-	ret["rotation"]["w"] = rotation.w;
-
-	ret["scale"]["x"] = scale.x;
-	ret["scale"]["y"] = scale.y;
-	ret["scale"]["z"] = scale.z;
+	Serialize(ret);
 
 	return ret;
 }
@@ -134,4 +125,39 @@ void c1Transform::Unparse(const nlohmann::json& node)
 	scale = { node["scale"].value("x", 0.f),node["scale"].value("y", 0.f), node["scale"].value("z", 0.f) };
 
 	CalculateGlobalMatrix();
+}
+
+void c1Transform::Serialize(nlohmann::json& node) const
+{
+	node["position"]["x"] = position.x;
+	node["position"]["y"] = position.y;
+	node["position"]["z"] = position.z;
+
+	node["rotation"]["x"] = rotation.x;
+	node["rotation"]["y"] = rotation.y;
+	node["rotation"]["z"] = rotation.z;
+	node["rotation"]["w"] = rotation.w;
+
+	node["scale"]["x"] = scale.x;
+	node["scale"]["y"] = scale.y;
+	node["scale"]["z"] = scale.z;
+}
+
+void c1Transform::Serialize(pugi::xml_node& node) const
+{
+	auto pos = node.append_child("position");
+	pos.append_attribute("x").set_value(position.x);
+	pos.append_attribute("y").set_value(position.y);
+	pos.append_attribute("z").set_value(position.z);
+
+	auto rot = node.append_child("rotation");
+	rot.append_attribute("x").set_value(rotation.x);
+	rot.append_attribute("y").set_value(rotation.y);
+	rot.append_attribute("z").set_value(rotation.z);
+	rot.append_attribute("w").set_value(rotation.w);
+
+	auto sc = node.append_child("scale");
+	sc.append_attribute("x").set_value(scale.x);
+	sc.append_attribute("y").set_value(scale.y);
+	sc.append_attribute("z").set_value(scale.z);
 }

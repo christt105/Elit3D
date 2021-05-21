@@ -1,7 +1,7 @@
 {
     "layers": [
         {
-            "data": "eNrVVbENwCAM231Lh1bqgP9/rBMSQkkpTSLCgMRgSIwdg7uUY8VCksKUgbya/TnGxDPmbyy+dc9NNNbkGBf2ZEhPxjQ3iSmmk841aMyMAUITHrEmYoLI7PwBeQbpayhhrhEVELv8TvVp6RQakebqPfAqA5XC7aF6oVVPxZyrNMYDcXrn1g==",
+            "data": "eNrVVUEOgCAMu/ctHjTxQP//MU4kxKBusuF2IOHQQNd1Hc5StigHgclwDOTR3fd3zD/K0BQLWZVM7Jm7Vn4jY6kEvZWhC3GoqjCYmAllmCX0aI6Hr1EZdB0I/IZxRtDWtMLcwcpQy7y1W1toFHSrDXz11GMLqSDTP9Q+mfWHYgAieQYVcDE5JQ==",
             "displacement": [
                 0,
                 0
@@ -12,11 +12,11 @@
             "name": "Background",
             "opacity": 1.0,
             "properties": null,
-            "type": 0,
+            "type": "tile",
             "visible": true
         },
         {
-            "data": "eNrdlEEOgCAMBO99iwfBUuD/H7MaNEYbWdGDIWQONHR3IQCNQ/ugDps5LTgDj0lxDIooscy9MhlwV4J5ggXPAT7K+TNZYSUYiHlooCy2gjipe42YSmMeoPWXvqPhWpCyJWmj2msZQiL6gCU1kAHDStLbrwhKv9fKzWJNxvkZAdnFxXwzXHAP8e3H9sKQZgeiStc=",
+            "data": "eNrllE0OwBAQhffOYlGMwf0v1mmjXdSEGbFpRL6Fv/feCMxhVzSznQzkC8fgtaKQIoFEqn1PBAbYSLoEsfQ3yvLsPzBAICIDskeqNtCuMJAp0YiUq0SxovXNPt76nsJaMM4x3Nu3FsnRd4F5gqKyFqfvPlNRRe9YvZVAaaHoiLrKmhiP9YVT4lcc6hJrcwKGL27H",
             "displacement": [
                 0,
                 0
@@ -27,11 +27,11 @@
             "name": "Dirt",
             "opacity": 1.0,
             "properties": null,
-            "type": 0,
+            "type": "tile",
             "visible": true
         },
         {
-            "data": "eNrjMtAhH3IZQmgKKS6K3EBFD9DXbmIUWWIRM9cxpsThJsTYbUmJZrw2E+twS1rYbaqDiRBqsEpjUUcNp5Cr2UzHkEbJztCYIt2Gg1s3FwBfid//",
+            "data": "eNrjMtChBuQyhNBUpLio5DKaeJBUSH+PGVqAKUssUuY6xkiQAp+ZkBbSltQxhkjXEOstS6wGQYOPCg6yhDvIVAcToUSZKU5E++Ai1xgzHUMkSOu0bWhMJXMMh7I5XAAg1wUb",
             "displacement": [
                 0,
                 0
@@ -792,11 +792,26 @@
                 ],
                 "name": "Object"
             },
-            "type": 1,
+            "type": "object",
             "visible": true
         },
         {
-            "data": "eNrjMtAhH3KNah4ams0p0Wwyqpk0aDaaPOmpmQsALvDYaA==",
+            "data": "eNrjMtChBuQaNWbUmJFsjImRBVY87I0cTRT0NIYLANoQBAI=",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 1.0,
+            "locked": false,
+            "name": "ground1",
+            "opacity": 1.0,
+            "properties": null,
+            "type": "tile",
+            "visible": true
+        },
+        {
+            "data": "eNrjMtChBuQaNWb4G2OuYwyHFBhjQh3XUMkYMx1DOKRCEFtSGlOGFmAzRtPfyDOGCwDijPyr",
             "displacement": [
                 0,
                 0
@@ -833,13 +848,69 @@
                 ],
                 "name": "Object"
             },
-            "type": 1,
+            "type": "object",
+            "visible": true
+        },
+        {
+            "data": "eNrjMtChBuQaNWbUGKKhiZEFBh5cBo7G3qgxg8EYLgA+jgCS",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 2.0,
+            "locked": false,
+            "name": "ground2",
+            "opacity": 1.0,
+            "properties": null,
+            "type": "tile",
+            "visible": true
+        },
+        {
+            "data": "eNrjMtChBuQaNWbUGBKg5WjYjBozagwK5AIAR2/8QA==",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 2.0,
+            "locked": false,
+            "name": "items2",
+            "opacity": 1.0,
+            "properties": null,
+            "root": {
+                "active": true,
+                "children": [],
+                "components": [
+                    {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "w": 1.0,
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "type": 1
+                    }
+                ],
+                "name": "Object"
+            },
+            "type": "object",
             "visible": true
         }
     ],
     "properties": null,
     "size": [
-        30,
+        35,
         20
     ],
     "tileset": 14610671625611851776,

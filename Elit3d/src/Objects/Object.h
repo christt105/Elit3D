@@ -40,7 +40,9 @@ public:
 
 	Object* parent = nullptr;
 
-	nlohmann::json	Parse();
+	nlohmann::json	Parse();					 //Save
+	void			Parse(nlohmann::json& node); //Export
+	//void			GetUsedObjects(std::vector<uint64_t>& obj) const;
 	void			Unparse(const nlohmann::json& node);
 
 private:

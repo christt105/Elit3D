@@ -12,7 +12,6 @@ class p1Tileset;
 class p1Layers;
 class p1Tools;
 
-class MapLayerObject;
 class MapLayerTerrain;
 class MapLayerTile;
 
@@ -44,7 +43,6 @@ public:
 
     void Mouse(const Ray& ray);
     void MouseTileTerrain(r1Map* m, const int2& tile, MapLayerTerrain* layer);
-    //void MouseTileObject(MapLayerObject* layer, const int2& tile, const int2& mapSize);
     void MouseTile(r1Map* m, MapLayerTile* layer, const int2& tile);
     void ResizeMap(int width, int height);
     int2 GetMapSize() const;

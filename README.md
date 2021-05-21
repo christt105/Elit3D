@@ -2,9 +2,15 @@
 
 ![Overview](https://raw.githubusercontent.com/christt105/Elit3D/main/docs/images/overview.png)
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/christt105/Elit3D)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/christt105/Elit3D)](https://github.com/christt105/Elit3D/releases/latest)
 ![GitHub Release Date](https://img.shields.io/github/release-date/christt105/Elit3D)
 ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/christt105/Elit3D/latest)
+![Downloads](https://img.shields.io/github/downloads/christt105/Elit3D/total)
+![Contributors](https://img.shields.io/github/contributors/christt105/Elit3D)
+
+[![Discord Server](https://img.shields.io/discord/844648999042285628?logo=discord&style=plastic)](https://discord.gg/yW6DkKvtnS)
+[![Twitter Follow](https://img.shields.io/twitter/follow/elit3dmap?style=social)](https://twitter.com/elit3dmap)
+[![GitHub Star](https://img.shields.io/github/stars/christt105/Elit3D?style=social)](https://github.com/christt105/Elit3D/stargazers)
 
 Elit3D is a tile-based map editor in 3D. Composed of several layers of tiles and 3D objects, it allows you to export the maps in different formats.
 
@@ -28,14 +34,13 @@ To know more about the features, see the [ROADMAP](https://github.com/christt105
 
 ## Author
 
-This project is made by [christt105](https://github.com/christt105). This project belongs to my final thesis.
+This project is made by [christt105](https://github.com/christt105). This project started as my final thesis.
 
 Repository: [https://github.com/christt105/Elit3D](https://github.com/christt105/Elit3D)
 
 ## Contributing
 
-You can test the [latest release](https://github.com/christt105/Elit3D/releases/latest) and [report bugs](https://github.com/christt105/Elit3D/issues/new?assignees=&labels=&template=bug_report.md&title=) or [propose features](https://github.com/christt105/Elit3D/issues/new?assignees=&labels=&template=feature_request.md&title=).
-I won't accept any pull request until I finish and present my final thesis to not take any risk with the evaluation. After that, I will be delighted to accept any pull request that improves the project.
+You can test the [latest release](https://github.com/christt105/Elit3D/releases/latest) and [report bugs](https://github.com/christt105/Elit3D/issues/new?assignees=&labels=&template=bug_report.md&title=) or [propose features](https://github.com/christt105/Elit3D/issues/new?assignees=&labels=&template=feature_request.md&title=). Feel free to fork and create a pull request, I will be delighted to accept any pull request that improves the project. If you want to do a pull request, please make it to the develop branch.
 
 ## Special Thanks
 
