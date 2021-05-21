@@ -14,11 +14,15 @@
 
 Elit3D is a tile-based map editor in 3D. Composed of several layers of tiles and 3D objects, it allows you to export the maps in different formats.
 
+## Download
+
+<iframe frameborder="0" src="https://itch.io/embed/1050498?linkback=true&amp;border_width=0&amp;bg_color=222222&amp;fg_color=eeeeee&amp;link_color=20a446&amp;border_color=363636" width="550" height="165"><a href="https://christt105.itch.io/elit3d">Elit3D by christt105</a></iframe>
+
 ## Getting Started
 
 Elit3D is only tested on Visual Studio 2019 on Windows but the plan is to be compatible with Linux and Mac (minimum Linux) in a future.
 
-### Installation
+### Build
 
 - Clone the repository `git clone https://github.com/christt105/Elit3D`
 - Execute the script `premake5.lua` with `premake/premake5.exe`
