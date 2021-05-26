@@ -18,9 +18,9 @@ Viewport::Viewport()
 	// generate texture
 	glGenTextures(1, &ID[TEXTURE_MS]);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, ID[TEXTURE_MS]);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, smaa, GL_RGB, 1, 1, GL_TRUE);
-	//glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 	
 	// attach it to currently bound framebuffer object
@@ -41,7 +41,7 @@ Viewport::Viewport()
 	// generate texture
 	glGenTextures(1, &ID[TEXTURE]);
 	glBindTexture(GL_TEXTURE_2D, ID[TEXTURE]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -77,7 +77,7 @@ void Viewport::Update()
 	glBindFramebuffer(GL_FRAMEBUFFER, ID[FBO_MS]);
 
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, ID[TEXTURE_MS]);
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, smaa, GL_RGB, size.x, size.y, GL_TRUE);
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, smaa, GL_RGB8, size.x, size.y, GL_TRUE);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
 	// attach it to currently bound framebuffer object
@@ -95,7 +95,7 @@ void Viewport::Update()
 
 	// generate texture
 	glBindTexture(GL_TEXTURE_2D, ID[TEXTURE]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x, size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, size.x, size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ID[TEXTURE], 0);

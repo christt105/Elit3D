@@ -17,6 +17,6 @@ public:
 
 private:
 	SDL_Window* window = nullptr;
-	SDL_GLContext context = nullptr;
+	void* context = nullptr;
 };
 
