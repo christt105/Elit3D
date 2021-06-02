@@ -19,7 +19,7 @@ out vec3 farPoint;
 vec3 UnprojectPoint(float x, float y, float z, mat4 viewmat, mat4 proj) {
     mat4 viewInv = inverse(viewmat);
     mat4 projInv = inverse(proj);
-    vec4 unprojectedPoint =  viewInv * projInv * vec4(x, y, z, 1.0);
+    vec4 unprojectedPoint =  viewInv * projInv * vec4(x, y - 0.001, z, 1.0);
     return unprojectedPoint.xyz / unprojectedPoint.w;
 }
 

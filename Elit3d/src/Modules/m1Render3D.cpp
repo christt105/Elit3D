@@ -42,6 +42,8 @@ bool m1Render3D::Init(const nlohmann::json& node)
     PROFILE_FUNCTION();
 	bool ret = true;
 
+    use_multisampling = node.value("use_multisampling", false);
+    smaa = node.value("smaa", 4);
     
     //TODO: Fix texture issue on OpenGL version changes
     int major = node.value("major_version", 3);
@@ -113,7 +115,9 @@ UpdateStatus m1Render3D::PreUpdate()
     PROFILE_FUNCTION();
 
     for (auto i = viewports.begin(); i != viewports.end(); ++i) {
+        HANDLE_ERROR();
         (*i).second->Clear();
+        HANDLE_ERROR();
         if ((*i).second->drawGrid)
             (*i).second->DrawGrid();
     }
