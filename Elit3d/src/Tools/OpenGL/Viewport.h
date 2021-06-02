@@ -35,20 +35,19 @@ public:
 	Camera* camera = nullptr;
 
 private:
+	int smaa = 32;
 	int2 size;
 
 	enum FBOIDS
 	{
-		DEPTH_TEXTURE,
-		NORMAL_FBO,
-		NORMAL_TEXTURE,
-		NORMAL_DEPTH_RBO,
-		MULTISAMPLING_FBO,
-		MULTISAMPLING_COLOR_RBO,
-		MULTISAMPLING_DEPTH_RBO,
-		MAX
+		FBO,
+		FBO_MS,
+		TEXTURE,
+		TEXTURE_MS,
+		RBO,
+		RBO_MS
 	};
-	unsigned int ID[FBOIDS::MAX];
+	unsigned int ID[6];
 
 };
 

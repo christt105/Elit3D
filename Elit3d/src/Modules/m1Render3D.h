@@ -43,8 +43,4 @@ private:
 
 	std::map<std::string, unsigned int> shaders;
 	std::map<std::string, r1Shader*> programs;
-
-public:
-	bool use_multisampling = false;
-	int smaa = 4;
 };
