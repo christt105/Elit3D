@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.1] - 2021-06-07
+### Fixed
+* Fix black panel on AMD and Intel GPU
+
 ## [0.6.0] - 2021-05-20
 ### Added
 * Export
