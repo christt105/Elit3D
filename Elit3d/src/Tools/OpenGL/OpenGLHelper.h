@@ -174,6 +174,8 @@ public:
 	*/
 	static void PolygonMode(bool line);
 
+	static void CheckFramebufferStatus();
+
 	static void EnableCullFace(bool active);
 
 	static void DepthEnable(bool active);

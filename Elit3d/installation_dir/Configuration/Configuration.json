@@ -1,7 +1,7 @@
 {
     "App": {
         "name": "Elit3d",
-        "version": "0.6.0"
+        "version": "0.6.1"
     },
     "Camera3D": {
         "FOV": 60.0,
@@ -19,7 +19,8 @@
     "Objects": null,
     "Render3D": {
         "major_version": 3,
-        "minor_version": 3
+        "minor_version": 1,
+        "samples": 4
     },
     "Resources": null,
     "Scene": null,

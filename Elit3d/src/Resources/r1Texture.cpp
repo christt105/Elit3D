@@ -29,8 +29,9 @@ void r1Texture::Load()
 	ilBindImage(image_id);
 
 	ilutRenderer(ILUT_OPENGL);
-
-	if (ilLoad(IL_PNG, path.c_str())) { // TODO: load for different types
+	
+	//if (ilLoad(IL_PNG, path.c_str())) { // TODO: load for different types
+	if (iluLoadImage(path.c_str())) { // TODO: load for different types
 		width = ilGetInteger(IL_IMAGE_WIDTH);
 		height = ilGetInteger(IL_IMAGE_HEIGHT);
 		
@@ -145,7 +146,7 @@ void r1Texture::Edit(int row, int col, int r, int g, int b)
 {
 	Bind();
 	unsigned char bits[3] = { r, g, b };
-	glTexSubImage2D(GL_TEXTURE_2D, 0, col, row, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, bits);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, col, row, 1, 1, GL_RGB8, GL_UNSIGNED_BYTE, bits);
 	ilEnable(IL_FILE_OVERWRITE);
 	if (!ilutGLSaveImage((char*)"./Assets/Maps/testtilemap.png", id)) {
 		LOGE("Failed to load texture %s, error: %s", name.c_str(), ilGetString(ilGetError()));

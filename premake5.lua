@@ -45,7 +45,8 @@ project "Elit3d"
 	excludes { 
 		"%{wks.location}/Elit3d/src/ExternalTools/ImGui/misc/**.cpp", 
 		"%{wks.location}/Elit3d/src/ExternalTools/ImGui/misc/**.h",
-		"%{wks.location}/Elit3d/src/ExternalTools/DevIL/include/IL/luadevil.c"
+		"%{wks.location}/Elit3d/src/ExternalTools/DevIL/include/IL/luadevil.c",
+		"**/example/**"
 	}
 
 	filter "configurations:Debug"

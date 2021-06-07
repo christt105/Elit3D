@@ -36,6 +36,9 @@ public:
 private:
 	void LoadShaders();
 
+public:
+	int smaa = 4;
+
 private:
 	SDL_GLContext context = nullptr;
 
@@ -44,4 +47,3 @@ private:
 	std::map<std::string, unsigned int> shaders;
 	std::map<std::string, r1Shader*> programs;
 };
-
