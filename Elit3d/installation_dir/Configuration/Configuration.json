@@ -19,7 +19,8 @@
     "Objects": null,
     "Render3D": {
         "major_version": 3,
-        "minor_version": 3
+        "minor_version": 1,
+        "samples": 8
     },
     "Resources": null,
     "Scene": null,

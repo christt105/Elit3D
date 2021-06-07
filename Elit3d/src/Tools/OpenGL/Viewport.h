@@ -35,7 +35,6 @@ public:
 	Camera* camera = nullptr;
 
 private:
-	int smaa = 32;
 	int2 size;
 
 	enum FBOIDS
