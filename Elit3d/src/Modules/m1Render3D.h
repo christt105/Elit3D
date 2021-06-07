@@ -36,6 +36,9 @@ public:
 private:
 	void LoadShaders();
 
+public:
+	int smaa = 4;
+
 private:
 	SDL_GLContext context = nullptr;
 

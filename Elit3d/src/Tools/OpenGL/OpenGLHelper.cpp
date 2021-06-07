@@ -59,7 +59,7 @@ void oglh::_HandleError(const char* func)
 		default:
 			break;
 		}
-		LOGNW("OpenGL error %i (%s) on %s", err, error_type.c_str(), func);
+		LOGNE("OpenGL error %i (%s) on %s", err, error_type.c_str(), func);
 		err = glGetError();
 	}
 }
@@ -245,6 +245,25 @@ void oglh::PolygonMode(bool line)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void oglh::CheckFramebufferStatus()
+{
+	GLenum framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (framebufferStatus != GL_FRAMEBUFFER_COMPLETE) {
+		switch (framebufferStatus)
+		{
+		case GL_FRAMEBUFFER_UNDEFINED:                      LOGE("GL_FRAMEBUFFER_UNDEFINED"); break;
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:          LOGE("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"); break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:  LOGE("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"); break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:         LOGE("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"); break;
+		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:         LOGE("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"); break;
+		case GL_FRAMEBUFFER_UNSUPPORTED:                    LOGE("GL_FRAMEBUFFER_UNSUPPORTED"); break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:         LOGE("GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"); break;
+		case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:       LOGE("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"); break;
+		default:                                            LOGE("Unknown franebuffer status error | %i", framebufferStatus);
+		}
+	}
 }
 
 void oglh::EnableCullFace(bool active)

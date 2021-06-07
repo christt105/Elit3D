@@ -78,7 +78,7 @@ bool m1Render3D::Init(const nlohmann::json& node)
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, node.value("major_version", 3));
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, node.value("minor_version", 3));
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, node.value("minor_version", 1));
 
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -88,10 +88,15 @@ bool m1Render3D::Init(const nlohmann::json& node)
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+    smaa = node.value("samples", 4);
+    GLint maxSamples = 0;
+    glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
+    if (smaa > maxSamples)
+        smaa = maxSamples;
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, smaa);
 
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -117,7 +122,7 @@ UpdateStatus m1Render3D::PreUpdate()
         if ((*i).second->drawGrid)
             (*i).second->DrawGrid();
     }
-
+    
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
@@ -318,10 +323,11 @@ void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
     // note: __debugbreak is specific for MSVC, won't work with gcc/clang
     // -> in that case remove it and manually set breakpoints
     if (_severity != "NOTIFICATION") {
-        LOGE("OpenGL error [%d]: %s of %s severity, raised from %s: %s",
+        LOGNE("OpenGL error [%d]: %s of %s severity, raised from %s: %s",
             id, _type, _severity, _source, msg);
 #ifdef _DEBUG
-        
+        std::string s = "OpenGL error [" + std::to_string(id) + "]: " + _type + " of " + _severity + " severity, raised from " + _source + ": " + msg + "\n";
+        OutputDebugString(s.c_str()); //Log in IDE Output window
 #endif
     }
 }
