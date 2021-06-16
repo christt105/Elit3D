@@ -268,7 +268,7 @@ struct aiString
         data[0] = '\0';
 
 #ifdef ASSIMP_BUILD_DEBUG
-        // Log build: overwrite the string on its full length with ESC (27)
+        // Debug build: overwrite the string on its full length with ESC (27)
         memset(data+1,27,MAXLEN-1);
 #endif
     }
@@ -369,7 +369,7 @@ struct aiString
         data[0] = '\0';
 
 #ifdef ASSIMP_BUILD_DEBUG
-        // Log build: overwrite the string on its full length with ESC (27)
+        // Debug build: overwrite the string on its full length with ESC (27)
         memset(data+1,27,MAXLEN-1);
 #endif
     }

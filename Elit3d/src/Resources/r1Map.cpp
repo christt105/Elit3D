@@ -14,7 +14,9 @@
 #include "Modules/m1Resources.h"
 #include "Resources/r1Tileset.h"
 #include "Resources/r1Tileset3d.h"
+#include "Resources/r1Object.h"
 
+#include "ExternalTools/MathGeoLib/include/Math/float2.h"
 #include "Tools/Map/MapLayer.h"
 #include "Tools/Map/MapLayerTile.h"
 #include "Tools/Map/MapLayerTerrain.h"
@@ -25,6 +27,7 @@
 
 #include "ExternalTools/Assimp/include/scene.h"
 #include "ExternalTools/Assimp/include/Exporter.hpp"
+#include "Tools/Importers/Exporter.h"
 
 #include "Tools/System/Logger.h"
 
@@ -174,37 +177,68 @@ void r1Map::ExportXML(const uint64_t& tileset, MapLayer::DataTypeExport d)
 
 void r1Map::ExportOBJ() const
 {
-	std::unique_ptr<aiScene> scene(new aiScene());
+	std::string file;
 
-	scene->mRootNode = new aiNode();
+	file += "# Map made with Elit3D version " + std::string(App->GetVersion()) + "\n";
 
-	std::vector<aiMesh*> meshes;
+	file += "# Planes\n";
 
-	aiNode** children = new aiNode*[layers.size()];
-	int i = 0;
+	int n = 0;
+	std::string faces;
+	for (auto& i : layers) {
+		if (i->type != MapLayer::Type::TILE)
+			continue;
+		file += Exporter::SetVertex(0.f, i->height, 0.f);
+		file += Exporter::SetVertex(size.y, i->height, 0.f);
+		file += Exporter::SetVertex(size.y, i->height, size.x);
+		file += Exporter::SetVertex(0.f, i->height, size.x);
+
+		faces += "o " + i->name + "\n";
+		faces += "f " + std::to_string(n * 4 + 1) + " " + std::to_string(n * 4 + 2) + " " + std::to_string(n * 4 + 3) + "\n";
+		faces += "f " + std::to_string(n * 4 + 1) + " " + std::to_string(n * 4 + 3) + " " + std::to_string(n * 4 + 4) + "\n";
+		++n;
+	}
+	n = n * 4 + 1;
+	file += faces;
+
+	file += "\n# Objects\n";
+	r1Tileset3d* tileset = App->gui->objects->tileset;
 	for (auto& l : layers) {
-		children[i++] = l->Parse(meshes);
+		if (l->type != MapLayer::Type::OBJECT)
+			continue;
+		for (int i = 0; i < size.x * size.y; ++i) {
+			if (l->data[i] == 0U)
+				continue;
+
+			const r1Tileset3d::Tile3d* tile = tileset->tiles[l->data[i] - 1U];
+			Resource* const obj = App->resources->Get(tile->uidObject);
+			if (obj == nullptr)
+				continue;
+
+			if (obj->GetType() == Resource::Type::Object) {
+				const r1Object* o = static_cast<r1Object*>(obj);
+				file += "o " + o->name + "\n";
+				auto& mat = tile->transform.GetGlobalMatrix();
+				float2 colrow = { float(i % size.x), float(i / size.x) };
+				for (int v = 0; v < o->bvertices.size; ++v) {
+					float3 local = { colrow.y + o->bvertices.data[v * 3 + 2], l->height + o->bvertices.data[v * 3 + 1], colrow.x + o->bvertices.data[v * 3] };
+					LOG("%s", local.ToString().c_str());
+					auto pos = mat.MulPos(local);
+					file += Exporter::SetVertex(pos.x, pos.y, pos.z);
+				}
+				for (int in = 0; in < o->bindices.size; in += 3) {
+					file += Exporter::SetFace(n + o->bindices.data[in], n + o->bindices.data[in + 1], n + o->bindices.data[in + 2]);
+				}
+				n += o->bvertices.size;
+			}
+			if (obj->GetType() == Resource::Type::Model) {
+			}
+		}
 	}
-	scene->mRootNode->addChildren(layers.size(), children);
 
-	scene->mNumMeshes = meshes.size();
-	scene->mMeshes = new aiMesh * [scene->mNumMeshes];
-	i = 0;
-	for (auto& m : meshes) {
-		scene->mMeshes[i++] = m;
-	}
-	scene->mNumMaterials = 1;
-	scene->mMaterials = new aiMaterial * [1];
-	scene->mMaterials[0] = new aiMaterial();
-	//scene->mRootNode->mNumMeshes = 0;
-	//scene->mRootNode->mMeshes = new unsigned int[0];
-	//scene->mRootNode->mMeshes[0] = 0;
+	file += "\n# Terrains\n";
 
-	Assimp::Exporter exporter;
-	if (exporter.Export(scene.get(), "obj", "Export/test.obj") != AI_SUCCESS)
-		LOGE(exporter.GetErrorString())
-
-		scene.release();
+	FileSystem::SaveTextFile("Export/test.obj", file.c_str());
 }
 
 void r1Map::SaveInImage()

@@ -60,7 +60,7 @@ void MapLayerTerrain::Draw(const int2& size, int tile_width, int tile_height) co
 		if (data[i] > tileset->tiles.size()) //TODO: draw red cube
 			continue;
 		const r1Tileset3d::Tile3d* tile = tileset->tiles[data[i] - 1];
-		Resource* obj = (Resource*)App->resources->Get(tile->uidObject);
+		Resource* obj = App->resources->Get(tile->uidObject);
 		if (obj == nullptr)
 			continue;
 		if (obj->GetType() == Resource::Type::Model) {

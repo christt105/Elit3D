@@ -1,0 +1,67 @@
+{
+    "layers": [
+        {
+            "data": "eNrjMrGw0EHHXNQX5AIAOGUUYQ==",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "type": "tile",
+            "visible": true
+        },
+        {
+            "data": "eNrjMtCBQS58TEsQ0xImygUA/qwJHw==",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "root": {
+                "active": true,
+                "children": [],
+                "components": [
+                    {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "w": 1.0,
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "type": 1
+                    }
+                ],
+                "name": "Object"
+            },
+            "type": "object",
+            "visible": true
+        }
+    ],
+    "properties": null,
+    "size": [
+        5,
+        5
+    ],
+    "tileset": 14610671625611851776,
+    "version": "0.4.1"
+}
