@@ -32,7 +32,7 @@ p1Objects::~p1Objects()
 
 void p1Objects::Start()
 {
-	tileset = (r1Tileset3d*)App->resources->Get(11311841969679106682); //TODO:
+	tileset = (r1Tileset3d*)App->resources->Get(11311841969679106682ULL); //TODO:
 	tileset->Attach();
 
 	viewport = App->render->CreateViewport("tileset3d editor");

@@ -1,22 +1,7 @@
 {
     "layers": [
         {
-            "data": "eNrjMrGw0EHHXNQX5AIAOGUUYQ==",
-            "displacement": [
-                0,
-                0
-            ],
-            "encoding": "base64-zlib",
-            "height": 0.0,
-            "locked": false,
-            "name": "Layer",
-            "opacity": 1.0,
-            "properties": null,
-            "type": "tile",
-            "visible": true
-        },
-        {
-            "data": "eNrjMtCBQS58TEsQ0xImygUA/qwJHw==",
+            "data": "eNrjMtcxBkMLHS4THQMwNMXFNNMxBEMjLgAFwAlL",
             "displacement": [
                 0,
                 0

@@ -16,6 +16,7 @@ struct aiMetadata;
 class r1Model :
 	public Resource
 {
+public:
 	struct Node {
 		~Node() {
 			for (auto i = children.begin(); i != children.end(); ++i)
