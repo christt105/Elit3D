@@ -89,7 +89,6 @@ void MapLayerTerrain::Draw(const int2& size, int tile_width, int tile_height) co
 			if (o->texture != nullptr)
 				o->texture->Unbind();
 		}
-
 	}
 	oglh::DepthEnable(false);
 }

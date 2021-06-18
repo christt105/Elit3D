@@ -265,6 +265,15 @@ int2 p1Tileset::GetTileByID(TILE_DATA_TYPE id) const
 	return { 0, 0 };
 }
 
+int2 p1Tileset::GetTileSize() const
+{
+	auto t = (r1Tileset*)App->resources->Get(tileset);
+	if (t) {
+		return { t->width, t->height };
+	}
+	return int2();
+}
+
 int p1Tileset::GetTileWidth() const
 {
 	auto t = (r1Tileset*)App->resources->Get(tileset);

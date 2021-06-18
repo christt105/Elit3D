@@ -55,7 +55,7 @@ void r1Map::Save(const uint64_t& tileset)
 {
 	if (references > 0) {
 		nlohmann::json file;
-		
+
 		file["size"] = { size.x, size.y };
 		file["tileset"] = tileset;
 		file["version"] = App->GetVersion();
@@ -99,7 +99,7 @@ void r1Map::ExportJSON(const uint64_t& tileset, MapLayer::DataTypeExport d)
 
 	file["size"] = { size.x, size.y };
 	file["version"] = App->GetVersion();
-	
+
 	if (auto tile = (r1Tileset*)App->resources->Get(tileset); tile != nullptr)
 		tile->Parse(file["tileset"]);
 
@@ -191,82 +191,149 @@ void r1Map::ExportOBJ() const
 
 	file += "# Planes\n";
 
-	int nvertex = 0;
+	int nvertex = 1;
 	int ntexture = 0;
 	int nnormal = 0;
-	std::string faces;
+	auto tileset = App->gui->tileset;
+	int l_index = 0;
+
+	mtl += "newmtl tileset\n";
+	const r1Tileset* rtileset = (r1Tileset*)App->resources->Get(tileset->GetTileset());
+	assert(rtileset != nullptr);
+	const r1Texture* tex = (r1Texture*)App->resources->Get(rtileset->GetTextureUID());
+	std::string full_name = tex->name + "." + tex->extension;
+	mtl += "map_Kd " + full_name + "\n\n";
+	FileSystem::CopyTo(tex->path.c_str(), ("Export/" + full_name).c_str());
+
 	for (auto& l : layers) {
 		if (l->type != MapLayer::Type::TILE)
 			continue;
 
-		file += "o " + l->name + "\n";
-		file += Exporter::SetVertex(0.f, l->height, 0.f);
-		file += Exporter::SetVertex(size.y, l->height, 0.f);
-		file += Exporter::SetVertex(size.y, l->height, size.x);
-		file += Exporter::SetVertex(0.f, l->height, size.x);
+		std::map<unsigned int, std::vector<unsigned int>> tiles; // <tile_id, index_position>
+		for (unsigned int i = 0U; i < size.x * size.y; ++i) {
+			if (l->data[i] == 0U)
+				continue;
+			tiles[l->data[i]].push_back(i);
+		}
+		
+		for (auto t = tiles.begin(); t != tiles.end(); ++t) {
+			unsigned int tile_id = (*t).first;
+			std::string verttex;
+			std::string face;
+			file += "o layer_" + std::to_string(l_index) + "_tile_" + std::to_string(tile_id) + "\n";
+			const int2 tilesetSizeOnTiles = tileset->GetTilesetSize();
+			const int2 tileSize = tileset->GetTileSize();
+			const int2 tilesetSize = tilesetSizeOnTiles * tileSize;
+			const int2 tile(tile_id % tilesetSizeOnTiles.x, tile_id / tilesetSizeOnTiles.x);
+			const float2 tileSizeTexCoord = float2((float)tileSize.x / (float)tilesetSize.x, (float)tileSize.y / (float)tilesetSize.y);
+			
+			int2 pixelCoord = tile * tileSize;
+			float2 texCoord = float2((float)pixelCoord.x / (float)tilesetSize.x, (float)pixelCoord.y / (float)tilesetSize.y);
 
-		file += Exporter::SetVertexTexture(0.f, 0.f);
-		file += Exporter::SetVertexTexture(1.f, 0.f);
-		file += Exporter::SetVertexTexture(1.f, 1.f);
-		file += Exporter::SetVertexTexture(0.f, 1.f);
+			face += "usemtl tileset\n";
 
-		//Create Texture
-		//TODO Do it with a shader
-		/*std::vector<unsigned char> image;
-		int2 tileWidth = { App->gui->tileset->GetTileWidth(), App->gui->tileset->GetTileHeight() };
-		int width  = size.x * tileWidth.x;
-		int height = size.y * tileWidth.y;
-		image.resize(width * height * 4); //RGBA Image
-		std::vector<unsigned char> tileset;
-		unsigned int tilesetWidth, tilesetHeight;
-		std::string path = App->resources->Get(((r1Tileset*)App->resources->Get(App->gui->tileset->GetTileset()))->GetTextureUID())->path;
-		unsigned int error_decode = lodepng::decode(tileset, tilesetWidth, tilesetHeight, path);
-		if (error_decode) LOGE("Error %u loading image: %s", error_decode, lodepng_error_text(error_decode));*/
-		/*for (int i = 0; i < size.x * size.y; ++i) {
-				int2 imagepos = { i % width, i / width };
-				for (int ix = imagepos.x * tileWidth.x; ix < imagepos.x * tileWidth.x + tileWidth.x; ++ix) {
-					for (int iy = imagepos.y * tileWidth.y; iy < imagepos.y * tileWidth.y + tileWidth.y; ++iy) {
-						image[4 * tileWidth.x * iy + 4 * ix + 0] = 255 * unsigned int(l->data[i] == 0);
-						image[4 * tileWidth.x * iy + 4 * ix + 1] = 0;
-						image[4 * tileWidth.x * iy + 4 * ix + 2] = 0;
-						image[4 * tileWidth.x * iy + 4 * ix + 3] = 255;
-					}
-				}
-			/*if (l->data[i] == 0U) {
-				int2 tile = App->gui->tileset->GetTileByID(l->data[i]);
-				/*for (int x = tile.x * tileWidth.x; x < tileWidth.x * (tile.x + 1); ++x) {
-					for (int y = tile.y * tileWidth.y; y < tileWidth.y * (tile.y + 1); ++y) {*/
-				/*for (int x = 0; x < tileWidth.x; ++x) {
-					for (int y = 0; y < tileWidth.y; ++y) {
-						image[4 * ]
-					}
-				}
+			for (auto& v : (*t).second) {
+				int2 coord(v / size.x, v % size.x);
+
+				file += Exporter::SetVertex(coord.x,	 l->height, coord.y);
+				file += Exporter::SetVertex(coord.x + 1, l->height, coord.y);
+				file += Exporter::SetVertex(coord.x + 1, l->height, coord.y + 1);
+				file += Exporter::SetVertex(coord.x,	 l->height, coord.y + 1);
+
+				verttex += Exporter::SetVertexTexture(texCoord.x,						texCoord.y);
+				verttex += Exporter::SetVertexTexture(texCoord.x + tileSizeTexCoord.x,	texCoord.y);
+				verttex += Exporter::SetVertexTexture(texCoord.x + tileSizeTexCoord.x,	texCoord.y + tileSizeTexCoord.y);
+				verttex += Exporter::SetVertexTexture(texCoord.x,						texCoord.y + tileSizeTexCoord.y);
+
+				face += Exporter::SetFace(nvertex, nvertex + 2, nvertex + 1, nvertex, nvertex + 2, nvertex + 3);
+				face += Exporter::SetFace(nvertex, nvertex + 3, nvertex + 2, nvertex, nvertex + 1, nvertex + 2);
+
+				nvertex += 4;
 			}
-			else {
-				int2 tile = App->gui->tileset->GetTileByID(l->data[i]);
-				for (int x = tile.x * tileWidth.x; x < tileWidth.x * (tile.x + 1); ++x) {
-					for (int y = tile.y * tileWidth.y; y < tileWidth.y * (tile.y + 1); ++y) {
 
-					}
-				}
-			}*/
-		//}
+			file += verttex;
+			file += face;
+		}
 
-		/*unsigned int err = lodepng::encode("Export/test_image" + std::to_string(nvertex) + ".png", image, width, height);
-		if (err) LOGE("Error %u encoding the image: %s", err, lodepng_error_text(err));*/
-		file += Exporter::SetFace(nvertex * 4 + 1, nvertex * 4 + 3, nvertex * 4 + 2, nvertex * 4 + 1, nvertex * 4 + 3, nvertex * 4 + 2);
-		file += Exporter::SetFace(nvertex * 4 + 1, nvertex * 4 + 4, nvertex * 4 + 3, nvertex * 4 + 1, nvertex * 4 + 4, nvertex * 4 + 3);
-		++nvertex;
-		++ntexture;
+		++l_index;
 	}
-	nvertex = nvertex * 4 + 1;
-	ntexture = ntexture * 4 + 1;
-	//file += faces;
+
+	ntexture = nvertex;
+
+	{
+		//	std::string faces;
+		//	for (auto& l : layers) {
+		//		if (l->type != MapLayer::Type::TILE)
+		//			continue;
+
+		//		file += "o " + l->name + "\n";
+		//		file += Exporter::SetVertex(0.f, l->height, 0.f);
+		//		file += Exporter::SetVertex(size.y, l->height, 0.f);
+		//		file += Exporter::SetVertex(size.y, l->height, size.x);
+		//		file += Exporter::SetVertex(0.f, l->height, size.x);
+
+		//		file += Exporter::SetVertexTexture(0.f, 0.f);
+		//		file += Exporter::SetVertexTexture(1.f, 0.f);
+		//		file += Exporter::SetVertexTexture(1.f, 1.f);
+		//		file += Exporter::SetVertexTexture(0.f, 1.f);
+
+		//		//Create Texture
+		//		//TODO Do it with a shader
+		//		/*std::vector<unsigned char> image;
+		//		int2 tileWidth = { App->gui->tileset->GetTileWidth(), App->gui->tileset->GetTileHeight() };
+		//		int width  = size.x * tileWidth.x;
+		//		int height = size.y * tileWidth.y;
+		//		image.resize(width * height * 4); //RGBA Image
+		//		std::vector<unsigned char> tileset;
+		//		unsigned int tilesetWidth, tilesetHeight;
+		//		std::string path = App->resources->Get(((r1Tileset*)App->resources->Get(App->gui->tileset->GetTileset()))->GetTextureUID())->path;
+		//		unsigned int error_decode = lodepng::decode(tileset, tilesetWidth, tilesetHeight, path);
+		//		if (error_decode) LOGE("Error %u loading image: %s", error_decode, lodepng_error_text(error_decode));*/
+		//		/*for (int i = 0; i < size.x * size.y; ++i) {
+		//				int2 imagepos = { i % width, i / width };
+		//				for (int ix = imagepos.x * tileWidth.x; ix < imagepos.x * tileWidth.x + tileWidth.x; ++ix) {
+		//					for (int iy = imagepos.y * tileWidth.y; iy < imagepos.y * tileWidth.y + tileWidth.y; ++iy) {
+		//						image[4 * tileWidth.x * iy + 4 * ix + 0] = 255 * unsigned int(l->data[i] == 0);
+		//						image[4 * tileWidth.x * iy + 4 * ix + 1] = 0;
+		//						image[4 * tileWidth.x * iy + 4 * ix + 2] = 0;
+		//						image[4 * tileWidth.x * iy + 4 * ix + 3] = 255;
+		//					}
+		//				}
+		//			/*if (l->data[i] == 0U) {
+		//				int2 tile = App->gui->tileset->GetTileByID(l->data[i]);
+		//				/*for (int x = tile.x * tileWidth.x; x < tileWidth.x * (tile.x + 1); ++x) {
+		//					for (int y = tile.y * tileWidth.y; y < tileWidth.y * (tile.y + 1); ++y) {*/
+		//					/*for (int x = 0; x < tileWidth.x; ++x) {
+		//						for (int y = 0; y < tileWidth.y; ++y) {
+		//							image[4 * ]
+		//						}
+		//					}
+		//				}
+		//				else {
+		//					int2 tile = App->gui->tileset->GetTileByID(l->data[i]);
+		//					for (int x = tile.x * tileWidth.x; x < tileWidth.x * (tile.x + 1); ++x) {
+		//						for (int y = tile.y * tileWidth.y; y < tileWidth.y * (tile.y + 1); ++y) {
+		//						}
+		//					}
+		//				}*/
+		//				//}
+
+		//				/*unsigned int err = lodepng::encode("Export/test_image" + std::to_string(nvertex) + ".png", image, width, height);
+		//				if (err) LOGE("Error %u encoding the image: %s", err, lodepng_error_text(err));*/
+		//		file += Exporter::SetFace(nvertex * 4 + 1, nvertex * 4 + 3, nvertex * 4 + 2, nvertex * 4 + 1, nvertex * 4 + 3, nvertex * 4 + 2);
+		//		file += Exporter::SetFace(nvertex * 4 + 1, nvertex * 4 + 4, nvertex * 4 + 3, nvertex * 4 + 1, nvertex * 4 + 4, nvertex * 4 + 3);
+		//		++nvertex;
+		//		++ntexture;
+		//	}
+		//	nvertex = nvertex * 4 + 1;
+		//	ntexture = ntexture * 4 + 1;
+		//	//file += faces;
+	}
 
 	file += "\n# Objects\n";
-	r1Tileset3d* tileset = App->gui->objects->tileset;
-			std::map<uint64_t, unsigned int> textures;
-			std::vector<std::string> texturesNames;
+	r1Tileset3d* tileset3d = App->gui->objects->tileset;
+	std::map<uint64_t, unsigned int> textures;
+	std::vector<std::string> texturesNames;
 	for (auto& l : layers) {
 		if (l->type != MapLayer::Type::OBJECT)
 			continue;
@@ -274,9 +341,9 @@ void r1Map::ExportOBJ() const
 			if (l->data[i] == 0U)
 				continue;
 
-			const r1Tileset3d::Tile3d* tile = tileset->tiles[l->data[i] - 1U];
+			const r1Tileset3d::Tile3d* tile = tileset3d->tiles[l->data[i] - 1U];
 			Resource* const obj = App->resources->Get(tile->uidObject);
-			
+
 			if (obj == nullptr)
 				continue;
 
@@ -296,7 +363,7 @@ void r1Map::ExportOBJ() const
 					}
 					mtlTexture = FileSystem::GetNameFile(texname.c_str());
 					texturesNames.push_back(mtlTexture);
-					textures.emplace(o->texture->GetUID(), texturesNames.size()-1);
+					textures.emplace(o->texture->GetUID(), texturesNames.size() - 1);
 					mtl += "newmtl " + mtlTexture + "\n";
 					mtl += "map_Kd " + texname + "\n\n";
 					FileSystem::CopyTo(o->texture->path.c_str(), ("Export/" + texname).c_str());
@@ -313,7 +380,7 @@ void r1Map::ExportOBJ() const
 					auto pos = mat.MulPos(local);
 					//file += Exporter::SetVertex(pos.x, pos.y, pos.z);
 					file += Exporter::SetVertex(colrow.y + pos.x, l->height + pos.y, colrow.x + pos.z);
-					vt   += Exporter::SetVertexTexture(o->btexture.data[v * 2], o->btexture.data[v * 2 + 1]);
+					vt += Exporter::SetVertexTexture(o->btexture.data[v * 2], o->btexture.data[v * 2 + 1]);
 				}
 				file += vt;
 				file += "usemtl " + mtlTexture + "\n";
@@ -355,7 +422,7 @@ void r1Map::ExportOBJ() const
 					float2 colrow = { float(i % size.x), float(i / size.x) };
 					std::string vt;
 					for (int v = 0; v < m->vertices.size; ++v) {
-						float3 local = { m->vertices.data[v * 3 ], m->vertices.data[v * 3 + 1], m->vertices.data[v * 3 + 2] };
+						float3 local = { m->vertices.data[v * 3], m->vertices.data[v * 3 + 1], m->vertices.data[v * 3 + 2] };
 						auto pos = float4x4::FromTRS(float3::zero, Quat::identity, float3(-1.f, 1.f, 1.f)).MulPos((Quat::RotateAxisAngle(float3::unitY, -math::pi / 2.f) * mat).MulPos(local));
 						pos += float3(colrow.y, l->height, colrow.x);
 						file += Exporter::SetVertex(pos.x, pos.y, pos.z);
@@ -490,14 +557,14 @@ void r1Map::Edit(MapLayerTile* layer, int row, int col, int brushSize, p1Tools::
 		memset(visited, false, size.x * size.y);
 		std::queue<std::pair<int, int>> queue;
 		visited[size.x * row + col] = true;
-		queue.push({col, row});
+		queue.push({ col, row });
 		int baseIndex = layer->data[size.x * row + col];
 
 		while (!queue.empty()) {
 			auto t = queue.front(); queue.pop();
 			layer->data[size.x * t.second + t.first] = id;
 			oglh::TexSubImage2D(t.first, t.second, 1, 1, bits);
-			
+
 			if (t.first + 1 >= 0 && t.second >= 0 && t.first + 1 < size.x && t.second < size.y &&
 				!visited[size.x * t.second + t.first + 1] &&
 				layer->data[size.x * t.second + t.first + 1] == baseIndex) {
