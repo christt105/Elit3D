@@ -30,6 +30,10 @@ public:
 	void SetScale(const float3& scl);
 	void SetScale(float x, float y, float z);
 
+	float3 GetPosition() const;
+	Quat GetRotation() const;
+	float3 GetScale() const;
+
 	void CalculateGlobalMatrix();
 
 	nlohmann::json	Parse() override;

@@ -24,6 +24,8 @@
 #include "Tools/Map/MapLayerTile.h"
 #include "Tools/Map/MapLayerTerrain.h"
 #include "Objects/Object.h"
+#include "Objects/Components/c1Mesh.h"
+#include "Objects/Components/c1Material.h"
 
 #include "ExternalTools/DevIL/include/IL/il.h"
 #include "ExternalTools/DevIL/include/IL/ilut.h"
@@ -257,83 +259,13 @@ void r1Map::ExportOBJ() const
 
 		++l_index;
 	}
-
 	ntexture = nvertex;
 
-	{
-		//	std::string faces;
-		//	for (auto& l : layers) {
-		//		if (l->type != MapLayer::Type::TILE)
-		//			continue;
-
-		//		file += "o " + l->name + "\n";
-		//		file += Exporter::SetVertex(0.f, l->height, 0.f);
-		//		file += Exporter::SetVertex(size.y, l->height, 0.f);
-		//		file += Exporter::SetVertex(size.y, l->height, size.x);
-		//		file += Exporter::SetVertex(0.f, l->height, size.x);
-
-		//		file += Exporter::SetVertexTexture(0.f, 0.f);
-		//		file += Exporter::SetVertexTexture(1.f, 0.f);
-		//		file += Exporter::SetVertexTexture(1.f, 1.f);
-		//		file += Exporter::SetVertexTexture(0.f, 1.f);
-
-		//		//Create Texture
-		//		//TODO Do it with a shader
-		//		/*std::vector<unsigned char> image;
-		//		int2 tileWidth = { App->gui->tileset->GetTileWidth(), App->gui->tileset->GetTileHeight() };
-		//		int width  = size.x * tileWidth.x;
-		//		int height = size.y * tileWidth.y;
-		//		image.resize(width * height * 4); //RGBA Image
-		//		std::vector<unsigned char> tileset;
-		//		unsigned int tilesetWidth, tilesetHeight;
-		//		std::string path = App->resources->Get(((r1Tileset*)App->resources->Get(App->gui->tileset->GetTileset()))->GetTextureUID())->path;
-		//		unsigned int error_decode = lodepng::decode(tileset, tilesetWidth, tilesetHeight, path);
-		//		if (error_decode) LOGE("Error %u loading image: %s", error_decode, lodepng_error_text(error_decode));*/
-		//		/*for (int i = 0; i < size.x * size.y; ++i) {
-		//				int2 imagepos = { i % width, i / width };
-		//				for (int ix = imagepos.x * tileWidth.x; ix < imagepos.x * tileWidth.x + tileWidth.x; ++ix) {
-		//					for (int iy = imagepos.y * tileWidth.y; iy < imagepos.y * tileWidth.y + tileWidth.y; ++iy) {
-		//						image[4 * tileWidth.x * iy + 4 * ix + 0] = 255 * unsigned int(l->data[i] == 0);
-		//						image[4 * tileWidth.x * iy + 4 * ix + 1] = 0;
-		//						image[4 * tileWidth.x * iy + 4 * ix + 2] = 0;
-		//						image[4 * tileWidth.x * iy + 4 * ix + 3] = 255;
-		//					}
-		//				}
-		//			/*if (l->data[i] == 0U) {
-		//				int2 tile = App->gui->tileset->GetTileByID(l->data[i]);
-		//				/*for (int x = tile.x * tileWidth.x; x < tileWidth.x * (tile.x + 1); ++x) {
-		//					for (int y = tile.y * tileWidth.y; y < tileWidth.y * (tile.y + 1); ++y) {*/
-		//					/*for (int x = 0; x < tileWidth.x; ++x) {
-		//						for (int y = 0; y < tileWidth.y; ++y) {
-		//							image[4 * ]
-		//						}
-		//					}
-		//				}
-		//				else {
-		//					int2 tile = App->gui->tileset->GetTileByID(l->data[i]);
-		//					for (int x = tile.x * tileWidth.x; x < tileWidth.x * (tile.x + 1); ++x) {
-		//						for (int y = tile.y * tileWidth.y; y < tileWidth.y * (tile.y + 1); ++y) {
-		//						}
-		//					}
-		//				}*/
-		//				//}
-
-		//				/*unsigned int err = lodepng::encode("Export/test_image" + std::to_string(nvertex) + ".png", image, width, height);
-		//				if (err) LOGE("Error %u encoding the image: %s", err, lodepng_error_text(err));*/
-		//		file += Exporter::SetFace(nvertex * 4 + 1, nvertex * 4 + 3, nvertex * 4 + 2, nvertex * 4 + 1, nvertex * 4 + 3, nvertex * 4 + 2);
-		//		file += Exporter::SetFace(nvertex * 4 + 1, nvertex * 4 + 4, nvertex * 4 + 3, nvertex * 4 + 1, nvertex * 4 + 4, nvertex * 4 + 3);
-		//		++nvertex;
-		//		++ntexture;
-		//	}
-		//	nvertex = nvertex * 4 + 1;
-		//	ntexture = ntexture * 4 + 1;
-		//	//file += faces;
-	}
-
-	file += "\n# Objects\n";
+	file += "\n# Terrains and Objects\n";
 	r1Tileset3d* tileset3d = App->gui->objects->tileset;
 	std::map<uint64_t, unsigned int> textures;
 	std::vector<std::string> texturesNames;
+	std::queue<Object*> rootObjects;
 	for (auto& l : layers) {
 		if (l->type != MapLayer::Type::OBJECT)
 			continue;
@@ -427,7 +359,6 @@ void r1Map::ExportOBJ() const
 						pos += float3(colrow.y, l->height, colrow.x);
 						file += Exporter::SetVertex(pos.x, pos.y, pos.z);
 						vt += Exporter::SetVertexTexture(m->texture.data[v * 2], m->texture.data[v * 2 + 1]);
-						//file += Exporter::SetVertex(colrow.y + pos.x, l->height + pos.y, colrow.x + pos.z);
 					}
 					file += vt;
 					file += "usemtl " + mtlTexture + "\n";
@@ -440,9 +371,76 @@ void r1Map::ExportOBJ() const
 				}
 			}
 		}
+
+		Object* root = static_cast<MapLayerTerrain*>(l)->root;
+		if (!root->children.empty())
+			rootObjects.push(root);
 	}
 
-	file += "\n# Terrains\n";
+	file += "\n# Models\n";
+
+	while (!rootObjects.empty()) {
+		std::queue<Object*> objects;
+		Object* root = rootObjects.front();
+		objects.push(root);
+		rootObjects.pop();
+		file += "o " + std::string(root->GetName()) + "\n";
+
+		while (!objects.empty()) {
+			Object* o = objects.front();
+			objects.pop();
+			for (auto& c : o->children)
+				objects.push(c);
+
+			auto m = (c1Mesh*)o->GetComponent(Component::Type::Mesh);
+			if (m == nullptr)
+				continue;
+			
+			std::string mtlTexture;
+			auto texture = (r1Texture*)App->resources->Get(m->material->tex);
+			if (auto iterTex = textures.find(texture->GetUID()); iterTex == textures.end()) { //Texture not loaded
+				std::string texname = texture->name + "." + texture->extension;
+				int texIndex = 1;
+				for (auto texn = texturesNames.begin(); texn != texturesNames.end(); ++texn) {
+					if (texname.compare(*texn) == 0) {
+						texname = texture->name + std::to_string(texIndex) + "." + texture->extension;
+						texIndex++;
+					}
+				}
+				mtlTexture = FileSystem::GetNameFile(texname.c_str());
+				texturesNames.push_back(mtlTexture);
+				textures.emplace(texture->GetUID(), texturesNames.size() - 1);
+				mtl += "newmtl " + mtlTexture + "\n";
+				mtl += "map_Kd " + texname + "\n\n";
+				FileSystem::CopyTo(texture->path.c_str(), ("Export/" + texname).c_str());
+			}
+			else {
+				mtlTexture = texturesNames[(*iterTex).second];
+			}
+
+			std::string vt;
+			auto rm = (r1Mesh*)App->resources->Get(m->GetMesh());
+			float4x4 mat = ((c1Transform*)o->GetComponent(Component::Type::Transform))->GetGlobalMatrix();
+			for (int v = 0; v < rm->vertices.size; ++v) {
+				float3 local = { rm->vertices.data[v * 3 + 2], rm->vertices.data[v * 3 + 1], rm->vertices.data[v * 3] };
+				float3 pos, scale;
+				Quat rot;
+				mat.Decompose(pos, rot, scale);
+				local = (float4x4::FromTRS({ pos.z, pos.y, pos.x }, rot, scale)).MulPos(local);
+				file += Exporter::SetVertex(local.x, local.y, local.z);
+				vt += Exporter::SetVertexTexture(rm->texture.data[v * 2], rm->texture.data[v * 2 + 1]);
+			}
+			file += vt;
+
+			file += "usemtl " + mtlTexture + "\n";
+			for (int in = 0; in < rm->indices.size; in += 3) {
+				file += Exporter::SetFace(nvertex + rm->indices.data[in], nvertex + rm->indices.data[in + 2], nvertex + rm->indices.data[in + 1],
+					ntexture + rm->indices.data[in], ntexture + rm->indices.data[in + 2], ntexture + rm->indices.data[in + 1]);
+			}
+			nvertex += rm->vertices.size;
+			ntexture += rm->vertices.size;
+		}
+	}
 
 	FileSystem::SaveTextFile("Export/test.obj", file.c_str());
 	FileSystem::SaveTextFile("Export/test.mtl", mtl.c_str());
