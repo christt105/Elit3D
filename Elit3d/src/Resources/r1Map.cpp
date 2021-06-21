@@ -97,6 +97,9 @@ void r1Map::Export(const uint64_t& tileset, MapLayer::DataTypeExport d, m1MapEdi
 
 void r1Map::ExportJSON(const uint64_t& tileset, MapLayer::DataTypeExport d)
 {
+	if (!FileSystem::Exists("Export/"))
+		FileSystem::CreateFolder("Export/");
+
 	nlohmann::json file;
 
 	file["size"] = { size.x, size.y };
@@ -139,6 +142,9 @@ void r1Map::ExportJSON(const uint64_t& tileset, MapLayer::DataTypeExport d)
 
 void r1Map::ExportXML(const uint64_t& tileset, MapLayer::DataTypeExport d)
 {
+	if (!FileSystem::Exists("Export/"))
+		FileSystem::CreateFolder("Export/");
+
 	pugi::xml_document doc;
 	pugi::xml_node map = doc.append_child("map");
 
@@ -184,6 +190,11 @@ void r1Map::ExportXML(const uint64_t& tileset, MapLayer::DataTypeExport d)
 
 void r1Map::ExportOBJ() const
 {
+	if (!FileSystem::Exists("Export/"))
+		FileSystem::CreateFolder("Export/");
+	if (!FileSystem::Exists("Export/OBJ/"))
+		FileSystem::CreateFolder("Export/OBJ/");
+
 	std::string file;
 	std::string mtl;
 
@@ -205,7 +216,7 @@ void r1Map::ExportOBJ() const
 	const r1Texture* tex = (r1Texture*)App->resources->Get(rtileset->GetTextureUID());
 	std::string full_name = tex->name + "." + tex->extension;
 	mtl += "map_Kd " + full_name + "\n\n";
-	FileSystem::CopyTo(tex->path.c_str(), ("Export/" + full_name).c_str());
+	FileSystem::CopyTo(tex->path.c_str(), ("Export/OBJ/" + full_name).c_str());
 
 	for (auto& l : layers) {
 		if (l->type != MapLayer::Type::TILE)
@@ -298,7 +309,7 @@ void r1Map::ExportOBJ() const
 					textures.emplace(o->texture->GetUID(), texturesNames.size() - 1);
 					mtl += "newmtl " + mtlTexture + "\n";
 					mtl += "map_Kd " + texname + "\n\n";
-					FileSystem::CopyTo(o->texture->path.c_str(), ("Export/" + texname).c_str());
+					FileSystem::CopyTo(o->texture->path.c_str(), ("Export/OBJ/" + texname).c_str());
 				}
 				else {
 					mtlTexture = texturesNames[(*iterTex).second];
@@ -344,7 +355,7 @@ void r1Map::ExportOBJ() const
 						textures.emplace(texture->GetUID(), texturesNames.size() - 1);
 						mtl += "newmtl " + mtlTexture + "\n";
 						mtl += "map_Kd " + texname + "\n\n";
-						FileSystem::CopyTo(texture->path.c_str(), ("Export/" + texname).c_str());
+						FileSystem::CopyTo(texture->path.c_str(), ("Export/OBJ/" + texname).c_str());
 					}
 					else {
 						mtlTexture = texturesNames[(*iterTex).second];
@@ -412,7 +423,7 @@ void r1Map::ExportOBJ() const
 				textures.emplace(texture->GetUID(), texturesNames.size() - 1);
 				mtl += "newmtl " + mtlTexture + "\n";
 				mtl += "map_Kd " + texname + "\n\n";
-				FileSystem::CopyTo(texture->path.c_str(), ("Export/" + texname).c_str());
+				FileSystem::CopyTo(texture->path.c_str(), ("Export/OBJ/" + texname).c_str());
 			}
 			else {
 				mtlTexture = texturesNames[(*iterTex).second];
@@ -442,8 +453,8 @@ void r1Map::ExportOBJ() const
 		}
 	}
 
-	FileSystem::SaveTextFile("Export/test.obj", file.c_str());
-	FileSystem::SaveTextFile("Export/test.mtl", mtl.c_str());
+	FileSystem::SaveTextFile("Export/OBJ/map.obj", file.c_str());
+	FileSystem::SaveTextFile("Export/OBJ/map.mtl", mtl.c_str());
 }
 
 void r1Map::SaveInImage()
