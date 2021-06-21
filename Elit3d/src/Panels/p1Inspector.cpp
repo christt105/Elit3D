@@ -57,4 +57,6 @@ void p1Inspector::SetSelected(void* ptr, SelectedType t)
 {
 	selected = ptr;
 	type = t;
+	if (type == p1Inspector::SelectedType::LAYER)
+		((MapLayer*)selected)->SetSelected();
 }

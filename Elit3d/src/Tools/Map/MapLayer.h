@@ -82,6 +82,7 @@ public:
 
     const char* GetName() const;
     void SetName(const char* n);
+    void SetSelected();
 
     Type GetType() const;
     static std::string TypeToString(Type t);

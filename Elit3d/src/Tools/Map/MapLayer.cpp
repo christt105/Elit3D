@@ -236,6 +236,11 @@ void MapLayer::SetName(const char* n)
 	strcpy_s(buf, 30, n);
 }
 
+void MapLayer::SetSelected()
+{
+	strcpy_s(buf, 30, name.c_str());
+}
+
 MapLayer::Type MapLayer::GetType() const
 {
 	return type;
