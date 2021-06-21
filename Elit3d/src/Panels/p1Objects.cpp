@@ -32,7 +32,7 @@ p1Objects::~p1Objects()
 
 void p1Objects::Start()
 {
-	tileset = (r1Tileset3d*)App->resources->Get(11311841969679106682); //TODO:
+	tileset = (r1Tileset3d*)App->resources->Get(11311841969679106682ULL); //TODO:
 	tileset->Attach();
 
 	viewport = App->render->CreateViewport("tileset3d editor");
@@ -48,7 +48,7 @@ void p1Objects::Start()
 void p1Objects::Update()
 {
 	float height = ImGui::GetContentRegionAvail().y;
-	ImGui::BeginChild("Tree Objects", ImVec2(0.f, height*0.5f), true);
+	ImGui::BeginChild("Tree Objects", ImVec2(0.f, height * 0.5f), true);
 	Header();
 
 	ImGui::Separator();
@@ -230,7 +230,6 @@ void p1Objects::ModalEditTileset()
 			viewport->End();
 		}
 
-
 		viewport->RenderOnImGui();
 
 		ImGui::EndChild();
@@ -312,9 +311,9 @@ void p1Objects::TreeNode(Object* obj)
 	}
 
 	if (tree) {
-			for (auto i = obj->children.begin(); i != obj->children.end(); ++i) {
-				TreeNode(*i);
-			}
+		for (auto i = obj->children.begin(); i != obj->children.end(); ++i) {
+			TreeNode(*i);
+		}
 		ImGui::TreePop();
 	}
 	ImGui::PopID();

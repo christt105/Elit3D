@@ -11,6 +11,7 @@ class c1Mesh : public Component
 {
 	friend class m1Objects;
 	friend class m1MapEditor;
+	friend class r1Map;
 public:
 	c1Mesh(Object* obj);
 	~c1Mesh();
@@ -26,6 +27,7 @@ public:
 
 	nlohmann::json	Parse() override;
 	void			Unparse(const nlohmann::json& node) override;
+
 private:
 	union {
 		Uint64 mesh = 0ULL;

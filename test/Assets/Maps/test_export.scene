@@ -1,0 +1,203 @@
+{
+    "layers": [
+        {
+            "data": "eNrjMtCBQS7imVwA/csJDQ==",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "root": {
+                "active": true,
+                "children": [
+                    {
+                        "active": true,
+                        "children": [
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 100.0,
+                                            "y": 100.0,
+                                            "z": 100.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 5223184751917082839,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 105949328755732084,
+                                        "type": 0,
+                                        "uid": 8937517673651191016
+                                    }
+                                ],
+                                "name": "polygon0"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 100.0,
+                                            "y": 100.0,
+                                            "z": 100.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 14134340929225825492,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 105949328755732084,
+                                        "type": 0,
+                                        "uid": 13017913289165802688
+                                    }
+                                ],
+                                "name": "polygon1"
+                            },
+                            {
+                                "active": true,
+                                "children": [],
+                                "components": [
+                                    {
+                                        "position": {
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "rotation": {
+                                            "w": 1.0,
+                                            "x": 0.0,
+                                            "y": 0.0,
+                                            "z": 0.0
+                                        },
+                                        "scale": {
+                                            "x": 100.0,
+                                            "y": 100.0,
+                                            "z": 100.0
+                                        },
+                                        "type": 1
+                                    },
+                                    {
+                                        "color": {
+                                            "b": 1.0,
+                                            "g": 1.0,
+                                            "r": 1.0
+                                        },
+                                        "shader": "default",
+                                        "texture_uid": 15760110143799685780,
+                                        "type": 2
+                                    },
+                                    {
+                                        "from_model": 105949328755732084,
+                                        "type": 0,
+                                        "uid": 4585966547348789559
+                                    }
+                                ],
+                                "name": "polygon2"
+                            }
+                        ],
+                        "components": [
+                            {
+                                "position": {
+                                    "x": 3.0,
+                                    "y": 0.0,
+                                    "z": 2.0
+                                },
+                                "rotation": {
+                                    "w": 0.03489949554204941,
+                                    "x": 0.0,
+                                    "y": 0.9993908405303955,
+                                    "z": 0.0
+                                },
+                                "scale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                },
+                                "type": 1
+                            }
+                        ],
+                        "name": "sign"
+                    }
+                ],
+                "components": [
+                    {
+                        "position": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "rotation": {
+                            "w": 1.0,
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "type": 1
+                    }
+                ],
+                "name": "Object"
+            },
+            "type": "object",
+            "visible": true
+        }
+    ],
+    "properties": null,
+    "size": [
+        5,
+        5
+    ],
+    "tileset": 14610671625611851776,
+    "version": "0.4.1"
+}

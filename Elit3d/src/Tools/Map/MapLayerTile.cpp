@@ -91,7 +91,7 @@ aiNode* MapLayerTile::Parse(std::vector<aiMesh*>& meshes) const
 
 	ret->mName = name;
 	ret->mNumMeshes = 1;
-	
+
 	aiMesh* mesh = new aiMesh();
 	mesh->mNumVertices = 4;
 	mesh->mVertices = new aiVector3D[4]{

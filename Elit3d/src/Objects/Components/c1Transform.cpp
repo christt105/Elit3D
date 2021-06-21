@@ -95,6 +95,21 @@ void c1Transform::SetScale(float x, float y, float z)
 	mat = float4x4::FromTRS(position, rotation, scale);
 }
 
+float3 c1Transform::GetPosition() const
+{
+	return position;
+}
+
+Quat c1Transform::GetRotation() const
+{
+	return rotation;
+}
+
+float3 c1Transform::GetScale() const
+{
+	return scale;
+}
+
 void c1Transform::CalculateGlobalMatrix()
 {
 	mat = gmat = float4x4::FromTRS(position, rotation, scale);

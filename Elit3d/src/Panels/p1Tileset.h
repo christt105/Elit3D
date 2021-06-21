@@ -46,6 +46,8 @@ public:
 	int2 GetTileSelected() const;
 	TILE_DATA_TYPE GetTileIDSelected() const;
 	void SetTileIDSelected(TILE_DATA_TYPE id);
+	int2 GetTileByID(TILE_DATA_TYPE id) const;
+	int2 GetTileSize() const;
 	int GetTileWidth() const;
 	int GetTileHeight() const;
 
