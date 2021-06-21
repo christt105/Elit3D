@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2] - 2021-06-21
+### Added
+* Export in wavefront obj format
+
+### Fixed
+* Name not changed on selecting a layer on Panel Layers
+
 ## [0.6.1] - 2021-06-07
 ### Fixed
 * Fix black panel on AMD and Intel GPU
