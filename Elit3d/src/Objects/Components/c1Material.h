@@ -8,6 +8,7 @@ class r1Texture;
 
 class c1Material : public Component
 {
+	friend class r1Map;
 public:
 	c1Material(Object* obj);
 	~c1Material();

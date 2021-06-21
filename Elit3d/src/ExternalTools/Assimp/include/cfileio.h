@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_FILEIO_H_INC
 #define AI_FILEIO_H_INC
 
-#include "types.h"
+#include <assimp/types.h>
 #ifdef __cplusplus
 extern "C" {
 #endif

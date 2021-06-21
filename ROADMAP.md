@@ -56,7 +56,7 @@ ClickUp - [List](https://share.clickup.com/l/h/6-29893176-1/771a92a6e746703) - [
 - [x] Brush size
 - [x] Brush shape (circle and rectangle)
 - [x] Semi transparent tile on cursor, where will paint
-- [x] Terrain Brush to draw a terrain transition (similar to [Tiled](https://doc.mapeditor.org/en/stable/manual/using-the-terrain-tool/#using-the-terrain-brush))
+- [ ] Terrain Brush to draw a terrain transition (similar to [Tiled](https://doc.mapeditor.org/en/stable/manual/using-the-terrain-tool/#using-the-terrain-brush))
 
 ## [0.4.0] - 3D Models
 
@@ -66,16 +66,16 @@ ClickUp - [List](https://share.clickup.com/l/h/6-29893177-1/f84816f5bd5b0d7) - [
 - [x] Object layers
 - [x] Load 3D models on scene
 - [ ] Primitives
-- [ ] 3D terrains
+- [x] 3D terrains
 - [x] Textures
-- [ ] Creation tool of sprites
+- [x] Creation tool of sprites
   - Given an image, create a sprite and place it on the map inclined
 
 ## [0.5.0] - Camera
 
 ClickUp - [List](https://share.clickup.com/l/h/6-29893179-1/62627478f184048) - [Board](https://share.clickup.com/b/h/6-29893179-2/51111142eee3b9c)
 
-- [ ] Orthographic and perspective camera
+- [x] Orthographic and perspective camera
 - [ ] Button to focus layers and objects
 - [ ] Change infinite Grid to a grid in bounds of the map and in every layer (subdivide every tile in 9 quads?)
 
@@ -83,9 +83,9 @@ ClickUp - [List](https://share.clickup.com/l/h/6-29893179-1/62627478f184048) - [
 
 ClickUp - [List](https://share.clickup.com/l/h/6-29893180-1/07e0452cd8ad4d2) - [Board](https://share.clickup.com/b/h/6-29893180-2/8c60faf2395afcf)
 
-- [ ] Export Map with objects
-- [ ] Research what we want to export map with 3D objects and terrains
-- [ ] Export all map in a .fbx
+- [x] Export Map with objects
+- [x] Research what we want to export map with 3D objects and terrains
+- [x] Export all map in a .obj
 
 ## [0.7.0] - Shortcuts and key remapping
 

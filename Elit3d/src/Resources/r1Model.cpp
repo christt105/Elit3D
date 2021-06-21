@@ -41,7 +41,7 @@ void r1Model::Unload()
 		delete root;
 		root = nullptr;
 	}
-	
+
 	for (auto& i : meshes) {
 		i->Detach();
 	}
@@ -57,7 +57,7 @@ void r1Model::Unload()
 void r1Model::Load()
 {
 	Assimp::Importer importer;
-	
+
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GlobalScale);
 
 	if (scene == nullptr) {
@@ -93,7 +93,7 @@ void r1Model::Load()
 		}
 
 		oglh::GenVAO(mesh->VAO);
-		
+
 		mesh->vertices.size = m->mNumVertices;
 		mesh->vertices.data = new float[mesh->vertices.size * 3];
 		memset(mesh->vertices.data, 0.f, sizeof(float) * mesh->vertices.size * 3);
@@ -148,7 +148,7 @@ void r1Model::Load()
 	}
 
 	for (int it = 0; it < scene->mNumMaterials; ++it) {
-		aiMaterial const * mat = scene->mMaterials[it];
+		aiMaterial const* mat = scene->mMaterials[it];
 
 		unsigned int ntex = mat->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE);
 		for (unsigned int i = 0; i < ntex; ++i) {
@@ -198,7 +198,7 @@ void r1Model::LoadVars()
 void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
 {
 	n->name = node->mName.C_Str();
-	
+
 	aiVector3D pos, scale; aiQuaternion rot;
 	node->mTransformation.Decompose(scale, rot, pos);
 	n->transform = float4x4::FromTRS({ pos.x, pos.y, pos.z }, Quat(rot.x, rot.y, rot.z, rot.w), { scale.x, scale.y, scale.z });
@@ -215,7 +215,7 @@ void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
 				n->id_tex = materials[m];
 		}
 	}
-	else if(node->mNumMeshes > 1) {
+	else if (node->mNumMeshes > 1) {
 		LOGE("TODO: Node with more than 1 mesh");
 	}
 
@@ -230,7 +230,7 @@ void r1Model::LoadNode(aiNode* node, const aiScene* scene, Node* n)
 void r1Model::CreateHierarchy(nlohmann::json& parent, aiNode* node)
 {
 	parent["name"] = node->mName.C_Str();
-	
+
 	if (node->mNumMeshes > 0) {
 		if (node->mNumMeshes == 1) {
 			parent["id_mesh"] = node->mMeshes[0];
