@@ -200,7 +200,7 @@ void r1Map::ExportOBJ() const
 
 	file += "# Map made with Elit3D version " + std::string(App->GetVersion()) + "\n";
 
-	file += "mtllib test.mtl\n";
+	file += "mtllib map.mtl\n";
 
 	file += "# Planes\n";
 
