@@ -120,7 +120,7 @@ UpdateStatus m1Events::PreUpdate()
 				break;
 			}
 		}
-			break;
+									break;
 		case Event::Type::SAVE_CONFIGURATION:
 			App->SaveConfiguration();
 			break;
@@ -147,7 +147,7 @@ void m1Events::AddEvent(Event* e)
 	events.push(e);
 }
 
-m1Events::Event::Event(): type(m1Events::Event::Type::NONE)
+m1Events::Event::Event() : type(m1Events::Event::Type::NONE)
 {
 }
 

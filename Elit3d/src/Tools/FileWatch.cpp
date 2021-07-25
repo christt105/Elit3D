@@ -16,7 +16,7 @@ FileWatch::FileWatch()
 	fileWatcher = new efsw::FileWatcher();
 	listener = new FileWatch::Listener();
 	std::string path = "./Assets";
-	assetsID = fileWatcher->addWatch(path, listener);
+	assetsID = fileWatcher->addWatch(path, listener, true);
 	fileWatcher->watch();
 }
 
@@ -26,27 +26,35 @@ FileWatch::~FileWatch()
 	delete fileWatcher;
 }
 
-void FileWatch::Subscribe(const char* froot)
-{
-}
-
 void FileWatch::Listener::handleFileAction(efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename)
 {
+	std::string strevent;
 	switch (action)
 	{
 	case efsw::Actions::Add:
-		LOG("DIR (%s) FILE (%s) has event Added", dir.c_str(), filename.c_str());
+		strevent = "Added";
 		break;
 	case efsw::Actions::Delete:
-		LOG("DIR (%s) FILE (%s) has event Delete", dir.c_str(), filename.c_str());
+		strevent = "Delete";
+		//LOG("DIR (%s) FILE (%s) has event Delete", dir.c_str(), filename.c_str());
 		break;
 	case efsw::Actions::Modified:
-		LOG("DIR (%s) FILE (%s) has event Modified", dir.c_str(), filename.c_str());
+		strevent = "Modified";
+		//LOG("DIR (%s) FILE (%s) has event Modified", dir.c_str(), filename.c_str());
 		break;
 	case efsw::Actions::Moved:
-		LOG("DIR (%s) FILE (%s) has event Moved from (%s)", dir.c_str(), filename.c_str(), oldFilename.c_str());
+		strevent = "Moved";
+		//LOG("DIR (%s) FILE (%s) has event Moved from (%s)", dir.c_str(), filename.c_str(), oldFilename.c_str());
 		break;
 	default:
 		LOGE("Should never happen!", dir.c_str(), filename.c_str());
+		return;
+	}
+
+	if (oldFilename == "") {
+		LOG("DIR (%s) FILE (%s) has event %s", dir.c_str(), filename.c_str(), strevent.c_str());
+	}
+	else {
+		LOG("DIR (%s) FILE (%s) has event %s from %s", dir.c_str(), filename.c_str(), strevent.c_str(), oldFilename.c_str());
 	}
 }

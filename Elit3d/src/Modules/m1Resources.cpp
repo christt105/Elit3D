@@ -287,7 +287,6 @@ void m1Resources::ImportFiles(const Folder* parent)
 void m1Resources::StartFileWatcher()
 {
 	filewatch = new FileWatch();
-	filewatch->Subscribe("Assets/"); //TODO: don't create events when own program save a file
 
 	//filewatch->StartWatching();
 }

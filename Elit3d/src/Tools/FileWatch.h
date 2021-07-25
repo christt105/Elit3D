@@ -10,12 +10,12 @@
 class FileWatch
 {
 	friend class m1Resources;
-private:
+
 	class Listener : public efsw::FileWatchListener {
 	public:
 		Listener() = default;
 
-		void handleFileAction(efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "");
+		void handleFileAction(efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "") override;
 	};
 public:
 	FileWatch();
@@ -23,9 +23,7 @@ public:
 
 private:
 	efsw::FileWatcher* fileWatcher = nullptr;
-	void Subscribe(const char* folder);
 
 	Listener* listener = nullptr;
-	efsw::WatchID assetsID = 0ULL;
+	efsw::WatchID assetsID = 0L;
 };
-

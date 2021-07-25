@@ -39,8 +39,8 @@ project "Elit3d"
 		"Ole32.lib",
 		"OleAut32.lib",
 		"wbemuuid.lib",
-		"Advapi32.lib",
-		"efsw.lib"
+		"Advapi32.lib"
+		--"efsw.lib"
 	}
 
 	files { "**.hpp", "**.cpp", "**.h", "**.c", "**.rc", "**.ico" }
@@ -73,8 +73,8 @@ project "Elit3d"
 			"%{wks.location}/Elit3d/src/ExternalTools/SDL2/libx86",
 			"%{wks.location}/Elit3d/src/ExternalTools/GLEW/libx86",
 			"%{wks.location}/Elit3d/src/ExternalTools/Assimp/libx86",
-			"%{wks.location}/Elit3d/src/ExternalTools/DevIL/libx86",
-			"%{wks.location}/Elit3d/src/ExternalTools/efsw/libx86"
+			"%{wks.location}/Elit3d/src/ExternalTools/DevIL/libx86"
+			--"%{wks.location}/Elit3d/src/ExternalTools/efsw/libx86"
 		}
 		
 		postbuildcommands { 
@@ -83,8 +83,8 @@ project "Elit3d"
 			"{COPY} src/ExternalTools/DevIL/libx86/DevIL.dll 	bin/%{cfg.architecture}/%{cfg.buildcfg}",
 			"{COPY} src/ExternalTools/DevIL/libx86/ILU.dll 		bin/%{cfg.architecture}/%{cfg.buildcfg}",
 			"{COPY} src/ExternalTools/DevIL/libx86/ILUT.dll 	bin/%{cfg.architecture}/%{cfg.buildcfg}",
-			"{COPY} src/ExternalTools/GLEW/libx86/glew32.dll 	bin/%{cfg.architecture}/%{cfg.buildcfg}",
-			"{COPY} src/ExternalTools/efsw/libx86/efsw.dll 		bin/%{cfg.architecture}/%{cfg.buildcfg}"
+			"{COPY} src/ExternalTools/GLEW/libx86/glew32.dll 	bin/%{cfg.architecture}/%{cfg.buildcfg}"
+			--"{COPY} src/ExternalTools/efsw/libx86/efsw.dll 		bin/%{cfg.architecture}/%{cfg.buildcfg}"
 			}
 	
 	filter "platforms:x64"
@@ -94,8 +94,8 @@ project "Elit3d"
 			"%{wks.location}/Elit3d/src/ExternalTools/GLEW/libx64",
 			"%{wks.location}/Elit3d/src/ExternalTools/SDL2/libx64",
 			"%{wks.location}/Elit3d/src/ExternalTools/Assimp/libx64",
-			"%{wks.location}/Elit3d/src/ExternalTools/DevIL/libx64",
-			"%{wks.location}/Elit3d/src/ExternalTools/efsw/libx64"
+			"%{wks.location}/Elit3d/src/ExternalTools/DevIL/libx64"
+			--"%{wks.location}/Elit3d/src/ExternalTools/efsw/libx64"
 		}
 		
 		postbuildcommands { 
@@ -104,7 +104,7 @@ project "Elit3d"
 			"{COPY} src/ExternalTools/DevIL/libx64/DevIL.dll 	bin/%{cfg.architecture}/%{cfg.buildcfg}",
 			"{COPY} src/ExternalTools/DevIL/libx64/ILU.dll 		bin/%{cfg.architecture}/%{cfg.buildcfg}",
 			"{COPY} src/ExternalTools/DevIL/libx64/ILUT.dll 	bin/%{cfg.architecture}/%{cfg.buildcfg}",
-			"{COPY} src/ExternalTools/GLEW/libx64/glew32.dll 	bin/%{cfg.architecture}/%{cfg.buildcfg}",
-			"{COPY} src/ExternalTools/efsw/libx64/efsw.dll 		bin/%{cfg.architecture}/%{cfg.buildcfg}"
+			"{COPY} src/ExternalTools/GLEW/libx64/glew32.dll 	bin/%{cfg.architecture}/%{cfg.buildcfg}"
+			--"{COPY} src/ExternalTools/efsw/libx64/efsw.dll 		bin/%{cfg.architecture}/%{cfg.buildcfg}"
 		}
 	
