@@ -201,9 +201,9 @@ void m1MapEditor::Mouse(const Ray& ray)
 	if (!Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[selected]->height, ray.pos, ray.dir, t) && t >= 0.f)
 		return;
 
-			float3 position = ray.GetPoint(t);
-			auto col = (int)floor(position.z);
-			auto row = (int)floor(position.x);
+	float3 position = ray.GetPoint(t);
+	auto col = (int)floor(position.z);
+	auto row = (int)floor(position.x);
 
 	switch (m->layers[selected]->GetType())
 	{

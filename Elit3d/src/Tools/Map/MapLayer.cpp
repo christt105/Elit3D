@@ -362,3 +362,14 @@ void OpenGLBuffers::InitData()
 
 	oglh::UnBindBuffers();
 }
+
+MapLayer::EditLayerCommand::EditLayerCommand(MapLayer* layer) : lay(layer)
+{
+	data = layer->SerializeData(MapLayer::DataTypeExport::BASE64_ZLIB);
+}
+
+void MapLayer::EditLayerCommand::Undo()
+{
+	lay->DeserializeData(data, MapLayer::DataTypeExport::BASE64_ZLIB);
+	lay->SetDataAfterUnparse();
+}

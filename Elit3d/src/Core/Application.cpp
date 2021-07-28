@@ -15,6 +15,7 @@
 #include "Modules/m1Importer.h"
 #include "Modules/m1Events.h"
 #include "Modules/m1MapEditor.h"
+#include "Modules/m1UndoRedo.h"
 
 #include "Tools/FileSystem.h"
 
@@ -51,11 +52,13 @@ bool Application::Init()
 	importer = new m1Importer();
 	events = new m1Events();
 	map_editor = new m1MapEditor();
+	undo = new m1UndoRedo();
 
 	//Assign order of execution to modules NOTE: Inverse order to CleanUp()
 	modules.push_back(events);
 	modules.push_back(input);
 	modules.push_back(window);
+	modules.push_back(undo);
 
 	modules.push_back(resources);
 	modules.push_back(importer);
