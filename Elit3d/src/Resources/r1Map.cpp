@@ -19,6 +19,7 @@
 #include "Resources/r1Model.h"
 #include "Resources/r1Mesh.h"
 
+#include "Modules/m1Input.h"
 #include "Modules/m1UndoRedo.h"
 
 #include "ExternalTools/MathGeoLib/include/Math/float2.h"
@@ -517,8 +518,6 @@ void r1Map::Edit(MapLayerTile* layer, int row, int col, int brushSize, p1Tools::
 {
 	oglh::BindTexture(layer->id_tex);
 	unsigned char bits[3] = { g, 0, b };
-
-	App->undo->AddCommand(new MapLayer::EditLayerCommand(layer));
 
 	switch (tool)
 	{

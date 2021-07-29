@@ -22,6 +22,7 @@
 #include "Resources/r1Model.h"
 
 #include "Modules/m1Camera3D.h"
+#include "Modules/m1UndoRedo.h"
 
 #include "m1Objects.h"
 
@@ -196,6 +197,9 @@ void m1MapEditor::Mouse(const Ray& ray)
 	int selected = panel_layers->GetSelected();
 	if (selected < 0 || selected >= m->layers.size())
 		return;
+
+	if (App->input->IsMouseButtonDown(SDL_BUTTON_LEFT))
+		App->undo->AddCommand(new MapLayer::EditLayerCommand(m->layers[selected]));
 
 	float t = 0.f;
 	if (!Plane::IntersectLinePlane(float3(0.f, 1.f, 0.f), m->layers[selected]->height, ray.pos, ray.dir, t) && t >= 0.f)

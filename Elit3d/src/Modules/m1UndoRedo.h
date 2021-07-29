@@ -16,6 +16,7 @@ public:
     bool CleanUp() override;
 
 private:
-    std::list<Command*> commands;
+    std::vector<Command*> commands;
+    int iterator = -1;
 };
 
