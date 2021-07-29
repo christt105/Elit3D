@@ -370,6 +370,13 @@ MapLayer::EditLayerCommand::EditLayerCommand(MapLayer* layer) : lay(layer)
 
 void MapLayer::EditLayerCommand::Undo()
 {
+	std::string tmp = lay->SerializeData(MapLayer::DataTypeExport::BASE64_ZLIB);
 	lay->DeserializeData(data, MapLayer::DataTypeExport::BASE64_ZLIB);
+	data = tmp;
 	lay->SetDataAfterUnparse();
+}
+
+void MapLayer::EditLayerCommand::Redo()
+{
+	Undo();
 }

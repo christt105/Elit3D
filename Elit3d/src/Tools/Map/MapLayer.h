@@ -41,6 +41,7 @@ class MapLayer {
         EditLayerCommand(MapLayer* layer);
 
         void Undo() override;
+        void Redo() override;
     private:
         std::string data;
         MapLayer* lay = nullptr;
