@@ -36,7 +36,7 @@
 
 OpenGLBuffers MapLayer::tile = OpenGLBuffers();
 
-MapLayer::MapLayer(MapLayer::Type t, r1Map* m) : map(m), type(t)
+MapLayer::MapLayer(Type t, r1Map* m) : map(m), type(t)
 {
 	if (tile.vertices.size == 0u)
 		tile.InitData();
@@ -48,9 +48,11 @@ void MapLayer::Resize(const int2& oldSize, const int2& newSize)
 	TILE_DATA_TYPE* new_data = new TILE_DATA_TYPE[newSize.x * newSize.y];
 	memset(new_data, 0, sizeof(TILE_DATA_TYPE) * newSize.x * newSize.y);
 
-	for (int i = 0; i < oldSize.x * oldSize.y; ++i) {
-		int2 colrow = int2(i % oldSize.x, (i / oldSize.x));
-		if (colrow.x < newSize.x && colrow.y < newSize.y) {
+	for (int i = 0; i < oldSize.x * oldSize.y; ++i)
+	{
+		auto colrow = int2(i % oldSize.x, (i / oldSize.x));
+		if (colrow.x < newSize.x && colrow.y < newSize.y)
+		{
 			int new_index = (colrow.x + newSize.x * colrow.y);
 			int old_index = (colrow.x + oldSize.x * colrow.y);
 			new_data[new_index] = data[old_index];
@@ -69,7 +71,9 @@ void MapLayer::SelectBuffers()
 void MapLayer::DrawTile(const int2& size)
 {
 	static auto shader = App->render->GetShader("tilemap");
-	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, 0.f, 0.f), Quat::identity, float3((float)size.x, 1.f, (float)size.y))/* height of layer */);
+	shader->SetMat4("model", float4x4::FromTRS(float3(0.f, 0.f, 0.f), Quat::identity,
+	                                           float3(static_cast<float>(size.x), 1.f, static_cast<float>(size.y)))
+	                /* height of layer */);
 	oglh::DrawElements(tile.indices.size);
 }
 
@@ -82,7 +86,9 @@ void MapLayer::OnInspector()
 {
 	if (ImGui::InputText("Name", buf, 30))
 		name.assign(buf);
-	ImGui::Text("Type: "); ImGui::SameLine(); ImGui::Text(MapLayer::TypeToString(type).c_str());
+	ImGui::Text("Type: ");
+	ImGui::SameLine();
+	ImGui::Text(TypeToString(type).c_str());
 	ImGui::Checkbox("Visible", &visible);
 	ImGui::Checkbox("Lock", &locked);
 	ImGui::SliderFloat("Opacity", &opacity, 0.f, 1.f);
@@ -91,12 +97,13 @@ void MapLayer::OnInspector()
 
 	ImGui::Separator();
 
-	if (ImGui::CollapsingHeader("Custom Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
+	if (ImGui::CollapsingHeader("Custom Properties", ImGuiTreeNodeFlags_DefaultOpen))
+	{
 		properties.Display();
 	}
 }
 
-void MapLayer::Parse(pugi::xml_node& node, MapLayer::DataTypeExport t, bool exporting) const
+void MapLayer::Parse(pugi::xml_node& node, DataTypeExport t, bool exporting) const
 {
 	properties.SaveProperties(node.append_child("properties"));
 
@@ -110,13 +117,13 @@ void MapLayer::Parse(pugi::xml_node& node, MapLayer::DataTypeExport t, bool expo
 
 	auto ndata = node.append_child("data");
 	auto encoding = ndata.append_attribute("encoding");
-	encoding.set_value(MapLayer::DataTypeToString(t).c_str());
+	encoding.set_value(DataTypeToString(t).c_str());
 	ndata.append_child(pugi::node_pcdata).set_value(SerializeData(t).c_str());
 
 	node.append_attribute("type").set_value(TypeToString(type).c_str());
 }
 
-void MapLayer::Parse(nlohmann::json& node, MapLayer::DataTypeExport t, bool exporting) const
+void MapLayer::Parse(nlohmann::json& node, DataTypeExport t, bool exporting) const
 {
 	properties.SaveProperties(node["properties"]);
 
@@ -125,7 +132,7 @@ void MapLayer::Parse(nlohmann::json& node, MapLayer::DataTypeExport t, bool expo
 	node["opacity"] = opacity;
 	node["visible"] = visible;
 	node["locked"] = locked;
-	node["displacement"] = { displacement[0], displacement[1] };
+	node["displacement"] = {displacement[0], displacement[1]};
 
 	node["encoding"] = DataTypeToString(t);
 	node["data"] = SerializeData(t);
@@ -133,46 +140,48 @@ void MapLayer::Parse(nlohmann::json& node, MapLayer::DataTypeExport t, bool expo
 	node["type"] = TypeToString(type);
 }
 
-std::string MapLayer::SerializeData(MapLayer::DataTypeExport t) const
+std::string MapLayer::SerializeData(DataTypeExport t) const
 {
 	std::string ret;
 
-	if (t != MapLayer::DataTypeExport::CSV_NO_NEWLINE)
+	if (t != DataTypeExport::CSV_NO_NEWLINE)
 		ret = '\n';
 
 	int2 size = map->GetSize();
-	for (int i = size.y - 1; i >= 0; --i) {
-		for (int j = 0; j < size.x; ++j) {
+	for (int i = size.y - 1; i >= 0; --i)
+	{
+		for (int j = 0; j < size.x; ++j)
+		{
 			ret.append(std::to_string(data[i * size.x + j]) + ','); // TODO: encode 4 bytes array
 		}
 
 		if (i == 0)
 			ret.pop_back();
-		if (t != MapLayer::DataTypeExport::CSV_NO_NEWLINE)
+		if (t != DataTypeExport::CSV_NO_NEWLINE)
 			ret += '\n';
 	}
 
-	if (t == MapLayer::DataTypeExport::BASE64_NO_COMPRESSION)
+	if (t == DataTypeExport::BASE64_NO_COMPRESSION)
 		ret = base64_encode(ret);
-	else if (t == MapLayer::DataTypeExport::BASE64_ZLIB)
+	else if (t == DataTypeExport::BASE64_ZLIB)
 		ret = base64_encode(compress_string(ret));
 
 	return ret;
 }
 
-void MapLayer::DeserializeData(const std::string& strdata, MapLayer::DataTypeExport t) const
+void MapLayer::DeserializeData(const std::string& strdata, DataTypeExport t) const
 {
 	std::string rawdata;
 	switch (t)
 	{
-	case MapLayer::DataTypeExport::CSV:
-	case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
+	case DataTypeExport::CSV:
+	case DataTypeExport::CSV_NO_NEWLINE:
 		rawdata = strdata;
 		break;
-	case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
+	case DataTypeExport::BASE64_NO_COMPRESSION:
 		rawdata = base64_decode(strdata);
 		break;
-	case MapLayer::DataTypeExport::BASE64_ZLIB:
+	case DataTypeExport::BASE64_ZLIB:
 		rawdata = decompress_string(base64_decode(strdata));
 		break;
 	}
@@ -183,23 +192,28 @@ void MapLayer::DeserializeData(const std::string& strdata, MapLayer::DataTypeExp
 		++i;
 	int x = 0;
 	int y = size.y - 1;
-	while (i != rawdata.end()) {
+	while (i != rawdata.end())
+	{
 		std::string n;
-		while (i != rawdata.end() && *i != ',') {
-			if (*i == '\n' && (i + 1) != rawdata.end()) { // Weird way to load cause the origin on textures is Bottom-Left and not Top-Left. TODO?
+		while (i != rawdata.end() && *i != ',')
+		{
+			if (*i == '\n' && (i + 1) != rawdata.end())
+			{
+				// Weird way to load cause the origin on textures is Bottom-Left and not Top-Left. TODO?
 				x = 0;
 				--y;
 				break;
 			}
 			n += *i;
-			i++;
+			++i;
 		}
-		if (!n.empty()) {
-			data[size.x * y + x] = (TILE_DATA_TYPE)std::stoul(n);
+		if (!n.empty())
+		{
+			data[size.x * y + x] = static_cast<unsigned>(std::stoul(n));
 			++x;
 		}
 		if (i != rawdata.end())
-			i++;
+			++i;
 	}
 }
 
@@ -209,20 +223,21 @@ void MapLayer::Unparse(const pugi::xml_node& node)
 
 void MapLayer::Unparse(const nlohmann::json& node)
 {
-	name	= node.value("name", "Layer");
-	height	= node.value("height", 0.f);
+	name = node.value("name", "Layer");
+	height = node.value("height", 0.f);
 	opacity = node.value("opacity", 1.f);
 	visible = node.value("visible", true);
-	locked	= node.value("locked", false);
+	locked = node.value("locked", false);
 
-	if (node.find("displacement") != node.end()) {
+	if (node.find("displacement") != node.end())
+	{
 		displacement[0] = node["displacement"][0];
 		displacement[1] = node["displacement"][1];
 	}
 
 	properties.LoadProperties(node["properties"]);
 
-	DeserializeData(node.value("data", ""), MapLayer::StringToDataType(node.value("encoding", "")));
+	DeserializeData(node.value("data", ""), StringToDataType(node.value("encoding", "")));
 }
 
 const char* MapLayer::GetName() const
@@ -250,9 +265,9 @@ std::string MapLayer::TypeToString(Type t)
 {
 	switch (t)
 	{
-	case MapLayer::Type::TILE:
+	case Type::TILE:
 		return std::string("tile");
-	case MapLayer::Type::OBJECT:
+	case Type::OBJECT:
 		return std::string("object");
 	}
 	return std::string("NONE");
@@ -262,9 +277,9 @@ std::string MapLayer::ToString() const
 {
 	switch (type)
 	{
-	case MapLayer::Type::TILE:
+	case Type::TILE:
 		return "tile";
-	case MapLayer::Type::OBJECT:
+	case Type::OBJECT:
 		return "object";
 	}
 	return std::string("NONE");
@@ -272,25 +287,27 @@ std::string MapLayer::ToString() const
 
 MapLayer::Type MapLayer::StringToType(const std::string& s)
 {
-	if (s.compare("tile") == 0) {
-		return MapLayer::Type::TILE;
+	if (s.compare("tile") == 0)
+	{
+		return Type::TILE;
 	}
-	else if (s.compare("object") == 0) {
-		return MapLayer::Type::OBJECT;
+	if (s.compare("object") == 0)
+	{
+		return Type::OBJECT;
 	}
-	return MapLayer::Type::NONE;
+	return Type::NONE;
 }
 
 std::string MapLayer::DataTypeToString(DataTypeExport t)
 {
 	switch (t)
 	{
-	case MapLayer::DataTypeExport::CSV:
-	case MapLayer::DataTypeExport::CSV_NO_NEWLINE:
+	case DataTypeExport::CSV:
+	case DataTypeExport::CSV_NO_NEWLINE:
 		return "csv";
-	case MapLayer::DataTypeExport::BASE64_NO_COMPRESSION:
+	case DataTypeExport::BASE64_NO_COMPRESSION:
 		return "base64";
-	case MapLayer::DataTypeExport::BASE64_ZLIB:
+	case DataTypeExport::BASE64_ZLIB:
 		return "base64-zlib";
 	}
 
@@ -299,17 +316,20 @@ std::string MapLayer::DataTypeToString(DataTypeExport t)
 
 MapLayer::DataTypeExport MapLayer::StringToDataType(const std::string& s)
 {
-	if (s.compare("csv") == 0) {
-		return MapLayer::DataTypeExport::CSV;
+	if (s.compare("csv") == 0)
+	{
+		return DataTypeExport::CSV;
 	}
-	if (s.compare("base64") == 0) {
-		return MapLayer::DataTypeExport::BASE64_NO_COMPRESSION;
+	if (s.compare("base64") == 0)
+	{
+		return DataTypeExport::BASE64_NO_COMPRESSION;
 	}
-	if (s.compare("base64-zlib") == 0) {
-		return MapLayer::DataTypeExport::BASE64_ZLIB;
+	if (s.compare("base64-zlib") == 0)
+	{
+		return DataTypeExport::BASE64_ZLIB;
 	}
 
-	return MapLayer::DataTypeExport::NONE;
+	return DataTypeExport::NONE;
 }
 
 OpenGLBuffers::~OpenGLBuffers()
@@ -328,25 +348,41 @@ void OpenGLBuffers::InitData()
 	vertices.size = 4;
 	vertices.data = new float[vertices.size * 3];
 
-	vertices.data[0] = 0.f;		vertices.data[1 ] = 0.f;		vertices.data[2 ] = 0.f;
-	vertices.data[3] = 1.f; 	vertices.data[4 ] = 0.f;		vertices.data[5 ] = 0.f;
-	vertices.data[6] = 1.f; 	vertices.data[7 ] = 0.f;		vertices.data[8 ] = 1.f;
-	vertices.data[9] = 0.f;		vertices.data[10] = 0.f;		vertices.data[11] = 1.f;
+	vertices.data[0] = 0.f;
+	vertices.data[1] = 0.f;
+	vertices.data[2] = 0.f;
+	vertices.data[3] = 1.f;
+	vertices.data[4] = 0.f;
+	vertices.data[5] = 0.f;
+	vertices.data[6] = 1.f;
+	vertices.data[7] = 0.f;
+	vertices.data[8] = 1.f;
+	vertices.data[9] = 0.f;
+	vertices.data[10] = 0.f;
+	vertices.data[11] = 1.f;
 
 	indices.size = 6;
 	indices.data = new unsigned int[indices.size];
 
-	indices.data[0] = 0u; indices.data[1] = 2u; indices.data[2] = 1u;
-	indices.data[3] = 0u; indices.data[4] = 3u; indices.data[5] = 2u;
+	indices.data[0] = 0u;
+	indices.data[1] = 2u;
+	indices.data[2] = 1u;
+	indices.data[3] = 0u;
+	indices.data[4] = 3u;
+	indices.data[5] = 2u;
 
 	texture.size = 4;
-	texture.data = new float[texture.size * 2];
-	memset(texture.data, 0, texture.size * 2 * sizeof(float));
+	texture.data = new float[texture.size * static_cast<size_t>(2)];
+	memset(texture.data, 0, texture.size * (2 * sizeof(float)));
 
-	texture.data[0] = 0.f;		texture.data[1] = 0.f;
-	texture.data[2] = 1.f;		texture.data[3] = 0.f;
-	texture.data[4] = 1.f;		texture.data[5] = 1.f;
-	texture.data[6] = 0.f;		texture.data[7] = 1.f;
+	texture.data[0] = 0.f;
+	texture.data[1] = 0.f;
+	texture.data[2] = 1.f;
+	texture.data[3] = 0.f;
+	texture.data[4] = 1.f;
+	texture.data[5] = 1.f;
+	texture.data[6] = 0.f;
+	texture.data[7] = 1.f;
 
 	// VERTEX ARRAY OBJECT
 	oglh::GenVAO(VAO);
@@ -365,14 +401,12 @@ void OpenGLBuffers::InitData()
 
 MapLayer::EditLayerCommand::EditLayerCommand(MapLayer* layer) : lay(layer)
 {
-	data = layer->SerializeData(MapLayer::DataTypeExport::BASE64_ZLIB);
+	data = layer->SerializeData(DataTypeExport::BASE64_ZLIB);
 }
 
 void MapLayer::EditLayerCommand::Undo()
 {
-	std::string tmp = lay->SerializeData(MapLayer::DataTypeExport::BASE64_ZLIB);
-	lay->DeserializeData(data, MapLayer::DataTypeExport::BASE64_ZLIB);
-	data = tmp;
+	lay->DeserializeData(data, DataTypeExport::BASE64_ZLIB);
 	lay->SetDataAfterUnparse();
 }
 
