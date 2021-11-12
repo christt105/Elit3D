@@ -110,7 +110,7 @@ void m1Input::HandleKeyboard()
         if (keys[i]) {
             if (keyboard[i] == KeyState::DOWN)
                 keyboard[i] = KeyState::REPEAT;
-            else
+            else if(keyboard[i] != KeyState::REPEAT)
                 keyboard[i] = KeyState::DOWN;
         }
         else {

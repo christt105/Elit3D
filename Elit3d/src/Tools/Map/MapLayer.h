@@ -4,6 +4,7 @@
 
 #include "Tools/Math/int2.h"
 #include "Tools/OpenGL/Buffer.h"
+#include "Tools/Command.h"
 #include "ExternalTools/MathGeoLib/include/Math/float3.h"
 
 #include "Core/Globals.h"
@@ -34,6 +35,17 @@ class MapLayer {
     friend class r1Map;
     friend class m1MapEditor;
     friend class p1Layers;
+
+    class EditLayerCommand : public Command { //TODO: Check if it is the best place to put this
+    public:
+        EditLayerCommand(MapLayer* layer);
+
+        void Undo() override;
+        void Redo() override;
+    private:
+        std::string data;
+        MapLayer* lay = nullptr;
+    };
 
 public:
     enum class DataTypeExport {
@@ -76,6 +88,7 @@ public:
     
     virtual void Unparse(const pugi::xml_node& node);
     virtual void Unparse(const nlohmann::json& node);
+    virtual void SetDataAfterUnparse() {};
 
     std::string SerializeData(MapLayer::DataTypeExport t) const;
     void        DeserializeData(const std::string& strdata, MapLayer::DataTypeExport t) const;

@@ -21,6 +21,7 @@ class m1Resources;
 class m1Importer;
 class m1Events;
 class m1MapEditor;
+class m1UndoRedo;
 
 class Application
 {
@@ -47,6 +48,7 @@ public:
 	m1Importer*		importer = nullptr;
 	m1Events*		events = nullptr;
 	m1MapEditor*	map_editor = nullptr;
+	m1UndoRedo*		undo = nullptr;
 
 	DebugVars debug;
 	SystemInfo sys_info;

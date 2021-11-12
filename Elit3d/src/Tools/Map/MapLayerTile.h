@@ -19,6 +19,8 @@ public:
     void Unparse(const pugi::xml_node& node) override;
     void Unparse(const nlohmann::json& node) override;
 
+    void SetDataAfterUnparse() override;
+
 public:
     unsigned int id_tex = 0u;
 };

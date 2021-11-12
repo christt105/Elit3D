@@ -19,6 +19,9 @@
 #include "Resources/r1Model.h"
 #include "Resources/r1Mesh.h"
 
+#include "Modules/m1Input.h"
+#include "Modules/m1UndoRedo.h"
+
 #include "ExternalTools/MathGeoLib/include/Math/float2.h"
 #include "Tools/Map/MapLayer.h"
 #include "Tools/Map/MapLayerTile.h"

@@ -1,0 +1,26 @@
+{
+    "layers": [
+        {
+            "data": "eNrjMrGw0IFhLlwcLgCSFQdN",
+            "displacement": [
+                0,
+                0
+            ],
+            "encoding": "base64-zlib",
+            "height": 0.0,
+            "locked": false,
+            "name": "Layer",
+            "opacity": 1.0,
+            "properties": null,
+            "type": "tile",
+            "visible": true
+        }
+    ],
+    "properties": null,
+    "size": [
+        3,
+        3
+    ],
+    "tileset": 14610671625611851776,
+    "version": "0.6.2"
+}
