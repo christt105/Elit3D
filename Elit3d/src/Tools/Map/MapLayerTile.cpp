@@ -125,7 +125,11 @@ void MapLayerTile::Unparse(const pugi::xml_node& node)
 void MapLayerTile::Unparse(const nlohmann::json& node)
 {
 	MapLayer::Unparse(node);
+	SetDataAfterUnparse();
+}
 
+void MapLayerTile::SetDataAfterUnparse()
+{
 	int2 size = map->GetSize();
 	unsigned char* tex_data = new unsigned char[size.x * size.y * 3];
 	memset(tex_data, 254, sizeof(unsigned char) * size.x * size.y * 3);
@@ -138,6 +142,7 @@ void MapLayerTile::Unparse(const nlohmann::json& node)
 		}
 	}
 
+	oglh::DeleteTexture(id_tex);
 	oglh::GenTextureData(id_tex, oglh::Wrap::Repeat, oglh::Filter::Nearest, size.x, size.y, tex_data);
 	oglh::UnBindTexture();
 	delete[] tex_data;
