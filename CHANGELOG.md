@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.3] - 2021-06-21
+### Fixed
+* Crash on open application
+
 ## [0.6.2] - 2021-06-21
 ### Added
 * Export in wavefront obj format
