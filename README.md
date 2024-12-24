@@ -1,3 +1,9 @@
+> [!WARNING]
+> **This project is currently not being maintained.**  
+> I am working on a new version of Elit3D from scratch using the [Godot Engine](https://godotengine.org/). The new version will be released once it achieves the same functionality as the current version and reaches a stable state.
+> 
+> Thank you for your interest and patience. If you have any questions or suggestions, feel free to open an [issue](https://github.com/christt105/Elit3D/issues/new/choose) or contact me directly.
+
 # Elit3D [![GitHub license](https://img.shields.io/github/license/christt105/Elit3D)](https://github.com/christt105/Elit3D/blob/master/LICENSE)
 
 ![Overview](https://raw.githubusercontent.com/christt105/Elit3D/main/docs/images/overview.png)
