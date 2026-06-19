@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elit3D — Open-source 3D tile map editor</title>
+  <meta name="description" content="Elit3D is a free and open-source 3D tile map editor. Build multi-layered tile maps with 3D objects, paint at different heights, import assets and export to OBJ/GLTF. Rebuilt in Godot and C#." />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Elit3D — Open-source 3D tile map editor" />
+  <meta property="og:description" content="A free and open-source 3D tile map editor. Multi-layer tiles, 3D objects, height-based painting and OBJ/GLTF export. Rebuilt in Godot + C#." />
+  <meta property="og:image" content="assets/img/banner.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <!-- ====================== NAV ====================== -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="nav__brand" href="#top" aria-label="Elit3D home">
+        <img src="assets/img/icon.svg" alt="" class="nav__logo" />
+        <span class="nav__name">ELIT<span class="accent">3D</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#open-source">Open source</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#support">Donate</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/christt105/Elit3D-Godot" target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ====================== HERO ====================== -->
+    <section class="hero">
+      <div class="hero__glow" aria-hidden="true"></div>
+      <div class="container hero__inner">
+        <span class="badge">
+          <span class="badge__dot"></span>
+          Work in progress · rebuilt in Godot 4.6 + C#
+        </span>
+        <h1 class="hero__title">
+          The open-source<br /><span class="accent">3D tile map</span> editor
+        </h1>
+        <p class="hero__lead">
+          Elit3D is a free, open-source editor for building tile maps in 3D. Stack layers of
+          tiles and 3D objects, paint terrain at different heights, and export your worlds to
+          standard formats — perfect for retro-style RPG maps.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="https://christt105.itch.io/elit3d" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+            Download
+          </a>
+          <a class="btn btn--secondary" href="https://github.com/christt105/Elit3D-Godot" target="_blank" rel="noopener">
+            <svg viewBox="0 0 16 16" width="17" height="17" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            View on GitHub
+          </a>
+          <a class="btn btn--ghost" href="#support">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A4.5 4.5 0 0017.5 4c-1.74 0-3 .5-4 2-1-1.5-2.26-2-4-2A4.5 4.5 0 002 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/></svg>
+            Donate
+          </a>
+        </div>
+        <p class="hero__note">Free forever · BSD-2 licensed · Windows &amp; Linux</p>
+      </div>
+
+      <div class="container hero__shot">
+        <img src="assets/img/banner.png" alt="Elit3D logo" class="hero__banner" />
+        <p class="hero__shot-caption">No screenshots yet — <a href="#gallery">help us show it off ↓</a></p>
+      </div>
+    </section>
+
+    <!-- ====================== INTRO STATS ====================== -->
+    <section class="strip">
+      <div class="container strip__inner">
+        <div class="strip__item">
+          <span class="strip__num">3D</span>
+          <span class="strip__label">Tile-based, in real 3D space</span>
+        </div>
+        <div class="strip__item">
+          <span class="strip__num">100%</span>
+          <span class="strip__label">Free &amp; open source</span>
+        </div>
+        <div class="strip__item">
+          <span class="strip__num">OBJ</span>
+          <span class="strip__label">Export to standard formats</span>
+        </div>
+        <div class="strip__item">
+          <span class="strip__num">v1.0</span>
+          <span class="strip__label">Targeting a 2026 release</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== FEATURES ====================== -->
+    <section id="features" class="section">
+      <div class="container">
+        <div class="section__head">
+          <span class="eyebrow">Features</span>
+          <h2 class="section__title">Everything you need to build a tile world</h2>
+          <p class="section__sub">
+            Designed for multi-layered, height-aware maps in the spirit of classic
+            4th-generation RPG worlds.
+          </p>
+        </div>
+
+        <div class="grid grid--features">
+          <article class="card">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>
+            </div>
+            <h3>Multi-layer tiles</h3>
+            <p>Compose maps from stacked layers of tiles, mixing 2D tilesets and 3D objects into a single scene.</p>
+          </article>
+
+          <article class="card">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05"/><path d="M12 22.08V12"/></svg>
+            </div>
+            <h3>3D object placement</h3>
+            <p>Import your own 3D models and drop them into the grid alongside flat tiles to add real depth.</p>
+          </article>
+
+          <article class="card">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 114.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 00-3-3.02z"/></svg>
+            </div>
+            <h3>Terrain brushes</h3>
+            <p>Paint terrain quickly with brush tools — fill, draw and erase across the map without fuss.</p>
+          </article>
+
+          <article class="card">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v6h-6"/></svg>
+            </div>
+            <h3>Height-based painting</h3>
+            <p>Place tiles and sprites across different elevation planes to build hills, cliffs and inclines.</p>
+          </article>
+
+          <article class="card">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 12l-4-4m4 4l4-4"/><path d="M2 17v2a2 2 0 002 2h16a2 2 0 002-2v-2"/></svg>
+            </div>
+            <h3>Asset import &amp; hot-reload</h3>
+            <p>Bring in your textures and meshes, and see edits reflected as you tweak them outside the editor.</p>
+          </article>
+
+          <article class="card">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 13l2 2 4-4"/></svg>
+            </div>
+            <h3>OBJ / GLTF export</h3>
+            <p>Export finished maps to Wavefront OBJ and glTF so they drop straight into your engine of choice.</p>
+          </article>
+
+          <article class="card">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6a9 9 0 009 9 9 9 0 009-9V7"/><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M9 11v4"/></svg>
+            </div>
+            <h3>Undo / redo &amp; safe saving</h3>
+            <p>A full history stack and careful save handling keep your work safe while you experiment.</p>
+          </article>
+
+          <article class="card">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+            </div>
+            <h3>Open file formats</h3>
+            <p>Maps and tilesets save as readable JSON or XML, so your data is yours — versionable and inspectable.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== GALLERY (community CTA) ====================== -->
+    <section id="gallery" class="section section--alt">
+      <div class="container">
+        <div class="section__head">
+          <span class="eyebrow">Gallery</span>
+          <h2 class="section__title">Made with Elit3D</h2>
+          <p class="section__sub">
+            This is where community maps will live. We're makers, not artists — so the gallery is
+            waiting for <strong>you</strong>.
+          </p>
+        </div>
+
+        <div class="gallery">
+          <div class="gallery__placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span>Your map here</span>
+          </div>
+          <div class="gallery__placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span>Your map here</span>
+          </div>
+          <div class="gallery__placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span>Your map here</span>
+          </div>
+        </div>
+
+        <div class="cta-box">
+          <div>
+            <h3>Built something? Show it off.</h3>
+            <p>Share a screenshot or a finished map and we'll feature it here. Screenshots also help new
+               people understand what Elit3D can do.</p>
+          </div>
+          <a class="btn btn--primary" href="https://github.com/christt105/Elit3D-Godot/issues/new" target="_blank" rel="noopener">
+            Submit a screenshot
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== OPEN SOURCE ====================== -->
+    <section id="open-source" class="section">
+      <div class="container split">
+        <div class="split__text">
+          <span class="eyebrow">Open source</span>
+          <h2 class="section__title">Free, open, and built in the open</h2>
+          <p class="section__sub">
+            Elit3D started as a final-degree project in C++ and is being rewritten from the ground up
+            in <strong>C#</strong> on the <strong>Godot 4.6</strong> engine. The code is public under the
+            permissive <strong>BSD-2-Clause</strong> license — read it, fork it, ship your own.
+          </p>
+          <ul class="checklist">
+            <li>No paywalls, no accounts, no telemetry.</li>
+            <li>Clean layered architecture with a Godot-free core.</li>
+            <li>Contributions welcome — issues, ideas and pull requests.</li>
+          </ul>
+          <div class="split__actions">
+            <a class="btn btn--secondary" href="https://github.com/christt105/Elit3D-Godot" target="_blank" rel="noopener">Browse the code</a>
+            <a class="btn btn--ghost" href="https://github.com/christt105/Elit3D-Godot/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">How to contribute</a>
+          </div>
+        </div>
+        <aside class="split__aside">
+          <div class="tech-card">
+            <h4>Tech stack</h4>
+            <ul class="tech-list">
+              <li><span>Engine</span><strong>Godot 4.6</strong></li>
+              <li><span>Language</span><strong>C# / .NET 10</strong></li>
+              <li><span>Architecture</span><strong>Layered, testable core</strong></li>
+              <li><span>License</span><strong>BSD-2-Clause</strong></li>
+              <li><span>Platforms</span><strong>Windows · Linux</strong></li>
+            </ul>
+            <p class="tech-card__note">
+              Looking for the original C++ version?
+              <a href="https://github.com/christt105/Elit3D" target="_blank" rel="noopener">It's here →</a>
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ====================== ROADMAP ====================== -->
+    <section id="roadmap" class="section section--alt">
+      <div class="container">
+        <div class="section__head">
+          <span class="eyebrow">Roadmap</span>
+          <h2 class="section__title">The road to v1.0</h2>
+          <p class="section__sub">A focused plan to ship a solid, pleasant editor in 2026.</p>
+        </div>
+
+        <ol class="roadmap">
+          <li class="roadmap__item is-progress">
+            <span class="roadmap__tag">In progress</span>
+            <h3>Foundations</h3>
+            <p>Green CI, automated builds and downloadable releases.</p>
+          </li>
+          <li class="roadmap__item">
+            <span class="roadmap__tag">Next</span>
+            <h3>Never lose your work</h3>
+            <p>Robust load/save, error handling and "save before closing" prompts.</p>
+          </li>
+          <li class="roadmap__item">
+            <span class="roadmap__tag">Then</span>
+            <h3>A pleasant editor</h3>
+            <p>Keyboard shortcuts, drag &amp; drop, and live asset hot-reload.</p>
+          </li>
+          <li class="roadmap__item">
+            <span class="roadmap__tag">v1.0</span>
+            <h3>Go public</h3>
+            <p>Proper docs, file-format reference and a real downloadable 1.0.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ====================== SUPPORT ====================== -->
+    <section id="support" class="section">
+      <div class="container support">
+        <div class="support__glow" aria-hidden="true"></div>
+        <h2 class="section__title">Support the project</h2>
+        <p class="support__sub">
+          Elit3D is built in spare time and given away for free. If it's useful to you — or you just
+          want to see it reach 1.0 — a small donation keeps the work going. Every bit genuinely helps.
+        </p>
+        <div class="support__actions">
+          <a class="btn btn--primary btn--lg" href="https://ko-fi.com/christt105" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A4.5 4.5 0 0017.5 4c-1.74 0-3 .5-4 2-1-1.5-2.26-2-4-2A4.5 4.5 0 002 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/></svg>
+            Donate on Ko-fi
+          </a>
+          <a class="btn btn--secondary btn--lg" href="https://github.com/christt105/Elit3D-Godot" target="_blank" rel="noopener">
+            ⭐ Star on GitHub
+          </a>
+        </div>
+        <p class="support__note">Not able to donate? Starring the repo and sharing Elit3D helps just as much.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ====================== FOOTER ====================== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <img src="assets/img/logo-horizontal.svg" alt="Elit3D" class="footer__logo" />
+        <p>An open-source 3D tile map editor.</p>
+      </div>
+      <nav class="footer__cols" aria-label="Footer">
+        <div class="footer__col">
+          <h5>Project</h5>
+          <a href="#features">Features</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="https://christt105.itch.io/elit3d" target="_blank" rel="noopener">Download</a>
+        </div>
+        <div class="footer__col">
+          <h5>Code</h5>
+          <a href="https://github.com/christt105/Elit3D-Godot" target="_blank" rel="noopener">GitHub (Godot)</a>
+          <a href="https://github.com/christt105/Elit3D" target="_blank" rel="noopener">Original (C++)</a>
+          <a href="https://github.com/christt105/Elit3D-Godot/issues" target="_blank" rel="noopener">Issues</a>
+        </div>
+        <div class="footer__col">
+          <h5>Support</h5>
+          <a href="https://ko-fi.com/christt105" target="_blank" rel="noopener">Ko-fi</a>
+          <a href="#gallery">Submit a screenshot</a>
+        </div>
+      </nav>
+    </div>
+    <div class="container footer__bottom">
+      <span>© <span id="year"></span> Christian Martínez de la Rosa · BSD-2-Clause</span>
+      <span>Made with Godot &amp; C#</span>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
